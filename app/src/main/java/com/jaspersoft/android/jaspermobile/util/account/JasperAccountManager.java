@@ -32,6 +32,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import roboguice.RoboGuice;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func0;
@@ -56,6 +59,9 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class JasperAccountManager {
+
+    @Inject
+    protected Analytics analytics;
 
     private final Context mContext;
     private final AccountManager mDelegateManager;
@@ -291,6 +297,8 @@ public class JasperAccountManager {
     }
 
     private void syncJsRestClient() {
+        analytics.sendUserChangedEvent();
+
         if (mContext.getApplicationContext() instanceof JasperMobileApplication) {
             JasperMobileApplication app = ((JasperMobileApplication) mContext.getApplicationContext());
             app.initLegacyJsRestClient();

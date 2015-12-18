@@ -303,6 +303,11 @@ public class InputControlsActivity extends RoboSpiceActivity
         updateDependentControls(inputControl);
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_ics);
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------

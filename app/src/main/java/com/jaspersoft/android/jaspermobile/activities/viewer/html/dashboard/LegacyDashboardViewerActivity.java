@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.flow.WebFlowFactory;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -55,6 +56,11 @@ public class LegacyDashboardViewerActivity extends BaseDashboardActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         scrollableTitleHelper.injectTitle(resource.getLabel());
+    }
+
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_dvs_ho);
     }
 
     @Override

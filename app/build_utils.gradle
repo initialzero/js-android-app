@@ -43,80 +43,113 @@ ext {
 
 android {
     afterEvaluate {
-        def defaultVersionName = getDefaultVersionName()
-        def revision = getRevisionNumber(defaultVersionName)
+        Properties currentAppVersion = getCurrentAppVersion()
+        Properties savedAppVersion = getVersionFromFile()
 
-        if (currentBranchIsProd()) {
-            revision++
-            updateVersionNumberInFile(defaultVersionName, revision)
-        }
+        int revision = getRevisionNumber(currentAppVersion, savedAppVersion)
+        int testBuildNumber = getTestBuildNumber(savedAppVersion)
 
-        project.ext.set("baseVersion", generateBaseVersionName(defaultVersionName))
-        project.ext.set("fullVersion", generateFullVersionName(project.ext.baseVersion, revision))
-        def versionCode = generateVersionCodeValue(defaultVersionName, revision) as int
+        String versionNumber = generateVersionNumber(currentAppVersion, revision)
+        int versionCode = generateVersionCodeValue(currentAppVersion, revision) as int
 
         //update values for different build tasks
         applicationVariants.all { variant ->
+            String versionName = generateVersionName(versionNumber, testBuildNumber, variant.name as String)
+
             variant.mergedFlavor.versionCode = versionCode
-            updateBuildValues(variant)
+            variant.mergedFlavor.versionName = versionName
+
+            renameApk(variant, generateApkName(versionName), versionNumber)
         }
     }
 }
 //---------------------------------------------------------------------
 // Helper methods
 //---------------------------------------------------------------------
+/**
+ * Return current branch name
+ * @return current branch
+ */
 String getCurrentBranch() {
     def repo = Grgit.open(project.rootDir)
-    def branch = repo.branch.getCurrent().getName()
+    String branch = repo.branch.getCurrent().getName()
     return branch.replaceAll("/", "_")
 }
 
+/**
+ * Check if current branch is "develop", "master", "release" or "hotfix".
+ * @return if current branch is one of production branches
+ */
 boolean currentBranchIsProd() {
     return (currentBranch.equalsIgnoreCase("develop") ||
             currentBranch.equalsIgnoreCase("master") ||
             currentBranch.equalsIgnoreCase("hotfix")) ||
-            currentBranch.contains("release")
-    ;
+            currentBranch.equalsIgnoreCase("release");
 }
 
-Properties getDefaultVersionName() {
-    def versionName = new Properties()
-    def appVersionName = android.defaultConfig.versionName as String
+/**
+ * Check if current branch is "QA".
+ * @return if current branch is branch for test
+ */
+boolean currentBranchIsQa() {
+    return (currentBranch.equalsIgnoreCase("QA"));
+}
+
+/**
+ * Return app version from gradle build defaultConfig.
+ * @return app version as Bundle that contains 'major", "minor" and "patch" values.
+ */
+Properties getCurrentAppVersion() {
+    Properties appVersion = new Properties()
+    String appVersionName = android.defaultConfig.versionName as String
 
     if (appVersionName ==~ /(\d).(\d{1,2}).(\d{1,2})/) {
         def versions = appVersionName.tokenize('.')
 
-        versionName['major'] = versions[0]
-        versionName['minor'] = versions[1]
-        versionName['patch'] = versions[2]
+        appVersion['major'] = versions[0]
+        appVersion['minor'] = versions[1]
+        appVersion['patch'] = versions[2]
 
-        return versionName as Properties
+        return appVersion as Properties
     } else throw new InvalidPropertiesFormatException("Version name does not match pattern available pattern!")
 }
 
-String generateBaseVersionName(defaultVersionName) {
-    def format = NumberFormat.getInstance()
-    def major = defaultVersionName['major'] as int // 1..?
-    def minor = defaultVersionName['minor'] as int // 0..99
-    def patch = defaultVersionName['patch'] as int // 0..99
+/**
+ * Return revision number (build number) of current app version
+ * @param currentAppVersion app version as Bundle
+ * @return revision number for identifying various build number
+ */
+int getRevisionNumber(Properties currentAppVersion, Properties savedAppVersion) {
+    int revision = 0 as int //0..999
 
-    format.setMinimumIntegerDigits(1)
-    minor = format.format(minor)
-    patch = format.format(patch)
+    if (savedAppVersion != null)
+        if (savedAppVersion['major'] as int == currentAppVersion['major']  &&
+                savedAppVersion['minor'] as int == currentAppVersion['minor']  &&
+                savedAppVersion['patch'] as int == currentAppVersion['patch'] )
+            revision = savedAppVersion['revision'] as int
 
-    return "${major}.${minor}.${patch}"
+    return revision
 }
 
-String generateFullVersionName(baseVersionName, revisionNumber) {
-    def format = NumberFormat.getInstance()
-    format.setMinimumIntegerDigits(3)
-    revisionNumber = format.format(revisionNumber)
+/**
+ * Return revision number (build number) of current app version
+ * @param currentAppVersion app version as Bundle
+ * @return revision number for identifying various build number
+ */
+int getTestBuildNumber(Properties savedAppVersion) {
+    def testBuildNumber
+    if (savedAppVersion != null)
+        testBuildNumber = savedAppVersion['testBuildNumber']
+    if (testBuildNumber != null) return testBuildNumber as int
 
-    return "${baseVersionName}.${revisionNumber}"
+    return 0
 }
 
-Properties getVersionNameFromFile() {
-    def version = new Properties()
+/**
+ * Return app version bundle that was saved in file
+ */
+Properties getVersionFromFile() {
+    Properties version = new Properties()
     def stream
 
     try {
@@ -134,85 +167,94 @@ Properties getVersionNameFromFile() {
     return version
 }
 
-int getRevisionNumber(defaultVersionName) {
-    def revision = 0 as int //0..999
-    def previousVersionName = getVersionNameFromFile()
+/**
+ * Return text representation of app version.
+ * Pattern for version number: "x.y.z.vvv"
+ * where:
+ * x - major version number
+ * y - minor version number
+ * z - patch version
+ * vvv - revision number
+ * @param appVersion app version bundle
+ * @param revisionNumber current revision number
+ * @return text representation of app version
+ */
+String generateVersionNumber(Properties appVersion, int revisionNumber) {
+    def format = NumberFormat.getInstance()
+    format.setMinimumIntegerDigits(1)
 
-    if (previousVersionName != null)
-        if (previousVersionName['major'] as int != defaultVersionName['major'] ||
-                previousVersionName['minor'] as int != defaultVersionName['minor'] ||
-                previousVersionName['patch'] as int != defaultVersionName['patch'])
-            revision = previousVersionName['revision'] as int
+    String major = format.format(appVersion['major'] as int) // 1..?
+    String minor = format.format(appVersion['minor'] as int) // 0..99
+    String patch = format.format(appVersion['patch'] as int) // 0..99
 
-    return revision
+    format.setMinimumIntegerDigits(3)
+    String revision = format.format(revisionNumber)
+
+    return "${major}.${minor}.${patch}.${revision}"
 }
 
 /**
- * Pattern for versionCode:
- * android:versionCode="xxyyzzvvv"
+ * Return version code of app version. Used for Google Play build identification.
+ * Pattern for version code: "xxyyzzvvv"
  * where:
  * xx - major version number
  * yy - minor version number
  * zz - patch version
  * vvv - revision number
  */
-int generateVersionCodeValue(defaultVersionName, revision) {
-    def versionCode = ""
+int generateVersionCodeValue(Properties appVersion, int revisionNumber) {
+    String versionCode = ""
 
     def format = NumberFormat.getInstance()
     format.setMinimumIntegerDigits(2)
 
-    versionCode += format.format(defaultVersionName.major as int)
-    versionCode += format.format(defaultVersionName.minor as int)
-    versionCode += format.format(defaultVersionName.patch as int)
+    versionCode += format.format(appVersion.major as int)
+    versionCode += format.format(appVersion.minor as int)
+    versionCode += format.format(appVersion.patch as int)
 
     format.setMinimumIntegerDigits(3)
-    versionCode += format.format(revision)
+    versionCode += format.format(revisionNumber)
 
     return Integer.valueOf(versionCode)
 }
 
-void updateBuildValues(flavor) {
-    TimeZone.setDefault(TimeZone.getTimeZone('UTC'))
+/**
+ * Returns version name considering current branch and current flavor
+ * Version name pattern: "x.y.z.vvvv.ttttt-BRANCH_NAME-FLAVOR_TYPE"
+ * where:
+ * ttttt - current test build number - empty for builds that are not from QA branch
+ * BRANCH_NAME - current branch name - empty for production branches
+ * FLAVOR_TYPE - current flavor type - empty for production release builds
+ * @param versionNumber version number for current build
+ * @param testBuildNumber version number for QA build
+ * @param flavorName name of flavor that is currently building
+ * @return version name for build
+ */
+String generateVersionName(String versionNumber, int testBuildNumber, String flavorName) {
+    String branchNamePart = currentBranchIsProd() ? "" : "-${currentBranch}"
+    String testBuildPart = currentBranchIsQa() ? ".${testBuildNumber}" : ""
 
-    def productFlavorName = flavor.name
-    def branchNamePart = currentBranchIsProd() ? "" : "-${currentBranch}"
-    def timeNow = new Date().format("yyyy_MM_dd-HH_mm")
-    def snapshot = "SNAPSHOT"
+    String versionName = "${versionNumber}${branchNamePart}${testBuildPart}"
 
-    def versionName = baseVersion
-    def apkName = "${baseAppName}-${baseVersion}"
-
-    if (productFlavorName.equalsIgnoreCase("productionRelease")) {
-        versionName = "${baseVersion}${branchNamePart}"
-        apkName = "${baseAppName}-${fullVersion}${branchNamePart}-${timeNow}"
-    } else if (productFlavorName.equalsIgnoreCase("devRelease")) {
-        versionName = "${fullVersion}${branchNamePart}"
-        apkName = "${baseAppName}-${baseVersion}${branchNamePart}-${timeNow}"
-    } else if (productFlavorName.equalsIgnoreCase("devDebug")) {
-        versionName = "${baseVersion}${branchNamePart}-${snapshot}"
-        apkName = "${baseAppName}-${baseVersion}${branchNamePart}-${snapshot}"
+    if (flavorName.equalsIgnoreCase("devRelease")) {
+        versionName = "${versionName}-SIGNED"
+    } else if (flavorName.equalsIgnoreCase("devDebug")) {
+        versionName = "${versionName}-SNAPSHOT"
     }
-    flavor.mergedFlavor.versionName = versionName
-    renameApk(flavor, apkName)
+    return versionName;
 }
 
-void updateVersionNumberInFile(defaultVersionName, revision) {
-    def appVersion = new Properties()
-    appVersion['major'] = defaultVersionName['major']
-    appVersion['minor'] = defaultVersionName['minor']
-    appVersion['patch'] = defaultVersionName['patch']
-    appVersion['revision'] = revision.toString()
-
-    def stream = new FileOutputStream(versionFile)
-    try {
-        appVersion.store(stream, null)
-    } finally {
-        if (stream != null) stream.close()
-    }
+/**
+ * Returns new apk name based on version name
+ * Apk name pattern: "jaspermobile-x.y.z.vvvv.ttttt-BRANCH_NAME-FLAVOR_TYPE"
+ * @param versionName
+ * @return
+ */
+String generateApkName(String versionName) {
+    return "${baseAppName}-${versionName}"
 }
 
-void renameApk(flavor, apkName) {
+void renameApk(flavor, String apkName, String versionNumber) {
     def outputs = flavor.outputs
 
     outputs.each { output ->
@@ -221,7 +263,7 @@ void renameApk(flavor, apkName) {
             output.outputFile = new File(output.outputFile.parent, "${apkName}.apk")
         }
         // 'unaligned' APK
-        def unalignedApkName = "${baseAppName}-${baseVersion}-unaligned.apk"
+        String unalignedApkName = "${baseAppName}-${versionNumber}-unaligned.apk"
         output.packageApplication.outputFile = new File(output.packageApplication.outputFile.parent, unalignedApkName)
     }
 }

@@ -28,17 +28,13 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OnAccountsUpdateListener;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
@@ -52,6 +48,7 @@ import java.util.List;
 import roboguice.RoboGuice;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Func0;
 import rx.functions.Func1;
 import timber.log.Timber;
 
@@ -62,30 +59,34 @@ import timber.log.Timber;
  * @since 2.0
  */
 public class JasperAccountManager {
-    private static final String PREF_NAME = JasperAccountManager.class.getSimpleName();
-    private static final String ACCOUNT_NAME_KEY = "ACCOUNT_NAME_KEY";
 
     @Inject
     protected Analytics analytics;
 
     private final Context mContext;
-    private final SharedPreferences mPreference;
     private final AccountManager mDelegateManager;
+    private final ActiveAccountStorage mAccountCache;
+    private final PasswordManager mPasswordManager;
+
+    JasperAccountManager(Context context,
+                         AccountManager delegateManager,
+                         ActiveAccountStorage accountCache, PasswordManager passwordManager) {
+        mContext = context;
+        mDelegateManager = delegateManager;
+        mAccountCache = accountCache;
+        mPasswordManager = passwordManager;
+    }
 
     public static JasperAccountManager get(Context context) {
         if (context == null) {
             throw new IllegalArgumentException("Context should not be null");
         }
-        return new JasperAccountManager(context);
-    }
 
-    private JasperAccountManager(Context context) {
-        mContext = context;
-        mDelegateManager = AccountManager.get(context);
-        mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
-        Timber.tag(PREF_NAME);
+        AccountManager accountManager = AccountManager.get(context);
+        ActiveAccountStorage accountCache = ActiveAccountStorage.create(context);
+        PasswordManager passwordManager = PasswordManager.create(context);
 
-        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
+        return new JasperAccountManager(context, accountManager, accountCache, passwordManager);
     }
 
     public void setOnAccountsUpdatedListener(OnAccountsUpdateListener listener) {
@@ -124,49 +125,45 @@ public class JasperAccountManager {
     }
 
     public Account getActiveAccount() {
-        String accountName = mPreference.getString(ACCOUNT_NAME_KEY, "");
-        if (TextUtils.isEmpty(accountName)) {
-            return null;
-        }
-        return new Account(accountName, JasperSettings.JASPER_ACCOUNT_TYPE);
+        return mAccountCache.get();
     }
 
-    public boolean isActiveAccountRegistered(){
+    public boolean isActiveAccountRegistered() {
         Account account = getActiveAccount();
         Account[] accounts = getAccounts();
-        boolean activeAccountExists = Lists.newArrayList(accounts).contains(account);
-        return activeAccountExists;
+        return Lists.newArrayList(accounts).contains(account);
     }
 
     public void activateAccount(Account account) {
-        String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
-        invalidateToken(tokenToInvalidate);
-        mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
-
+        invalidateToken(account);
+        mAccountCache.put(account);
         syncJsRestClient();
     }
 
     public void activateFirstAccount() {
         Account account = getAccounts()[0];
-        String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
-        invalidateToken(tokenToInvalidate);
-        mPreference.edit().putString(ACCOUNT_NAME_KEY, account.name).apply();
-
+        invalidateToken(account);
+        mAccountCache.put(account);
         syncJsRestClient();
     }
 
     public void deactivateAccount() {
-        mPreference.edit().putString(ACCOUNT_NAME_KEY, "").apply();
+        mAccountCache.clear();
     }
 
-    public void updateActiveAccountPassword(String newPassword) {
-        invalidateActiveToken();
-        updateAccountPassword(getActiveAccount(), newPassword);
+    public Observable<Boolean> updateActiveAccountPassword(String newPassword) {
+        Observable<Boolean> invalidateOperation = invalidateActiveToken();
+        final Observable<Boolean> updateOperation = updateAccountPassword(getActiveAccount(), newPassword);
+        return invalidateOperation.flatMap(new Func1<Boolean, Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call(Boolean aBoolean) {
+                return updateOperation;
+            }
+        });
     }
 
-    public void updateAccountPassword(Account account , String newPassword) {
-        String encrypted = encryptPassword(newPassword);
-        mDelegateManager.setPassword(account, encrypted);
+    private Observable<Boolean> updateAccountPassword(Account account, String newPassword) {
+        return mPasswordManager.put(account, newPassword);
     }
 
     public Account[] getAccounts() {
@@ -201,11 +198,11 @@ public class JasperAccountManager {
                     Account account = new Account(serverData.getAlias(),
                             JasperSettings.JASPER_ACCOUNT_TYPE);
 
-                    String encrypted = encryptPassword(serverData.getPassword());
-                    mDelegateManager.addAccountExplicitly(account,
-                            encrypted, null);
+                    mDelegateManager.addAccountExplicitly(account, null, null);
+                    mPasswordManager.put(account, serverData.getPassword())
+                            .toBlocking().firstOrDefault(false);
                     setUserData(account, serverData);
-                    
+
                     if (!subscriber.isUnsubscribed()) {
                         subscriber.onNext(account);
                         subscriber.onCompleted();
@@ -224,13 +221,32 @@ public class JasperAccountManager {
         return getAuthToken(activeAccount);
     }
 
-    public void invalidateActiveToken() {
-        String tokenToInvalidate = mDelegateManager.peekAuthToken(getActiveAccount(), JasperSettings.JASPER_AUTH_TOKEN_TYPE);
-        invalidateToken(tokenToInvalidate);
+    public Observable<String> getActiveAuthTokenObservable()  {
+        return Observable.defer(new Func0<Observable<String>>() {
+            @Override
+            public Observable<String> call() {
+                try {
+                    return Observable.just(getActiveAuthToken());
+                } catch (JasperAccountManager.TokenException e) {
+                    return Observable.error(e);
+                }
+            }
+        });
     }
 
-    public void invalidateToken(String token) {
-        mDelegateManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, token);
+    public Observable<Boolean> invalidateActiveToken() {
+        return invalidateToken(mAccountCache.get());
+    }
+
+    public Observable<Boolean> invalidateToken(final Account account) {
+        return Observable.defer(new Func0<Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call() {
+                String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+                mDelegateManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
+                return Observable.just(true);
+            }
+        });
     }
 
     //---------------------------------------------------------------------
@@ -291,10 +307,11 @@ public class JasperAccountManager {
 
     /**
      * Due to bug in AccountManager this is the only way to set account user data
-     * @param account for adding data
+     *
+     * @param account    for adding data
      * @param serverData data
      */
-    private void setUserData(Account account, AccountServerData serverData){
+    private void setUserData(Account account, AccountServerData serverData) {
         AccountManager accountManager = AccountManager.get(mContext);
         accountManager.setUserData(account, AccountServerData.ALIAS_KEY, serverData.getAlias());
         accountManager.setUserData(account, AccountServerData.SERVER_URL_KEY, serverData.getServerUrl());
@@ -302,12 +319,6 @@ public class JasperAccountManager {
         accountManager.setUserData(account, AccountServerData.USERNAME_KEY, serverData.getUsername());
         accountManager.setUserData(account, AccountServerData.EDITION_KEY, serverData.getEdition());
         accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, serverData.getVersionName());
-    }
-
-    private String encryptPassword(String newPassword) {
-        String salt = mContext.getResources().getString(R.string.password_salt_key);
-        PasswordManager passwordManager = PasswordManager.init(mContext, salt);
-        return passwordManager.encrypt(newPassword);
     }
 
     public String getPassword(Account account) {

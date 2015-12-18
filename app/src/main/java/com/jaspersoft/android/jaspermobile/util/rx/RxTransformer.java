@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -22,37 +22,27 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.widget;
+package com.jaspersoft.android.jaspermobile.util.rx;
 
-import android.content.Context;
-import android.support.v4.view.ViewPager;
-import android.util.AttributeSet;
-import android.view.MotionEvent;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.3
  */
-public class JSViewPager extends ViewPager {
-    private boolean swipeable = true;
+public final class RxTransformer {
 
-    public JSViewPager(Context context) {
-        super(context);
+    private RxTransformer() {}
+
+    public static <T> Observable.Transformer<T, T> applySchedulers() {
+        return new Observable.Transformer<T, T>() {
+            @Override
+            public Observable<T> call(Observable<T> observable) {
+                return observable.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread());
+            }
+        };
     }
-
-    public JSViewPager(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    // Call this method in your motion events when you want to disable or enable
-    // It should work as desired.
-    public void setSwipeable(boolean swipeable) {
-        this.swipeable = swipeable;
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent arg0) {
-        return (this.swipeable) ? super.onInterceptTouchEvent(arg0) : false;
-    }
-
 }

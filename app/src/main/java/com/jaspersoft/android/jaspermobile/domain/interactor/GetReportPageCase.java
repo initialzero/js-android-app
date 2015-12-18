@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -22,14 +22,37 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
+package com.jaspersoft.android.jaspermobile.domain.interactor;
 
-import android.support.v4.app.Fragment;
+import com.jaspersoft.android.jaspermobile.domain.ReportPage;
+import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
+
+import rx.Observable;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.3
  */
-public interface FragmentCreator<FRAGMENT extends Fragment, DATA> {
-    FRAGMENT createFragment(DATA data);
+public final class GetReportPageCase extends AbstractUseCase<ReportPage> {
+    public static final String DEFAULT_PAGE = "1";
+
+    private final ReportRepository mReportRepository;
+
+    private String mPageRange = DEFAULT_PAGE;
+
+    public GetReportPageCase(ReportRepository reportRepository) {
+        mReportRepository = reportRepository;
+    }
+
+    public void setPageRange(String pageRange) {
+        if (pageRange == null) {
+            throw new IllegalArgumentException("Page can not be null");
+        }
+        mPageRange = pageRange;
+    }
+
+    @Override
+    protected Observable<ReportPage> buildUseCaseObservable() {
+        return mReportRepository.getPage(mPageRange);
+    }
 }

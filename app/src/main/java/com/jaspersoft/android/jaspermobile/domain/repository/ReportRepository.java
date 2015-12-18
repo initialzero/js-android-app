@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -22,30 +22,27 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.retrofit.sdk.rest;
+package com.jaspersoft.android.jaspermobile.domain.repository;
 
 
-import com.jaspersoft.android.sdk.network.Cookies;
-import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.domain.ReportPage;
+import com.jaspersoft.android.jaspermobile.domain.service.ReportExecutionService;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+
+import java.util.List;
+
+import rx.Observable;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.3
  */
-public class LoginResponse {
-    private final Cookies mCookie;
-    private final ServerInfo mServerInfo;
-
-    public LoginResponse(Cookies cookies, ServerInfo mServerInfo) {
-        this.mCookie = cookies;
-        this.mServerInfo = mServerInfo;
-    }
-
-    public String getCookie() {
-        return mCookie.toString();
-    }
-
-    public ServerInfo getServerInfo() {
-        return mServerInfo;
-    }
+public interface ReportRepository {
+    Observable<ReportPage> getPage(String pages);
+    Observable<ReportExecutionService> runReport();
+    Observable<Void> updateReport();
+    Observable<List<InputControl>> getControls();
+    Observable<Integer> getTotalPages();
+    Observable<Boolean> isMultiPage();
+    Observable<Void> reset();
 }

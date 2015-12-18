@@ -119,8 +119,6 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
-import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
-
 /**
  * @author Tom Koptel
  * @since 2.0
@@ -135,6 +133,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
         NumberDialogFragment.NumberDialogClickListener,
         ErrorWebViewClientListener.OnWebViewErrorListener
 {
+    // Result Code
+    private static final int REQUEST_REPORT_PARAMETERS = 100;
 
     @Bean
     protected JSWebViewClient jsWebViewClient;

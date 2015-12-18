@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -22,30 +22,28 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.retrofit.sdk.rest;
+package com.jaspersoft.android.jaspermobile.domain.interactor;
 
+import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 
-import com.jaspersoft.android.sdk.network.Cookies;
-import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import java.util.List;
+
+import rx.Observable;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.3
  */
-public class LoginResponse {
-    private final Cookies mCookie;
-    private final ServerInfo mServerInfo;
+public final class GetReportControlsCase extends AbstractUseCase<List<InputControl>> {
+    private final ReportRepository mReportRepository;
 
-    public LoginResponse(Cookies cookies, ServerInfo mServerInfo) {
-        this.mCookie = cookies;
-        this.mServerInfo = mServerInfo;
+    public GetReportControlsCase(ReportRepository reportRepository) {
+        mReportRepository = reportRepository;
     }
 
-    public String getCookie() {
-        return mCookie.toString();
-    }
-
-    public ServerInfo getServerInfo() {
-        return mServerInfo;
+    @Override
+    protected Observable<List<InputControl>> buildUseCaseObservable() {
+        return mReportRepository.getControls();
     }
 }

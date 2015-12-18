@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -22,30 +22,14 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.retrofit.sdk.rest;
-
-
-import com.jaspersoft.android.sdk.network.Cookies;
-import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.3
  */
-public class LoginResponse {
-    private final Cookies mCookie;
-    private final ServerInfo mServerInfo;
-
-    public LoginResponse(Cookies cookies, ServerInfo mServerInfo) {
-        this.mCookie = cookies;
-        this.mServerInfo = mServerInfo;
-    }
-
-    public String getCookie() {
-        return mCookie.toString();
-    }
-
-    public ServerInfo getServerInfo() {
-        return mServerInfo;
-    }
+public interface Presenter {
+    void resume();
+    void pause();
+    void destroy();
 }

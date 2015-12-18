@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -22,30 +22,29 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.retrofit.sdk.rest;
+package com.jaspersoft.android.jaspermobile.data.mapper;
 
+import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.sdk.network.Cookies;
-import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.3
  */
-public class LoginResponse {
-    private final Cookies mCookie;
-    private final ServerInfo mServerInfo;
+public class ReportParamsTransformer {
 
-    public LoginResponse(Cookies cookies, ServerInfo mServerInfo) {
-        this.mCookie = cookies;
-        this.mServerInfo = mServerInfo;
-    }
-
-    public String getCookie() {
-        return mCookie.toString();
-    }
-
-    public ServerInfo getServerInfo() {
-        return mServerInfo;
+    @NonNull
+    public List<ReportParameter> transform(
+            List<com.jaspersoft.android.sdk.client.oxm.report.ReportParameter> list) {
+        List<ReportParameter> params = new ArrayList<>(list.size());
+        for (com.jaspersoft.android.sdk.client.oxm.report.ReportParameter parameter : list) {
+            ReportParameter param = new ReportParameter(parameter.getName(), parameter.getValues());
+            params.add(param);
+        }
+        return params;
     }
 }

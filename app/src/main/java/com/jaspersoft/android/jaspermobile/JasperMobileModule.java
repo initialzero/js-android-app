@@ -38,6 +38,9 @@ import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.service.RestClient;
+import com.jaspersoft.android.sdk.service.Session;
+import com.jaspersoft.android.sdk.service.token.TokenCache;
 import com.jaspersoft.android.sdk.util.KeepAliveHttpRequestInterceptor;
 import com.jaspersoft.android.sdk.util.LocalesHttpRequestInterceptor;
 
@@ -87,7 +90,11 @@ public class JasperMobileModule extends AbstractModule {
         bind(ReportParamsSerializer.class).to(ReportParamsSerializerImpl.class);
         bind(AppConfigurator.class).to(AppConfiguratorImpl.class);
         bind(Analytics.class).to(JasperAnalytics.class).in(Singleton.class);
+        bind(TokenCache.class).to(SessionCache.class).in(Singleton.class);
         bind(SecurityProviderUpdater.class).to(JasperSecurityProviderUpdater.class).in(Singleton.class);
+
+        bind(RestClient.class).toProvider(RestClientProvider.class);
+        bind(Session.class).toProvider(SessionProvider.class);
     }
 
 }

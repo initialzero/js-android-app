@@ -51,9 +51,10 @@ import java.net.UnknownHostException;
  * @since 1.6
  */
 public class RequestExceptionHandler {
+    private final Context mContext;
 
-    public RequestExceptionHandler() {
-        throw new AssertionError();
+    public RequestExceptionHandler(Context context) {
+        mContext = context;
     }
 
     public static void handle(Exception exception, Context context) {
@@ -71,25 +72,30 @@ public class RequestExceptionHandler {
         }
     }
 
-
     @Nullable
-    public static String extractMessage(@NonNull Context context, @Nullable Throwable exception) {
+    public String extractMessage(@Nullable Throwable exception) {
         if (exception == null) {
             throw new IllegalArgumentException("Exception should not be null");
         }
 
         if (exception instanceof ServiceException) {
             ServiceException serviceException = ((ServiceException) exception);
-            return adaptServiceMessage(context, serviceException.code());
+            return adaptServiceMessage(mContext, serviceException.code());
         }
 
         int statusCode = extractStatusCode(exception);
-        String message = extractMessage(context, exception, statusCode);
+        String message = extractMessage(mContext, exception, statusCode);
         if (TextUtils.isEmpty(message)) {
             return exception.getLocalizedMessage();
         } else {
-            return extractMessage(context, exception, statusCode);
+            return extractMessage(mContext, exception, statusCode);
         }
+    }
+
+    @Nullable
+    public static String extractMessage(@NonNull Context context, @Nullable Throwable exception) {
+        RequestExceptionHandler handler= new RequestExceptionHandler(context);
+        return handler.extractMessage(exception);
     }
 
     private static String adaptServiceMessage(Context context, int code) {

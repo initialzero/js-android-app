@@ -31,7 +31,8 @@ import android.webkit.CookieSyncManager;
 import android.webkit.ValueCallback;
 
 import com.google.inject.Inject;
-import com.jaspersoft.android.sdk.service.token.InMemoryTokenCache;
+import com.google.inject.Singleton;
+import com.jaspersoft.android.sdk.network.Cookies;
 import com.jaspersoft.android.sdk.service.token.TokenCache;
 
 import org.jetbrains.annotations.NotNull;
@@ -39,69 +40,87 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CountDownLatch;
 
+import timber.log.Timber;
+
 /**
  * @author Tom Koptel
  * @since 2.3
  */
+@Singleton
 final class SessionCache implements TokenCache {
-    private final TokenCache mCacheDelegate;
+    private CookieManager mCookieManager;
+    private CookieSyncManager mCookieSyncManager;
 
     @Inject
     Context mContext;
 
     @Inject
     private SessionCache() {
-        mCacheDelegate = new InMemoryTokenCache();
     }
 
     @Nullable
     @Override
-    public String get(@NotNull String key) {
-        return mCacheDelegate.get(key);
+    public Cookies get(@NotNull String host) {
+        String cookie = getCookieManager().getCookie(host);
+        if (cookie == null) {
+            return null;
+        }
+        return Cookies.parse(cookie);
     }
 
     @Override
-    public void put(@NotNull String key, @NotNull String token) {
-        mCacheDelegate.put(key, token);
-        syncCookie(key, token);
+    public void put(@NotNull String host, @NotNull Cookies cookies) {
+        for (String cookie : cookies.get()) {
+            getCookieManager().setCookie(host, cookie);
+        }
+        syncCookies();
     }
 
     @Override
     public void remove(@NotNull String key) {
-        mCacheDelegate.remove(key);
+        removeCookies();
+        syncCookies();
     }
 
-    private void syncCookie(String url, String cookie) {
+    private void removeCookies() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            lollyPopSync(url, cookie);
-        } else {
-            legacySync(url, cookie);
-        }
-    }
-
-    private void lollyPopSync(final String url, final String cookie) {
-        final CookieManager cookieManager = CookieManager.getInstance();
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-        cookieManager.removeSessionCookies(new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean value) {
-                cookieManager.setCookie(url,cookie);
-                CookieManager.getInstance().flush();
-                countDownLatch.countDown();
+            final CountDownLatch countDownLatch = new CountDownLatch(1);
+            getCookieManager().removeAllCookies(new ValueCallback<Boolean>() {
+                @Override
+                public void onReceiveValue(Boolean value) {
+                    countDownLatch.countDown();
+                }
+            });
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                Timber.e(e, "Failed to remove cookies from cache");
             }
-        });
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Thread interrupted during sync", e);
+        } else {
+            getCookieManager().removeAllCookie();
         }
     }
 
-    private void legacySync(String url, String cookie) {
-        CookieSyncManager.createInstance(mContext);
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.removeSessionCookie();
-        cookieManager.setCookie(url, cookie);
-        CookieSyncManager.getInstance().sync();
+    private void syncCookies() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getCookieManager().flush();
+        } else {
+            getCookieSyncManager().sync();
+        }
+    }
+
+    private CookieManager getCookieManager() {
+        if (mCookieManager == null) {
+            mCookieManager = CookieManager.getInstance();
+            mCookieManager.setAcceptCookie(true);
+        }
+        return mCookieManager;
+    }
+
+    private CookieSyncManager getCookieSyncManager() {
+        if (mCookieSyncManager == null) {
+            mCookieSyncManager = CookieSyncManager.createInstance(mContext);
+        }
+        return mCookieSyncManager;
     }
 }

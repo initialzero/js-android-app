@@ -25,6 +25,7 @@
 package com.jaspersoft.android.retrofit.sdk.rest;
 
 
+import com.jaspersoft.android.sdk.network.Cookies;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 
 /**
@@ -32,16 +33,16 @@ import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
  * @since 2.0
  */
 public class LoginResponse {
-    private final String mCookie;
+    private final Cookies mCookie;
     private final ServerInfo mServerInfo;
 
-    public LoginResponse(String mCookie, ServerInfo mServerInfo) {
-        this.mCookie = mCookie;
+    public LoginResponse(Cookies cookies, ServerInfo mServerInfo) {
+        this.mCookie = cookies;
         this.mServerInfo = mServerInfo;
     }
 
     public String getCookie() {
-        return mCookie;
+        return mCookie.toString();
     }
 
     public ServerInfo getServerInfo() {

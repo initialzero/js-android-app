@@ -25,6 +25,7 @@
 package com.jaspersoft.android.retrofit.sdk.rest;
 
 import com.jaspersoft.android.jaspermobile.network.RestClient;
+import com.jaspersoft.android.sdk.network.Cookies;
 import com.jaspersoft.android.sdk.service.auth.Credentials;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
@@ -53,8 +54,8 @@ public class LoginHelper {
     }
 
     public static LoginResponse login(RestClient restFactory, Credentials credentials) throws ServiceException {
-        String token = restFactory.authApi().authenticate(credentials);
+        Cookies cookies = restFactory.authApi().authenticate(credentials);
         ServerInfo serverInfo = restFactory.infoApi().requestServerInfo();
-        return new LoginResponse(token, serverInfo);
+        return new LoginResponse(cookies, serverInfo);
     }
 }

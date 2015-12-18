@@ -177,7 +177,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
                     mView.showPageOutOfRangeError();
                     loadCurrentPage();
                     break;
-                case StatusCodes.RESOURCE_NOT_FOUND:
+                case StatusCodes.REPORT_EXECUTION_INVALID:
                     mView.showLoading();
                     mView.showReloadMessage();
                     reloadReport(pagePosition);

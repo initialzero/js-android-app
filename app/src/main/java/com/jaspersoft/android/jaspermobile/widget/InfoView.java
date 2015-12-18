@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -97,15 +97,17 @@ public class InfoView extends CardView {
         updateVisibility();
     }
 
-    public void fillWithBaseData(String type, String label, String description, String uri, String creationDate, String modifiedDate) {
+    public void fillWithBaseData(String type, String label, String description, String uri, String creationDate, String modifiedDate, String version, String permissions) {
         infoDataContainer.removeAllViews();
 
-        addInfoItem(getContext().getString(R.string.ri_type_title), type);
         addInfoItem(getContext().getString(R.string.ri_label_title), label);
         addInfoItem(getContext().getString(R.string.ri_description_title), description);
+        addInfoItem(getContext().getString(R.string.ri_type_title), type);
         addInfoItem(getContext().getString(R.string.ri_uri_title), uri);
         addInfoItem(getContext().getString(R.string.ri_creation_title), creationDate);
         addInfoItem(getContext().getString(R.string.ri_modified_title), modifiedDate);
+        addInfoItem(getContext().getString(R.string.ri_version_title), version);
+        addInfoItem(getContext().getString(R.string.ri_permissions_title), permissions);
     }
 
     private void addInfoItem(String title, String value) {

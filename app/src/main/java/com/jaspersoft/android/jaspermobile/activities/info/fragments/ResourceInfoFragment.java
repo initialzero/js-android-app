@@ -100,7 +100,8 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
     private void fillWithData() {
         infoView.fillWithBaseData(mResourceLookup.getResourceType().name(), mResourceLookup.getLabel(),
                 mResourceLookup.getDescription(), mResourceLookup.getUri(),
-                mResourceLookup.getCreationDate(), mResourceLookup.getUpdateDate());
+                mResourceLookup.getCreationDate(), mResourceLookup.getUpdateDate(),
+                String.valueOf(mResourceLookup.getVersion()), String.valueOf(mResourceLookup.getPermissionMask()));
     }
 
     private class GetResourceDescriptorListener extends SimpleRequestListener<ResourceLookup> {

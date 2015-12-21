@@ -22,18 +22,18 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate.v3;
+package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
+import com.jaspersoft.android.jaspermobile.db.migrate.MigrationV3;
 import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.TestResource;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
 import com.jaspersoft.android.jaspermobile.test.support.db.ResourceDatabase;
-import com.jaspersoft.android.jaspermobile.test.support.db.SqlTestResource;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,13 +43,9 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNull.notNullValue;
+import static com.jaspersoft.android.jaspermobile.test.support.JsAssertions.assertCursor;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Tom Koptel
@@ -60,13 +56,10 @@ import static org.hamcrest.core.IsNull.notNullValue;
         constants = BuildConfig.class,
         sdk = 21
 )
-public class LegacyProfileMigrationTest {
+public class FavoriteTableColumnsMigrationV3Test {
 
     private ResourceDatabase resourceDatabase;
-    private String insertMobileProfileSql;
     private SQLiteDatabase database;
-    private Migration migration;
-    private SqlTestResource insertMobilesProfileSql;
 
     @Before
     public void setup() {
@@ -74,10 +67,12 @@ public class LegacyProfileMigrationTest {
         AccountUtil.get(RuntimeEnvironment.application).removeAllAccounts();
         resourceDatabase = PermanentDatabase.create("jasper_mobile_db_1.9").prepare();
         database = resourceDatabase.open();
-        migration = new MigrationV3.LegacyProfileMigration();
+        Migration migration = new MigrationV3.FavoriteTableColumnsMigration();
 
-        insertMobileProfileSql = TestResource.get("insert_mobile_profile.sql").asString();
-        insertMobilesProfileSql = SqlTestResource.get("insert_mobile_profiles.sql");
+        String insertFavoriteSql = TestResource.get("insert_favorite.sql").asString();
+
+        resourceDatabase.performSql(insertFavoriteSql);
+        migration.migrate(database);
     }
 
     @After
@@ -87,58 +82,26 @@ public class LegacyProfileMigrationTest {
     }
 
     @Test
-    public void shouldRenameLegacyProfile() {
-        resourceDatabase.performSql(insertMobileProfileSql);
-        migration.migrate(database);
-
-        Cursor cursor = queryProfile();
-
-        assertCursor(cursor);
-        assertThat(cursor.getString(cursor.getColumnIndex("alias")), is("Legacy Mobile Demo"));
-
-        cursor.close();
-    }
-
-    @Test
-    public void shouldNotUpdateUrl() {
-        resourceDatabase.performSql(insertMobileProfileSql);
-        migration.migrate(database);
-
-        Cursor cursor = queryProfile();
-
-        assertCursor(cursor);
-        assertThat(cursor.getString(cursor.getColumnIndex("server_url")), is("http://mobiledemo.jaspersoft.com/jasperserver-pro"));
-
-        cursor.close();
-    }
-
-    @Test
-    public void shouldOnlyRenameLegacyDemo() {
-        resourceDatabase.execSQLResource(insertMobilesProfileSql);
-        migration.migrate(database);
-
-        Cursor cursor = queryProfile();
-        assertThat(cursor.getCount(), is(2));
-
-        List<String> aliases = new ArrayList<String>(cursor.getCount());
-        while (cursor.moveToNext()) {
-            String alias = cursor.getString(cursor.getColumnIndex("alias"));
-            aliases.add(alias);
-        }
-
-        assertThat(aliases, hasItems("Legacy Mobile Demo", "Not Demo"));
-    }
-
-    private void assertCursor(Cursor cursor) {
-        assertThat(cursor, notNullValue());
-        assertThat(cursor.getCount(), is(1));
-        assertThat(cursor.moveToFirst(), is(true));
-    }
-
-    private Cursor queryProfile() {
-        return database.query("server_profiles",
-                new String[]{"_id", "alias", "server_url"},
+    public void shouldAddCreationTimeColumn() {
+        Cursor cursor = database.query("favorites",
+                new String[]{"_id", "creation_time"},
                 null, null, null, null, null);
+        assertCursor(cursor);
+        cursor.moveToFirst();
+
+        cursor.getColumnIndexOrThrow("creation_time");
+    }
+
+    @Test
+    public void shouldAddAccountNameColumn() {
+        Cursor cursor = database.query("favorites",
+                new String[]{"_id", "account_name"},
+                null, null, null, null, null);
+        assertCursor(cursor);
+        cursor.moveToFirst();
+
+        String name = cursor.getString(cursor.getColumnIndexOrThrow("account_name"));
+        assertThat(name, is("com.jaspersoft.account.none"));
     }
 
 }

@@ -71,6 +71,7 @@ public class JasperAccountManager {
     JasperAccountManager(Context context,
                          AccountManager delegateManager,
                          ActiveAccountStorage accountCache, PasswordManager passwordManager) {
+        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
         mContext = context;
         mDelegateManager = delegateManager;
         mAccountCache = accountCache;
@@ -152,7 +153,7 @@ public class JasperAccountManager {
     }
 
     public Observable<Boolean> updateActiveAccountPassword(String newPassword) {
-        Observable<Boolean> invalidateOperation = invalidateActiveToken();
+        Observable<Boolean> invalidateOperation = invalidateActiveTokenObservable();
         final Observable<Boolean> updateOperation = updateAccountPassword(getActiveAccount(), newPassword);
         return invalidateOperation.flatMap(new Func1<Boolean, Observable<Boolean>>() {
             @Override
@@ -234,16 +235,24 @@ public class JasperAccountManager {
         });
     }
 
-    public Observable<Boolean> invalidateActiveToken() {
-        return invalidateToken(mAccountCache.get());
+    public void invalidateActiveToken() {
+        invalidateToken(mAccountCache.get());
     }
 
-    public Observable<Boolean> invalidateToken(final Account account) {
+    public void invalidateToken(final Account account) {
+        String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
+        mDelegateManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
+    }
+
+    public Observable<Boolean> invalidateActiveTokenObservable() {
+        return invalidateTokenObservable(mAccountCache.get());
+    }
+
+    public Observable<Boolean> invalidateTokenObservable(final Account account) {
         return Observable.defer(new Func0<Observable<Boolean>>() {
             @Override
             public Observable<Boolean> call() {
-                String tokenToInvalidate = mDelegateManager.peekAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE);
-                mDelegateManager.invalidateAuthToken(JasperSettings.JASPER_ACCOUNT_TYPE, tokenToInvalidate);
+                invalidateToken(account);
                 return Observable.just(true);
             }
         });

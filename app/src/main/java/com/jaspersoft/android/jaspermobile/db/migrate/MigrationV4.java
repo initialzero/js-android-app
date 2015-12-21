@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate.v4;
+package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -30,8 +30,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.Settings;
 import android.util.Base64;
-
-import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 import java.io.UnsupportedEncodingException;
 import java.security.spec.AlgorithmParameterSpec;
@@ -48,7 +46,7 @@ import javax.crypto.spec.PBEParameterSpec;
  * @author Tom Koptel
  * @since 2.1.2
  */
-public final class MigrationV4 implements Migration {
+final class MigrationV4 implements Migration {
     private static final String SECRET = "9f8a789dd74aa260a583ab75fa33ef94c";
     private static final String UTF8 = "utf-8";
     private static int ITERATION_COUNT = 1000;

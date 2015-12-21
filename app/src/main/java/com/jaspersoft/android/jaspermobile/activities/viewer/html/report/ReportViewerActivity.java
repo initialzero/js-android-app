@@ -200,6 +200,10 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (!getReportParameters().isEmpty()) {
+            reportParameters = (ArrayList<ReportParameter>) getReportParameters();
+        }
+
         mHasInitialParameters = !reportParameters.isEmpty();
         paramsStorage.getInputControlHolder(resource.getUri()).setReportParams(reportParameters);
 

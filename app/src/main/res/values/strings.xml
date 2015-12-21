@@ -124,6 +124,7 @@
     <string name="ro_deselect_all" translatable="false">Deselect all</string>
     <string name="ro_inverse" translatable="false">Inverse</string>
     <string name="ro_search" translatable="false">Search list…</string>
+    <string name="ro_show" translatable="false">Saved values</string>
 
     <!-- Resource Info Activity -->
     <string name="ri_report_option_title" translatable="false">Report options:</string>

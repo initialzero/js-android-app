@@ -106,6 +106,8 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
 
             fillWithData();
             updateHeaderViewLabel(resourceLookup.getLabel());
+
+            getActivity().invalidateOptionsMenu();
         }
     }
 }

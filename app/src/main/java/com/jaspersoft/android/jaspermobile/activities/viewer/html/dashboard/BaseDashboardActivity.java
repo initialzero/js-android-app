@@ -82,7 +82,6 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     protected ResourceLookup resource;
     private MenuItem favoriteAction;
 
-    private Uri favoriteEntryUri;
     private FavoritesHelper_ favoritesHelper;
     private JasperChromeClientListenerImpl chromeClientListener;
 
@@ -106,9 +105,6 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         }
 
         favoritesHelper = FavoritesHelper_.getInstance_(this);
-        if (savedInstanceState == null && resource != null) {
-            favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
-        }
 
         webView = (WebView) findViewById(R.id.webView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -138,8 +134,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         menuInflater.inflate(R.menu.dashboard_menu, menu);
         favoriteAction = menu.findItem(R.id.favoriteAction);
 
-        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
-        favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+        favoritesHelper.updateFavoriteIconState(favoriteAction, resource.getUri());
 
         if (isDebugOrQa()) {
             MenuInflater inflater = getMenuInflater();
@@ -308,8 +303,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     }
 
     private void favoriteAction() {
-        favoriteEntryUri = favoritesHelper.
-                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
+        favoritesHelper.switchFavoriteState(resource, favoriteAction);
     }
 
     private void aboutAction() {

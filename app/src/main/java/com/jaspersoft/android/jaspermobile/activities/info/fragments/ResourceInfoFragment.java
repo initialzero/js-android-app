@@ -130,6 +130,7 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
             if (favoriteAction != null) {
                 alterFavoriteIcon();
             }
+            getActivity().invalidateOptionsMenu();
         }
     }
 }

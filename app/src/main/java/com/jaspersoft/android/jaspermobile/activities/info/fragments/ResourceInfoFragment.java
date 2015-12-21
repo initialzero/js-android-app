@@ -2,13 +2,10 @@ package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -20,7 +17,6 @@ import com.jaspersoft.android.jaspermobile.widget.InfoView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetResourceDescriptorRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.AfterViews;
@@ -30,8 +26,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
-
-import java.io.File;
 
 /**
  * @author Andrew Tivodar
@@ -74,27 +68,13 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        if (mResourceLookup != null) {
-            alterFavoriteIcon();
-        }
+
+        favoriteHelper.updateFavoriteIconState(favoriteAction, jasperResource.getId());
     }
 
     @OptionsItem(R.id.favoriteAction)
     final void favoriteAction() {
-        Uri uri = favoriteHelper.queryFavoriteUri(mResourceLookup);
-        favoriteHelper.handleFavoriteMenuAction(uri, mResourceLookup, favoriteAction);
-    }
-
-    private void alterFavoriteIcon() {
-        Cursor cursor = favoriteHelper.queryFavoriteByResource(mResourceLookup);
-
-        try {
-            boolean alreadyFavorite = (cursor.getCount() > 0);
-            favoriteAction.setIcon(alreadyFavorite ? R.drawable.ic_menu_star : R.drawable.ic_menu_star_outline);
-            favoriteAction.setTitle(alreadyFavorite ? R.string.r_cm_remove_from_favorites : R.string.r_cm_add_to_favorites);
-        } finally {
-            if (cursor != null) cursor.close();
-        }
+        favoriteHelper.switchFavoriteState(mResourceLookup, favoriteAction);
     }
 
     private void fillWithData() {
@@ -126,10 +106,6 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
 
             fillWithData();
             updateHeaderViewLabel(resourceLookup.getLabel());
-
-            if (favoriteAction != null) {
-                alterFavoriteIcon();
-            }
         }
     }
 }

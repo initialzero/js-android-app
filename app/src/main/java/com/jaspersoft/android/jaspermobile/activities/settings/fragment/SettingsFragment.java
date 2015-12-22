@@ -26,13 +26,13 @@ package com.jaspersoft.android.jaspermobile.activities.settings.fragment;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
+import com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.Bean;
@@ -69,9 +69,13 @@ public class SettingsFragment extends RoboPreferenceFragment {
         addPreferencesFromResource(R.xml.preferences);
 
         sharedPreferences = getPreferenceScreen().getSharedPreferences();
-        EditTextPreference repoCacheExpirationPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_REPO_CACHE_EXPIRATION);
-        EditTextPreference connectTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
-        EditTextPreference readTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
+        AppCompatEditTextPreference repoCacheExpirationPref = (AppCompatEditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_REPO_CACHE_EXPIRATION);
+        AppCompatEditTextPreference connectTimeoutPref = (AppCompatEditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
+        AppCompatEditTextPreference readTimeoutPref = (AppCompatEditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
+
+        repoCacheExpirationPref.setDialogTitle(getString(R.string.st_title_cache_expiration));
+        connectTimeoutPref.setDialogTitle(getString(R.string.st_title_connect_timeout));
+        readTimeoutPref.setDialogTitle(getString(R.string.st_title_read_timeout));
 
         String repoCacheExpiration = sharedPreferences.getString(KEY_PREF_REPO_CACHE_EXPIRATION, DEFAULT_REPO_CACHE_EXPIRATION);
         String connectTimeout = sharedPreferences.getString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);

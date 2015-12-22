@@ -31,6 +31,8 @@
     <color name="dark_shadow">#cc000000</color>
 
     <!-- Primary Palette -->
+    <color name="js_popup_window">#363636</color>
+
     <color name="js_blue_with_opacity">#990099cc</color>
     <color name="js_light_blue">#33b5e5</color>
     <color name="js_blue">#0099cc</color>

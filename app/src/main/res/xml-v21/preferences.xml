@@ -33,7 +33,7 @@
             android:title="@string/st_title_cache_enable"
             android:summary="@string/st_summary_cache_enable"/>
 
-        <EditTextPreference
+        <com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference
             android:key="pref_repo_cache_expiration"
             android:defaultValue="48"
             android:dependency="pref_repo_cache_enabled"
@@ -44,13 +44,13 @@
 
     <PreferenceCategory android:title="@string/st_category_connection">
 
-        <EditTextPreference
+        <com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference
             android:key="pref_connect_timeout"
             android:defaultValue="15"
             android:title="@string/st_title_connect_timeout"
             android:inputType="number"/>
 
-        <EditTextPreference
+        <com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference
             android:key="pref_read_timeout"
             android:defaultValue="120"
             android:inputType="number"

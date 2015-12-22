@@ -25,12 +25,15 @@
 package com.jaspersoft.android.jaspermobile.dialog;
 
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 
@@ -64,11 +67,19 @@ public class ProgressDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ProgressDialog progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage(getString(loadingMessage));
-        progressDialog.setOnShowListener(onShowListener);
-        progressDialog.setCanceledOnTouchOutside(false);
-        return progressDialog;
+        View customLayout = LayoutInflater.from(getActivity())
+                .inflate(R.layout.dialog_progress, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        TextView message = (TextView) customLayout.findViewById(R.id.progressMessage);
+        message.setText(getString(loadingMessage));
+        builder.setView(customLayout);
+
+        Dialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+
+        dialog.setOnShowListener(onShowListener);
+        return dialog;
     }
 
     @Override
@@ -76,21 +87,6 @@ public class ProgressDialogFragment extends DialogFragment {
         super.onCancel(dialog);
         if (onCancelListener != null) {
             onCancelListener.onCancel(dialog);
-        }
-    }
-
-    @Deprecated
-    public static void show(FragmentManager fm,
-                            OnCancelListener onCancelListener,
-                            OnShowListener onShowListener) {
-        ProgressDialogFragment dialogFragment = getInstance(fm);
-
-        if (dialogFragment == null) {
-            dialogFragment = ProgressDialogFragment_.builder()
-                    .loadingMessage(R.string.r_pd_running_report_msg).build();
-            dialogFragment.setOnCancelListener(onCancelListener);
-            dialogFragment.setOnShowListener(onShowListener);
-            dialogFragment.show(fm, TAG);
         }
     }
 

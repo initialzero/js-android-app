@@ -31,6 +31,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.MediaRouteActionProvider;
+import android.support.v7.media.MediaRouteSelector;
+import android.support.v7.media.MediaRouter;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,6 +46,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
@@ -174,6 +179,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected MenuItem printAction;
     @OptionsMenuItem
     protected MenuItem refreshAction;
+    @OptionsMenuItem(R.id.castReport)
+    protected MenuItem castAction;
 
     @Inject
     protected ReportParamsStorage paramsStorage;
@@ -183,6 +190,10 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected JsRestClient jsRestClient;
     @Inject
     protected Analytics analytics;
+
+    private MediaRouter mMediaRouter;
+    private MediaRouteSelector mMediaRouteSelector;
+    private MediaRouter.Callback mMediaRouterCallback;
 
     private AccountServerData accountServerData;
     private boolean mShowSaveAndPrintMenuItems, mShowRefreshMenuItem;
@@ -214,6 +225,13 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
         Account account = JasperAccountManager.get(this).getActiveAccount();
         accountServerData = AccountServerData.get(this, account);
+
+        mMediaRouter = MediaRouter.getInstance(this);
+        mMediaRouteSelector = new MediaRouteSelector.Builder()
+                .addControlCategory(CastMediaControlIntent.categoryForCast(getString(R.string.app_cast_id)))
+                .build();
+
+        mMediaRouterCallback = new MediaRouter.Callback() {};
     }
 
     @AfterViews
@@ -253,7 +271,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        boolean result = super.onCreateOptionsMenu(menu);
+        super.onCreateOptionsMenu(menu);
+
         favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
         saveReport.setVisible(mShowSaveAndPrintMenuItems);
@@ -267,7 +286,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
             inflater.inflate(R.menu.debug, menu);
         }
 
-        return result;
+        MediaRouteActionProvider mediaRouteActionProvider =
+                (MediaRouteActionProvider) MenuItemCompat.getActionProvider(castAction);
+        mediaRouteActionProvider.setRouteSelector(mMediaRouteSelector);
+
+        return true;
     }
 
     @Override
@@ -275,6 +298,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (mWebInterface != null) {
             mWebInterface.pause();
         }
+
+        mMediaRouter.removeCallback(mMediaRouterCallback);
+
         super.onPause();
     }
 
@@ -284,6 +310,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (mWebInterface != null) {
             mWebInterface.resume();
         }
+        mMediaRouter.addCallback(mMediaRouteSelector, mMediaRouterCallback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
     }
 
     @Override

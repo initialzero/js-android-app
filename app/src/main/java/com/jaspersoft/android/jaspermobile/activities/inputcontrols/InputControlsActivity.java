@@ -584,12 +584,12 @@ public class InputControlsActivity extends RoboSpiceActivity
 
         boolean added = false;
         for (int i = 1; i < reportOptionsNames.size(); i++) {
-            if (savedReportOptionTitle.compareToIgnoreCase(reportOptionsNames.get(i)) < 0) {
+            if (savedReportOptionTitle.compareTo(reportOptionsNames.get(i)) < 0) {
                 mReportOptions.add(i, reportOptionHolder);
                 reportOptionsList.setSelection(i);
                 added = true;
                 break;
-            } else if (savedReportOptionTitle.compareToIgnoreCase(reportOptionsNames.get(i)) == 0) {
+            } else if (savedReportOptionTitle.compareTo(reportOptionsNames.get(i)) == 0) {
                 mReportOptions.set(i, reportOptionHolder);
                 reportOptionsList.setSelection(i);
                 added = true;

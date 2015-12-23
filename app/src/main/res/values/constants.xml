@@ -51,7 +51,7 @@
     <!--Constants-->
     <string name="jasper_account_type" translatable="false">com.jaspersoft</string>
     <string name="jasper_account_authority" translatable="false">com.jaspersoft.android.jaspermobile.db.provider</string>
-    <string name="jasper_app_data" translatable="false">Version code: %s</string>
+    <string name="jasper_app_data" translatable="false">App version: %s</string>
     <string name="jrs_version_data" translatable="false">JRS version: %s</string>
     <string name="jrs_edition_data" translatable="false">JRS edition: %s</string>
     <string-array name="feedback_subject_email" translatable="false">

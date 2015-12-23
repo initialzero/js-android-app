@@ -232,6 +232,13 @@ public class RepositoryFragment extends RoboSpiceFragment
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        listView.setVisibility(View.GONE);
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         if (mAdapter != null) {
             mAdapter.save(outState);

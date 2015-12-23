@@ -139,9 +139,6 @@ public class FavoritesFragment extends RoboFragment
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
-        if (savedInstanceState == null) {
-            sortOptions.putOrder(SortOrder.LABEL);
-        }
 
         analytics.setScreenName(Analytics.ScreenName.FAVORITES.getValue());
     }

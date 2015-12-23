@@ -35,7 +35,10 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.Favorit
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 
@@ -56,11 +59,16 @@ public class FavoritesPageFragment extends RoboFragment {
     @InstanceState
     protected boolean initialStart;
 
+    @Bean
+    protected SortOptions sortOptions;
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState == null) {
+            sortOptions.putOrder(SortOrder.LABEL);
+
             FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
             favoritesController = FavoritesControllerFragment_.builder()

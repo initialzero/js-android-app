@@ -47,15 +47,12 @@ android {
         Properties savedAppVersion = getVersionFromFile()
 
         int revision = getRevisionNumber(currentAppVersion, savedAppVersion)
-        int testBuildNumber = getTestBuildNumber(savedAppVersion)
-
         String versionNumber = generateVersionNumber(currentAppVersion, revision)
         int versionCode = generateVersionCodeValue(currentAppVersion, revision) as int
 
         //update values for different build tasks
         applicationVariants.all { variant ->
-            String versionName = generateVersionName(versionNumber, testBuildNumber, variant.name as String)
-
+            String versionName = generateVersionName(versionNumber, variant.name as String)
             variant.mergedFlavor.versionCode = versionCode
             variant.mergedFlavor.versionName = versionName
 
@@ -88,14 +85,6 @@ boolean currentBranchIsProd() {
 }
 
 /**
- * Check if current branch is "QA".
- * @return if current branch is branch for test
- */
-boolean currentBranchIsQa() {
-    return (currentBranch.equalsIgnoreCase("QA"));
-}
-
-/**
  * Return app version from gradle build defaultConfig.
  * @return app version as Bundle that contains 'major", "minor" and "patch" values.
  */
@@ -123,26 +112,12 @@ int getRevisionNumber(Properties currentAppVersion, Properties savedAppVersion) 
     int revision = 0 as int //0..999
 
     if (savedAppVersion != null)
-        if (savedAppVersion['major'] as int == currentAppVersion['major']  &&
-                savedAppVersion['minor'] as int == currentAppVersion['minor']  &&
-                savedAppVersion['patch'] as int == currentAppVersion['patch'] )
+        if (savedAppVersion['major'] as int == currentAppVersion['major'] as int &&
+                savedAppVersion['minor'] as int == currentAppVersion['minor'] as int &&
+                savedAppVersion['patch'] as int == currentAppVersion['patch'] as int)
             revision = savedAppVersion['revision'] as int
 
     return revision
-}
-
-/**
- * Return revision number (build number) of current app version
- * @param currentAppVersion app version as Bundle
- * @return revision number for identifying various build number
- */
-int getTestBuildNumber(Properties savedAppVersion) {
-    def testBuildNumber
-    if (savedAppVersion != null)
-        testBuildNumber = savedAppVersion['testBuildNumber']
-    if (testBuildNumber != null) return testBuildNumber as int
-
-    return 0
 }
 
 /**
@@ -230,11 +205,9 @@ int generateVersionCodeValue(Properties appVersion, int revisionNumber) {
  * @param flavorName name of flavor that is currently building
  * @return version name for build
  */
-String generateVersionName(String versionNumber, int testBuildNumber, String flavorName) {
+String generateVersionName(String versionNumber, String flavorName) {
     String branchNamePart = currentBranchIsProd() ? "" : "-${currentBranch}"
-    String testBuildPart = currentBranchIsQa() ? ".${testBuildNumber}" : ""
-
-    String versionName = "${versionNumber}${branchNamePart}${testBuildPart}"
+    String versionName = "${versionNumber}${branchNamePart}"
 
     if (flavorName.equalsIgnoreCase("devRelease")) {
         versionName = "${versionName}-SIGNED"

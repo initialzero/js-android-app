@@ -123,6 +123,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
@@ -198,7 +199,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private WebInterface mWebInterface;
     private boolean isFlowLoaded;
 
-    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+    private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
         @Override
         public void onCancel(DialogInterface dialog) {
@@ -225,23 +226,32 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @AfterViews
     final void init() {
-        showErrorView(getString(R.string.loading_msg));
+        ProgressDialogFragment
+                .builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .setOnCancelListener(cancelListener)
+                .show();
 
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(
-                new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean aBoolean) {
-                        hideErrorView();
-                        setupPaginationControl();
-                        initWebView();
-                        loadInputControls();
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        showErrorView(throwable.getMessage());
-                    }
-                });
+        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(new Subscriber<Void>() {
+            @Override
+            public void onCompleted() {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                setupPaginationControl();
+                initWebView();
+                loadInputControls();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                showErrorView(e.getMessage());
+            }
+
+            @Override
+            public void onNext(Void aVoid) {
+
+            }
+        });
         mCompositeSubscription.add(cookieSubscription);
     }
 
@@ -297,6 +307,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected void onStop() {
         super.onStop();
         mCompositeSubscription.unsubscribe();
+        mCompositeSubscription = new CompositeSubscription();
     }
 
     @Override
@@ -317,21 +328,33 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     @Click(R.id.reload)
-    protected void rerunReport(){
-        fetchAuthToken();
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(
-                new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean aBoolean) {
-                        runReport(paramsSerializer.toJson(getReportParameters()));
-                        hideErrorView();
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        showErrorView(throwable.getMessage());
-                    }
-                });
+    protected void rerunReport() {
+        ProgressDialogFragment
+                .builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .setOnCancelListener(cancelListener)
+                .show();
+
+        JasperAccountManager.get(this).invalidateActiveToken();
+        hideErrorView();
+        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(new Subscriber<Void>() {
+            @Override
+            public void onCompleted() {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                runReport(paramsSerializer.toJson(getReportParameters()));
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                showErrorView(e.getMessage());
+            }
+
+            @Override
+            public void onNext(Void aVoid) {
+
+            }
+        });
         mCompositeSubscription.add(cookieSubscription);
     }
 
@@ -741,17 +764,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 params
         );
         webView.loadUrl(executeScript);
-    }
-
-    @Background
-    protected void fetchAuthToken() {
-        try {
-            JasperAccountManager jasperAccountManager = JasperAccountManager.get(ReportViewerActivity.this);
-            jasperAccountManager.invalidateActiveToken();
-            jasperAccountManager.getActiveAuthToken();
-        } catch (JasperAccountManager.TokenException e) {
-            showError(e);
-        }
     }
 
     private void applyReportParams() {

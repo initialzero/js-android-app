@@ -167,5 +167,14 @@ public class ProgressDialogFragment extends DialogFragment {
                 isPreparing = true;
             }
         }
+
+        public void display() {
+            ProgressDialogFragment dialogFragment = ProgressDialogFragment_.builder().loadingMessage(loadingMessage).build();
+            dialogFragment.setOnCancelListener(onCancelListener);
+            dialogFragment.setOnShowListener(onShowListener);
+            dialogFragment.show(fm, TAG);
+
+            isPreparing = true;
+        }
     }
 }

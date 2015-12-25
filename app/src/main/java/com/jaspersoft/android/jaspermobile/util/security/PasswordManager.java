@@ -56,10 +56,10 @@ public class PasswordManager {
     static final String KEY = "PASSWORD_KEY";
 
     private String mStoragePassword;
-    private final Map<Account, Boolean> mInitializedMap = new HashMap<>();
+    private Account mCurrentAccount;
 
     @AfterInject
-    protected void init(){
+    protected void init() {
         mStoragePassword = Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
     }
@@ -95,7 +95,7 @@ public class PasswordManager {
     }
 
     private Observable<Boolean> initHawk(final Account account) {
-        if (!mInitializedMap.containsKey(account)) {
+        if (mCurrentAccount == null || !mCurrentAccount.equals(account)) {
             return Hawk.init(context)
                     .setEncryptionMethod(HawkBuilder.EncryptionMethod.HIGHEST)
                     .setStorage(AccountStorage.create(context, account))
@@ -104,10 +104,10 @@ public class PasswordManager {
                     .doOnNext(new Action1<Boolean>() {
                         @Override
                         public void call(Boolean isInitialized) {
-                            mInitializedMap.put(account, isInitialized);
+                            mCurrentAccount = isInitialized ? account : null;
                         }
                     });
         }
-        return Observable.just(mInitializedMap.get(account));
+        return Observable.just(mCurrentAccount != null);
     }
 }

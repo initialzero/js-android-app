@@ -27,11 +27,9 @@ package com.jaspersoft.android.jaspermobile.activities.robospice;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.MediaRouteActionProvider;
-import android.support.v7.media.MediaRouter;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.cast.CastDevice;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.cast.ReportCastHelper;
 
@@ -54,12 +52,21 @@ public class RoboCastActivity extends RoboToolbarActivity {
     @OptionsMenuItem(R.id.castReport)
     protected MenuItem castAction;
 
-    private BaseMediaRouterCallback mediaRouterCallback;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mediaRouterCallback = new BaseMediaRouterCallback();
+
+        mReportCastHelper.setRouteSelectListener(new ReportCastHelper.RouteCallbacks() {
+            @Override
+            public void onRouteSelected() {
+                onCastActivate();
+            }
+
+            @Override
+            public void onRouteDeSelected() {
+
+            }
+        });
     }
 
     @Override
@@ -68,40 +75,27 @@ public class RoboCastActivity extends RoboToolbarActivity {
 
         MediaRouteActionProvider mediaRouteActionProvider =
                 (MediaRouteActionProvider) MenuItemCompat.getActionProvider(castAction);
-        mediaRouteActionProvider.setRouteSelector(mReportCastHelper.getMediaRouteSelector());
+        mReportCastHelper.applyRouteSelector(mediaRouteActionProvider);
         return true;
-    }
-
-    @Override
-    protected void onStop() {
-        mReportCastHelper.getMediaRouter().removeCallback(mediaRouterCallback);
-        super.onStop();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mReportCastHelper.getMediaRouter().addCallback(mReportCastHelper.getMediaRouteSelector(), mediaRouterCallback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+        mReportCastHelper.registerCallback();
     }
 
-    private class BaseMediaRouterCallback extends MediaRouter.Callback {
-        @Override
-        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
-            super.onRouteSelected(router, route);
+    @Override
+    protected void onStop() {
+        mReportCastHelper.unregisterCallback();
+        super.onStop();
+    }
 
-            CastDevice castDevice = CastDevice.getFromBundle(route.getExtras());
-            if (castDevice != null) {
-                mReportCastHelper.setSelectedCastDevice(castDevice);
-                mReportCastHelper.startCastService(RoboCastActivity.this);
-            }
-        }
+    protected void onCastActivate() {
+        mReportCastHelper.startCastService(RoboCastActivity.this);
+    }
 
-        @Override
-        public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route) {
-            super.onRouteUnselected(router, route);
+    protected void onCastDeactivate() {
 
-            mReportCastHelper.setSelectedCastDevice(null);
-            mReportCastHelper.stopCastService();
-        }
     }
 }

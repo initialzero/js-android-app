@@ -31,6 +31,11 @@ import android.provider.Settings;
 import com.orhanobut.hawk.Hawk;
 import com.orhanobut.hawk.HawkBuilder;
 
+import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,22 +47,21 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.1.2
  */
-public final class PasswordManager {
+
+@EBean(scope = EBean.Scope.Singleton)
+public class PasswordManager {
+    @RootContext
+    protected Context context;
+
     static final String KEY = "PASSWORD_KEY";
 
-    private final String mStoragePassword;
-    private final Context mContext;
+    private String mStoragePassword;
     private final Map<Account, Boolean> mInitializedMap = new HashMap<>();
 
-    private PasswordManager(Context context, String storagePassword) {
-        mContext = context;
-        mStoragePassword = storagePassword;
-    }
-
-    public static PasswordManager create(Context context) {
-        String storagePassword = Settings.Secure.getString(context.getContentResolver(),
+    @AfterInject
+    protected void init(){
+        mStoragePassword = Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
-        return new PasswordManager(context, storagePassword);
     }
 
     public Observable<Boolean> put(Account account, final String plainPassword) {
@@ -92,9 +96,9 @@ public final class PasswordManager {
 
     private Observable<Boolean> initHawk(final Account account) {
         if (!mInitializedMap.containsKey(account)) {
-            return Hawk.init(mContext)
+            return Hawk.init(context)
                     .setEncryptionMethod(HawkBuilder.EncryptionMethod.HIGHEST)
-                    .setStorage(AccountStorage.create(mContext, account))
+                    .setStorage(AccountStorage.create(context, account))
                     .setPassword(mStoragePassword)
                     .buildRx()
                     .doOnNext(new Action1<Boolean>() {

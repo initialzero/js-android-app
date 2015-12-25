@@ -53,6 +53,7 @@ import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
@@ -134,7 +135,7 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
  */
 @OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu, R.menu.report_filter_manager_menu})
 @EActivity(R.layout.activity_report_viewer)
-public class ReportViewerActivity extends RoboToolbarActivity
+public class ReportViewerActivity extends RoboCastActivity
         implements ReportCallback,
         AbstractPaginationView.OnPageChangeListener,
         GetInputControlsFragment.OnInputControlsListener,
@@ -179,8 +180,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected MenuItem printAction;
     @OptionsMenuItem
     protected MenuItem refreshAction;
-    @OptionsMenuItem(R.id.castReport)
-    protected MenuItem castAction;
 
     @Inject
     protected ReportParamsStorage paramsStorage;
@@ -190,10 +189,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected JsRestClient jsRestClient;
     @Inject
     protected Analytics analytics;
-
-    private MediaRouter mMediaRouter;
-    private MediaRouteSelector mMediaRouteSelector;
-    private MediaRouter.Callback mMediaRouterCallback;
 
     private AccountServerData accountServerData;
     private boolean mShowSaveAndPrintMenuItems, mShowRefreshMenuItem;
@@ -225,13 +220,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
         Account account = JasperAccountManager.get(this).getActiveAccount();
         accountServerData = AccountServerData.get(this, account);
-
-        mMediaRouter = MediaRouter.getInstance(this);
-        mMediaRouteSelector = new MediaRouteSelector.Builder()
-                .addControlCategory(CastMediaControlIntent.categoryForCast(getString(R.string.app_cast_id)))
-                .build();
-
-        mMediaRouterCallback = new MediaRouter.Callback() {};
     }
 
     @AfterViews
@@ -286,10 +274,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
             inflater.inflate(R.menu.debug, menu);
         }
 
-        MediaRouteActionProvider mediaRouteActionProvider =
-                (MediaRouteActionProvider) MenuItemCompat.getActionProvider(castAction);
-        mediaRouteActionProvider.setRouteSelector(mMediaRouteSelector);
-
         return true;
     }
 
@@ -298,8 +282,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (mWebInterface != null) {
             mWebInterface.pause();
         }
-
-        mMediaRouter.removeCallback(mMediaRouterCallback);
 
         super.onPause();
     }
@@ -310,7 +292,6 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (mWebInterface != null) {
             mWebInterface.resume();
         }
-        mMediaRouter.addCallback(mMediaRouteSelector, mMediaRouterCallback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
     }
 
     @Override

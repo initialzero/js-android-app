@@ -222,6 +222,8 @@
             android:enabled="true"
             android:exported="false"/>
 
+        <service android:name=".util.cast.ReportPresentationService" android:exported="false" />
+
         <provider
             android:name=".db.MobileDbProvider"
             android:authorities="com.jaspersoft.android.jaspermobile.db.provider"

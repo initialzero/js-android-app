@@ -40,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.network.DefaultUrlConnectionClient;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager_;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
@@ -62,7 +63,7 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     public JasperAuthenticator(Context context) {
         super(context);
         mContext = context;
-        mPasswordManager = PasswordManager.create(mContext);
+        mPasswordManager = PasswordManager_.getInstance_(mContext);
         Timber.tag(JasperAuthenticator.class.getSimpleName());
     }
 

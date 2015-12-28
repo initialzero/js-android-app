@@ -22,14 +22,8 @@
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <item
-        android:id="@+id/switchLayout"
-        android:icon="@drawable/ic_menu_module"
-        android:orderInCategory="55"
-        android:title="@string/r_ab_switch"
-        app:showAsAction="ifRoom" />
-
-</menu>
+</RelativeLayout>

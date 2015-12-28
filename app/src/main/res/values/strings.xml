@@ -230,6 +230,7 @@
     <string name="request_was_cancelled_explicitly">Cancelled</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
+    <string name="logo_presentation_message">Always on and easy to access</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Library</string>

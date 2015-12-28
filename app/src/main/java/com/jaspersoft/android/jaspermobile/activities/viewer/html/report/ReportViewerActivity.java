@@ -31,6 +31,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.MediaRouteActionProvider;
+import android.support.v7.media.MediaRouteSelector;
+import android.support.v7.media.MediaRouter;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,12 +46,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
@@ -129,14 +135,13 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
  */
 @OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu, R.menu.report_filter_manager_menu})
 @EActivity(R.layout.activity_report_viewer)
-public class ReportViewerActivity extends RoboToolbarActivity
+public class ReportViewerActivity extends RoboCastActivity
         implements ReportCallback,
         AbstractPaginationView.OnPageChangeListener,
         GetInputControlsFragment.OnInputControlsListener,
         ReportView, PageDialogFragment.PageDialogClickListener,
         NumberDialogFragment.NumberDialogClickListener,
-        ErrorWebViewClientListener.OnWebViewErrorListener
-{
+        ErrorWebViewClientListener.OnWebViewErrorListener {
 
     @Bean
     protected JSWebViewClient jsWebViewClient;
@@ -253,7 +258,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        boolean result = super.onCreateOptionsMenu(menu);
+        super.onCreateOptionsMenu(menu);
+
         favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
         favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
         saveReport.setVisible(mShowSaveAndPrintMenuItems);
@@ -267,7 +273,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
             inflater.inflate(R.menu.debug, menu);
         }
 
-        return result;
+        return true;
     }
 
     @Override
@@ -275,6 +281,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (mWebInterface != null) {
             mWebInterface.pause();
         }
+
         super.onPause();
     }
 
@@ -302,6 +309,17 @@ public class ReportViewerActivity extends RoboToolbarActivity
             webView.destroy();
         }
         paramsStorage.clearInputControlHolder(resource.getUri());
+    }
+
+    @Override
+    public void onRouteSelected() {
+        super.onRouteSelected();
+
+        ReportCastActivity_.intent(this)
+                .resource(resource)
+                .start();
+
+        finish();
     }
 
     //---------------------------------------------------------------------

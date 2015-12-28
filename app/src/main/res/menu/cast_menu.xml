@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
@@ -23,26 +22,15 @@
   ~ along with TIBCO Jaspersoft Mobile for Android. If not, see
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
-<resources>
 
-    <!-- General -->
-    <string name="app_label" translatable="false">TIBCO JasperMobile</string>
-    <string name="app_cast_id" translatable="false">225DAEF5</string>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Filter Saved Items Dialog -->
-    <string name="si_fd_option_html" translatable="false">HTML</string>
-    <string name="si_fd_option_pdf" translatable="false">PDF</string>
-    <string name="si_fd_option_xls" translatable="false">XLS</string>
+    <item
+        android:id="@+id/castReport"
+        android:title=""
+        android:orderInCategory="52"
+        app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
+        app:showAsAction="always"/>
 
-    <!--Constants-->
-    <string name="jasper_account_type" translatable="false">com.jaspersoft</string>
-    <string name="jasper_account_authority" translatable="false">com.jaspersoft.android.jaspermobile.db.provider</string>
-    <string name="jasper_app_data" translatable="false">Version code: %s</string>
-    <string name="jrs_version_data" translatable="false">JRS version: %s</string>
-    <string name="jrs_edition_data" translatable="false">JRS edition: %s</string>
-    <string-array name="feedback_subject_email" translatable="false">
-        <item>js-dev-mobile@tibco.com</item>
-        <item>js.testdevice@gmail.com</item>
-    </string-array>
-
-</resources>
+</menu>

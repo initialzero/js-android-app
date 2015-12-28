@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -27,6 +27,8 @@ package com.jaspersoft.android.jaspermobile.util.cast;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.Display;
+import android.view.View;
+import android.webkit.WebView;
 
 import com.google.android.gms.cast.CastPresentation;
 import com.jaspersoft.android.jaspermobile.R;
@@ -37,6 +39,8 @@ import com.jaspersoft.android.jaspermobile.R;
  */
 public class ReportPresentation extends CastPresentation {
 
+    private WebView webView;
+
     public ReportPresentation(Context serviceContext, Display display) {
         super(serviceContext, display);
     }
@@ -46,5 +50,15 @@ public class ReportPresentation extends CastPresentation {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.report_presentation);
+
+        webView = (WebView) findViewById(R.id.reportCastWebView);
+    }
+
+    public void runReport(){
+        webView.setVisibility(View.VISIBLE);
+    }
+
+    public void stopRunning(){
+        webView.setVisibility(View.GONE);
     }
 }

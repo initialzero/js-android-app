@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -56,8 +56,7 @@ public class ReportCastHelper {
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mMediaRouteSelector;
     private CastDevice mSelectedCastDevice;
-    private BaseMediaRouterCallback mediaRouterCallback;
-    private RouteCallbacks mRouteCallbacks;
+    private CastServiceCallbacks mCastServiceCallbacks;
 
     @AfterInject
     void init() {
@@ -65,14 +64,17 @@ public class ReportCastHelper {
         mMediaRouteSelector = new MediaRouteSelector.Builder()
                 .addControlCategory(CastMediaControlIntent.categoryForCast(context.getString(R.string.app_cast_id)))
                 .build();
-        mediaRouterCallback = new BaseMediaRouterCallback();
     }
 
-    public void registerCallback(){
+    public BaseMediaRouterCallback createCallback(){
+        return new BaseMediaRouterCallback();
+    }
+
+    public void registerCallback(BaseMediaRouterCallback mediaRouterCallback){
         mMediaRouter.addCallback(mMediaRouteSelector, mediaRouterCallback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
     }
 
-    public void unregisterCallback(){
+    public void unregisterCallback(BaseMediaRouterCallback mediaRouterCallback){
         mMediaRouter.removeCallback(mediaRouterCallback);
     }
 
@@ -80,8 +82,8 @@ public class ReportCastHelper {
         mediaRouteActionProvider.setRouteSelector(mMediaRouteSelector);
     }
 
-    public void setRouteSelectListener(RouteCallbacks routeCallbacks){
-        mRouteCallbacks = routeCallbacks;
+    public void setRouteSelectListener(CastServiceCallbacks castServiceCallbacks){
+        mCastServiceCallbacks = castServiceCallbacks;
     }
 
     public void startCastService(Activity context) {
@@ -96,6 +98,18 @@ public class ReportCastHelper {
                 mSelectedCastDevice, emptySettings, new EmptyCastServiceCallback());
     }
 
+    public boolean isStarted(){
+        return CastRemoteDisplayLocalService.getInstance() != null;
+    }
+
+    public ReportPresentation getReportPresentation(){
+        CastRemoteDisplayLocalService castService = CastRemoteDisplayLocalService.getInstance();
+        if (castService != null && castService instanceof ReportPresentationService) {
+            return ((ReportPresentationService) castService).getReportPresentation();
+        }
+        return null;
+    }
+
     private void stopCastService() {
         CastRemoteDisplayLocalService.stopService();
     }
@@ -106,10 +120,51 @@ public class ReportCastHelper {
         return PendingIntent.getActivity(context, 0, intent, 0);
     }
 
+    public final class BaseMediaRouterCallback extends MediaRouter.Callback {
+        @Override
+        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
+            super.onRouteSelected(router, route);
+
+            CastDevice castDevice = CastDevice.getFromBundle(route.getExtras());
+            if (castDevice != null) {
+                mSelectedCastDevice = castDevice;
+                if (mCastServiceCallbacks != null) {
+                    mCastServiceCallbacks.onRouteSelected();
+                }
+            }
+        }
+
+        @Override
+        public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route) {
+            super.onRouteUnselected(router, route);
+
+            mSelectedCastDevice = null;
+            stopCastService();
+            if (mCastServiceCallbacks != null) {
+                mCastServiceCallbacks.onPresentationStopped();
+            }
+        }
+    }
+
+    public interface CastServiceCallbacks {
+        void onRouteSelected();
+        void onPresentationStarted();
+        void onPresentationStopped();
+    }
+
     private class EmptyCastServiceCallback implements CastRemoteDisplayLocalService.Callbacks {
         @Override
         public void onServiceCreated(CastRemoteDisplayLocalService castRemoteDisplayLocalService) {
-
+            if (castRemoteDisplayLocalService instanceof ReportPresentationService) {
+                ((ReportPresentationService) castRemoteDisplayLocalService).setPresentationShowListener(new ReportPresentationService.PresentationShowListener() {
+                    @Override
+                    public void onShow() {
+                        if (mCastServiceCallbacks != null) {
+                            mCastServiceCallbacks.onPresentationStarted();
+                        }
+                    }
+                });
+            }
         }
 
         @Override
@@ -121,36 +176,5 @@ public class ReportCastHelper {
         public void onRemoteDisplaySessionError(Status status) {
 
         }
-    }
-
-    private class BaseMediaRouterCallback extends MediaRouter.Callback {
-        @Override
-        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
-            super.onRouteSelected(router, route);
-
-            CastDevice castDevice = CastDevice.getFromBundle(route.getExtras());
-            if (castDevice != null) {
-                mSelectedCastDevice = castDevice;
-                if (mRouteCallbacks != null) {
-                    mRouteCallbacks.onRouteSelected();
-                }
-            }
-        }
-
-        @Override
-        public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route) {
-            super.onRouteUnselected(router, route);
-
-            mSelectedCastDevice = null;
-            stopCastService();
-            if (mRouteCallbacks != null) {
-                mRouteCallbacks.onRouteDeSelected();
-            }
-        }
-    }
-
-    public interface RouteCallbacks {
-        void onRouteSelected();
-        void onRouteDeSelected();
     }
 }

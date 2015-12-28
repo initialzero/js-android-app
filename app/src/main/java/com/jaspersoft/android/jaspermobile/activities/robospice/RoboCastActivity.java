@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -44,7 +44,7 @@ import org.androidannotations.annotations.OptionsMenuItem;
  */
 @EActivity
 @OptionsMenu(R.menu.cast_menu)
-public class RoboCastActivity extends RoboToolbarActivity {
+public class RoboCastActivity extends RoboToolbarActivity implements ReportCastHelper.CastServiceCallbacks {
 
     @Bean
     protected ReportCastHelper mReportCastHelper;
@@ -52,21 +52,14 @@ public class RoboCastActivity extends RoboToolbarActivity {
     @OptionsMenuItem(R.id.castReport)
     protected MenuItem castAction;
 
+    private ReportCastHelper.BaseMediaRouterCallback mediaRouterCallback;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mReportCastHelper.setRouteSelectListener(new ReportCastHelper.RouteCallbacks() {
-            @Override
-            public void onRouteSelected() {
-                onCastActivate();
-            }
-
-            @Override
-            public void onRouteDeSelected() {
-
-            }
-        });
+        mReportCastHelper.setRouteSelectListener(this);
+        mediaRouterCallback = mReportCastHelper.createCallback();
     }
 
     @Override
@@ -82,20 +75,27 @@ public class RoboCastActivity extends RoboToolbarActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mReportCastHelper.registerCallback();
+        mReportCastHelper.registerCallback(mediaRouterCallback);
     }
 
     @Override
     protected void onStop() {
-        mReportCastHelper.unregisterCallback();
+        mReportCastHelper.unregisterCallback(mediaRouterCallback);
         super.onStop();
     }
 
-    protected void onCastActivate() {
+    @Override
+    public void onRouteSelected() {
         mReportCastHelper.startCastService(RoboCastActivity.this);
     }
 
-    protected void onCastDeactivate() {
+    @Override
+    public void onPresentationStarted() {
+
+    }
+
+    @Override
+    public void onPresentationStopped() {
 
     }
 }

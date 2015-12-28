@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -36,7 +36,8 @@ import com.google.android.gms.cast.CastRemoteDisplayLocalService;
  */
 public class ReportPresentationService extends CastRemoteDisplayLocalService {
 
-    private CastPresentation mPresentation;
+    private ReportPresentation mPresentation;
+    private PresentationShowListener mPresentationShowListener;
 
     @Override
     public void onCreatePresentation(Display display) {
@@ -45,6 +46,9 @@ public class ReportPresentationService extends CastRemoteDisplayLocalService {
 
         try {
             mPresentation.show();
+            if (mPresentationShowListener != null) {
+                mPresentationShowListener.onShow();
+            }
         } catch (WindowManager.InvalidDisplayException ex) {
             onDismissPresentation();
         }
@@ -56,5 +60,17 @@ public class ReportPresentationService extends CastRemoteDisplayLocalService {
             mPresentation.dismiss();
             mPresentation = null;
         }
+    }
+
+    public void setPresentationShowListener(PresentationShowListener presentationShowListener) {
+        mPresentationShowListener = presentationShowListener;
+    }
+
+    public ReportPresentation getReportPresentation() {
+        return mPresentation;
+    }
+
+    public interface PresentationShowListener {
+        void onShow();
     }
 }

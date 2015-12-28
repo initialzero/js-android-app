@@ -141,8 +141,7 @@ public class ReportViewerActivity extends RoboCastActivity
         GetInputControlsFragment.OnInputControlsListener,
         ReportView, PageDialogFragment.PageDialogClickListener,
         NumberDialogFragment.NumberDialogClickListener,
-        ErrorWebViewClientListener.OnWebViewErrorListener
-{
+        ErrorWebViewClientListener.OnWebViewErrorListener {
 
     @Bean
     protected JSWebViewClient jsWebViewClient;
@@ -310,6 +309,17 @@ public class ReportViewerActivity extends RoboCastActivity
             webView.destroy();
         }
         paramsStorage.clearInputControlHolder(resource.getUri());
+    }
+
+    @Override
+    public void onRouteSelected() {
+        super.onRouteSelected();
+
+        ReportCastActivity_.intent(this)
+                .resource(resource)
+                .start();
+
+        finish();
     }
 
     //---------------------------------------------------------------------

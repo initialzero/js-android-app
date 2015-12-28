@@ -64,12 +64,15 @@ public class RoboCastActivity extends RoboToolbarActivity implements ReportCastH
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
+        boolean result = super.onCreateOptionsMenu(menu);
 
-        MediaRouteActionProvider mediaRouteActionProvider =
-                (MediaRouteActionProvider) MenuItemCompat.getActionProvider(castAction);
-        mReportCastHelper.applyRouteSelector(mediaRouteActionProvider);
-        return true;
+        if (castAction != null) {
+            MediaRouteActionProvider mediaRouteActionProvider =
+                    (MediaRouteActionProvider) MenuItemCompat.getActionProvider(castAction);
+            mReportCastHelper.applyRouteSelector(mediaRouteActionProvider);
+            return true;
+        }
+        return result;
     }
 
     @Override

@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.util;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.DisplayMetrics;
 
 import org.androidannotations.annotations.EBean;
@@ -37,11 +38,10 @@ import org.androidannotations.annotations.RootContext;
 @EBean
 public class ScreenUtil {
     @RootContext
-    protected Activity context;
+    protected Context context;
 
     public double getDiagonal() {
-        DisplayMetrics metrics = new DisplayMetrics();
-        context.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
 
         int widthPixels = metrics.widthPixels;
         int heightPixels = metrics.heightPixels;

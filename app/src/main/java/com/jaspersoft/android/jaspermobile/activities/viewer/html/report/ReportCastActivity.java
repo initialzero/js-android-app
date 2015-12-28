@@ -68,8 +68,8 @@ public class ReportCastActivity extends RoboCastActivity {
             ProgressDialogFragment.builder(getSupportFragmentManager())
                     .setLoadingMessage(R.string.loading_msg)
                     .show();
-        } else {
-            reportPresentation.runReport();
+        } else if (!reportPresentation.isReportRunning()) {
+            reportPresentation.runReport(resource);
         }
     }
 
@@ -78,7 +78,7 @@ public class ReportCastActivity extends RoboCastActivity {
         super.onPresentationStarted();
 
         reportPresentation = reportCastHelper.getReportPresentation();
-        reportPresentation.runReport();
+        reportPresentation.runReport(resource);
 
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
@@ -99,8 +99,8 @@ public class ReportCastActivity extends RoboCastActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void onBackPressed() {
+        super.onBackPressed();
 
         if (reportPresentation.isShowing()) {
             reportPresentation.stopRunning();

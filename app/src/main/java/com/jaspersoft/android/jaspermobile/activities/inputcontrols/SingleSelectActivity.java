@@ -131,6 +131,11 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
         return true;
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_ss_ic_s);
+    }
+
     private void showInputControlOptions() {
         mSingleSelectIcAdapter = new SingleSelectIcAdapter(mInputControlOptions);
         inputControlsList.setLayoutManager(new LinearLayoutManager(this));

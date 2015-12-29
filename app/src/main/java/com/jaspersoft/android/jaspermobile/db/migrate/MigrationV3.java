@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate.v3;
+package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -34,8 +34,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-
-import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -50,7 +48,7 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.1
  */
-public final class MigrationV3 implements Migration {
+final class MigrationV3 implements Migration {
     private final Context mContext;
 
     public MigrationV3(Context context) {

@@ -30,6 +30,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
@@ -61,6 +63,8 @@ import roboguice.fragment.RoboFragment;
 public class SavedReportsFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener{
 
     private SavedItemsControllerFragment savedItemsController;
+    @Inject
+    protected Analytics analytics;
 
     @Bean
     protected StorageResourceFilter storageResourceFilter;
@@ -95,6 +99,8 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
             transaction.replace(R.id.search_controller, searchFragment);
 
             transaction.commit();
+
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.SAVED_ITEMS.getValue());
         } else {
             savedItemsController = (SavedItemsControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(SavedItemsControllerFragment.TAG);

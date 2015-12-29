@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -22,33 +22,27 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.network;
+package com.jaspersoft.android.jaspermobile.util.rx;
 
-import com.google.inject.Inject;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.octo.android.robospice.request.springandroid.SpringAndroidSpiceRequest;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
- * @author Andrew Tivodar
- * @since 1.9
+ * @author Tom Koptel
+ * @since 2.3
  */
-public class PrivacyRequest extends SpringAndroidSpiceRequest<String> {
-    public static final String PRIVACY_URL = "http://www.tibco.com/company/privacy-cma";
-
-    @Inject
-    private JsRestClient jsRestClient;
-
-    @Inject
-    public PrivacyRequest() {
-        super(String.class);
+public final class RxTransformers {
+    private RxTransformers() {
     }
 
-    @Override
-    public String loadDataFromNetwork() throws Exception {
-        return jsRestClient.getRestTemplate().getForObject(PRIVACY_URL, String.class);
-    }
-
-    public String createCacheKey() {
-        return PRIVACY_URL;
+    public static <T> Observable.Transformer<T, T> applySchedulers() {
+        return new Observable.Transformer<T, T>() {
+            @Override
+            public Observable<T> call(Observable<T> observable) {
+                return observable.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread());
+            }
+        };
     }
 }

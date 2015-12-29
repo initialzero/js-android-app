@@ -57,10 +57,10 @@ public class JsSpiceManager extends SpiceManager {
 
     @Override
     public <T> void execute(final CachedSpiceRequest<T> cachedSpiceRequest, final RequestListener<T> requestListener) {
-        if (!isRestClientValid()) {
-            JsServerProfileCompat.initLegacyJsRestClient(mContext, jsRestClient);
+        tryToSetupRestClient();
+        if (isRestClientValid()) {
+            super.execute(cachedSpiceRequest, requestListener);
         }
-        super.execute(cachedSpiceRequest, requestListener);
     }
 
     private boolean isRestClientValid() {
@@ -79,5 +79,11 @@ public class JsSpiceManager extends SpiceManager {
             }
         }
         return false;
+    }
+
+    private void tryToSetupRestClient() {
+        if (!isRestClientValid()) {
+            JsServerProfileCompat.initLegacyJsRestClient(mContext, jsRestClient);
+        }
     }
 }

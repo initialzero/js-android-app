@@ -27,8 +27,10 @@ package com.jaspersoft.android.jaspermobile.activities.auth;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.View;
@@ -154,6 +156,13 @@ public class AuthenticatorFragment extends RoboFragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        setProgressEnabled(mFetching);
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
 
@@ -178,7 +187,6 @@ public class AuthenticatorFragment extends RoboFragment {
             tryDemoLayout.setVisibility(View.VISIBLE);
         }
 
-        setProgressEnabled(mFetching);
         if (loginDemoTask != null && mFetching) {
             requestCustomLogin();
         }
@@ -343,7 +351,7 @@ public class AuthenticatorFragment extends RoboFragment {
         if (mFetching) {
             ProgressDialogFragment.builder(getFragmentManager())
                     .setLoadingMessage(R.string.account_add)
-                    .show();
+                    .display();
         } else {
             ProgressDialogFragment.dismiss(getFragmentManager());
         }

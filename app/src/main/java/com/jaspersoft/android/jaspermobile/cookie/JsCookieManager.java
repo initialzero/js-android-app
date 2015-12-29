@@ -24,12 +24,48 @@
 
 package com.jaspersoft.android.jaspermobile.cookie;
 
+import android.content.Context;
+
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+
 import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public interface JsCookieManager {
-    Observable<Boolean> manage();
+public abstract class JsCookieManager {
+    protected final Context mContext;
+
+    public JsCookieManager(Context context) {
+        mContext = context;
+    }
+
+    public final Observable<Void> manage() {
+        return Observable.create(new Observable.OnSubscribe<Void>() {
+            @Override
+            public void call(final Subscriber<? super Void> subscriber) {
+                try {
+                    AccountServerData accountServerData = JasperAccountManager.get(mContext)
+                            .getActiveServerData();
+                    setCookies(accountServerData);
+                    if (!subscriber.isUnsubscribed()) {
+                        subscriber.onCompleted();
+                    }
+                } catch (JasperAccountManager.TokenException e) {
+                    if (!subscriber.isUnsubscribed()) {
+                        subscriber.onError(e);
+                    }
+                }
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    protected abstract void setCookies(AccountServerData accountServerData);
 }

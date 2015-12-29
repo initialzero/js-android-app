@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate.v4;
+package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;

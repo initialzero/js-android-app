@@ -133,4 +133,9 @@ public class ReportHtmlViewerActivity extends RoboToolbarActivity implements Rep
         super.onDestroy();
         paramsStorage.clearInputControlHolder(resource.getUri());
     }
+
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_rvs_r);
+    }
 }

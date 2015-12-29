@@ -86,7 +86,7 @@ public class JasperMobileModule extends AbstractModule {
         bind(ReportParamsStorage.class).in(Singleton.class);
         bind(ReportParamsSerializer.class).to(ReportParamsSerializerImpl.class);
         bind(AppConfigurator.class).to(AppConfiguratorImpl.class);
-        bind(Analytics.class).to(JasperAnalytics.class).in(Singleton.class);
+        bind(Analytics.class).toInstance(new JasperAnalytics(mContext));
         bind(SecurityProviderUpdater.class).to(JasperSecurityProviderUpdater.class).in(Singleton.class);
     }
 

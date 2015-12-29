@@ -234,6 +234,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @UiThread
     @Override
     public void onAuthError(String message) {
+        scrollableTitleHelper.injectTitle(resource.getLabel());
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         super.onSessionExpired();
     }

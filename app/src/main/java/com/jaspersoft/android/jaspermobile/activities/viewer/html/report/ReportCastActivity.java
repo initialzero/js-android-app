@@ -25,21 +25,21 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 
 
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.cast.ReportCastHelper;
 import com.jaspersoft.android.jaspermobile.util.cast.ReportPresentation;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterInject;
@@ -47,8 +47,9 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
+
+import java.util.List;
 
 /**
  * @author Andrew Tivodar
@@ -71,6 +72,11 @@ public class ReportCastActivity extends RoboCastActivity implements ReportPresen
     @ViewById(R.id.reportScrollPosition)
     protected View reportScrollPosition;
 
+    @Inject
+    protected ReportParamsStorage paramsStorage;
+    @Inject
+    protected ReportParamsSerializer paramsSerializer;
+
     @AfterInject
     protected void init() {
         reportPresentation = reportCastHelper.getReportPresentation();
@@ -91,15 +97,15 @@ public class ReportCastActivity extends RoboCastActivity implements ReportPresen
             }
         });
 
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.loading_msg)
-                .show();
-
         if (reportPresentation != null) {
             reportPresentation.setReportCastListener(this);
-            if (!reportPresentation.isReportRunning()) {
-                reportPresentation.runReport(resource);
+            if (reportPresentation.isInitialized() && !reportPresentation.isCastingReport()) {
+                requestReportCasting();
             }
+        } else {
+            ProgressDialogFragment.builder(getSupportFragmentManager())
+                    .setLoadingMessage(R.string.loading_msg)
+                    .show();
         }
     }
 
@@ -107,9 +113,13 @@ public class ReportCastActivity extends RoboCastActivity implements ReportPresen
     public void onPresentationStarted() {
         super.onPresentationStarted();
 
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.r_pd_initializing_msg)
+                .show();
+
         reportPresentation = reportCastHelper.getReportPresentation();
         reportPresentation.setReportCastListener(this);
-        reportPresentation.runReport(resource);
     }
 
     @Override
@@ -132,17 +142,39 @@ public class ReportCastActivity extends RoboCastActivity implements ReportPresen
         super.onBackPressed();
 
         if (reportPresentation.isShowing()) {
-            reportPresentation.stopRunning();
+            reportPresentation.stopReportCasting();
         }
     }
 
     @Override
-    public void onReportShow(float contentScale) {
+    public void onPresentationInitialized() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        requestReportCasting();
+    }
+
+    @Override
+    public void onReportShown(float contentScale) {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
         reportScrollPosition.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, (int) (reportScrollPosition.getHeight() * contentScale)));
     }
 
+    @Override
+    public void onError(String error) {
+
+    }
+
     private float calculateScrollPercent() {
         return reportScroll.getScrollY() / (float) (reportScrollPosition.getHeight() - reportScroll.getHeight());
+    }
+
+    private void requestReportCasting() {
+        reportPresentation.castReport(resource.getUri(), paramsSerializer.toJson(getReportParameters()));
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.r_pd_running_report_msg)
+                .show();
+    }
+
+    private List<ReportParameter> getReportParameters() {
+        return paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
     }
 }

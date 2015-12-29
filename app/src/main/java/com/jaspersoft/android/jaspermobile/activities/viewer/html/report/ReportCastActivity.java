@@ -24,8 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 
-import android.content.DialogInterface;
-import android.widget.TextView;
+
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.ActionBar;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
@@ -40,6 +47,7 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
 /**
@@ -47,7 +55,7 @@ import org.androidannotations.annotations.ViewById;
  * @since 2.3
  */
 @EActivity(R.layout.activity_cast_report)
-public class ReportCastActivity extends RoboCastActivity {
+public class ReportCastActivity extends RoboCastActivity implements ReportPresentation.ReportCastListener {
 
     @Extra
     protected ResourceLookup resource;
@@ -57,6 +65,12 @@ public class ReportCastActivity extends RoboCastActivity {
 
     private ReportPresentation reportPresentation;
 
+    @ViewById(R.id.reportScroll)
+    protected ScrollView reportScroll;
+
+    @ViewById(R.id.reportScrollPosition)
+    protected View reportScrollPosition;
+
     @AfterInject
     protected void init() {
         reportPresentation = reportCastHelper.getReportPresentation();
@@ -64,12 +78,28 @@ public class ReportCastActivity extends RoboCastActivity {
 
     @AfterViews
     protected void run() {
-        if (reportPresentation == null) {
-            ProgressDialogFragment.builder(getSupportFragmentManager())
-                    .setLoadingMessage(R.string.loading_msg)
-                    .show();
-        } else if (!reportPresentation.isReportRunning()) {
-            reportPresentation.runReport(resource);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(resource.getLabel());
+        }
+
+        reportScroll.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+
+            @Override
+            public void onScrollChanged() {
+                reportPresentation.scrollTo(calculateScrollPercent());
+            }
+        });
+
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
+
+        if (reportPresentation != null) {
+            reportPresentation.setReportCastListener(this);
+            if (!reportPresentation.isReportRunning()) {
+                reportPresentation.runReport(resource);
+            }
         }
     }
 
@@ -78,9 +108,8 @@ public class ReportCastActivity extends RoboCastActivity {
         super.onPresentationStarted();
 
         reportPresentation = reportCastHelper.getReportPresentation();
+        reportPresentation.setReportCastListener(this);
         reportPresentation.runReport(resource);
-
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
     @Override
@@ -105,5 +134,15 @@ public class ReportCastActivity extends RoboCastActivity {
         if (reportPresentation.isShowing()) {
             reportPresentation.stopRunning();
         }
+    }
+
+    @Override
+    public void onReportShow(float contentScale) {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        reportScrollPosition.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, (int) (reportScrollPosition.getHeight() * contentScale)));
+    }
+
+    private float calculateScrollPercent() {
+        return reportScroll.getScrollY() / (float) (reportScrollPosition.getHeight() - reportScroll.getHeight());
     }
 }

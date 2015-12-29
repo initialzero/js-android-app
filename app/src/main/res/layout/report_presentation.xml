@@ -47,7 +47,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge" />
     </LinearLayout>
 
-    <WebView
+    <com.jaspersoft.android.jaspermobile.widget.ScrollComputableWebView
         android:id="@+id/reportCastWebView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

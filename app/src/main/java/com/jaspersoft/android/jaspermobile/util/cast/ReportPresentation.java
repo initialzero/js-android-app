@@ -29,7 +29,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.Display;
 import android.view.View;
@@ -38,14 +37,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.cast.CastPresentation;
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializerImpl;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
 import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
@@ -65,15 +60,14 @@ import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
+import com.jaspersoft.android.jaspermobile.widget.ScrollComputableWebView;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 
-import org.androidannotations.annotations.UiThread;
 import org.apache.commons.io.IOUtils;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,13 +84,14 @@ import rx.functions.Action1;
  */
 public class ReportPresentation extends CastPresentation implements ErrorWebViewClientListener.OnWebViewErrorListener, ReportCallback {
 
-    private WebView webView;
+    private ScrollComputableWebView webView;
     private ProgressBar loadingBar;
     private TextView message;
     private AccountServerData accountServerData;
 
     private WebInterface mWebInterface;
-    private ResourceLookup resourceLookup;
+    private ResourceLookup mResourceLookup;
+    private ReportCastListener mReportCastListener;
     private boolean isInited;
 
     protected ReportParamsStorage paramsStorage;
@@ -115,7 +110,7 @@ public class ReportPresentation extends CastPresentation implements ErrorWebView
 
         setContentView(R.layout.report_presentation);
 
-        webView = (WebView) findViewById(R.id.reportCastWebView);
+        webView = (ScrollComputableWebView) findViewById(R.id.reportCastWebView);
         loadingBar = (ProgressBar) findViewById(R.id.progressBar);
         message = (TextView) findViewById(R.id.reportMessage);
 
@@ -124,7 +119,7 @@ public class ReportPresentation extends CastPresentation implements ErrorWebView
     }
 
     public void runReport(ResourceLookup resourceLookup) {
-        this.resourceLookup = resourceLookup;
+        this.mResourceLookup = resourceLookup;
 
         if (isInited) {
             runReport(paramsSerializer.toJson(getReportParameters()));
@@ -146,7 +141,6 @@ public class ReportPresentation extends CastPresentation implements ErrorWebView
                         showErrorView(throwable.getMessage());
                     }
                 });
-
     }
 
     public void stopRunning() {
@@ -157,6 +151,14 @@ public class ReportPresentation extends CastPresentation implements ErrorWebView
 
     public boolean isReportRunning() {
         return webView.getVisibility() == View.VISIBLE;
+    }
+
+    public void setReportCastListener(ReportCastListener reportCastListener) {
+        this.mReportCastListener = reportCastListener;
+    }
+
+    public void scrollTo(float scrollPercent) {
+        webView.setScrollY((int) ((webView.computeVerticalScrollRange() - webView.getHeight()) * scrollPercent));
     }
 
     private void initWebView() {
@@ -244,7 +246,7 @@ public class ReportPresentation extends CastPresentation implements ErrorWebView
                 accountServerData.getPassword(),
                 organization,
                 ScreenUtil_.getInstance_(getContext()).getDiagonal(),
-                resourceLookup.getUri(),
+                mResourceLookup.getUri(),
                 params
         );
 
@@ -277,6 +279,9 @@ public class ReportPresentation extends CastPresentation implements ErrorWebView
             public void run() {
                 loadingBar.setVisibility(View.GONE);
                 webView.setVisibility(View.VISIBLE);
+                if (mReportCastListener != null) {
+                    mReportCastListener.onReportShow(webView.computeVerticalScrollRange() / (float)webView.getHeight());
+                }
             }
         });
     }
@@ -292,7 +297,7 @@ public class ReportPresentation extends CastPresentation implements ErrorWebView
     }
 
     private List<ReportParameter> getReportParameters() {
-        return paramsStorage.getInputControlHolder(resourceLookup.getUri()).getReportParams();
+        return paramsStorage.getInputControlHolder(mResourceLookup.getUri()).getReportParams();
     }
 
     @Override
@@ -353,5 +358,9 @@ public class ReportPresentation extends CastPresentation implements ErrorWebView
     @Override
     public void onPageLoadError(String errorMessage, int page) {
 
+    }
+
+    public interface ReportCastListener {
+        void onReportShow(float contentScale);
     }
 }

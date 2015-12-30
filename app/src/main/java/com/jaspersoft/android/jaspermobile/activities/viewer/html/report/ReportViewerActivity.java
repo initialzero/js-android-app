@@ -31,10 +31,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.MediaRouteActionProvider;
-import android.support.v7.media.MediaRouteSelector;
-import android.support.v7.media.MediaRouter;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,7 +42,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
@@ -54,7 +49,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
@@ -75,6 +69,7 @@ import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
@@ -133,7 +128,7 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
  * @author Tom Koptel
  * @since 2.0
  */
-@OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu, R.menu.report_filter_manager_menu})
+@OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu, R.menu.report_filter_manager_menu, R.menu.print_menu})
 @EActivity(R.layout.activity_report_viewer)
 public class ReportViewerActivity extends RoboCastActivity
         implements ReportCallback,
@@ -308,13 +303,13 @@ public class ReportViewerActivity extends RoboCastActivity
             webView.removeAllViews();
             webView.destroy();
         }
-        paramsStorage.clearInputControlHolder(resource.getUri());
+        if (!ResourcePresentationService.isStarted()) {
+            paramsStorage.clearInputControlHolder(resource.getUri());
+        }
     }
 
     @Override
-    public void onRouteSelected() {
-        super.onRouteSelected();
-
+    protected void onCastStarted() {
         ReportCastActivity_.intent(this)
                 .resource(resource)
                 .start();

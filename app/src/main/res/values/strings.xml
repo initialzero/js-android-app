@@ -82,7 +82,7 @@
 
     <!-- Progress Dialog -->
     <string name="r_pd_running_report_msg">Running report...</string>
-    <string name="r_pd_initializing_msg">Initializing...</string>
+    <string name="r_pd_initializing_msg" translatable="false">Initializing...</string>
 
     <!-- Search Activity -->
     <string name="s_hint">Search resources</string>

@@ -25,20 +25,31 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 
 
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
+import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.jaspermobile.util.cast.ReportCastHelper;
-import com.jaspersoft.android.jaspermobile.util.cast.ReportPresentation;
+import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -47,24 +58,26 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.OnActivityResult;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
+
+import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
 /**
  * @author Andrew Tivodar
  * @since 2.3
  */
+@OptionsMenu({R.menu.webview_menu, R.menu.report_filter_manager_menu})
 @EActivity(R.layout.activity_cast_report)
-public class ReportCastActivity extends RoboCastActivity implements ReportPresentation.ReportCastListener {
+public class ReportCastActivity extends RoboCastActivity implements ReportView, GetInputControlsFragment.OnInputControlsListener, ResourcePresentationService.ResourcePresentationCallback {
 
     @Extra
     protected ResourceLookup resource;
-
-    @Bean
-    protected ReportCastHelper reportCastHelper;
-
-    private ReportPresentation reportPresentation;
 
     @ViewById(R.id.reportScroll)
     protected ScrollView reportScroll;
@@ -72,14 +85,30 @@ public class ReportCastActivity extends RoboCastActivity implements ReportPresen
     @ViewById(R.id.reportScrollPosition)
     protected View reportScrollPosition;
 
+    @ViewById(R.id.progressLoading)
+    protected ProgressBar reportProgress;
+
+    @ViewById(R.id.reportMessage)
+    protected TextView reportMessage;
+
+    @OptionsMenuItem(R.id.refreshAction)
+    protected MenuItem refreshAction;
+
+    @OptionsMenuItem(R.id.showFilters)
+    protected MenuItem showFilters;
+
     @Inject
     protected ReportParamsStorage paramsStorage;
     @Inject
     protected ReportParamsSerializer paramsSerializer;
 
-    @AfterInject
-    protected void init() {
-        reportPresentation = reportCastHelper.getReportPresentation();
+    private ResourcePresentationService mResourcePresentationService;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mResourcePresentationService = (ResourcePresentationService) ResourcePresentationService.getInstance();
     }
 
     @AfterViews
@@ -93,74 +122,204 @@ public class ReportCastActivity extends RoboCastActivity implements ReportPresen
 
             @Override
             public void onScrollChanged() {
-                reportPresentation.scrollTo(calculateScrollPercent());
+                mResourcePresentationService.scrollTo(calculateScrollPercent());
             }
         });
 
-        if (reportPresentation != null) {
-            reportPresentation.setReportCastListener(this);
-            if (reportPresentation.isInitialized() && !reportPresentation.isCastingReport()) {
-                requestReportCasting();
-            }
-        } else {
-            ProgressDialogFragment.builder(getSupportFragmentManager())
-                    .setLoadingMessage(R.string.loading_msg)
-                    .show();
+        mResourcePresentationService.setResourcePresentationCallback(this);
+        switch (mResourcePresentationService.getState()) {
+            case ResourcePresentationService.INITIALIZED:
+                loadInputControls();
+                break;
+            case ResourcePresentationService.IDLE:
+                showProgress(getString(R.string.r_pd_initializing_msg));
+                break;
+            case ResourcePresentationService.LOADING:
+                showProgress(getString(R.string.r_pd_running_report_msg));
+                break;
+            case ResourcePresentationService.PRESENTING:
+                float scrollScale = mResourcePresentationService.getScrollScale();
+                setScrollHeight(scrollScale);
+                break;
         }
-    }
-
-    @Override
-    public void onPresentationStarted() {
-        super.onPresentationStarted();
-
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.r_pd_initializing_msg)
-                .show();
-
-        reportPresentation = reportCastHelper.getReportPresentation();
-        reportPresentation.setReportCastListener(this);
-    }
-
-    @Override
-    public void onPresentationStopped() {
-        super.onPresentationStopped();
-        finish();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        if (reportPresentation != null && !reportPresentation.isShowing()) {
+        if (!ResourcePresentationService.isStarted()) {
             finish();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        paramsStorage.clearInputControlHolder(resource.getUri());
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
 
-        if (reportPresentation.isShowing()) {
-            reportPresentation.stopReportCasting();
+        mResourcePresentationService.stopPresentation();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean isPresenting = mResourcePresentationService.getState() == ResourcePresentationService.PRESENTING;
+
+        refreshAction.setVisible(isPresenting);
+        showFilters.setVisible(isPresenting && !getInputControls().isEmpty());
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @OptionsItem
+    public boolean showFilters() {
+        if (isInputControlFragmentAdded()) return false;
+
+        addInputControlFragment();
+        return true;
+    }
+
+    @OptionsItem
+    public void refreshAction() {
+        mResourcePresentationService.refresh();
+        showProgress(getString(R.string.r_pd_running_report_msg));
+    }
+
+    @OnActivityResult(REQUEST_REPORT_PARAMETERS)
+    final void loadFlowWithControls(int resultCode, Intent data) {
+        boolean isPresenting = mResourcePresentationService.getState() == ResourcePresentationService.PRESENTING;
+        if (resultCode == Activity.RESULT_OK) {
+            boolean isNewParamsEqualOld = data.getBooleanExtra(InputControlsActivity.RESULT_SAME_PARAMS, false);
+            if (isNewParamsEqualOld && isPresenting) {
+                return;
+            }
+
+            if (isPresenting) {
+                requestApplyParams();
+            } else {
+                requestReportCasting();
+            }
+        } else if (!isPresenting) {
+            super.onBackPressed();
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Callbacks
+    //---------------------------------------------------------------------
+
+    @Override
+    public void onLoaded() {
+        boolean noControls = getInputControls().isEmpty();
+
+        if (noControls) {
+            requestReportCasting();
+        } else {
+            onShowControls();
         }
     }
 
     @Override
-    public void onPresentationInitialized() {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        requestReportCasting();
+    public void onShowControls() {
+        InputControlsActivity_.intent(this).reportUri(resource.getUri()).startForResult(REQUEST_REPORT_PARAMETERS);
     }
 
     @Override
-    public void onReportShown(float contentScale) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        reportScrollPosition.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, (int) (reportScrollPosition.getHeight() * contentScale)));
+    public void showEmptyView() {
+        reportMessage.setVisibility(View.VISIBLE);
+        reportMessage.setText(getString(R.string.rv_error_empty_report));
     }
 
     @Override
-    public void onError(String error) {
+    public void hideEmptyView() {
+        reportMessage.setVisibility(View.GONE);
+    }
 
+    @Override
+    public void showErrorView(CharSequence error) {
+        reportMessage.setVisibility(View.VISIBLE);
+        reportMessage.setText(error);
+    }
+
+    @Override
+    public void hideErrorView() {
+        reportMessage.setVisibility(View.GONE);
+    }
+
+    public void showProgress(CharSequence message) {
+        reportProgress.setVisibility(View.VISIBLE);
+
+        reportMessage.setVisibility(View.VISIBLE);
+        reportMessage.setText(message);
+    }
+
+    public void hideProgress() {
+        reportProgress.setVisibility(View.GONE);
+        reportMessage.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onInitializationDone() {
+        hideProgress();
+        loadInputControls();
+    }
+
+    @Override
+    public void onLoadingStarted() {
+        invalidateOptionsMenu();
+        setScrollHeight(-1);
+    }
+
+    @Override
+    public void onPresentationBegun() {
+        invalidateOptionsMenu();
+        hideProgress();
+
+        float scrollScale = mResourcePresentationService.getScrollScale();
+        setScrollHeight(scrollScale);
+    }
+
+    @Override
+    public void onErrorOccurred(String error) {
+        invalidateOptionsMenu();
+        hideProgress();
+        showErrorView(error);
+        setScrollHeight(-1);
+    }
+
+    @Override
+    public void onCastStopped() {
+        super.onCastStopped();
+        finish();
+    }
+
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
+
+    private boolean isInputControlFragmentAdded() {
+        GetInputControlsFragment fragment = (GetInputControlsFragment)
+                getSupportFragmentManager().findFragmentByTag(GetInputControlsFragment.TAG);
+        return fragment != null;
+    }
+
+    private void addInputControlFragment() {
+        GetInputControlsFragment fragment = GetInputControlsFragment_.builder()
+                .resourceUri(resource.getUri()).build();
+        getSupportFragmentManager().beginTransaction()
+                .add(fragment, GetInputControlsFragment.TAG).commit();
+    }
+
+    private void loadInputControls() {
+        if (!getReportParameters().isEmpty()) {
+            requestReportCasting();
+        } else {
+            addInputControlFragment();
+        }
     }
 
     private float calculateScrollPercent() {
@@ -168,13 +327,32 @@ public class ReportCastActivity extends RoboCastActivity implements ReportPresen
     }
 
     private void requestReportCasting() {
-        reportPresentation.castReport(resource.getUri(), paramsSerializer.toJson(getReportParameters()));
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.r_pd_running_report_msg)
-                .show();
+        mResourcePresentationService.startPresentation(resource.getUri(), paramsSerializer.toJson(getReportParameters()));
+        showProgress(getString(R.string.r_pd_running_report_msg));
+    }
+
+    private void requestApplyParams() {
+        mResourcePresentationService.applyParams(paramsSerializer.toJson(getReportParameters()));
+        showProgress(getString(R.string.r_pd_running_report_msg));
+    }
+
+    private List<InputControl> getInputControls() {
+        return paramsStorage.getInputControlHolder(resource.getUri()).getInputControls();
     }
 
     private List<ReportParameter> getReportParameters() {
         return paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
+    }
+
+    private void setScrollHeight(float scale) {
+        int height;
+        if (scale == -1) {
+            height = FrameLayout.LayoutParams.MATCH_PARENT;
+            reportScroll.setVisibility(View.GONE);
+        } else {
+            height = (int) (getResources().getDimension(R.dimen.cast_scroll_size) * scale);
+            reportScroll.setVisibility(View.VISIBLE);
+        }
+        reportScrollPosition.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, height));
     }
 }

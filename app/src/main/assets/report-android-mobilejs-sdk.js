@@ -365,6 +365,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       ReportController.prototype.refresh = function() {
         js_mobile.log("refresh");
+         this.callback.onLoadStart();
         return this.report.refresh(this._processSuccess, this._processErrors);
       };
 

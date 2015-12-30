@@ -226,7 +226,7 @@
             android:enabled="true"
             android:exported="false"/>
 
-        <service android:name=".util.cast.ReportPresentationService" android:exported="false" />
+        <service android:name=".util.cast.ResourcePresentationService" android:exported="false" />
 
         <provider
             android:name=".db.MobileDbProvider"

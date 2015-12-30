@@ -45,10 +45,8 @@
 
     <ScrollView
         android:id="@+id/reportScroll"
-        android:layout_width="@dimen/cast_scroll_size"
-        android:layout_height="@dimen/cast_scroll_size"
-        android:layout_centerInParent="true"
-        android:layout_marginLeft="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:fadeScrollbars="false"
         android:fillViewport="true"
         android:visibility="gone">
@@ -56,7 +54,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/js_gray">
+            android:background="@color/js_dark_gray">
 
             <View
                 android:id="@+id/reportScrollPosition"

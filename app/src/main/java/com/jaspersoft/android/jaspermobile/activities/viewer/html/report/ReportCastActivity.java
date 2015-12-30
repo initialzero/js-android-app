@@ -38,7 +38,6 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
@@ -53,9 +52,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OnActivityResult;
@@ -125,23 +122,6 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
                 mResourcePresentationService.scrollTo(calculateScrollPercent());
             }
         });
-
-        mResourcePresentationService.setResourcePresentationCallback(this);
-        switch (mResourcePresentationService.getState()) {
-            case ResourcePresentationService.INITIALIZED:
-                loadInputControls();
-                break;
-            case ResourcePresentationService.IDLE:
-                showProgress(getString(R.string.r_pd_initializing_msg));
-                break;
-            case ResourcePresentationService.LOADING:
-                showProgress(getString(R.string.r_pd_running_report_msg));
-                break;
-            case ResourcePresentationService.PRESENTING:
-                float scrollScale = mResourcePresentationService.getScrollScale();
-                setScrollHeight(scrollScale);
-                break;
-        }
     }
 
     @Override
@@ -150,25 +130,22 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
 
         if (!ResourcePresentationService.isStarted()) {
             finish();
+        } else {
+            mResourcePresentationService.setResourcePresentationCallback(this);
+            mResourcePresentationService.synchronizeState(resource.getUri());
         }
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        paramsStorage.clearInputControlHolder(resource.getUri());
-    }
+    protected void onStop() {
+        super.onStop();
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
-        mResourcePresentationService.stopPresentation();
+        mResourcePresentationService.setResourcePresentationCallback(null);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean isPresenting = mResourcePresentationService.getState() == ResourcePresentationService.PRESENTING;
+        boolean isPresenting = mResourcePresentationService.isPresenting();
 
         refreshAction.setVisible(isPresenting);
         showFilters.setVisible(isPresenting && !getInputControls().isEmpty());
@@ -186,12 +163,11 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     @OptionsItem
     public void refreshAction() {
         mResourcePresentationService.refresh();
-        showProgress(getString(R.string.r_pd_running_report_msg));
     }
 
     @OnActivityResult(REQUEST_REPORT_PARAMETERS)
     final void loadFlowWithControls(int resultCode, Intent data) {
-        boolean isPresenting = mResourcePresentationService.getState() == ResourcePresentationService.PRESENTING;
+        boolean isPresenting = mResourcePresentationService.isPresenting();
         if (resultCode == Activity.RESULT_OK) {
             boolean isNewParamsEqualOld = data.getBooleanExtra(InputControlsActivity.RESULT_SAME_PARAMS, false);
             if (isNewParamsEqualOld && isPresenting) {
@@ -263,6 +239,13 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     }
 
     @Override
+    public void onCastStarted() {
+        super.onCastStarted();
+
+        showProgress(getString(R.string.r_pd_initializing_msg));
+    }
+
+    @Override
     public void onInitializationDone() {
         hideProgress();
         loadInputControls();
@@ -271,7 +254,8 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     @Override
     public void onLoadingStarted() {
         invalidateOptionsMenu();
-        setScrollHeight(-1);
+        showProgress(getString(R.string.r_pd_running_report_msg));
+        updateReportScroll(1, 0);
     }
 
     @Override
@@ -280,7 +264,8 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         hideProgress();
 
         float scrollScale = mResourcePresentationService.getScrollScale();
-        setScrollHeight(scrollScale);
+        float scrollPosition = mResourcePresentationService.getScrollPosition();
+        updateReportScroll(scrollScale, scrollPosition);
     }
 
     @Override
@@ -288,12 +273,13 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         invalidateOptionsMenu();
         hideProgress();
         showErrorView(error);
-        setScrollHeight(-1);
+        updateReportScroll(1, 0);
     }
 
     @Override
     public void onCastStopped() {
         super.onCastStopped();
+        paramsStorage.clearInputControlHolder(resource.getUri());
         finish();
     }
 
@@ -317,7 +303,7 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     private void loadInputControls() {
         if (!getReportParameters().isEmpty()) {
             requestReportCasting();
-        } else {
+        } else if (!isInputControlFragmentAdded()) {
             addInputControlFragment();
         }
     }
@@ -328,12 +314,10 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
 
     private void requestReportCasting() {
         mResourcePresentationService.startPresentation(resource.getUri(), paramsSerializer.toJson(getReportParameters()));
-        showProgress(getString(R.string.r_pd_running_report_msg));
     }
 
     private void requestApplyParams() {
         mResourcePresentationService.applyParams(paramsSerializer.toJson(getReportParameters()));
-        showProgress(getString(R.string.r_pd_running_report_msg));
     }
 
     private List<InputControl> getInputControls() {
@@ -344,15 +328,27 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         return paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
     }
 
-    private void setScrollHeight(float scale) {
-        int height;
-        if (scale == -1) {
-            height = FrameLayout.LayoutParams.MATCH_PARENT;
-            reportScroll.setVisibility(View.GONE);
-        } else {
-            height = (int) (getResources().getDimension(R.dimen.cast_scroll_size) * scale);
-            reportScroll.setVisibility(View.VISIBLE);
-        }
-        reportScrollPosition.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, height));
+    private void updateReportScroll(final float scale, final float scrollPercent) {
+        reportScroll.setVisibility(scale == 1 ? View.GONE : View.VISIBLE);
+        reportScrollPosition.post(new Runnable() {
+            @Override
+            public void run() {
+                int height = FrameLayout.LayoutParams.WRAP_CONTENT;
+                if (scale != 1) {
+                    height = (int) (reportScrollPosition.getHeight() * scale);
+                }
+                reportScrollPosition.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, height));
+                scrollTo(scrollPercent);
+            }
+        });
+    }
+
+    private void scrollTo(final float scrollPercent) {
+        reportScroll.post(new Runnable() {
+            @Override
+            public void run() {
+                reportScroll.setScrollY((int) ((reportScrollPosition.getHeight() - reportScroll.getHeight()) * scrollPercent));
+            }
+        });
     }
 }

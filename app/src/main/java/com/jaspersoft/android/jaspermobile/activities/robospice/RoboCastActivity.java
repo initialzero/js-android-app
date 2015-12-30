@@ -34,6 +34,7 @@ import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.CastMediaControlIntent;
@@ -166,7 +167,7 @@ public abstract class RoboCastActivity extends RoboToolbarActivity {
 
         @Override
         public void onRemoteDisplaySessionError(Status status) {
-
+            Toast.makeText(RoboCastActivity.this, "Error casting " + status, Toast.LENGTH_SHORT).show();
         }
     }
 }

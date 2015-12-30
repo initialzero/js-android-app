@@ -85,6 +85,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
     private ReportPresentation mPresentation;
     private ResourcePresentationCallback mReportPresentationListener;
+    private String mCurrentResource;
     private int mState;
 
     @Override
@@ -112,8 +113,37 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         return getInstance() != null;
     }
 
-    public int getState() {
-        return mState;
+    public boolean isPresenting() {
+        return mState == PRESENTING;
+    }
+
+    public void synchronizeState(String resourceUri) {
+        if (mCurrentResource != null && !mCurrentResource.equals(resourceUri)) {
+            stopPresentation();
+        }
+
+        switch (mState) {
+            case ResourcePresentationService.IDLE:
+                if (mReportPresentationListener != null) {
+                    mReportPresentationListener.onCastStarted();
+                }
+                break;
+            case ResourcePresentationService.INITIALIZED:
+                if (mReportPresentationListener != null) {
+                    mReportPresentationListener.onInitializationDone();
+                }
+                break;
+            case ResourcePresentationService.LOADING:
+                if (mReportPresentationListener != null) {
+                    mReportPresentationListener.onLoadingStarted();
+                }
+                break;
+            case ResourcePresentationService.PRESENTING:
+                if (mReportPresentationListener != null) {
+                    mReportPresentationListener.onPresentationBegun();
+                }
+                break;
+        }
     }
 
     public void setResourcePresentationCallback(ResourcePresentationCallback resourcePresentationCallback) {
@@ -121,6 +151,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     }
 
     public void startPresentation(String reportUri, String params) {
+        mCurrentResource = reportUri;
         mPresentation.castReport(reportUri, params);
     }
 
@@ -142,6 +173,10 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
     public float getScrollScale() {
         return mPresentation.getContentScale();
+    }
+
+    public float getScrollPosition() {
+        return mPresentation.calculateScrollPercent();
     }
 
     public void scrollTo(float scrollPercent) {
@@ -198,9 +233,14 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     //---------------------------------------------------------------------
 
     public interface ResourcePresentationCallback {
+        void onCastStarted();
+
         void onInitializationDone();
+
         void onLoadingStarted();
+
         void onPresentationBegun();
+
         void onErrorOccurred(String errorMessage);
     }
 
@@ -299,6 +339,12 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
         private float getContentScale() {
             return webView.computeVerticalScrollRange() / (float) webView.getHeight();
+        }
+
+        private float calculateScrollPercent() {
+            int maxScroll = webView.computeVerticalScrollRange() - webView.getHeight();
+            if (maxScroll > 0) return webView.getScrollY() / (float) maxScroll;
+            return 0;
         }
 
         //---------------------------------------------------------------------

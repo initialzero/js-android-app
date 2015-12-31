@@ -339,7 +339,6 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     @Override
     public void onCastStopped() {
         super.onCastStopped();
-        paramsStorage.clearInputControlHolder(resource.getUri());
         finish();
     }
 

@@ -37,8 +37,11 @@ import android.widget.ProgressBar;
 
 import com.google.android.gms.cast.CastPresentation;
 import com.google.android.gms.cast.CastRemoteDisplayLocalService;
+import com.google.inject.Inject;
+import com.google.inject.Key;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
 import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
@@ -70,6 +73,8 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import roboguice.RoboGuice;
+import roboguice.util.RoboContext;
 import rx.functions.Action1;
 
 /**
@@ -83,10 +88,18 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     public final static int LOADING = 2;
     public final static int PRESENTING = 3;
 
+    @Inject
+    private ReportParamsStorage paramsStorage;
     private ReportPresentation mPresentation;
     private ResourcePresentationCallback mReportPresentationListener;
     private String mCurrentResource;
     private int mState;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        RoboGuice.getInjector(getApplicationContext()).injectMembersWithoutViews(this);
+    }
 
     @Override
     public void onCreatePresentation(Display display) {
@@ -103,6 +116,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     @Override
     public void onDismissPresentation() {
         if (mPresentation != null) {
+            closeCurrentPresentation();
             mPresentation.dismiss();
             mPresentation = null;
         }
@@ -119,7 +133,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
     public void synchronizeState(String resourceUri) {
         if (mCurrentResource != null && !mCurrentResource.equals(resourceUri)) {
-            stopPresentation();
+            closeCurrentPresentation();
         }
 
         switch (mState) {
@@ -155,20 +169,21 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         mPresentation.castReport(reportUri, params);
     }
 
+    public void closeCurrentPresentation() {
+        if (mCurrentResource != null) {
+            paramsStorage.clearInputControlHolder(mCurrentResource);
+        }
+        resetPresentation();
+    }
+
     public void applyParams(String params) {
-        stopPresentation();
+        resetPresentation();
         mPresentation.applyParams(params);
     }
 
     public void refresh() {
-        stopPresentation();
+        resetPresentation();
         mPresentation.refresh();
-    }
-
-    public void stopPresentation() {
-        mPresentation.hideLoading();
-        mPresentation.hideReport();
-        mState = INITIALIZED;
     }
 
     public void selectPage(int pageNumber) {
@@ -191,8 +206,14 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     // Helper methods
     //---------------------------------------------------------------------
 
+    private void resetPresentation() {
+        mPresentation.hideLoading();
+        mPresentation.hideReport();
+        mState = INITIALIZED;
+    }
+
     private void handleError(String error) {
-        stopPresentation();
+        resetPresentation();
         if (mReportPresentationListener != null) {
             mReportPresentationListener.onErrorOccurred(error);
         }

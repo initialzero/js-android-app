@@ -47,6 +47,7 @@
         android:id="@+id/reportScroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/paginationControl"
         android:fadeScrollbars="false"
         android:fillViewport="true"
         android:visibility="gone">
@@ -64,5 +65,14 @@
         </FrameLayout>
 
     </ScrollView>
+
+    <com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView_
+        android:id="@+id/paginationControl"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentBottom="true"
+        android:background="#454850"
+        android:padding="4dp"
+        android:visibility="gone" />
 
 </RelativeLayout>

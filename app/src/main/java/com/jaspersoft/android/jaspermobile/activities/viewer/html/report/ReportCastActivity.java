@@ -37,6 +37,7 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
@@ -46,6 +47,10 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
+import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -71,7 +76,9 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
  */
 @OptionsMenu({R.menu.webview_menu, R.menu.report_filter_manager_menu})
 @EActivity(R.layout.activity_cast_report)
-public class ReportCastActivity extends RoboCastActivity implements ReportView, GetInputControlsFragment.OnInputControlsListener, ResourcePresentationService.ResourcePresentationCallback {
+public class ReportCastActivity extends RoboCastActivity implements ReportView, GetInputControlsFragment.OnInputControlsListener,
+        ResourcePresentationService.ResourcePresentationCallback, AbstractPaginationView.OnPageChangeListener,
+        NumberDialogFragment.NumberDialogClickListener, PageDialogFragment.PageDialogClickListener {
 
     @Extra
     protected ResourceLookup resource;
@@ -87,6 +94,9 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
 
     @ViewById(R.id.reportMessage)
     protected TextView reportMessage;
+
+    @ViewById(R.id.paginationControl)
+    protected PaginationBarView paginationBar;
 
     @OptionsMenuItem(R.id.refreshAction)
     protected MenuItem refreshAction;
@@ -122,6 +132,7 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
                 mResourcePresentationService.scrollTo(calculateScrollPercent());
             }
         });
+        paginationBar.setOnPageChangeListener(this);
     }
 
     @Override
@@ -205,6 +216,34 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     }
 
     @Override
+    public void onPagePickerRequested() {
+        if (paginationBar.isTotalPagesLoaded()) {
+            NumberDialogFragment.createBuilder(getSupportFragmentManager())
+                    .setMinValue(1)
+                    .setCurrentValue(paginationBar.getCurrentPage())
+                    .setMaxValue(paginationBar.getTotalPages())
+                    .show();
+        } else {
+            PageDialogFragment.createBuilder(getSupportFragmentManager())
+                    .setMaxValue(Integer.MAX_VALUE)
+                    .show();
+        }
+    }
+
+    @Override
+    public void onPageSelected(int page, int requestCode) {
+        paginationBar.updateCurrentPage(page);
+        onPageSelected(page);
+    }
+
+    @Override
+    public void onPageSelected(int currentPage) {
+        paginationBar.setEnabled(false);
+        updateReportScroll(1, 0);
+        mResourcePresentationService.selectPage(currentPage);
+    }
+
+    @Override
     public void showEmptyView() {
         reportMessage.setVisibility(View.VISIBLE);
         reportMessage.setText(getString(R.string.rv_error_empty_report));
@@ -256,6 +295,8 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         invalidateOptionsMenu();
         showProgress(getString(R.string.r_pd_running_report_msg));
         updateReportScroll(1, 0);
+        paginationBar.setVisibility(View.GONE);
+        paginationBar.reset();
     }
 
     @Override
@@ -263,9 +304,28 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         invalidateOptionsMenu();
         hideProgress();
 
-        float scrollScale = mResourcePresentationService.getScrollScale();
-        float scrollPosition = mResourcePresentationService.getScrollPosition();
-        updateReportScroll(scrollScale, scrollPosition);
+        updateReportScroll();
+    }
+
+    @Override
+    public void onMultiPage() {
+        paginationBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onPageCountObtain(int pageCount) {
+        paginationBar.updateTotalCount(pageCount);
+        paginationBar.setVisibility(pageCount > 1 ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void onPageChanged(int pageNumb, String errorMessage) {
+        paginationBar.updateCurrentPage(pageNumb);
+        paginationBar.setEnabled(true);
+        updateReportScroll();
+        if (errorMessage != null) {
+            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -326,6 +386,12 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
 
     private List<ReportParameter> getReportParameters() {
         return paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
+    }
+
+    private void updateReportScroll() {
+        float scrollScale = mResourcePresentationService.getScrollScale();
+        float scrollPosition = mResourcePresentationService.getScrollPosition();
+        updateReportScroll(scrollScale, scrollPosition);
     }
 
     private void updateReportScroll(final float scale, final float scrollPercent) {

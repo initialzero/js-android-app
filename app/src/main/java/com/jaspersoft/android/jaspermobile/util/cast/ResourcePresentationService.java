@@ -171,6 +171,10 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         mState = INITIALIZED;
     }
 
+    public void selectPage(int pageNumber) {
+        mPresentation.selectPage(pageNumber);
+    }
+
     public float getScrollScale() {
         return mPresentation.getContentScale();
     }
@@ -186,40 +190,6 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
-
-    private void handleInitializationStart() {
-        mPresentation.showLoading();
-    }
-
-    private void handleInitializationDone() {
-        mPresentation.hideLoading();
-
-        mState = INITIALIZED;
-        if (mReportPresentationListener != null) {
-            mReportPresentationListener.onInitializationDone();
-        }
-    }
-
-    private void handleLoadStart() {
-        mPresentation.showLoading();
-
-        mState = LOADING;
-        if (mReportPresentationListener != null) {
-            mReportPresentationListener.onLoadingStarted();
-        }
-    }
-
-    private void handleLoadDone() {
-        if (mState == INITIALIZED) return;
-
-        mPresentation.hideLoading();
-        mPresentation.showReport();
-
-        mState = PRESENTING;
-        if (mReportPresentationListener != null) {
-            mReportPresentationListener.onPresentationBegun();
-        }
-    }
 
     private void handleError(String error) {
         stopPresentation();
@@ -240,6 +210,12 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         void onLoadingStarted();
 
         void onPresentationBegun();
+
+        void onMultiPage();
+
+        void onPageCountObtain(int pageCount);
+
+        void onPageChanged(int pageNumb, String errorMessage);
 
         void onErrorOccurred(String errorMessage);
     }
@@ -317,6 +293,11 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             webView.loadUrl("javascript:MobileReport.refresh()");
         }
 
+        public void selectPage(int pageNumber) {
+            resetZoom();
+            webView.loadUrl(String.format("javascript:MobileReport.selectPage(%d)", pageNumber));
+        }
+
         private void scrollTo(float scrollPercent) {
             webView.setScrollY((int) ((webView.computeVerticalScrollRange() - webView.getHeight()) * scrollPercent));
         }
@@ -352,7 +333,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         //---------------------------------------------------------------------
 
         private void prepareReportCasting() {
-            handleInitializationStart();
+            mPresentation.showLoading();
             CookieManagerFactory.syncCookies(getContext()).subscribe(
                     new Action1<Boolean>() {
                         @Override
@@ -429,6 +410,10 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             }
         }
 
+        protected void resetZoom() {
+            while (webView.zoomOut()) ;
+        }
+
         //---------------------------------------------------------------------
         // JS Report callback
         //---------------------------------------------------------------------
@@ -438,7 +423,12 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    handleInitializationDone();
+                    mPresentation.hideLoading();
+
+                    mState = INITIALIZED;
+                    if (mReportPresentationListener != null) {
+                        mReportPresentationListener.onInitializationDone();
+                    }
                 }
             });
         }
@@ -448,7 +438,12 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    handleLoadStart();
+                    mPresentation.showLoading();
+
+                    mState = LOADING;
+                    if (mReportPresentationListener != null) {
+                        mReportPresentationListener.onLoadingStarted();
+                    }
                 }
             });
         }
@@ -458,7 +453,15 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    handleLoadDone();
+                    if (mState == INITIALIZED) return;
+
+                    mPresentation.hideLoading();
+                    mPresentation.showReport();
+
+                    mState = PRESENTING;
+                    if (mReportPresentationListener != null) {
+                        mReportPresentationListener.onPresentationBegun();
+                    }
                 }
             });
         }
@@ -474,12 +477,27 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         }
 
         @Override
-        public void onReportCompleted(String status, int pages, String errorMessage) {
+        public void onReportCompleted(String status, final int pages, String errorMessage) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mReportPresentationListener != null && pages > 0) {
+                        mReportPresentationListener.onPageCountObtain(pages);
+                    }
+                }
+            });
         }
 
         @Override
-        public void onPageChange(int page) {
-
+        public void onPageChange(final int page) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mReportPresentationListener != null) {
+                        mReportPresentationListener.onPageChanged(page, null);
+                    }
+                }
+            });
         }
 
         @Override
@@ -493,8 +511,15 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         }
 
         @Override
-        public void onMultiPageStateObtained(boolean isMultiPage) {
-
+        public void onMultiPageStateObtained(final boolean isMultiPage) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mReportPresentationListener != null && isMultiPage) {
+                        mReportPresentationListener.onMultiPage();
+                    }
+                }
+            });
         }
 
         @Override
@@ -503,8 +528,15 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         }
 
         @Override
-        public void onPageLoadError(String errorMessage, int page) {
-
+        public void onPageLoadError(final String errorMessage, final int page) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mReportPresentationListener != null) {
+                        mReportPresentationListener.onPageChanged(page, errorMessage);
+                    }
+                }
+            });
         }
     }
 }

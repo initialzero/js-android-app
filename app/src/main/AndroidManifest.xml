@@ -188,7 +188,7 @@
         </activity>
 
         <activity
-            android:name=".activities.auth.AuthenticatorActivity" >
+            android:name=".presentation.view.activity.AuthenticatorActivity" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 

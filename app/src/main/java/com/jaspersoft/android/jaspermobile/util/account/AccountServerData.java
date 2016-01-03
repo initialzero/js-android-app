@@ -70,14 +70,24 @@ public class AccountServerData {
             return EMPTY;
         }
 
-        return new AccountServerData()
-                .setAlias(accountManager.getUserData(account, ALIAS_KEY))
-                .setServerUrl(accountManager.getUserData(account, SERVER_URL_KEY))
-                .setOrganization(accountManager.getUserData(account, ORGANIZATION_KEY))
-                .setUsername(accountManager.getUserData(account, USERNAME_KEY))
-                .setPassword(accountManager.getPassword(account))
-                .setEdition(accountManager.getUserData(account, EDITION_KEY))
-                .setVersionName(accountManager.getUserData(account, VERSION_NAME_KEY));
+        String alias = accountManager.getUserData(account, ALIAS_KEY);
+        String serverUrl = accountManager.getUserData(account, SERVER_URL_KEY);
+        String organization = accountManager.getUserData(account, ORGANIZATION_KEY);
+        String username = accountManager.getUserData(account, USERNAME_KEY);
+        String edition = accountManager.getUserData(account, EDITION_KEY);
+        String password = accountManager.getPassword(account);
+        String versionName = accountManager.getUserData(account, VERSION_NAME_KEY);
+
+        AccountServerData data = new AccountServerData();
+        data.setAlias(alias);
+        data.setServerUrl(serverUrl);
+        data.setOrganization(organization);
+        data.setUsername(username);
+        data.setPassword(password);
+        data.setEdition(edition);
+        data.setVersionName(versionName);
+
+        return data;
     }
 
     public AccountServerData() {

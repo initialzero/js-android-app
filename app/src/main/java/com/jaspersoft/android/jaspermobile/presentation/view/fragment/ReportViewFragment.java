@@ -60,7 +60,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.ReloadReportCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.RunReportExecutionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
-import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
+import com.jaspersoft.android.jaspermobile.domain.service.ObservableReportService;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
@@ -76,8 +76,8 @@ import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.service.RestClient;
-import com.jaspersoft.android.sdk.service.Session;
+import com.jaspersoft.android.sdk.network.AuthorizedClient;
+import com.jaspersoft.android.sdk.service.report.ReportService;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.AfterViews;
@@ -136,9 +136,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     @Inject
     protected JsRestClient jsRestClient;
     @Inject
-    protected RestClient restClient;
-    @Inject
-    protected Session session;
+    protected AuthorizedClient restClient;
     @Inject
     protected ReportParamsStorage paramsStorage;
 
@@ -211,8 +209,9 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
         String reportUri = resource.getUri();
         ReportParamsTransformer paramsTransformer = new ReportParamsTransformer();
-        ReportService reportService = new RestReportService(jsRestClient, session);
-        ReportRepository reportRepository = new InMemoryReportRepository(reportUri, reportService, paramsStorage, paramsTransformer);
+        ReportService reportService = ReportService.newService(restClient);
+        ObservableReportService observableReportService = new RestReportService(jsRestClient, reportService);
+        ReportRepository reportRepository = new InMemoryReportRepository(reportUri, observableReportService, paramsStorage, paramsTransformer);
 
         GetReportControlsCase getReportControlsCase = new GetReportControlsCase(reportRepository);
         GetReportPageCase getReportPageCase = new GetReportPageCase(reportRepository);
@@ -345,7 +344,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
     @Override
     public void showPage(String pageContent) {
-        webView.loadDataWithBaseURL(restClient.getServerUrl(), pageContent, MIME, UTF_8, null);
+//        webView.loadDataWithBaseURL(restClient.getServerUrl(), pageContent, MIME, UTF_8, null);
     }
 
     @Override

@@ -30,11 +30,18 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -44,7 +51,7 @@ import javax.crypto.spec.PBEParameterSpec;
  * @author Tom Koptel
  * @since 2.1.2
  */
-public final class PasswordManager {
+public class PasswordManager {
     protected static final String UTF8 = "utf-8";
     private static int ITERATION_COUNT = 1000;
 
@@ -63,7 +70,7 @@ public final class PasswordManager {
         return new PasswordManager(context, secret);
     }
 
-    public String encrypt(String value) {
+    public String encrypt(String value) throws EncryptionException {
         try {
             final byte[] bytes = value != null ? value.getBytes(UTF8) : new byte[0];
 
@@ -77,12 +84,15 @@ public final class PasswordManager {
             pbeCipher.init(Cipher.ENCRYPT_MODE, key, spec);
 
             return toBase64(pbeCipher.doFinal(bytes));
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+        } catch (NoSuchAlgorithmException | IllegalBlockSizeException |
+                BadPaddingException | UnsupportedEncodingException |
+                NoSuchPaddingException | InvalidKeySpecException |
+                InvalidAlgorithmParameterException | InvalidKeyException e) {
+            throw new EncryptionException(e);
         }
     }
 
-    public String decrypt(String value) {
+    public String decrypt(String value) throws DecryptionException {
         try {
             final byte[] bytes = value != null ? fromBase64(value) : new byte[0];
 
@@ -96,8 +106,11 @@ public final class PasswordManager {
             pbeCipher.init(Cipher.DECRYPT_MODE, key, spec);
 
             return new String(pbeCipher.doFinal(bytes), UTF8);
-        } catch (Exception ex) {
-            return null;
+        } catch (NoSuchAlgorithmException | IllegalBlockSizeException |
+                BadPaddingException | UnsupportedEncodingException |
+                NoSuchPaddingException | InvalidKeySpecException |
+                InvalidAlgorithmParameterException | InvalidKeyException e) {
+            throw new DecryptionException(e);
         }
     }
 
@@ -114,5 +127,17 @@ public final class PasswordManager {
                 Settings.Secure.ANDROID_ID);
 
         return Arrays.copyOf(id.getBytes(UTF8), 8);
+    }
+
+    public static class EncryptionException extends Exception {
+        public EncryptionException(Throwable throwable) {
+            super(throwable);
+        }
+    }
+
+    public static class DecryptionException extends Exception {
+        public DecryptionException(Throwable throwable) {
+            super(throwable);
+        }
     }
 }

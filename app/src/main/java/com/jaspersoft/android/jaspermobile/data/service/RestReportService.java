@@ -24,15 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.data.service;
 
-import com.jaspersoft.android.jaspermobile.domain.service.ReportExecutionService;
-import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
+import com.jaspersoft.android.jaspermobile.domain.service.ObservableReportService;
+import com.jaspersoft.android.jaspermobile.domain.service.ObservableExecutionService;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
-import com.jaspersoft.android.sdk.service.Session;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.report.ReportExecution;
-import com.jaspersoft.android.sdk.service.report.RunReportCriteria;
+import com.jaspersoft.android.sdk.service.report.ReportExecutionOptions;
+import com.jaspersoft.android.sdk.service.report.ReportService;
 
 import java.util.List;
 
@@ -43,14 +43,14 @@ import rx.functions.Func0;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class RestReportService implements ReportService {
+public final class RestReportService implements ObservableReportService {
     private final JsRestClient mJsRestClient;
-    private final Session mSession;
+    private final ReportService mClient;
 
     public RestReportService(JsRestClient jsRestClient,
-                             Session session) {
+                             ReportService client) {
         mJsRestClient = jsRestClient;
-        mSession = session;
+        mClient = client;
     }
 
     @Override
@@ -65,16 +65,16 @@ public final class RestReportService implements ReportService {
     }
 
     @Override
-    public Observable<ReportExecutionService> runReport(final String reportUri, final List<ReportParameter> params) {
-        return Observable.defer(new Func0<Observable<ReportExecutionService>>() {
+    public Observable<ObservableExecutionService> runReport(final String reportUri, final List<ReportParameter> params) {
+        return Observable.defer(new Func0<Observable<ObservableExecutionService>>() {
             @Override
-            public Observable<ReportExecutionService> call() {
-                RunReportCriteria criteria = RunReportCriteria.builder()
-                        .params(params)
-                        .create();
+            public Observable<ObservableExecutionService> call() {
+                ReportExecutionOptions criteria = ReportExecutionOptions.builder()
+                        .withParams(params)
+                        .build();
                 try {
-                    ReportExecution reportExecution = mSession.reportApi().run(reportUri, criteria);
-                    ReportExecutionService executionService = new RestReportExecutionService(reportExecution);
+                    ReportExecution reportExecution = mClient.run(reportUri, criteria);
+                    ObservableExecutionService executionService = new RestObservableExecutionService(reportExecution);
                     return Observable.just(executionService);
                 } catch (ServiceException e) {
                     return Observable.error(e);

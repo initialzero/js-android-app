@@ -28,26 +28,24 @@ import android.content.Context;
 import android.os.Build;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import android.webkit.ValueCallback;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jaspersoft.android.sdk.network.Cookies;
-import com.jaspersoft.android.sdk.service.token.TokenCache;
+import com.jaspersoft.android.sdk.network.InMemoryCookieStore;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.concurrent.CountDownLatch;
-
-import timber.log.Timber;
+import java.net.CookieStore;
+import java.net.HttpCookie;
+import java.net.URI;
+import java.util.List;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 @Singleton
-final class SessionCache implements TokenCache {
+final class SessionCache implements CookieStore {
+
+    private final InMemoryCookieStore mDelegate;
     private CookieManager mCookieManager;
     private CookieSyncManager mCookieSyncManager;
 
@@ -56,46 +54,49 @@ final class SessionCache implements TokenCache {
 
     @Inject
     private SessionCache() {
-    }
-
-    @Nullable
-    @Override
-    public Cookies get(@NotNull String host) {
-        String cookie = getCookieManager().getCookie(host);
-        if (cookie == null) {
-            return null;
-        }
-        return Cookies.parse(cookie);
+        mDelegate = new InMemoryCookieStore();
     }
 
     @Override
-    public void put(@NotNull String host, @NotNull Cookies cookies) {
-        for (String cookie : cookies.get()) {
-            getCookieManager().setCookie(host, cookie);
-        }
+    public void add(URI uri, HttpCookie cookie) {
+        getCookieManager().setCookie(uri.toString(), cookie.toString());
+        mDelegate.add(uri, cookie);
         syncCookies();
     }
 
     @Override
-    public void remove(@NotNull String key) {
+    public List<HttpCookie> get(URI uri) {
+        return mDelegate.get(uri);
+    }
+
+    @Override
+    public List<HttpCookie> getCookies() {
+        return mDelegate.getCookies();
+    }
+
+    @Override
+    public List<URI> getURIs() {
+        return mDelegate.getURIs();
+    }
+
+    @Override
+    public boolean remove(URI uri, HttpCookie cookie) {
+        getCookieManager().setCookie(uri.toString(), cookie.toString());
+        boolean result = mDelegate.remove(uri, cookie);
+        syncCookies();
+        return result;
+    }
+
+    @Override
+    public boolean removeAll() {
         removeCookies();
         syncCookies();
+        return mDelegate.removeAll();
     }
 
     private void removeCookies() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            final CountDownLatch countDownLatch = new CountDownLatch(1);
-            getCookieManager().removeAllCookies(new ValueCallback<Boolean>() {
-                @Override
-                public void onReceiveValue(Boolean value) {
-                    countDownLatch.countDown();
-                }
-            });
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                Timber.e(e, "Failed to remove cookies from cache");
-            }
+            getCookieManager().removeAllCookies(null);
         } else {
             getCookieManager().removeAllCookie();
         }

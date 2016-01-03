@@ -1,0 +1,49 @@
+/*
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
+ *
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
+ *
+ * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * <http://www.gnu.org/licenses/lgpl>.
+ */
+
+package com.jaspersoft.android.jaspermobile.domain.network;
+
+/**
+ * @author Tom Koptel
+ * @since 2.3
+ */
+public final class RestErrorCodes {
+    public static final int UNDEFINED_ERROR = 1;
+    public static final int NETWORK_ERROR = 2;
+    public static final int CLIENT_ERROR = 3;
+    public static final int INTERNAL_ERROR = 4;
+    public static final int PERMISSION_DENIED_ERROR = 5;
+    public static final int AUTHORIZATION_ERROR = 6;
+
+    // EXPORT
+    public static final int EXPORT_PAGE_OUT_OF_RANGE = 100;
+    public static final int EXPORT_EXECUTION_CANCELLED = 101;
+    public static final int EXPORT_EXECUTION_FAILED = 102;
+
+    // REPORT
+    public static final int REPORT_EXECUTION_CANCELLED = 201;
+    public static final int REPORT_EXECUTION_FAILED = 202;
+
+    private RestErrorCodes() {}
+}

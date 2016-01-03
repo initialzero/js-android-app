@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.domain.repository;
 
 
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
-import com.jaspersoft.android.jaspermobile.domain.service.ReportExecutionService;
+import com.jaspersoft.android.jaspermobile.domain.service.ObservableExecutionService;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 
 import java.util.List;
@@ -39,7 +39,7 @@ import rx.Observable;
  */
 public interface ReportRepository {
     Observable<ReportPage> getPage(String pages);
-    Observable<ReportExecutionService> runReport();
+    Observable<ObservableExecutionService> runReport();
     Observable<Void> updateReport();
     Observable<List<InputControl>> getControls();
     Observable<Integer> getTotalPages();

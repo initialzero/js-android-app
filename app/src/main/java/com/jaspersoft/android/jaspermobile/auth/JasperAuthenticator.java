@@ -32,45 +32,43 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
-import com.jaspersoft.android.jaspermobile.network.RestClient;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateServerUseCase;
+import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
+import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
-import com.jaspersoft.android.retrofit.sdk.rest.LoginHelper;
-import com.jaspersoft.android.retrofit.sdk.rest.LoginResponse;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
-import com.jaspersoft.android.sdk.service.auth.Credentials;
-import com.jaspersoft.android.sdk.service.auth.SpringCredentials;
-import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
-import com.jaspersoft.android.sdk.service.exception.ServiceException;
-import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
-import timber.log.Timber;
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 public class JasperAuthenticator extends AbstractAccountAuthenticator {
-    private static final String SERVER_DATA_WAS_UPDATED = "Server version or edition has been updated";
     private final Context mContext;
-    private final PasswordManager mPasswordManager;
+
+    /**
+     * Injected as downstream dependency. For its dependency declaration take a look into {@link ProfileModule}
+     */
+    @Inject
+    UpdateServerUseCase updateServer;
+    /**
+     * Injected as downstream dependency. For its dependency declaration take a look into {@link AppModule}
+     */
+    @Inject
+    AccountManager mAccountManager;
 
     public JasperAuthenticator(Context context) {
         super(context);
         mContext = context;
-
-        String secret = mContext.getString(R.string.password_salt_key);
-        mPasswordManager = PasswordManager.init(mContext, secret);
-
-        Timber.tag(JasperAuthenticator.class.getSimpleName());
+        JasperMobileApplication.getComponent(context).inject(this);
     }
 
     @Override
@@ -93,91 +91,31 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     }
 
     @Override
-    public Bundle getAuthToken(final AccountAuthenticatorResponse response, final Account account, final String authTokenType, Bundle options) throws NetworkErrorException {
-        Bundle result = new Bundle();
-        AccountManager accountManager = AccountManager.get(mContext);
-        String authToken = accountManager.peekAuthToken(account, authTokenType);
+    public Bundle getAuthToken(final AccountAuthenticatorResponse response,
+                               final Account account,
+                               final String authTokenType, Bundle options) throws NetworkErrorException {
 
-        if (!TextUtils.isEmpty(authToken)) {
-            return result;
-        }
-
-        String encrypted = accountManager.getPassword(account);
-        Timber.d(String.format("Encrypted Password for account[%s] : %s", account.name, encrypted));
-
-        String password = null;
-        if (!TextUtils.isEmpty(encrypted)) {
-            password = mPasswordManager.decrypt(encrypted);
-            Timber.d(String.format("Password for account[%s] : %s", account.name, password));
-        }
-
-        if (TextUtils.isEmpty(password)) {
-            return createErrorBundle(JasperAccountManager.TokenException.NO_PASSWORD_ERROR, mContext.getString(R.string.r_error_incorrect_credentials));
-        }
-
+        Profile profile = Profile.create(account.name);
         try {
-            AccountServerData serverData = AccountServerData.get(mContext, account);
-
-            RestClient restClient = createRestClient(serverData);
-            Credentials credentials = SpringCredentials.builder()
-                    .password(password)
-                    .username(serverData.getUsername())
-                    .organization(serverData.getOrganization())
-                    .build();
-            LoginResponse loginResponse = LoginHelper.login(
-                    restClient, credentials
-            );
-
-            ServerInfo serverInfo = loginResponse.getServerInfo();
-
-            boolean oldEdition = Boolean.valueOf(serverData.getEdition());
-            boolean serverInfoEditionUpdated = serverInfo.isEditionPro() != oldEdition;
-            boolean serverInfoVersionUpdated = !String.valueOf(serverInfo.getVersion()).equals(serverData.getVersionName());
-
-            Timber.d("Updating user data with server info: " + serverInfo);
-            accountManager.setUserData(account, AccountServerData.EDITION_KEY, String.valueOf(serverInfo.isEditionPro()));
-            accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, String.valueOf(serverInfo.getVersion()));
-
-            if (serverInfoEditionUpdated || serverInfoVersionUpdated) {
-                return createErrorBundle(JasperAccountManager.TokenException.SERVER_UPDATED_ERROR, mContext.getString(R.string.r_error_server_not_found));
-            }
-
-            if (serverInfo.getVersion().lessThan(ServerVersion.v5_5)) {
-                return createErrorBundle(JasperAccountManager.TokenException.INCORRECT_SERVER_VERSION_ERROR, SERVER_DATA_WAS_UPDATED);
-            }
-
-            authToken = loginResponse.getCookie();
-            accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, authToken);
-
-            Timber.d("Prepare correct token bundle");
-            result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-            result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-
-            return result;
-        } catch (ServiceException serviceException) {
-            Timber.d(serviceException, "We can not log in");
-            int status;
-            String message;
-            if (serviceException.code() == StatusCodes.CLIENT_ERROR) {
-                status = JasperAccountManager.TokenException.SERVER_NOT_FOUND;
-                message = mContext.getString(R.string.r_error_server_not_found);
+            boolean serverWasUpdated = updateServer.execute(profile);
+            if (serverWasUpdated) {
+                return createErrorBundle(
+                        JasperAccountManager.TokenException.SERVER_UPDATED_ERROR,
+                        mContext.getString(R.string.r_error_server_not_found)
+                );
             } else {
-                status = serviceException.code();
-                message = serviceException.getMessage();
+                String authToken = mAccountManager.peekAuthToken(account, authTokenType);
+
+                Bundle result = new Bundle();
+                result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+                result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+                result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+
+                return result;
             }
-
-            return createErrorBundle(status, message);
+        } catch (RestStatusException restEx) {
+            return createRestErrorBundle(restEx);
         }
-    }
-
-    private RestClient createRestClient(AccountServerData serverData) {
-        DefaultPrefHelper defaultPrefHelper = DefaultPrefHelper_.getInstance_(mContext);
-        return RestClient.builder()
-                .serverUrl(serverData.getServerUrl())
-                .connectionReadTimeOut(defaultPrefHelper.getReadTimeoutValue())
-                .connectionTimeOut(defaultPrefHelper.getConnectTimeoutValue())
-                .create();
     }
 
     @Override
@@ -193,6 +131,21 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     @Override
     public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features) throws NetworkErrorException {
         return null;
+    }
+
+    private Bundle createRestErrorBundle(RestStatusException restEx) {
+        int status;
+        String message;
+
+        if (restEx.code() == RestErrorCodes.NETWORK_ERROR) {
+            status = JasperAccountManager.TokenException.SERVER_NOT_FOUND;
+            message = mContext.getString(R.string.r_error_server_not_found);
+        } else {
+            status = restEx.code();
+            message = restEx.getMessage();
+        }
+
+        return createErrorBundle(status, message);
     }
 
     private Bundle createErrorBundle(int status, String message) {

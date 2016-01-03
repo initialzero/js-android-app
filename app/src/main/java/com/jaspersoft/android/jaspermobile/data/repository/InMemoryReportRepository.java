@@ -28,8 +28,8 @@ import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
-import com.jaspersoft.android.jaspermobile.domain.service.ReportExecutionService;
-import com.jaspersoft.android.jaspermobile.domain.service.ReportService;
+import com.jaspersoft.android.jaspermobile.domain.service.ObservableExecutionService;
+import com.jaspersoft.android.jaspermobile.domain.service.ObservableReportService;
 import com.jaspersoft.android.jaspermobile.data.mapper.ReportParamsTransformer;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -53,18 +53,18 @@ public final class InMemoryReportRepository implements ReportRepository {
     private final ReportParamsStorage mReportParamsStorage;
     private final ReportParamsTransformer mReportParamsTransformer;
 
-    private final ReportService mReportService;
+    private final ObservableReportService mObservableReportService;
 
     private final LruCache<String, ReportPage> mPagesCache = new LruCache<>(10);
-    private ReportExecutionService mExecutionCache;
+    private ObservableExecutionService mExecutionCache;
     private Integer mPagesCountCache;
     private Boolean mIsMultiPage;
 
     public InMemoryReportRepository(
             String reportUri,
-            ReportService reportService,
+            ObservableReportService observableReportService,
             ReportParamsStorage reportParamsStorage, ReportParamsTransformer reportParamsTransformer) {
-        mReportService = reportService;
+        mObservableReportService = observableReportService;
         mReportParamsStorage = reportParamsStorage;
         mReportUri = reportUri;
         mReportParamsTransformer = reportParamsTransformer;
@@ -79,26 +79,26 @@ public final class InMemoryReportRepository implements ReportRepository {
     }
 
     @Override
-    public Observable<ReportExecutionService> runReport() {
+    public Observable<ObservableExecutionService> runReport() {
         List<ReportParameter> params = getParameters();
-        Observable<ReportExecutionService> network = createNetworkExecutionSource(params);
-        Observable<ReportExecutionService> memory = createMemoryExecutionSource();
+        Observable<ObservableExecutionService> network = createNetworkExecutionSource(params);
+        Observable<ObservableExecutionService> memory = createMemoryExecutionSource();
         return Observable.concat(memory, network).first();
     }
 
     @Override
     public Observable<Void> updateReport() {
-        return mExecutionCache.update(getParameters()).doOnNext(new Action1<ReportExecutionService>() {
+        return mExecutionCache.update(getParameters()).doOnNext(new Action1<ObservableExecutionService>() {
             @Override
-            public void call(ReportExecutionService executionService) {
+            public void call(ObservableExecutionService executionService) {
                 mExecutionCache = executionService;
                 mPagesCountCache = null;
                 mIsMultiPage = null;
                 mPagesCache.evictAll();
             }
-        }).flatMap(new Func1<ReportExecutionService, Observable<Void>>() {
+        }).flatMap(new Func1<ObservableExecutionService, Observable<Void>>() {
             @Override
-            public Observable<Void> call(ReportExecutionService executionService) {
+            public Observable<Void> call(ObservableExecutionService executionService) {
                 return Observable.just(null);
             }
         });
@@ -113,7 +113,7 @@ public final class InMemoryReportRepository implements ReportRepository {
 
     @Override
     public Observable<List<InputControl>> getControls() {
-        return mReportService.loadControls(mReportUri).doOnNext(new Action1<List<InputControl>>() {
+        return mObservableReportService.loadControls(mReportUri).doOnNext(new Action1<List<InputControl>>() {
             @Override
             public void call(List<InputControl> inputControls) {
                 mReportParamsStorage.getInputControlHolder(mReportUri).setInputControls(inputControls);
@@ -192,10 +192,10 @@ public final class InMemoryReportRepository implements ReportRepository {
     }
 
     private Observable<Integer> createTotalPagesNetworkSource() {
-        return runReport().flatMap(new Func1<ReportExecutionService, Observable<Integer>>() {
+        return runReport().flatMap(new Func1<ObservableExecutionService, Observable<Integer>>() {
             @Override
-            public Observable<Integer> call(ReportExecutionService reportExecutionService) {
-                return reportExecutionService.loadTotalPages();
+            public Observable<Integer> call(ObservableExecutionService observableExecutionService) {
+                return observableExecutionService.loadTotalPages();
             }
         }).doOnNext(new Action1<Integer>() {
             @Override
@@ -207,10 +207,10 @@ public final class InMemoryReportRepository implements ReportRepository {
 
     private Observable<ReportPage> createPagesNetworkSource(final String range, final List<ReportParameter> params) {
         return runReport()
-                .switchMap(new Func1<ReportExecutionService, Observable<ReportPage>>() {
+                .switchMap(new Func1<ObservableExecutionService, Observable<ReportPage>>() {
                     @Override
-                    public Observable<ReportPage> call(ReportExecutionService reportExecutionService) {
-                        return reportExecutionService.downloadExport(range);
+                    public Observable<ReportPage> call(ObservableExecutionService observableExecutionService) {
+                        return observableExecutionService.downloadExport(range);
                     }
                 }).doOnNext(new Action1<ReportPage>() {
                     @Override
@@ -238,19 +238,19 @@ public final class InMemoryReportRepository implements ReportRepository {
     }
 
 
-    private Observable<ReportExecutionService> createMemoryExecutionSource() {
+    private Observable<ObservableExecutionService> createMemoryExecutionSource() {
         if (mExecutionCache == null) {
             return Observable.empty();
         }
         return Observable.just(mExecutionCache);
     }
 
-    private Observable<ReportExecutionService> createNetworkExecutionSource(List<ReportParameter> params) {
-        return mReportService.runReport(mReportUri, params)
-                .doOnNext(new Action1<ReportExecutionService>() {
+    private Observable<ObservableExecutionService> createNetworkExecutionSource(List<ReportParameter> params) {
+        return mObservableReportService.runReport(mReportUri, params)
+                .doOnNext(new Action1<ObservableExecutionService>() {
                     @Override
-                    public void call(ReportExecutionService reportExecutionService) {
-                        mExecutionCache = reportExecutionService;
+                    public void call(ObservableExecutionService observableExecutionService) {
+                        mExecutionCache = observableExecutionService;
                     }
                 });
     }

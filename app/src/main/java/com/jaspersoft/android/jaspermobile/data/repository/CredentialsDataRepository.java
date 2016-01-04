@@ -29,7 +29,7 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
@@ -39,6 +39,9 @@ import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import rx.Observable;
+import rx.functions.Func0;
 
 /**
  * Implements repository pattern to control CRUD operations around credentials.
@@ -63,23 +66,34 @@ public final class CredentialsDataRepository implements CredentialsRepository {
      * {@inheritDoc}
      */
     @Override
-    public void saveCredentials(Profile profile, BaseCredentials credentials) throws FailedToSaveCredentials {
-        try {
-            mCredentialsCache.put(profile, credentials);
-        } catch (PasswordManager.EncryptionException e) {
-            throw new FailedToSaveCredentials(credentials);
-        }
+    public Observable<Void> saveCredentials(final Profile profile, final AppCredentials credentials) {
+        return Observable.defer(new Func0<Observable<Void>>() {
+            @Override
+            public Observable<Void> call() {
+                try {
+                    mCredentialsCache.put(profile, credentials);
+                } catch (PasswordManager.EncryptionException e) {
+                    return Observable.error(new FailedToSaveCredentials(credentials));
+                }
+                return Observable.just(null);
+            }
+        });
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public BaseCredentials getCredentials(Profile profile) throws FailedToRetrieveCredentials {
-        try {
-            return mCredentialsCache.get(profile);
-        } catch (PasswordManager.DecryptionException e) {
-            throw new FailedToRetrieveCredentials(profile, e);
-        }
+    public Observable<AppCredentials> getCredentials(final Profile profile) {
+        return Observable.defer(new Func0<Observable<AppCredentials>>() {
+            @Override
+            public Observable<AppCredentials> call() {
+                try {
+                    return Observable.just(mCredentialsCache.get(profile));
+                } catch (PasswordManager.DecryptionException e) {
+                    return Observable.error(new FailedToRetrieveCredentials(profile, e));
+                }
+            }
+        });
     }
 }

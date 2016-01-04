@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.mapper;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.presentation.model.CredentialsModel;
 
 import org.junit.Before;
@@ -54,7 +54,7 @@ public class CredentialsDataMapperTest {
 
     @Test
     public void testTransform() throws Exception {
-        BaseCredentials domainCredentials = mapper.transform(credentialsModel);
+        AppCredentials domainCredentials = mapper.transform(credentialsModel);
         assertThat(domainCredentials.getUsername(), is(credentialsModel.getUsername()));
         assertThat(domainCredentials.getPassword(), is(credentialsModel.getPassword()));
         assertThat(domainCredentials.getOrganization(), is(credentialsModel.getOrganization()));

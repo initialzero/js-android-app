@@ -31,6 +31,7 @@ import com.jaspersoft.android.jaspermobile.data.FakeAccount;
 import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -69,8 +70,8 @@ public class AccountServerCacheTest {
         fakeProfile = Profile.create("name");
         fakeServer = JasperServer.builder()
                 .setBaseUrl("http://localhost")
-                .setVersion(6.0d)
-                .setEditionIsPro("CE")
+                .setVersion(ServerVersion.v6)
+                .setEditionIsPro(false)
                 .create();
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
         cacheUnderTest = new AccountServerCache(accountManager, FakeAccountDataMapper.get(), mProfileCache);
@@ -88,7 +89,7 @@ public class AccountServerCacheTest {
         assertThat("Server url should be injected in cache",
                 fakeServer.getBaseUrl().equals(serverUrl));
         assertThat("Edition should be injected in cache",
-                fakeServer.isProEdition().equals(edition));
+                !fakeServer.isProEdition());
         assertThat("Version should be injected in cache",
                 String.valueOf(fakeServer.getVersionName())
                         .equals(versionName));
@@ -104,7 +105,7 @@ public class AccountServerCacheTest {
         assertThat("Failed to retrieve base url for profile " + fakeAccount,
                 "http://localhost".equals(server.getBaseUrl()));
         assertThat("Failed to retrieve version for profile " + fakeAccount,
-                6.0d == server.getVersionName());
+                server.getVersionName().equals("6.0"));
         assertThat("Failed to retrieve edition for profile " + fakeAccount,
                 "CE".equals(server.isProEdition()));
     }
@@ -128,8 +129,8 @@ public class AccountServerCacheTest {
         FakeAccount.injectAccount(fakeProfile)
                 .injectServer(
                         JasperServer.builder()
-                                .setEditionIsPro("CE")
-                                .setVersion(5.5d)
+                                .setEditionIsPro(false)
+                                .setVersion(ServerVersion.v5_5)
                                 .create()
                 ).done();
 
@@ -145,7 +146,7 @@ public class AccountServerCacheTest {
                 .injectServer(
                         JasperServer.builder()
                                 .setBaseUrl("http://localhost/")
-                                .setVersion(5.5d)
+                                .setVersion(ServerVersion.v5_5)
                                 .create()
                 ).done();
 
@@ -161,7 +162,7 @@ public class AccountServerCacheTest {
                 .injectServer(
                         JasperServer.builder()
                                 .setBaseUrl("http://localhost/")
-                                .setEditionIsPro("CE")
+                                .setEditionIsPro(false)
                                 .create()
                 ).done();
 

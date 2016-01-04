@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import rx.Observable;
-import rx.Subscriber;
 import rx.observers.TestSubscriber;
 import rx.schedulers.TestScheduler;
 
@@ -24,14 +23,15 @@ import static org.mockito.Mockito.when;
 public class UseCaseTest {
     private UseCaseTestClass useCase;
 
-    @Mock private PreExecutionThread mockPreExecutionThread;
+    @Mock
+    private PreExecutionThread mockPreExecutionThread;
     @Mock
     private PostExecutionThread mockPostExecutionThread;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.useCase = new UseCaseTestClass(mockPreExecutionThread, mockPostExecutionThread);
+        this.useCase = new UseCaseTestClass();
     }
 
     @Test
@@ -56,20 +56,10 @@ public class UseCaseTest {
         assertThat(testSubscriber.isUnsubscribed(), is(true));
     }
 
-    private static class UseCaseTestClass extends UseCase {
-
-        protected UseCaseTestClass(
-                PreExecutionThread preExecutionThread,
-                PostExecutionThread postExecutionThread) {
-            super(preExecutionThread, postExecutionThread);
-        }
-
-        @Override protected Observable buildUseCaseObservable() {
+    private static class UseCaseTestClass extends AbstractUseCase {
+        @Override
+        protected Observable buildUseCaseObservable() {
             return Observable.empty();
-        }
-
-        @Override public void execute(Subscriber UseCaseSubscriber) {
-            super.execute(UseCaseSubscriber);
         }
     }
 }

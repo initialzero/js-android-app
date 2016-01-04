@@ -35,6 +35,9 @@ import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerReposit
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import rx.Observable;
+import rx.functions.Func0;
+
 /**
  * Implementation of repository pattern responsible CRUD operations around server meta data.
  * Corresponding implementation combines two different sources {@link DiskServerDataSource} and {@link CloudServerDataSource}.
@@ -55,43 +58,77 @@ public final class JasperServerDataRepository implements JasperServerRepository 
      * {@inheritDoc}
      */
     @Override
-    public void saveServer(Profile profile, JasperServer jasperServer) {
-        ServerDataSource source = mDataSourceFactory.createDiskDataSource();
-        source.saveServer(profile, jasperServer);
+    public Observable<Void> saveServer(final Profile profile, final JasperServer jasperServer) {
+        return Observable.defer(new Func0<Observable<Void>>() {
+            @Override
+            public Observable<Void> call() {
+                ServerDataSource source = mDataSourceFactory.createDiskDataSource();
+                source.saveServer(profile, jasperServer);
+                return Observable.just(null);
+            }
+        });
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public JasperServer loadServer(String baseUrl) throws RestStatusException {
-        ServerDataSource cloudSource = mDataSourceFactory.createCloudDataSource();
-        return cloudSource.getServer(baseUrl);
+    public Observable<JasperServer> loadServer(final String baseUrl) {
+        return Observable.defer(new Func0<Observable<JasperServer>>() {
+            @Override
+            public Observable<JasperServer> call() {
+                ServerDataSource cloudSource = mDataSourceFactory.createCloudDataSource();
+                try {
+                    JasperServer server = cloudSource.getServer(baseUrl);
+                    return Observable.just(server);
+                } catch (RestStatusException e) {
+                    return Observable.error(e);
+                }
+            }
+        });
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public JasperServer getServer(Profile profile) throws RestStatusException {
-        ServerDataSource source = mDataSourceFactory.createDataSource(profile);
-        return source.getServer(profile);
+    public Observable<JasperServer> getServer(final Profile profile)  {
+        return Observable.defer(new Func0<Observable<JasperServer>>() {
+            @Override
+            public Observable<JasperServer> call() {
+                ServerDataSource source = mDataSourceFactory.createDataSource(profile);
+                try {
+                    JasperServer server = source.getServer(profile);
+                    return Observable.just(server);
+                } catch (RestStatusException e) {
+                   return Observable.error(e);
+                }
+            }
+        });
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean updateServer(Profile profile) throws RestStatusException {
-        ServerDataSource diskSource = mDataSourceFactory.createDiskDataSource();
-        ServerDataSource cloudSource = mDataSourceFactory.createCloudDataSource();
-        JasperServer cachedServer = diskSource.getServer(profile);
-        JasperServer networkServer = cloudSource.getServer(profile);
-
-        boolean needUpdate = !cachedServer.equals(networkServer);
-        if (needUpdate) {
-            diskSource.saveServer(profile, networkServer);
-        }
-        return needUpdate;
+    public Observable<Boolean> updateServer(final Profile profile){
+        final ServerDataSource diskSource = mDataSourceFactory.createDiskDataSource();
+        final ServerDataSource cloudSource = mDataSourceFactory.createCloudDataSource();
+        return Observable.defer(new Func0<Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call() {
+                try {
+                    JasperServer cachedServer = diskSource.getServer(profile);
+                    JasperServer networkServer = cloudSource.getServer(profile);
+                    boolean needUpdate = !cachedServer.equals(networkServer);
+                    if (needUpdate) {
+                        diskSource.saveServer(profile, networkServer);
+                    }
+                    return Observable.just(needUpdate);
+                } catch (RestStatusException e) {
+                   return Observable.error(e);
+                }
+            }
+        });
     }
 }

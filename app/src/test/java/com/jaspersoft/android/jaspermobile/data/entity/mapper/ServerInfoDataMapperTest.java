@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.data.entity.mapper;
 
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.sdk.service.data.server.ServerEdition;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
@@ -60,12 +59,12 @@ public class ServerInfoDataMapperTest {
 
     @Test
     public void testTransform() throws Exception {
-        when(mServerInfo.getEdition()).thenReturn(ServerEdition.CE);
-        when(mServerInfo.getVersion()).thenReturn(ServerVersion.AMBER);
+        when(mServerInfo.isEditionPro()).thenReturn(false);
+        when(mServerInfo.getVersion()).thenReturn(ServerVersion.v6);
 
         JasperServer server = mapper.transform("http://localhost", mServerInfo);
-        assertThat(server.isProEdition(), is("CE"));
-        assertThat(server.getVersionName(), is(6.0d));
+        assertThat(server.isProEdition(), is(false));
+        assertThat(server.getVersionName(), is("6.0"));
         assertThat(server.getBaseUrl(), is("http://localhost"));
     }
 }

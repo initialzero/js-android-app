@@ -36,6 +36,8 @@ import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import javax.inject.Inject;
 
+import rx.Observable;
+
 /**
  * Performs validation on profile.
  *
@@ -46,7 +48,7 @@ import javax.inject.Inject;
 public final class ProfileValidatorImpl implements ProfileValidator {
 
     /**
-     *  Injected by {@link ProfileModule#providesProfileAccountCache(AccountProfileCache)}}
+     * Injected by {@link ProfileModule#providesProfileAccountCache(AccountProfileCache)}}
      */
     private final ProfileCache mProfileCache;
 
@@ -59,14 +61,16 @@ public final class ProfileValidatorImpl implements ProfileValidator {
      * {@inheritDoc}
      */
     @Override
-    public void validate(Profile profile) throws DuplicateProfileException, ProfileReservedException {
+    public Observable<Void> validate(Profile profile) {
         final String profileName = profile.getKey();
         if (JasperSettings.RESERVED_ACCOUNT_NAME.equals(profileName)) {
-            throw new ProfileReservedException();
+            return Observable.error(new ProfileReservedException());
         }
 
         if (mProfileCache.hasProfile(profile)) {
-            throw new DuplicateProfileException(profileName);
+            return Observable.error(new DuplicateProfileException(profileName));
         }
+
+        return Observable.just(null);
     }
 }

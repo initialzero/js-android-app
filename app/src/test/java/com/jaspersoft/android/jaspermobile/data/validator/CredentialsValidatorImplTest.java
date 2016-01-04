@@ -24,12 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
+import com.jaspersoft.android.sdk.service.auth.AuthorizationService;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,8 +39,10 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import rx.observers.TestSubscriber;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -55,7 +58,9 @@ public class CredentialsValidatorImplTest {
     @Mock
     Authenticator mAuthenticator;
     @Mock
-    BaseCredentials credentialsUnderTest;
+    AppCredentials credentialsUnderTest;
+    @Mock
+    AuthorizationService mAuthorizationService;
     @Mock
     JasperServer fakeServer;
 
@@ -67,7 +72,7 @@ public class CredentialsValidatorImplTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        when(mFactory.create(anyString())).thenReturn(mAuthenticator);
+        when(mFactory.create(mAuthorizationService)).thenReturn(mAuthenticator);
         validator = new CredentialsValidatorImpl(mFactory);
     }
 
@@ -81,15 +86,16 @@ public class CredentialsValidatorImplTest {
     public void shouldReThrowHttpException() throws Exception {
         mException.expect(RestStatusException.class);
         mockRestException(RestErrorCodes.INTERNAL_ERROR);
-        performValidation();
+
+        TestSubscriber<Void> test = new TestSubscriber<>();
+        validator.validate(credentialsUnderTest).subscribe(test);
     }
 
     private void performValidation() throws Exception {
-        validator.validate(fakeServer, credentialsUnderTest);
     }
 
     private void mockRestException(int code) throws Exception {
         when(mRestError.code()).thenReturn(code);
-        when(mAuthenticator.authenticate(any(BaseCredentials.class))).thenThrow(mRestError);
+        doThrow(mRestError).when(mAuthenticator).authenticate(any(AppCredentials.class));
     }
 }

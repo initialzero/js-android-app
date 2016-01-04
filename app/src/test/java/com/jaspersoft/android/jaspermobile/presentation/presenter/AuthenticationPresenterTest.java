@@ -25,7 +25,7 @@
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 import com.jaspersoft.android.jaspermobile.data.network.RestErrorAdapter;
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
@@ -95,7 +95,7 @@ public class AuthenticationPresenterTest {
     @Mock
     Profile domainProfile;
     @Mock
-    BaseCredentials domainCredentials;
+    AppCredentials domainCredentials;
 
     AuthenticationPresenter presenterUnderTest;
 
@@ -182,7 +182,7 @@ public class AuthenticationPresenterTest {
 
     @Test
     public void testPresenterHandlesSeverVersionNotSupported() throws Exception {
-        presenterUnderTest.handleProfileSaveFailure(new ServerVersionNotSupportedException(5.0d));
+        presenterUnderTest.handleProfileSaveFailure(new ServerVersionNotSupportedException("5.0"));
         verify(mAuthenticationView).hideLoading();
         verify(mAuthenticationView).showServerVersionNotSupported();
     }

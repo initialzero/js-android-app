@@ -24,21 +24,21 @@
 
 package com.jaspersoft.android.jaspermobile.domain.repository.exception;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 public final class FailedToSaveCredentials extends Exception {
-    private final BaseCredentials mCredentials;
+    private final AppCredentials mCredentials;
 
-    public FailedToSaveCredentials(BaseCredentials baseCredentials) {
+    public FailedToSaveCredentials(AppCredentials appCredentials) {
         super("Failed to save credentials, while encrypting password");
-        mCredentials = baseCredentials;
+        mCredentials = appCredentials;
     }
 
-    public BaseCredentials getCredentials() {
+    public AppCredentials getCredentials() {
         return mCredentials;
     }
 }

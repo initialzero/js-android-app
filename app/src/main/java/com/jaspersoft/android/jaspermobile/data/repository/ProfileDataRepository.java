@@ -36,6 +36,9 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import rx.Observable;
+import rx.functions.Func0;
+
 /**
  * Implementation of repo pattern for {@link Profile}
  *
@@ -65,18 +68,35 @@ public final class ProfileDataRepository implements ProfileRepository {
      * {@inheritDoc}
      */
     @Override
-    public void saveProfile(Profile profile) throws FailedToSaveProfile {
-        boolean isSaved = (!mProfileCache.hasProfile(profile) && mProfileCache.put(profile));
-        if (!isSaved) {
-            throw new FailedToSaveProfile(profile);
-        }
+    public Observable<Void> saveProfile(final Profile profile) {
+        return Observable.defer(new Func0<Observable<Void>>() {
+            @Override
+            public Observable<Void> call() {
+                boolean containsProfile = mProfileCache.hasProfile(profile);
+                if (containsProfile) {
+                    return Observable.error(new FailedToSaveProfile(profile));
+                } else {
+                    boolean isSaved = mProfileCache.put(profile);
+                    if (!isSaved) {
+                        return Observable.error(new FailedToSaveProfile(profile));
+                    }
+                }
+                return Observable.just(null);
+            }
+        });
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void activate(Profile profile) {
-        mProfileActiveCache.put(profile);
+    public Observable<Void> activate(final Profile profile) {
+        return Observable.defer(new Func0<Observable<Void>>() {
+            @Override
+            public Observable<Void> call() {
+                mProfileActiveCache.put(profile);
+                return Observable.just(null);
+            }
+        });
     }
 }

@@ -28,7 +28,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
@@ -79,7 +79,7 @@ public final class FakeAccount {
             mAccount = account;
         }
 
-        public SetupCredentialsBuilder injectCredentials(BaseCredentials credentials) {
+        public SetupCredentialsBuilder injectCredentials(AppCredentials credentials) {
             AccountManager accountManager = AccountManager.get(mContext);
             accountManager.setUserData(mAccount, "ORGANIZATION_KEY", credentials.getOrganization());
             accountManager.setUserData(mAccount, "USERNAME_KEY", credentials.getUsername());
@@ -90,14 +90,8 @@ public final class FakeAccount {
         public SetupCredentialsBuilder injectServer(JasperServer fakeServer) {
             AccountManager accountManager = AccountManager.get(mContext);
             accountManager.setUserData(mAccount, "SERVER_URL_KEY", fakeServer.getBaseUrl());
-            accountManager.setUserData(mAccount, "EDITION_KEY", fakeServer.isProEdition());
+            accountManager.setUserData(mAccount, "EDITION_KEY", String.valueOf(fakeServer.isProEdition()));
             accountManager.setUserData(mAccount, "VERSION_NAME_KEY", String.valueOf(fakeServer.getVersionName()));
-            return this;
-        }
-
-        public SetupCredentialsBuilder injectToken(String token) {
-            AccountManager accountManager = AccountManager.get(mContext);
-            accountManager.setAuthToken(mAccount, "FULL ACCESS", token);
             return this;
         }
 

@@ -1,7 +1,7 @@
 package com.jaspersoft.android.jaspermobile.domain.network;
 
 import com.jaspersoft.android.jaspermobile.data.network.AuthenticatorFactory;
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.sdk.service.auth.AuthorizationService;
 
 /**
@@ -19,7 +19,7 @@ public interface Authenticator {
      * @param credentials used to authorize use
      * @throws RestStatusException describes either network exception, http exception or Jasper Server specific error states
      */
-    void authenticate(BaseCredentials credentials) throws RestStatusException;
+    void authenticate(AppCredentials credentials) throws RestStatusException;
 
     /**
      * Creates different authenticators on the basis of passed base url

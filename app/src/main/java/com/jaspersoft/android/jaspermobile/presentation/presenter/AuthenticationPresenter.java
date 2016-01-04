@@ -6,7 +6,7 @@ import android.support.annotation.VisibleForTesting;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.data.network.RestErrorAdapter;
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
@@ -95,7 +95,7 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
             mView.showLoading();
 
             Profile domainProfile = mProfileDataMapper.transform(profileModel);
-            BaseCredentials domainCredentials = mCredentialsDataMapper.transform(profileModel.getCredentials());
+            AppCredentials domainCredentials = mCredentialsDataMapper.transform(profileModel.getCredentials());
             String baseUrl = profileModel.getServerUrl();
 
             mSaveProfileUseCaseUseCase.execute(baseUrl, domainProfile, domainCredentials, new ProfileSaveListener());

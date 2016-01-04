@@ -28,7 +28,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
@@ -63,7 +63,7 @@ public final class AccountCredentialsCache implements CredentialsCache {
      * {@inheritDoc}
      */
     @Override
-    public void put(Profile profile, BaseCredentials credentials) throws PasswordManager.EncryptionException {
+    public void put(Profile profile, AppCredentials credentials) throws PasswordManager.EncryptionException {
         Account account = mAccountDataMapper.transform(profile);
 
         String encryptedPassword = mPasswordManger.encrypt(credentials.getPassword());
@@ -77,7 +77,7 @@ public final class AccountCredentialsCache implements CredentialsCache {
      * {@inheritDoc}
      */
     @Override
-    public BaseCredentials get(Profile profile) throws PasswordManager.DecryptionException {
+    public AppCredentials get(Profile profile) throws PasswordManager.DecryptionException {
         Account account = mAccountDataMapper.transform(profile);
 
         String password = mAccountManager.getPassword(account);
@@ -86,7 +86,7 @@ public final class AccountCredentialsCache implements CredentialsCache {
         String username = mAccountManager.getUserData(account, USERNAME_KEY);
         String organization = mAccountManager.getUserData(account, ORGANIZATION_KEY);
 
-        BaseCredentials.Builder credentialsBuilder = BaseCredentials.builder();
+        AppCredentials.Builder credentialsBuilder = AppCredentials.builder();
         credentialsBuilder.setPassword(decryptedPassword);
         credentialsBuilder.setUsername(username);
         credentialsBuilder.setOrganization(organization);

@@ -1,6 +1,6 @@
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.anyString;
@@ -46,7 +47,7 @@ public class SaveProfileUseCaseTest {
     @Mock
     Profile mProfile;
     @Mock
-    BaseCredentials mCredentials;
+    AppCredentials mCredentials;
 
     private SaveProfileUseCase mSaveProfileUseCase;
 
@@ -67,13 +68,13 @@ public class SaveProfileUseCaseTest {
 
     @Test
     public void testExecute() throws Exception {
-        when(mServerRepository.loadServer(anyString())).thenReturn(mJasperServer);
+        when(mServerRepository.loadServer(anyString())).thenReturn(Observable.just(mJasperServer));
         mSaveProfileUseCase.execute("http://localhost", mProfile, mCredentials, new TestSubscriber());
 
         verify(mProfileValidator).validate(mProfile);
         verify(mServerValidator).validate(mJasperServer);
         verify(mServerRepository).loadServer("http://localhost");
-        verify(mCredentialsValidator).validate(mJasperServer, mCredentials);
+        verify(mCredentialsValidator).validate(mCredentials);
         verify(mProfileRepository).saveProfile(mProfile);
         verify(mCredentialsRepository).saveCredentials(mProfile, mCredentials);
         verify(mServerRepository).saveServer(mProfile, mJasperServer);

@@ -84,12 +84,6 @@ public final class ProfileModule {
 
     @Singleton
     @Provides
-    TokenCache providesTokenCache(AccountTokenCache cache) {
-        return cache;
-    }
-
-    @Singleton
-    @Provides
     CredentialsCache provideCredentialsCache(Context context, AccountManager accountManager, AccountDataMapper accountDataMapper) {
         String secret = context.getString(R.string.password_salt_key);
         PasswordManager passwordManager = PasswordManager.init(context, secret);

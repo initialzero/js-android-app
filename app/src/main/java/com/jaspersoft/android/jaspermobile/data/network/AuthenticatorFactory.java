@@ -1,6 +1,6 @@
 package com.jaspersoft.android.jaspermobile.data.network;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.sdk.network.SpringCredentials;
@@ -46,7 +46,7 @@ public final class AuthenticatorFactory implements Authenticator.Factory {
          * {@inheritDoc}
          */
         @Override
-        public void authenticate(BaseCredentials credentials) throws RestStatusException {
+        public void authenticate(AppCredentials credentials) throws RestStatusException {
             SpringCredentials spring = SpringCredentials.builder()
                     .withUsername(credentials.getUsername())
                     .withPassword(credentials.getPassword())

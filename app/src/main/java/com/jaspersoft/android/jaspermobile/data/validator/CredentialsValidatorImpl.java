@@ -25,15 +25,15 @@
 package com.jaspersoft.android.jaspermobile.data.validator;
 
 import com.jaspersoft.android.jaspermobile.data.network.AuthenticatorFactory;
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
 
 import javax.inject.Inject;
+
+import rx.Observable;
 
 /**
  * Perform network call and authorize user. If passed than user fine to go
@@ -57,7 +57,7 @@ public final class CredentialsValidatorImpl implements CredentialsValidator {
      * {@inheritDoc}
      */
     @Override
-    public void validate(JasperServer server, BaseCredentials credentials) throws RestStatusException {
+    public Observable<Void> validate(AppCredentials credentials) {
 //        mAuthFactory.create(server.getBaseUrl()).authenticate(credentials);
         throw new UnsupportedOperationException("Not yet implemented");
     }

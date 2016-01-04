@@ -32,6 +32,8 @@ import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import javax.inject.Inject;
 
+import rx.Observable;
+
 /**
  * Implementation of server validation
  *
@@ -48,10 +50,11 @@ public final class ServerValidatorImpl implements ServerValidator {
      * {@inheritDoc}
      */
     @Override
-    public void validate(JasperServer server) throws ServerVersionNotSupportedException {
+    public Observable<Void> validate(JasperServer server) {
         ServerVersion serverVersion = ServerVersion.valueOf(server.getVersionName());
-        if (serverVersion.lessThanOrEquals(ServerVersion.v5_5)) {
-            throw new ServerVersionNotSupportedException(serverVersion.toString());
+        if (serverVersion.lessThan(ServerVersion.v5_5)) {
+            return Observable.error(new ServerVersionNotSupportedException(serverVersion.toString()));
         }
+        return Observable.just(null);
     }
 }

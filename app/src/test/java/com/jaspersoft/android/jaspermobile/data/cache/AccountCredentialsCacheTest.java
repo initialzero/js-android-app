@@ -29,7 +29,7 @@ import android.accounts.AccountManager;
 
 import com.jaspersoft.android.jaspermobile.data.FakeAccount;
 import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
@@ -62,7 +62,7 @@ public class AccountCredentialsCacheTest {
 
     AccountCredentialsCache cacheUnderTest;
     Profile fakeProfile;
-    BaseCredentials fakeCredentials;
+    AppCredentials fakeCredentials;
 
     @Before
     public void setUp() throws Exception {
@@ -73,7 +73,7 @@ public class AccountCredentialsCacheTest {
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
         cacheUnderTest = new AccountCredentialsCache(accountManager, mPasswordManager, FakeAccountDataMapper.get());
         fakeProfile = Profile.create("name");
-        fakeCredentials = BaseCredentials.builder()
+        fakeCredentials = AppCredentials.builder()
                 .setPassword("1234")
                 .setOrganization("organization")
                 .setUsername("nay")
@@ -116,7 +116,7 @@ public class AccountCredentialsCacheTest {
                 .injectCredentials(fakeCredentials)
                 .done();
 
-        BaseCredentials credentials = cacheUnderTest.get(fakeProfile);
+        AppCredentials credentials = cacheUnderTest.get(fakeProfile);
         assertThat("Failed to retrieve password for profile " + fakeProfile,
                 "1234".equals(credentials.getPassword()));
         assertThat("Failed to retrieve username for profile " + fakeProfile,

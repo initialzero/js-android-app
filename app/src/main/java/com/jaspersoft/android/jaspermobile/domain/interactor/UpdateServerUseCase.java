@@ -50,6 +50,6 @@ public final class UpdateServerUseCase {
     }
 
     public boolean execute(Profile profile) throws RestStatusException {
-        return mServerRepository.updateServer(profile);
+        return mServerRepository.updateServer(profile).toBlocking().firstOrDefault(false);
     }
 }

@@ -28,6 +28,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.ServerCache;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
+import com.jaspersoft.android.sdk.service.info.ServerInfoService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +36,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -47,6 +47,8 @@ public class CloudServerDataSourceTest {
 
     @Mock
     ServerApi.Factory mServerApiFactory;
+    @Mock
+    ServerInfoService mInfoService;
     @Mock
     ServerApi mServerApi;
     @Mock
@@ -62,7 +64,7 @@ public class CloudServerDataSourceTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(mJasperServer.getBaseUrl()).thenReturn("http://localhost/");
-        when(mServerApiFactory.create(anyString())).thenReturn(mServerApi);
+        when(mServerApiFactory.create(mInfoService)).thenReturn(mServerApi);
 
         cloudServerDataSource = new CloudServerDataSource(mServerApiFactory, mServerCache);
     }
@@ -74,7 +76,7 @@ public class CloudServerDataSourceTest {
 
         verify(mServerCache).get(fakeProfile);
         verify(mJasperServer).getBaseUrl();
-        verify(mServerApiFactory).create("http://localhost/");
+        verify(mServerApiFactory).create(mInfoService);
         verify(mServerApi).requestServer();
     }
 
@@ -86,7 +88,7 @@ public class CloudServerDataSourceTest {
     @Test
     public void testLoadServer() throws Exception {
         cloudServerDataSource.getServer("http://localhost/");
-        verify(mServerApiFactory).create("http://localhost/");
+        verify(mServerApiFactory).create(mInfoService);
         verify(mServerApi).requestServer();
     }
 }

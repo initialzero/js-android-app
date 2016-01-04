@@ -28,7 +28,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 
 import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.junit.Before;
 import org.junit.Test;

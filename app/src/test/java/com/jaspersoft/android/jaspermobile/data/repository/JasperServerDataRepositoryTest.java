@@ -27,13 +27,17 @@ package com.jaspersoft.android.jaspermobile.data.repository;
 import com.jaspersoft.android.jaspermobile.data.repository.datasource.ServerDataSource;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import java.util.Collections;
+
+import rx.observers.TestSubscriber;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -61,8 +65,8 @@ public class JasperServerDataRepositoryTest {
         MockitoAnnotations.initMocks(this);
 
         JasperServer.Builder serverBuilder = JasperServer.builder().setBaseUrl("http://localhost");
-        server5_5 = serverCE = serverBuilder.setVersion(5.5d).setEditionIsPro("CE").create();
-        server6_0 = serverPRO = serverBuilder.setVersion(6.0d).setEditionIsPro("PRO").create();
+        server5_5 = serverCE = serverBuilder.setVersion(ServerVersion.v5_5).setEditionIsPro(false).create();
+        server6_0 = serverPRO = serverBuilder.setVersion(ServerVersion.v6).setEditionIsPro(true).create();
 
         when(mDataSourceFactory.createCloudDataSource()).thenReturn(mCloudDataSource);
         when(mDataSourceFactory.createDiskDataSource()).thenReturn(mDiskDataSource);
@@ -75,28 +79,43 @@ public class JasperServerDataRepositoryTest {
         fakeProfile = Profile.create("name");
         fakeServer = JasperServer.builder()
                 .setBaseUrl("http://localhost")
-                .setVersion(6.0d)
-                .setEditionIsPro("PRO")
+                .setVersion(ServerVersion.v6)
+                .setEditionIsPro(true)
                 .create();
     }
 
     @Test
-    public void testSaveServer() throws Exception {
-        repoUnderTest.saveServer(fakeProfile, fakeServer);
-        verify(mDataSourceFactory).createDiskDataSource();
-        verify(mDiskDataSource).saveServer(fakeProfile, fakeServer);
-    }
-
-    @Test
     public void testGetServer() throws Exception {
-        repoUnderTest.getServer(fakeProfile);
+        TestSubscriber<JasperServer> test = new TestSubscriber<>();
+        repoUnderTest.getServer(fakeProfile).subscribe(test);
+
         verify(mDataSourceFactory).createDataSource(fakeProfile);
         verify(mDiskDataSource).getServer(fakeProfile);
     }
 
     @Test
+    public void testLoadServer() throws Exception {
+        TestSubscriber<JasperServer> test = new TestSubscriber<>();
+        repoUnderTest.loadServer("http://localhost").subscribe(test);
+
+        verify(mDataSourceFactory).createCloudDataSource();
+        verify(mCloudDataSource).getServer("http://localhost");
+    }
+
+    @Test
+    public void testSaveServer() throws Exception {
+        TestSubscriber<Void> test = new TestSubscriber<>();
+        repoUnderTest.saveServer(fakeProfile, fakeServer).subscribe(test);
+
+        verify(mDataSourceFactory).createDiskDataSource();
+        verify(mDiskDataSource).saveServer(fakeProfile, fakeServer);
+    }
+
+    @Test
     public void testUpdateServer() throws Exception {
-        repoUnderTest.updateServer(fakeProfile);
+        TestSubscriber<Boolean> test = new TestSubscriber<>();
+        repoUnderTest.updateServer(fakeProfile).subscribe(test);
+
         verify(mDataSourceFactory).createDiskDataSource();
         verify(mDataSourceFactory).createCloudDataSource();
         verify(mCloudDataSource).getServer(fakeProfile);
@@ -108,9 +127,12 @@ public class JasperServerDataRepositoryTest {
         when(mDiskDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
         when(mCloudDataSource.getServer(any(Profile.class))).thenReturn(server6_0);
 
-        assertThat("Server should be updated while versions differ",
-                repoUnderTest.updateServer(fakeProfile)
-        );
+        TestSubscriber<Boolean> test = new TestSubscriber<>();
+        repoUnderTest.updateServer(fakeProfile).subscribe(test);
+
+        test.assertNoErrors();
+        test.assertReceivedOnNext(Collections.singletonList(true));
+
         verify(mDiskDataSource).saveServer(fakeProfile, server6_0);
     }
 
@@ -119,9 +141,12 @@ public class JasperServerDataRepositoryTest {
         when(mDiskDataSource.getServer(any(Profile.class))).thenReturn(serverCE);
         when(mCloudDataSource.getServer(any(Profile.class))).thenReturn(serverPRO);
 
-        assertThat("Server should be updated while editions differ",
-                repoUnderTest.updateServer(fakeProfile)
-        );
+        TestSubscriber<Boolean> test = new TestSubscriber<>();
+        repoUnderTest.updateServer(fakeProfile).subscribe(test);
+
+        test.assertNoErrors();
+        test.assertReceivedOnNext(Collections.singletonList(true));
+
         verify(mDiskDataSource).saveServer(fakeProfile, serverPRO);
     }
 
@@ -130,15 +155,10 @@ public class JasperServerDataRepositoryTest {
         when(mDiskDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
         when(mCloudDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
 
-        assertThat("Server should not be updated",
-                !repoUnderTest.updateServer(fakeProfile)
-        );
-    }
+        TestSubscriber<Boolean> test = new TestSubscriber<>();
+        repoUnderTest.updateServer(fakeProfile).subscribe(test);
 
-    @Test
-    public void testLoadServer() throws Exception {
-        repoUnderTest.loadServer("http://localhost");
-        verify(mDataSourceFactory).createCloudDataSource();
-        verify(mCloudDataSource).getServer("http://localhost");
+        test.assertNoErrors();
+        test.assertReceivedOnNext(Collections.singletonList(false));
     }
 }

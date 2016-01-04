@@ -7,12 +7,12 @@ import android.support.annotation.Nullable;
  * @author Tom Koptel
  * @since 2.3
  */
-public class BaseCredentials {
+public class AppCredentials {
     private final String username;
     private final String password;
     private final String organization;
 
-    public BaseCredentials(String username, String password, String organization) {
+    public AppCredentials(String username, String password, String organization) {
         this.username = username;
         this.password = password;
         this.organization = organization;
@@ -40,9 +40,9 @@ public class BaseCredentials {
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BaseCredentials)) return false;
+        if (!(o instanceof AppCredentials)) return false;
 
-        BaseCredentials that = (BaseCredentials) o;
+        AppCredentials that = (AppCredentials) o;
 
         if (username != null ? !username.equals(that.username) : that.username != null)
             return false;
@@ -89,8 +89,8 @@ public class BaseCredentials {
             return this;
         }
 
-        public BaseCredentials create() {
-            return new BaseCredentials(mUsername, mPassword, mOrganization);
+        public AppCredentials create() {
+            return new AppCredentials(mUsername, mPassword, mOrganization);
         }
     }
 }

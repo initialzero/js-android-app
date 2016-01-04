@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.presentation.mapper;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.domain.BaseCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.model.CredentialsModel;
 
@@ -43,8 +43,8 @@ public class CredentialsDataMapper {
     }
 
     @NonNull
-    public BaseCredentials transform(CredentialsModel credentialsModel) {
-        BaseCredentials.Builder builder = BaseCredentials.builder();
+    public AppCredentials transform(CredentialsModel credentialsModel) {
+        AppCredentials.Builder builder = AppCredentials.builder();
         builder.setUsername(credentialsModel.getUsername());
         builder.setPassword(credentialsModel.getPassword());
         builder.setOrganization(credentialsModel.getOrganization());

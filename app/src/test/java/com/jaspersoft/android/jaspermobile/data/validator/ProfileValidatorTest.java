@@ -30,6 +30,7 @@ import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateP
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,9 +39,10 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import rx.observers.TestSubscriber;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -67,33 +69,31 @@ public class ProfileValidatorTest {
     public void shouldRejectProfileIfAccountAlreadyRegistered() throws Exception {
         when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(true);
 
+        TestSubscriber<Void> test = new TestSubscriber<>();
         Profile fakeProfile = Profile.create("name");
-        try {
-            validator.validate(fakeProfile);
-            fail("Account should not be valid");
-        } catch (DuplicateProfileException ex) {
-            assertThat(ex.requestedProfile(), is("name"));
-        }
+
+        validator.validate(fakeProfile).subscribe(test);
+        DuplicateProfileException ex = (DuplicateProfileException) test.getOnErrorEvents().get(0);
+        assertThat("Account should not be valid", ex, Matchers.is(notNullValue()));
     }
 
-   @Test
+    @Test
     public void shouldRejectProfileIfAccountNameIsReserved() throws Exception {
-        try {
-            validator.validate(Profile.create(JasperSettings.RESERVED_ACCOUNT_NAME));
-            fail("Account should not be valid");
-        } catch (ProfileReservedException ex) {
-        }
+        TestSubscriber<Void> test = new TestSubscriber<>();
+
+        validator.validate(Profile.create(JasperSettings.RESERVED_ACCOUNT_NAME)).subscribe(test);
+
+        ProfileReservedException ex = (ProfileReservedException) test.getOnErrorEvents().get(0);
+        assertThat("Account should not be valid", ex, Matchers.is(notNullValue()));
     }
 
     @Test
     public void shouldAcceptProfileIfUnique() throws Exception {
         when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(false);
 
-        try {
-            Profile fakeProfile = Profile.create("name");
-            validator.validate(fakeProfile);
-        } catch (DuplicateProfileException e) {
-            fail("Account should be valid");
-        }
+        Profile fakeProfile = Profile.create("name");
+        TestSubscriber<Void> test = new TestSubscriber<>();
+        validator.validate(fakeProfile).subscribe(test);
+        test.assertNoErrors();
     }
 }

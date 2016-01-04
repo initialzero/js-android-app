@@ -30,6 +30,7 @@ import android.provider.Settings;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -71,10 +72,10 @@ public class ServerInfoTest {
         activateServerData(fakeServerData);
 
         ServerInfoProvider serverInfoProvider =
-                ServerInfo.newInstance(RuntimeEnvironment.application);
-        String retrievedVersion = serverInfoProvider.getServerVersion();
+                InfoProvider_.getInstance_(RuntimeEnvironment.application);
+        ServerVersion retrievedVersion = serverInfoProvider.getVersion();
 
-        assertThat(retrievedVersion, is("5.5"));
+        assertThat(retrievedVersion, is(ServerVersion.v5_5));
     }
 
     @Test
@@ -82,10 +83,10 @@ public class ServerInfoTest {
         activateServerData(fakeServerData);
 
         ServerInfoProvider serverInfoProvider =
-                ServerInfo.newInstance(RuntimeEnvironment.application);
-        String retrievedEdition = serverInfoProvider.getServerEdition();
+                InfoProvider_.getInstance_(RuntimeEnvironment.application);
+        boolean retrievedEdition = serverInfoProvider.isProEdition();
 
-        assertThat(retrievedEdition, is("CE"));
+        assertThat(retrievedEdition, is(false));
     }
 
     @Test
@@ -94,7 +95,7 @@ public class ServerInfoTest {
         activateServerData(fakeServerData);
 
         ServerInfoProvider serverInfoProvider =
-                ServerInfo.newInstance(RuntimeEnvironment.application);
+                InfoProvider_.getInstance_(RuntimeEnvironment.application);
         String retrievedOrganization = serverInfoProvider.getOrganization();
 
         assertThat(retrievedOrganization, is("organization"));
@@ -106,7 +107,7 @@ public class ServerInfoTest {
         activateServerData(fakeServerData);
 
         ServerInfoProvider serverInfoProvider =
-                ServerInfo.newInstance(RuntimeEnvironment.application);
+                InfoProvider_.getInstance_(RuntimeEnvironment.application);
         String retrievedOrganization = serverInfoProvider.getOrganization();
 
         assertThat(retrievedOrganization, is(""));
@@ -118,7 +119,7 @@ public class ServerInfoTest {
         activateServerData(fakeServerData);
 
         ServerInfoProvider serverInfoProvider =
-                ServerInfo.newInstance(RuntimeEnvironment.application);
+                InfoProvider_.getInstance_(RuntimeEnvironment.application);
         String retrievedUsername = serverInfoProvider.getUsername();
 
         assertThat(retrievedUsername, is("username"));
@@ -130,7 +131,7 @@ public class ServerInfoTest {
         activateServerData(fakeServerData);
 
         ServerInfoProvider serverInfoProvider =
-                ServerInfo.newInstance(RuntimeEnvironment.application);
+                InfoProvider_.getInstance_(RuntimeEnvironment.application);
         String retrievedAlias = serverInfoProvider.getAlias();
 
         assertThat(retrievedAlias, is("alias"));

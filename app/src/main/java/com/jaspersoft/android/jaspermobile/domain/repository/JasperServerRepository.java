@@ -32,6 +32,8 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 
+import rx.Observable;
+
 /**
  * Abstraction responsible for create, update, get, fetch operations around server meta data.
  * Following interface implemented by {@link JasperServerDataRepository}
@@ -47,7 +49,7 @@ public interface JasperServerRepository {
      * @param profile the target profile we use to associate with credentials
      * @param jasperServer the target server we are going to save
      */
-    void saveServer(Profile profile, JasperServer jasperServer);
+    Observable<Void> saveServer(Profile profile, JasperServer jasperServer);
 
     /**
      * Loads server data from corresponding {@link ServerDataSource}.
@@ -57,23 +59,21 @@ public interface JasperServerRepository {
      * @return {@link JasperServer} abstraction that encompass additional server metadata
      * @throws RestStatusException describes either network exception, http exception or Jasper Server specific error states
      */
-    JasperServer loadServer(String baseUrl) throws RestStatusException;
+    Observable<JasperServer> loadServer(String baseUrl) throws RestStatusException;
 
     /**
      * Retrieves server instance from corresponding {@link ServerDataSource}.
      *
      * @param profile the target profile we use to associate with credentials
      * @return {@link JasperServer} abstraction that encompass additional server metadata
-     * @throws RestStatusException describes either network exception, http exception or Jasper Server specific error states
      */
-    JasperServer getServer(Profile profile) throws RestStatusException;
+    Observable<JasperServer> getServer(Profile profile);
 
     /**
      * Fetches and updates server data in corresponding {@link ServerDataSource}.
      *
      * @param profile the target profile we use to associate with credentials
      * @return true if server was updated. False if server metadata has not changed, as result was not updated
-     * @throws RestStatusException describes either network exception, http exception or Jasper Server specific error states
      */
-    boolean updateServer(Profile profile) throws RestStatusException;
+    Observable<Boolean> updateServer(Profile profile);
 }

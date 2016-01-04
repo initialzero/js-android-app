@@ -22,25 +22,14 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.internal.di.components;
-
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ActivityModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.SaveProfileModule;
-import com.jaspersoft.android.jaspermobile.presentation.view.fragment.AuthenticatorFragment;
-
-import dagger.Component;
+package com.jaspersoft.android.jaspermobile.presentation.validation;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
-@Component(dependencies = AppComponent.class,
-        modules = {
-                ActivityModule.class,
-                SaveProfileModule.class,
-        })
-public interface SaveProfileComponent extends ActivityComponent {
-    void inject(AuthenticatorFragment authFragment);
+public class PasswordMissingException extends Exception {
+    public PasswordMissingException() {
+        super("Client has not supplied password exception");
+    }
 }

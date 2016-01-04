@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.BackgroundThread;
+import com.jaspersoft.android.jaspermobile.SessionCache;
 import com.jaspersoft.android.jaspermobile.UIThread;
 import com.jaspersoft.android.jaspermobile.data.network.AuthenticatorFactory;
 import com.jaspersoft.android.jaspermobile.data.network.ServerApiFactory;
@@ -14,6 +15,9 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.CompositeUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
+import com.jaspersoft.android.sdk.network.InMemoryCookieStore;
+
+import java.net.CookieStore;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -37,6 +41,12 @@ public final class AppModule {
     @Singleton
     Context provideApplicationContext() {
         return mApplication;
+    }
+
+    @Provides
+    @Singleton
+    CookieStore provideCookieStore(Context context) {
+        return new SessionCache(context, new InMemoryCookieStore());
     }
 
     @Provides

@@ -24,32 +24,25 @@
 
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
-import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
-import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import rx.Observable;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 @Singleton
-public final class UpdateServerUseCase {
-    /**
-     * Injected by {@link ProfileModule#providesServerRepository(JasperServerDataRepository)}
-     */
-    private final JasperServerRepository mServerRepository;
-
+public final class UpdateServerUseCase extends AbstractUseCase<Boolean, Profile> {
     @Inject
-    public UpdateServerUseCase(JasperServerRepository serverRepository) {
-        mServerRepository = serverRepository;
+    public UpdateServerUseCase() {
     }
 
-    public boolean execute(Profile profile) throws RestStatusException {
-        return mServerRepository.updateServer(profile).toBlocking().firstOrDefault(false);
+    @Override
+    protected Observable<Boolean> buildUseCaseObservable(Profile profile) {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 }

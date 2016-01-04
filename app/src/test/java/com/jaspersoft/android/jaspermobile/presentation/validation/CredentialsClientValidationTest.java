@@ -22,11 +22,11 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.presentation.model.validation;
+package com.jaspersoft.android.jaspermobile.presentation.validation;
 
 import com.jaspersoft.android.jaspermobile.presentation.model.CredentialsModel;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.PasswordMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.UsernameMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.exception.PasswordMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.exception.UsernameMissingException;
 
 import org.junit.Before;
 import org.junit.Test;

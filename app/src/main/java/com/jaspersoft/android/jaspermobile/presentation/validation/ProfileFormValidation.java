@@ -22,13 +22,12 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.presentation.model.validation;
+package com.jaspersoft.android.jaspermobile.presentation.validation;
 
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.presentation.model.ProfileModel;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.AliasMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.ServerUrlFormatException;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.ServerUrlMissingException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -40,17 +39,20 @@ import javax.inject.Inject;
  * @since 2.3
  */
 @PerActivity
-public class ProfileClientValidation {
+public class ProfileFormValidation {
+
     @Inject
-    public ProfileClientValidation() {
+    public ProfileFormValidation() {
     }
 
-    public void validate(ProfileModel profileModel) throws AliasMissingException, ServerUrlMissingException, ServerUrlFormatException {
-        String alias = profileModel.getAlias();
+    public void validate(ProfileForm form) throws UsernameMissingException,
+            PasswordMissingException, AliasMissingException, ServerUrlMissingException, ServerUrlFormatException {
+        Profile profile = form.getProfile();
+        String alias = profile.getKey();
         if (alias == null || alias.trim().length() == 0) {
             throw new AliasMissingException();
         }
-        String serverUrl = profileModel.getServerUrl();
+        String serverUrl = form.getServerUrl();
         if (serverUrl == null || serverUrl.trim().length() == 0) {
             throw new ServerUrlMissingException();
         }
@@ -59,6 +61,18 @@ public class ProfileClientValidation {
             new URL(serverUrl);
         } catch (MalformedURLException e) {
             throw new ServerUrlFormatException();
+        }
+
+        AppCredentials credentials = form.getCredentials();
+        String username = credentials.getUsername();
+        if (username == null ||
+                username.trim().length() == 0) {
+            throw new UsernameMissingException();
+        }
+        String password = credentials.getPassword();
+        if (password == null ||
+                password.trim().length() == 0) {
+            throw new PasswordMissingException();
         }
     }
 }

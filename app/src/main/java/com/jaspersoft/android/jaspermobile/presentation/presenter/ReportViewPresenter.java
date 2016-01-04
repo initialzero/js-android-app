@@ -34,7 +34,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPages
 import com.jaspersoft.android.jaspermobile.domain.interactor.IsReportMultiPageCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.ReloadReportCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.RunReportExecutionCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCaseSimple;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
@@ -61,7 +61,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
     private final GetReportTotalPagesCase mGetReportTotalPagesCase;
     private final IsReportMultiPageCase mIsReportMultiPageCase;
     private final RunReportExecutionCase mRunReportExecutionCase;
-    private final UpdateReportExecutionCase mUpdateReportExecutionCase;
+    private final UpdateReportExecutionCaseSimple mUpdateReportExecutionCase;
     private final ReloadReportCase mReloadReportCase;
 
     private RequestExceptionHandler mExceptionHandler;
@@ -75,7 +75,7 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
             GetReportTotalPagesCase getReportTotalPagesCase,
             IsReportMultiPageCase isReportMultiPageCase,
             RunReportExecutionCase runReportExecutionCase,
-            UpdateReportExecutionCase updateReportExecutionCase,
+            UpdateReportExecutionCaseSimple updateReportExecutionCase,
             ReloadReportCase reloadReportCase) {
         mExceptionHandler = exceptionHandler;
         mGetReportPageCase = getReportPageCase;

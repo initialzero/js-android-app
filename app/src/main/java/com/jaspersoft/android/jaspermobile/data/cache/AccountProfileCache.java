@@ -39,6 +39,8 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import rx.Observable;
+
 /**
  * Implementation of profile cache around {@link AccountManager}. This cache used in order to persist
  * new profiles in system. Also used for validation purposes of weather profile in cache or not.
@@ -63,11 +65,12 @@ public final class AccountProfileCache implements ProfileCache {
      * {@inheritDoc}
      */
     @Override
-    public boolean put(@NonNull Profile profile) {
+    public Observable<Profile> put(@NonNull Profile profile) {
         Account accountProfile = mAccountDataMapper.transform(profile);
         Bundle userData = new Bundle();
         userData.putString(ALIAS_KEY, profile.getKey());
-        return mAccountManager.addAccountExplicitly(accountProfile, null, userData);
+        mAccountManager.addAccountExplicitly(accountProfile, null, userData);
+        return Observable.just(profile);
     }
 
     /**

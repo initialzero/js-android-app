@@ -27,10 +27,10 @@ package com.jaspersoft.android.jaspermobile.data.network;
 import android.content.Context;
 import android.support.annotation.StringRes;
 
+import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
 import javax.inject.Inject;
 
@@ -38,7 +38,7 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
+@Singleton
 public class RestErrorAdapter {
     private final Context mContext;
 

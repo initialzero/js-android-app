@@ -62,7 +62,7 @@ public class ProfileDataRepositoryTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         fakeProfile = Profile.create("any");
-        repositoryUnderTest = new ProfileDataRepository(mAccountCache, mPreferencesCache);
+        repositoryUnderTest = new ProfileDataRepository(mAccountCache, mPreferencesCache, profileValidator);
     }
 
     @Test

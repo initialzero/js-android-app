@@ -19,5 +19,5 @@ public interface ProfileValidator {
      *
      * @param profile we are performing validations on
      */
-    Observable<Void> validate(Profile profile);
+    Observable<Profile> validate(Profile profile);
 }

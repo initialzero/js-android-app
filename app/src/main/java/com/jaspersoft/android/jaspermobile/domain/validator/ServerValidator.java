@@ -16,8 +16,6 @@ import rx.Observable;
 public interface ServerValidator {
     /**
      * Validates either server version supported or not.
-     *
-     * @param server we are perform validation on
      */
-    Observable<Void> validate(JasperServer server);
+    Observable<JasperServer> validate(String serverUrl);
 }

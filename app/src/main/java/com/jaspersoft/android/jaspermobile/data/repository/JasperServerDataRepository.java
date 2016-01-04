@@ -24,19 +24,22 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
+import com.jaspersoft.android.jaspermobile.data.cache.ServerCache;
 import com.jaspersoft.android.jaspermobile.data.repository.datasource.CloudServerDataSource;
 import com.jaspersoft.android.jaspermobile.data.repository.datasource.DiskServerDataSource;
-import com.jaspersoft.android.jaspermobile.data.repository.datasource.ServerDataSource;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
+import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
+import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.functions.Func0;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 /**
  * Implementation of repository pattern responsible CRUD operations around server meta data.
@@ -45,90 +48,84 @@ import rx.functions.Func0;
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
+@PerActivity
 public final class JasperServerDataRepository implements JasperServerRepository {
-    private final ServerDataSource.Factory mDataSourceFactory;
+
+    /**
+     * Injected by {@link ProfileModule#providesProfileRepository(ProfileDataRepository)}
+     */
+    private final ServerCache mServerCache;
+    private final ServerValidator mServerValidator;
 
     @Inject
-    public JasperServerDataRepository(ServerDataSource.Factory dataSourceFactory) {
-        mDataSourceFactory = dataSourceFactory;
+    public JasperServerDataRepository(ServerCache serverCache, ServerValidator serverValidator) {
+        mServerCache = serverCache;
+        mServerValidator = serverValidator;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Observable<Void> saveServer(final Profile profile, final JasperServer jasperServer) {
-        return Observable.defer(new Func0<Observable<Void>>() {
-            @Override
-            public Observable<Void> call() {
-                ServerDataSource source = mDataSourceFactory.createDiskDataSource();
-                source.saveServer(profile, jasperServer);
-                return Observable.just(null);
-            }
-        });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Observable<JasperServer> loadServer(final String baseUrl) {
-        return Observable.defer(new Func0<Observable<JasperServer>>() {
-            @Override
-            public Observable<JasperServer> call() {
-                ServerDataSource cloudSource = mDataSourceFactory.createCloudDataSource();
-                try {
-                    JasperServer server = cloudSource.getServer(baseUrl);
-                    return Observable.just(server);
-                } catch (RestStatusException e) {
-                    return Observable.error(e);
-                }
-            }
-        });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Observable<JasperServer> getServer(final Profile profile)  {
-        return Observable.defer(new Func0<Observable<JasperServer>>() {
-            @Override
-            public Observable<JasperServer> call() {
-                ServerDataSource source = mDataSourceFactory.createDataSource(profile);
-                try {
-                    JasperServer server = source.getServer(profile);
-                    return Observable.just(server);
-                } catch (RestStatusException e) {
-                   return Observable.error(e);
-                }
-            }
-        });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Observable<Boolean> updateServer(final Profile profile){
-        final ServerDataSource diskSource = mDataSourceFactory.createDiskDataSource();
-        final ServerDataSource cloudSource = mDataSourceFactory.createCloudDataSource();
-        return Observable.defer(new Func0<Observable<Boolean>>() {
-            @Override
-            public Observable<Boolean> call() {
-                try {
-                    JasperServer cachedServer = diskSource.getServer(profile);
-                    JasperServer networkServer = cloudSource.getServer(profile);
-                    boolean needUpdate = !cachedServer.equals(networkServer);
-                    if (needUpdate) {
-                        diskSource.saveServer(profile, networkServer);
+    public Observable<Profile> saveServer(final Profile profile, final String serverUrl) {
+        Observable<JasperServer> validateAction = mServerValidator.validate(serverUrl);
+        return validateAction
+                .doOnNext(new Action1<JasperServer>() {
+                    @Override
+                    public void call(JasperServer server) {
+                        mServerCache.put(profile, server);
                     }
-                    return Observable.just(needUpdate);
-                } catch (RestStatusException e) {
-                   return Observable.error(e);
-                }
-            }
-        });
+                }).map(new Func1<JasperServer, Profile>() {
+                    @Override
+                    public Profile call(JasperServer server) {
+                        return profile;
+                    }
+                });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Observable<JasperServer> getServer(final Profile profile) {
+        throw new UnsupportedOperationException("Not yet implemented");
+//        return Observable.defer(new Func0<Observable<JasperServer>>() {
+//            @Override
+//            public Observable<JasperServer> call() {
+//                ServerDataSource source = mDataSourceFactory.createDataSource(profile);
+//                try {
+//                    JasperServer server = source.getServer(profile);
+//                    return Observable.just(server);
+//                } catch (RestStatusException e) {
+//                   return Observable.error(e);
+//                }
+//            }
+//        });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Observable<Boolean> updateServer(final Profile profile) {
+        throw new UnsupportedOperationException("Not yet implemented");
+//        final ServerDataSource diskSource = mDataSourceFactory.createDiskDataSource();
+//        final ServerDataSource cloudSource = mDataSourceFactory.createCloudDataSource();
+//        return Observable.defer(new Func0<Observable<Boolean>>() {
+//            @Override
+//            public Observable<Boolean> call() {
+//                try {
+//                    JasperServer cachedServer = diskSource.getServer(profile);
+//                    JasperServer networkServer = cloudSource.getServer(profile);
+//                    boolean needUpdate = !cachedServer.equals(networkServer);
+//                    if (needUpdate) {
+//                        diskSource.saveServer(profile, networkServer);
+//                    }
+//                    return Observable.just(needUpdate);
+//                } catch (RestStatusException e) {
+//                   return Observable.error(e);
+//                }
+//            }
+//        });
     }
 }

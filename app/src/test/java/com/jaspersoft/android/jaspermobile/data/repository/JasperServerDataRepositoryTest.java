@@ -75,7 +75,7 @@ public class JasperServerDataRepositoryTest {
         when(mDiskDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
         when(mCloudDataSource.getServer(any(Profile.class))).thenReturn(server5_5);
 
-        repoUnderTest = new JasperServerDataRepository(mDataSourceFactory);
+        repoUnderTest = new JasperServerDataRepository(serverCache, serverValidator);
         fakeProfile = Profile.create("name");
         fakeServer = JasperServer.builder()
                 .setBaseUrl("http://localhost")

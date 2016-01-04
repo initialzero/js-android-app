@@ -32,13 +32,16 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.internal.di.components.SaveProfileComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.SaveProfileModule;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
+import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
+import com.jaspersoft.android.jaspermobile.internal.di.components.AuthenticatorActivityComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.AuthenticatorModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ServerClientModule;
 import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
-import com.jaspersoft.android.jaspermobile.presentation.model.CredentialsModel;
-import com.jaspersoft.android.jaspermobile.presentation.model.ProfileModel;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
@@ -78,21 +81,10 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     @Inject
     AuthenticationPresenter mPresenter;
     /**
-     * Injected through {@link SaveProfileModule#provideProfileActionListener(AuthenticationPresenter)}
+     * Injected through {@link AuthenticatorModule#provideActionListener(AuthenticationPresenter)}
      */
     @Inject
     ProfileActionListener mProfileActionListener;
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        injectComponents();
-    }
-
-    private void injectComponents() {
-        getComponent(SaveProfileComponent.class).inject(this);
-        mPresenter.setView(this);
-    }
 
     @Click
     void addAccount() {
@@ -112,19 +104,25 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     @Override
     public void onResume() {
         super.onResume();
-        mPresenter.resume();
+        if (mPresenter != null) {
+            mPresenter.resume();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mPresenter != null) {
+            mPresenter.destroy();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mPresenter.pause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mPresenter.destroy();
+        if (mPresenter != null) {
+            mPresenter.pause();
+        }
     }
 
     @Override
@@ -235,16 +233,26 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     private void saveProfile(String alias, String serverUrl,
                              String username, String password,
                              String organization) {
-        CredentialsModel credentials = CredentialsModel.builder()
+        AppCredentials credentials = AppCredentials.builder()
                 .setUsername(username)
                 .setPassword(password)
                 .setOrganization(organization)
                 .create();
-        ProfileModel profile = ProfileModel.builder()
+        ProfileForm profileForm = ProfileForm.builder()
                 .setAlias(alias)
                 .setBaseUrl(serverUrl)
                 .setCredentials(credentials)
-                .create();
-        mProfileActionListener.saveProfile(profile);
+                .build();
+
+        injectComponents(serverUrl);
+        mPresenter.saveProfile(profileForm);
+    }
+
+    private void injectComponents(String baseUrl) {
+        AuthenticatorActivityComponent component = JasperMobileApplication.get(getActivity())
+                .getComponent()
+                .plus(new ActivityModule(getActivity()), new ServerClientModule(baseUrl));
+        component.inject(this);
+        mPresenter.setView(this);
     }
 }

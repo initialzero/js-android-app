@@ -28,16 +28,16 @@ import com.jaspersoft.android.jaspermobile.data.cache.AccountProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
+import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
+import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.functions.Func0;
 
 /**
  * Implementation of repo pattern for {@link Profile}
@@ -49,54 +49,42 @@ import rx.functions.Func0;
 public final class ProfileDataRepository implements ProfileRepository {
 
     /**
-     *  Injected by {@link ProfileModule#providesProfileAccountCache(AccountProfileCache)}}
+     * Injected by {@link ProfileModule#providesProfileAccountCache(AccountProfileCache)}}
      */
     private final ProfileCache mProfileCache;
     /**
-     *  Injected by {@link ProfileModule#providesPreferencesProfileCache(PreferencesActiveProfileCache)}}
+     * Injected by {@link ProfileModule#providesPreferencesProfileCache(PreferencesActiveProfileCache)}}
      */
     private final ActiveProfileCache mProfileActiveCache;
+    /**
+     * Injected by {@link ProfileModule#provideProfileValidator(ProfileValidatorImpl)}
+     */
+    private final ProfileValidator mProfileValidator;
 
     @Inject
     public ProfileDataRepository(ProfileCache accountProfileCache,
-                                 ActiveProfileCache preferencesProfileCache) {
+                                 ActiveProfileCache preferencesProfileCache,
+                                 ProfileValidator profileValidator) {
         mProfileCache = accountProfileCache;
         mProfileActiveCache = preferencesProfileCache;
+        mProfileValidator = profileValidator;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Observable<Void> saveProfile(final Profile profile) {
-        return Observable.defer(new Func0<Observable<Void>>() {
-            @Override
-            public Observable<Void> call() {
-                boolean containsProfile = mProfileCache.hasProfile(profile);
-                if (containsProfile) {
-                    return Observable.error(new FailedToSaveProfile(profile));
-                } else {
-                    boolean isSaved = mProfileCache.put(profile);
-                    if (!isSaved) {
-                        return Observable.error(new FailedToSaveProfile(profile));
-                    }
-                }
-                return Observable.just(null);
-            }
-        });
+    public Observable<Profile> saveProfile(final Profile profile) {
+        Observable<Profile> validateAction = mProfileValidator.validate(profile);
+        Observable<Profile> saveAction = mProfileCache.put(profile);
+        return validateAction.concatWith(saveAction);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Observable<Void> activate(final Profile profile) {
-        return Observable.defer(new Func0<Observable<Void>>() {
-            @Override
-            public Observable<Void> call() {
-                mProfileActiveCache.put(profile);
-                return Observable.just(null);
-            }
-        });
+    public Observable<Profile> activate(final Profile profile) {
+        return mProfileActiveCache.put(profile);
     }
 }

@@ -58,7 +58,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPages
 import com.jaspersoft.android.jaspermobile.domain.interactor.IsReportMultiPageCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.ReloadReportCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.RunReportExecutionCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCaseSimple;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.service.ObservableReportService;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
@@ -218,7 +218,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
         GetReportTotalPagesCase getReportTotalPagesCase = new GetReportTotalPagesCase(reportRepository);
         IsReportMultiPageCase isReportMultiPageCase = new IsReportMultiPageCase(reportRepository);
         RunReportExecutionCase runReportExecutionCase = new RunReportExecutionCase(reportRepository);
-        UpdateReportExecutionCase updateReportExecutionCase = new UpdateReportExecutionCase(reportRepository);
+        UpdateReportExecutionCaseSimple updateReportExecutionCase = new UpdateReportExecutionCaseSimple(reportRepository);
         ReloadReportCase reloadReportCase = new ReloadReportCase(reportRepository);
 
         mPresenter = new ReportViewPresenter(

@@ -49,7 +49,7 @@ public class ServerValidatorImplTest {
 
     @Before
     public void setUp() throws Exception {
-        validator = new ServerValidatorImpl();
+        validator = new ServerValidatorImpl(serverMapper, rxServerInfoService);
     }
 
     @Test

@@ -32,7 +32,7 @@ import rx.Observable;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class IsReportMultiPageCase extends AbstractUseCase<Boolean> {
+public final class IsReportMultiPageCase extends AbstractSimpleUseCase<Boolean> {
     private final ReportRepository mReportRepository;
 
     public IsReportMultiPageCase(ReportRepository reportRepository) {

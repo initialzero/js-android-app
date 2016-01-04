@@ -37,7 +37,8 @@ buildscript {
 apply plugin: "com.android.application"
 apply plugin: "android-apt"
 apply plugin: "io.fabric"
-apply from: "build_utils.gradle"
+apply plugin: 'com.getkeepsafe.dexcount'
+//apply from: "build_utils.gradle"
 
 repositories {
     maven { url "https://maven.fabric.io/public" }
@@ -208,9 +209,9 @@ android {
         // Template rendering
         compile "com.samskivert:jmustache:1.10"
 
-        compile("com.jaspersoft.android.sdk:js-android-sdk-core:2.0-SNAPSHOT")
+        compile("com.jaspersoft.android.sdk:js-android-sdk-rx:2.0-SNAPSHOT")
         compile "commons-io:commons-io:2.4"
-        compile("org.simpleframework:simple-xml:2.7") {
+        provided("org.simpleframework:simple-xml:2.7") {
             exclude group: "stax"
             exclude group: "xpp3"
         }
@@ -220,8 +221,9 @@ android {
         compile("com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}") {
             transitive = false
         }
-
-        compile "io.reactivex:rxandroid:0.24.0"
+        compile("io.reactivex:rxandroid:1.1.0") {
+            transitive = false
+        }
 
         testCompile "nl.jqno.equalsverifier:equalsverifier:1.7.5"
         testCompile("pl.pragmatists:JUnitParams:1.0.4") {

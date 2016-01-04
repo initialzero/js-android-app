@@ -37,13 +37,12 @@ import com.jaspersoft.android.jaspermobile.presentation.mapper.CredentialsDataMa
 import com.jaspersoft.android.jaspermobile.presentation.mapper.ProfileDataMapper;
 import com.jaspersoft.android.jaspermobile.presentation.model.CredentialsModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileModel;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.CredentialsClientValidation;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.ProfileClientValidation;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.AliasMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.PasswordMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.ServerUrlFormatException;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.ServerUrlMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.UsernameMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.ProfileClientValidation;
+import com.jaspersoft.android.jaspermobile.presentation.validation.exception.AliasMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.exception.PasswordMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.exception.ServerUrlFormatException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.exception.ServerUrlMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.exception.UsernameMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
 
 import org.junit.Before;

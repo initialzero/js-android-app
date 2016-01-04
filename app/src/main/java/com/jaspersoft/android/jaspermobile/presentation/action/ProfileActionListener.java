@@ -24,12 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.action;
 
-import com.jaspersoft.android.jaspermobile.presentation.model.ProfileModel;
+import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 public interface ProfileActionListener {
-    void saveProfile(ProfileModel profileModel);
+    void saveProfile(ProfileForm profileForm);
 }

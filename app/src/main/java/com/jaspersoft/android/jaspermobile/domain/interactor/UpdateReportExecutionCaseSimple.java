@@ -8,10 +8,10 @@ import rx.Observable;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class UpdateReportExecutionCase extends AbstractUseCase<Void> {
+public final class UpdateReportExecutionCaseSimple extends AbstractSimpleUseCase<Void> {
     private final ReportRepository mReportRepository;
 
-    public UpdateReportExecutionCase(ReportRepository reportRepository) {
+    public UpdateReportExecutionCaseSimple(ReportRepository reportRepository) {
         mReportRepository = reportRepository;
     }
 

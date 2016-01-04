@@ -36,6 +36,8 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import rx.Observable;
+
 /**
  * Implementation of profile cache around {@link SharedPreferences}. This cache used for persisting
  * currently active profile. Active profile - one use choose to interact across application.
@@ -60,20 +62,21 @@ public final class PreferencesActiveProfileCache implements ActiveProfileCache {
      */
     @Nullable
     @Override
-    public Profile get() {
+    public Observable<Profile> get() {
         String key = mPreference.getString(ACCOUNT_NAME_KEY, null);
         if (key == null) {
             return null;
         }
-        return Profile.create(key);
+        return Observable.just(Profile.create(key));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void put(@NonNull Profile profile) {
+    public Observable<Profile> put(@NonNull Profile profile) {
         mPreference.edit().putString(ACCOUNT_NAME_KEY, profile.getKey()).apply();
+        return Observable.just(profile);
     }
 
     @Override

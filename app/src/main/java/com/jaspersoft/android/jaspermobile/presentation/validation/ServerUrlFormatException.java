@@ -22,14 +22,14 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.presentation.model.validation.exception;
+package com.jaspersoft.android.jaspermobile.presentation.validation;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public class AliasMissingException extends Exception {
-    public AliasMissingException() {
-        super("Client has not supplied alias");
+public class ServerUrlFormatException extends Exception {
+    public ServerUrlFormatException() {
+        super("Server url should be link");
     }
 }

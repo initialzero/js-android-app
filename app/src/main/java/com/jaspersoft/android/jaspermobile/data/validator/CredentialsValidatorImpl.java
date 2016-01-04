@@ -24,16 +24,17 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
-import com.jaspersoft.android.jaspermobile.data.network.AuthenticatorFactory;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.CredentialsMapper;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
-import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
+import com.jaspersoft.android.sdk.network.Credentials;
+import com.jaspersoft.android.sdk.service.rx.auth.RxAuthorizationService;
 
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * Perform network call and authorize user. If passed than user fine to go
@@ -43,22 +44,28 @@ import rx.Observable;
  */
 @PerActivity
 public final class CredentialsValidatorImpl implements CredentialsValidator {
-    /**
-     * Injected by {@link AppModule#providesAuthenticatorFactory(AuthenticatorFactory)}}
-     */
-    private final Authenticator.Factory mAuthFactory;
+
+    private final RxAuthorizationService mAuthorizationService;
+    private final CredentialsMapper mCredentialsMapper;
 
     @Inject
-    public CredentialsValidatorImpl(Authenticator.Factory authFactory) {
-        mAuthFactory = authFactory;
+    public CredentialsValidatorImpl(RxAuthorizationService authorizationService, CredentialsMapper credentialsMapper) {
+        mAuthorizationService = authorizationService;
+        mCredentialsMapper = credentialsMapper;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Observable<Void> validate(AppCredentials credentials) {
-//        mAuthFactory.create(server.getBaseUrl()).authenticate(credentials);
-        throw new UnsupportedOperationException("Not yet implemented");
+    public Observable<AppCredentials> validate(final AppCredentials credentials) {
+        Credentials spring = mCredentialsMapper.toNetworkModel(credentials);
+        return mAuthorizationService.authorize(spring)
+                .flatMap(new Func1<Credentials, Observable<AppCredentials>>() {
+                    @Override
+                    public Observable<AppCredentials> call(Credentials aCredentials) {
+                        return Observable.just(credentials);
+                    }
+                });
     }
 }

@@ -45,12 +45,12 @@ public interface ProfileRepository {
 
      * @param profile target {@link Profile} we would like to cache
      */
-    Observable<Void> saveProfile(Profile profile);
+    Observable<Profile> saveProfile(Profile profile);
 
     /**
      * Makes target profile active
      *
      * @param profile target {@link Profile} we would like to activate
      */
-    Observable<Void> activate(Profile profile);
+    Observable<Profile> activate(Profile profile);
 }

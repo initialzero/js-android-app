@@ -28,6 +28,8 @@ import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
+import rx.Observable;
+
 /**
  * Abstraction around caching of {@link AppCredentials} instance.
  * Following interface implemented by {@link AccountCredentialsCache}
@@ -39,11 +41,10 @@ public interface CredentialsCache {
     /**
      * Saves credentials in cache, presumably encoding sensitive data(e.g. password)
      *
-     * @param profile the target profile we use to associate with credentials
+     * @param profile     the target profile we use to associate with credentials
      * @param credentials we are going to put inside repository
-     * @throws PasswordManager.EncryptionException thrown if unexpected encoding exception raised
      */
-    void put(Profile profile, AppCredentials credentials) throws PasswordManager.EncryptionException;
+    Observable<AppCredentials> put(Profile profile, AppCredentials credentials);
 
     /**
      * Retrieves credentials from cache, presumably decoding sensitive data(e.g. password)
@@ -51,5 +52,5 @@ public interface CredentialsCache {
      * @param profile the target profile we use to associate with credentials
      * @throws PasswordManager.DecryptionException thrown if unexpected decoding exception raised
      */
-    AppCredentials get(Profile profile) throws PasswordManager.DecryptionException;
+    Observable<AppCredentials> get(Profile profile);
 }

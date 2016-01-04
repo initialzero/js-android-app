@@ -33,7 +33,7 @@ import rx.Observable;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class GetReportPageCase extends AbstractUseCase<ReportPage> {
+public final class GetReportPageCase extends AbstractSimpleUseCase<ReportPage> {
     public static final String DEFAULT_PAGE = "1";
 
     private final ReportRepository mReportRepository;

@@ -24,26 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
-import android.accounts.AccountManager;
-import android.content.Context;
-
-import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.data.cache.AccountCredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.AccountProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.AccountServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ActiveProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ServerCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
-import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataRepository;
-import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.ProfileDataRepository;
-import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
-import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
+import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
+import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -57,6 +46,12 @@ import dagger.Provides;
  */
 @Module
 public final class ProfileModule {
+
+    @Singleton
+    @Provides
+    ProfileRepository providesProfileRepository(ProfileDataRepository dataRepository) {
+        return dataRepository;
+    }
 
     @Singleton
     @Provides
@@ -78,33 +73,7 @@ public final class ProfileModule {
 
     @Singleton
     @Provides
-    ServerCache providesJasperSeverCache(AccountServerCache cache) {
-        return cache;
-    }
-
-    @Singleton
-    @Provides
-    CredentialsCache provideCredentialsCache(Context context, AccountManager accountManager, AccountDataMapper accountDataMapper) {
-        String secret = context.getString(R.string.password_salt_key);
-        PasswordManager passwordManager = PasswordManager.init(context, secret);
-        return new AccountCredentialsCache(accountManager, passwordManager, accountDataMapper);
-    }
-
-    @Singleton
-    @Provides
-    ProfileRepository providesProfileRepository(ProfileDataRepository dataRepository) {
-        return dataRepository;
-    }
-
-    @Singleton
-    @Provides
-    CredentialsRepository providesCredentialsRepository(CredentialsDataRepository dataRepository) {
-        return dataRepository;
-    }
-
-    @Singleton
-    @Provides
-    JasperServerRepository providesServerRepository(JasperServerDataRepository repository) {
-        return repository;
+    ProfileValidator provideProfileValidator(ProfileValidatorImpl profileValidator) {
+        return profileValidator;
     }
 }

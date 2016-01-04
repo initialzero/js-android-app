@@ -20,8 +20,8 @@ import static org.mockito.Mockito.when;
  * @author Tom Koptel
  * @since 2.3
  */
-public class UseCaseTest {
-    private UseCaseTestClass useCase;
+public class SimpleUseCaseTest {
+    private SimpleUseCaseTestClass useCase;
 
     @Mock
     private PreExecutionThread mockPreExecutionThread;
@@ -31,7 +31,7 @@ public class UseCaseTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.useCase = new UseCaseTestClass();
+        this.useCase = new SimpleUseCaseTestClass();
     }
 
     @Test
@@ -56,7 +56,7 @@ public class UseCaseTest {
         assertThat(testSubscriber.isUnsubscribed(), is(true));
     }
 
-    private static class UseCaseTestClass extends AbstractUseCase {
+    private static class SimpleUseCaseTestClass extends AbstractSimpleUseCase {
         @Override
         protected Observable buildUseCaseObservable() {
             return Observable.empty();

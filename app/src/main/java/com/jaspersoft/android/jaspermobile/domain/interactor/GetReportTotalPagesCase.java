@@ -32,7 +32,7 @@ import rx.Observable;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class GetReportTotalPagesCase extends AbstractUseCase<Integer> {
+public final class GetReportTotalPagesCase extends AbstractSimpleUseCase<Integer> {
     private final ReportRepository mReportRepository;
 
     public GetReportTotalPagesCase(ReportRepository reportRepository) {

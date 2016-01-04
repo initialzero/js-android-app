@@ -2,7 +2,6 @@ package com.jaspersoft.android.jaspermobile.domain.validator;
 
 import com.jaspersoft.android.jaspermobile.data.validator.CredentialsValidatorImpl;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 
 import rx.Observable;
 
@@ -20,5 +19,5 @@ public interface CredentialsValidator {
      *
      * @param credentials user data we use to
      */
-    Observable<Void> validate(AppCredentials credentials);
+    Observable<AppCredentials> validate(AppCredentials credentials);
 }

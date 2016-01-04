@@ -10,7 +10,7 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class ReloadReportCase extends AbstractUseCase<Void> {
+public final class ReloadReportCase extends AbstractSimpleUseCase<Void> {
     private final ReportRepository mReportRepository;
 
     public ReloadReportCase(ReportRepository reportRepository) {

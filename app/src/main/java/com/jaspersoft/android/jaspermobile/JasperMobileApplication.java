@@ -113,15 +113,11 @@ public class JasperMobileApplication extends Application {
         L.writeLogs(false);
     }
 
-    public static AppComponent getComponent(Context context) {
-        return ((JasperMobileApplication) context.getApplicationContext()).getComponent();
-    }
-
     public AppComponent getComponent() {
         if (mComponent == null) {
             synchronized (JasperMobileApplication.class) {
                 if (mComponent == null) {
-                    mComponent = createDefaultComponent();
+                    mComponent = DaggerAppComponent.builder().appModule(new AppModule(this)).build();
                 }
             }
         }
@@ -133,9 +129,7 @@ public class JasperMobileApplication extends Application {
         mComponent = component;
     }
 
-    private AppComponent createDefaultComponent() {
-        return DaggerAppComponent.builder()
-                .appModule(new AppModule(this))
-                .build();
+    public static JasperMobileApplication get(Context context) {
+        return (JasperMobileApplication) context.getApplicationContext();
     }
 }

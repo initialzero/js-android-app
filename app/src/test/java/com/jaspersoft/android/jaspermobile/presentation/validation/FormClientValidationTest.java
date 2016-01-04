@@ -22,12 +22,12 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.presentation.model.validation;
+package com.jaspersoft.android.jaspermobile.presentation.validation;
 
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileModel;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.AliasMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.ServerUrlFormatException;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.ServerUrlMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.exception.AliasMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.exception.ServerUrlFormatException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.exception.ServerUrlMissingException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * @author Tom Koptel
  * @since 2.3
  */
-public class ProfileClientValidationTest {
+public class FormClientValidationTest {
 
     @Mock
     ProfileModel mProfileModel;

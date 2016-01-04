@@ -24,13 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.CredentialsMapper;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
-import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
-import com.jaspersoft.android.sdk.service.auth.AuthorizationService;
+import com.jaspersoft.android.sdk.network.Credentials;
+import com.jaspersoft.android.sdk.service.rx.auth.RxAuthorizationService;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,63 +37,54 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
+
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 public class CredentialsValidatorImplTest {
+
     @Mock
-    RestStatusException mRestError;
+    Credentials mCredentials;
     @Mock
-    Authenticator.Factory mFactory;
+    RxAuthorizationService mService;
+
     @Mock
-    Authenticator mAuthenticator;
-    @Mock
-    AppCredentials credentialsUnderTest;
-    @Mock
-    AuthorizationService mAuthorizationService;
-    @Mock
-    JasperServer fakeServer;
+    CredentialsMapper mCredentialsMapper;
 
     CredentialsValidator validator;
 
     @Rule
     public ExpectedException mException = ExpectedException.none();
+    private AppCredentials fakeCredentials;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        when(mFactory.create(mAuthorizationService)).thenReturn(mAuthenticator);
-        validator = new CredentialsValidatorImpl(mFactory);
+        fakeCredentials = AppCredentials.builder()
+                .setOrganization("organziation")
+                .setPassword("password")
+                .setUsername("username")
+                .create();
+        validator = new CredentialsValidatorImpl(mService, mCredentialsMapper);
     }
 
     @Test
     public void testValidate() throws Exception {
-        performValidation();
-        verify(mAuthenticator).authenticate(credentialsUnderTest);
-    }
+        when(mService.authorize(any(Credentials.class))).thenReturn(Observable.just(mCredentials));
+        when(mCredentialsMapper.toNetworkModel(any(AppCredentials.class))).thenReturn(mCredentials);
 
-    @Test
-    public void shouldReThrowHttpException() throws Exception {
-        mException.expect(RestStatusException.class);
-        mockRestException(RestErrorCodes.INTERNAL_ERROR);
+        TestSubscriber<AppCredentials> test = new TestSubscriber<>();
+        validator.validate(fakeCredentials).subscribe(test);
+        test.assertNoErrors();
 
-        TestSubscriber<Void> test = new TestSubscriber<>();
-        validator.validate(credentialsUnderTest).subscribe(test);
-    }
-
-    private void performValidation() throws Exception {
-    }
-
-    private void mockRestException(int code) throws Exception {
-        when(mRestError.code()).thenReturn(code);
-        doThrow(mRestError).when(mAuthenticator).authenticate(any(AppCredentials.class));
+        verify(mService).authorize(mCredentials);
     }
 }

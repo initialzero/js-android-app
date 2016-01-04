@@ -29,60 +29,57 @@ import android.os.Build;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.jaspersoft.android.sdk.network.InMemoryCookieStore;
-
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.URI;
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
-final class SessionCache implements CookieStore {
+public final class SessionCache implements CookieStore {
 
-    private final InMemoryCookieStore mDelegate;
     private CookieManager mCookieManager;
     private CookieSyncManager mCookieSyncManager;
 
-    @Inject
-    Context mContext;
+    private final Context mContext;
+    private final CookieStore mCookieStore;
 
     @Inject
-    private SessionCache() {
-        mDelegate = new InMemoryCookieStore();
+    public SessionCache(Context context, CookieStore cookieStore) {
+        mContext = context;
+        mCookieStore = cookieStore;
     }
 
     @Override
     public void add(URI uri, HttpCookie cookie) {
         getCookieManager().setCookie(uri.toString(), cookie.toString());
-        mDelegate.add(uri, cookie);
+        mCookieStore.add(uri, cookie);
         syncCookies();
     }
 
     @Override
     public List<HttpCookie> get(URI uri) {
-        return mDelegate.get(uri);
+        return mCookieStore.get(uri);
     }
 
     @Override
     public List<HttpCookie> getCookies() {
-        return mDelegate.getCookies();
+        return mCookieStore.getCookies();
     }
 
     @Override
     public List<URI> getURIs() {
-        return mDelegate.getURIs();
+        return mCookieStore.getURIs();
     }
 
     @Override
     public boolean remove(URI uri, HttpCookie cookie) {
         getCookieManager().setCookie(uri.toString(), cookie.toString());
-        boolean result = mDelegate.remove(uri, cookie);
+        boolean result = mCookieStore.remove(uri, cookie);
         syncCookies();
         return result;
     }
@@ -91,7 +88,7 @@ final class SessionCache implements CookieStore {
     public boolean removeAll() {
         removeCookies();
         syncCookies();
-        return mDelegate.removeAll();
+        return mCookieStore.removeAll();
     }
 
     private void removeCookies() {

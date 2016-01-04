@@ -22,35 +22,41 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.presentation.model.validation;
+package com.jaspersoft.android.jaspermobile.domain.interactor;
 
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.presentation.model.CredentialsModel;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.PasswordMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.model.validation.exception.UsernameMissingException;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 
-import javax.inject.Inject;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
-public class CredentialsClientValidation {
-    @Inject
-    public CredentialsClientValidation() {
+public class UpdateServerSimpleUseCaseTest {
+
+    private UpdateServerUseCase updateUseCase;
+    private Profile fakeProfile = Profile.create("alias");
+
+    @Mock
+    JasperServerRepository serverRepository;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        updateUseCase = new UpdateServerUseCase(serverRepository);
     }
 
-    public void validate(CredentialsModel credentialsModel) throws UsernameMissingException, PasswordMissingException {
-        String username = credentialsModel.getUsername();
-        if (username == null ||
-                username.trim().length() == 0) {
-            throw new UsernameMissingException();
-        }
-        String password = credentialsModel.getPassword();
-        if (password == null ||
-                password.trim().length() == 0) {
-            throw new PasswordMissingException();
-        }
+    @Test
+    public void testExecute() throws Exception {
+        updateUseCase.execute(fakeProfile);
+        verify(serverRepository).updateServer(fakeProfile);
+        verifyNoMoreInteractions(serverRepository);
     }
 }

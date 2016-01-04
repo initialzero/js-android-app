@@ -62,7 +62,7 @@ public class CredentialsDataRepositoryTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        repoUnderTest = new CredentialsDataRepository(mCredentialsCache);
+        repoUnderTest = new CredentialsDataRepository(mCredentialsCache, credentialsValidator);
         fakeProfile = Profile.create("name");
         fakeCredentials = AppCredentials.builder()
                 .setPassword("1234")

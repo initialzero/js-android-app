@@ -22,41 +22,14 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain.interactor;
-
-import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+package com.jaspersoft.android.jaspermobile.presentation.validation;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public class UpdateServerUseCaseTest {
-
-    private UpdateServerUseCase updateUseCase;
-    private Profile fakeProfile = Profile.create("alias");
-
-    @Mock
-    JasperServerRepository serverRepository;
-
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        updateUseCase = new UpdateServerUseCase(serverRepository);
-    }
-
-    @Test
-    public void testExecute() throws Exception {
-        updateUseCase.execute(fakeProfile);
-        verify(serverRepository).updateServer(fakeProfile);
-        verifyNoMoreInteractions(serverRepository);
+public class ServerUrlMissingException extends Exception {
+    public ServerUrlMissingException() {
+        super("Client has not supplied server url");
     }
 }

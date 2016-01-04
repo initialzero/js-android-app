@@ -22,14 +22,15 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.presentation.model.validation.exception;
+package com.jaspersoft.android.jaspermobile.domain.interactor;
+
+import rx.Subscriber;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public class ServerUrlMissingException extends Exception {
-    public ServerUrlMissingException() {
-        super("Client has not supplied server url");
-    }
+public interface SimpleUseCase<Result> {
+    void execute(Subscriber<? super Result> subscriber);
+    void unsubscribe();
 }

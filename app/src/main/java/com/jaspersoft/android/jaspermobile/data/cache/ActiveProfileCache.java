@@ -29,10 +29,12 @@ import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
+import rx.Observable;
+
 /**
  * Abstraction around active profile cache
  * <br/>
- * Following interface implemented by {@link AccountProfileCache}
+ * Following interface implemented by {@link PreferencesActiveProfileCache}
  *
  * @author Tom Koptel
  * @since 2.3
@@ -44,14 +46,14 @@ public interface ActiveProfileCache {
      * @return profile if exists in cache otherwise null
      */
     @Nullable
-    Profile get();
+    Observable<Profile> get();
 
     /**
      * Saves target profile in cache
      *
      * @param profile target profile
      */
-    void put(@NonNull Profile profile);
+    Observable<Profile> put(@NonNull Profile profile);
 
     /**
      * Checks weather profile exists in cache

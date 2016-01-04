@@ -24,13 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
+import com.google.inject.Singleton;
 import com.jaspersoft.android.jaspermobile.data.cache.AccountProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
@@ -44,7 +44,7 @@ import rx.Observable;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
+@Singleton
 public final class ProfileValidatorImpl implements ProfileValidator {
 
     /**
@@ -61,7 +61,7 @@ public final class ProfileValidatorImpl implements ProfileValidator {
      * {@inheritDoc}
      */
     @Override
-    public Observable<Void> validate(Profile profile) {
+    public Observable<Profile> validate(Profile profile) {
         final String profileName = profile.getKey();
         if (JasperSettings.RESERVED_ACCOUNT_NAME.equals(profileName)) {
             return Observable.error(new ProfileReservedException());

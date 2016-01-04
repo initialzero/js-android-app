@@ -24,15 +24,17 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.JasperServerMapper;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
+import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import com.jaspersoft.android.sdk.service.rx.info.RxServerInfoService;
 
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * Implementation of server validation
@@ -42,19 +44,26 @@ import rx.Observable;
  */
 @PerActivity
 public final class ServerValidatorImpl implements ServerValidator {
+    private final JasperServerMapper mServerMapper;
+    private final RxServerInfoService mRxServerInfoService;
+
     @Inject
-    public ServerValidatorImpl() {
+    public ServerValidatorImpl(JasperServerMapper serverMapper, RxServerInfoService rxServerInfoService) {
+        mServerMapper = serverMapper;
+        mRxServerInfoService = rxServerInfoService;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Observable<Void> validate(JasperServer server) {
-        ServerVersion serverVersion = ServerVersion.valueOf(server.getVersionName());
-        if (serverVersion.lessThan(ServerVersion.v5_5)) {
-            return Observable.error(new ServerVersionNotSupportedException(serverVersion.toString()));
-        }
-        return Observable.just(null);
+    public Observable<JasperServer> validate(final String serverUrl) {
+        return mRxServerInfoService.requestServerInfo()
+                .map(new Func1<ServerInfo, JasperServer>() {
+                    @Override
+                    public JasperServer call(ServerInfo serverInfo) {
+                        return mServerMapper.toDomainModel(serverUrl, serverInfo);
+                    }
+                });
     }
 }

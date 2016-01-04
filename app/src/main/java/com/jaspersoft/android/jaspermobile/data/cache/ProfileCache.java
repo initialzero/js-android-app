@@ -28,10 +28,12 @@ import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
+import rx.Observable;
+
 /**
  * Abstraction around profile cache
  * <br/>
- *  Following interface implemented by {@link AccountProfileCache}
+ * Following interface implemented by {@link AccountProfileCache}
  *
  * @author Tom Koptel
  * @since 2.3
@@ -43,12 +45,12 @@ public interface ProfileCache {
      * @param profile profile we are going to persist
      * @return flag that notifies client about success or fail during persist operation
      */
-    boolean put(@NonNull  Profile profile);
+    Observable<Profile> put(@NonNull Profile profile);
 
     /**
      * Notifies either profile in cache or not.
      *
-     * @param profile  profile we are check for existence in cache
+     * @param profile profile we are check for existence in cache
      * @return flag that speaks about either profile in cache or not
      */
     boolean hasProfile(@NonNull Profile profile);

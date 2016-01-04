@@ -10,7 +10,7 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class RunReportExecutionCase extends AbstractUseCase<Void> {
+public final class RunReportExecutionCase extends AbstractSimpleUseCase<Void> {
     private final ReportRepository mReportRepository;
 
     public RunReportExecutionCase(ReportRepository reportRepository) {

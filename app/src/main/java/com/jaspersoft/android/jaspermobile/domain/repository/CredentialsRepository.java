@@ -28,7 +28,6 @@ import com.jaspersoft.android.jaspermobile.data.repository.CredentialsDataReposi
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
-import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 
 import rx.Observable;
 
@@ -45,9 +44,8 @@ public interface CredentialsRepository {
      *
      * @param profile the target profile we use to associate with credentials
      * @param credentials we are going to put inside repository
-     * @throws FailedToSaveCredentials during save process system could fail to encrypt sensitive data
      */
-    Observable<Void> saveCredentials(Profile profile, AppCredentials credentials);
+    Observable<Profile> saveCredentials(Profile profile, AppCredentials credentials);
 
     /**
      * Retrieves cached credentials for corresponding profile

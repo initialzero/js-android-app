@@ -33,10 +33,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateServerUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
@@ -44,8 +41,6 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-
-import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
@@ -57,18 +52,18 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     /**
      * Injected as downstream dependency. For its dependency declaration take a look into {@link ProfileModule}
      */
-    @Inject
-    UpdateServerUseCase updateServer;
+//    @Inject
+//    UpdateServerUseCase updateServer;
     /**
      * Injected as downstream dependency. For its dependency declaration take a look into {@link AppModule}
      */
-    @Inject
-    AccountManager mAccountManager;
+//    @Inject
+//    AccountManager mAccountManager;
 
     public JasperAuthenticator(Context context) {
         super(context);
         mContext = context;
-        JasperMobileApplication.getComponent(context).inject(this);
+//        JasperMobileApplication.get(context).getComponent().inject(this);
     }
 
     @Override
@@ -95,27 +90,28 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
                                final Account account,
                                final String authTokenType, Bundle options) throws NetworkErrorException {
 
-        Profile profile = Profile.create(account.name);
-        try {
-            boolean serverWasUpdated = updateServer.execute(profile);
-            if (serverWasUpdated) {
-                return createErrorBundle(
-                        JasperAccountManager.TokenException.SERVER_UPDATED_ERROR,
-                        mContext.getString(R.string.r_error_server_not_found)
-                );
-            } else {
-                String authToken = mAccountManager.peekAuthToken(account, authTokenType);
-
-                Bundle result = new Bundle();
-                result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-                result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-                result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-
-                return result;
-            }
-        } catch (RestStatusException restEx) {
-            return createRestErrorBundle(restEx);
-        }
+//        Profile profile = Profile.create(account.name);
+//        try {
+//            boolean serverWasUpdated = updateServer.execute(profile);
+//            if (serverWasUpdated) {
+//                return createErrorBundle(
+//                        JasperAccountManager.TokenException.SERVER_UPDATED_ERROR,
+//                        mContext.getString(R.string.r_error_server_not_found)
+//                );
+//            } else {
+//                String authToken = mAccountManager.peekAuthToken(account, authTokenType);
+//
+//                Bundle result = new Bundle();
+//                result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+//                result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+//                result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+//
+//                return result;
+//            }
+//        } catch (RestStatusException restEx) {
+//            return createRestErrorBundle(restEx);
+//        }
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override

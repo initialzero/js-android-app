@@ -35,7 +35,7 @@ import rx.Observable;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class GetReportControlsCase extends AbstractUseCase<List<InputControl>> {
+public final class GetReportControlsCase extends AbstractSimpleUseCase<List<InputControl>> {
     private final ReportRepository mReportRepository;
 
     public GetReportControlsCase(ReportRepository reportRepository) {

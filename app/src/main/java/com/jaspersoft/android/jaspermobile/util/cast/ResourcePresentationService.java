@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -38,7 +39,6 @@ import android.widget.ProgressBar;
 import com.google.android.gms.cast.CastPresentation;
 import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.google.inject.Inject;
-import com.google.inject.Key;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -74,7 +74,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import roboguice.RoboGuice;
-import roboguice.util.RoboContext;
 import rx.functions.Action1;
 
 /**
@@ -155,12 +154,18 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             case ResourcePresentationService.PRESENTING:
                 if (mReportPresentationListener != null) {
                     mReportPresentationListener.onPresentationBegun();
+                    if (mPresentation.getPageCount() == -1) {
+                        mReportPresentationListener.onMultiPage();
+                    } else {
+                        mReportPresentationListener.onPageCountObtain(mPresentation.getPageCount());
+                    }
+                    mReportPresentationListener.onPageChanged(mPresentation.getCurrentPage(), null);
                 }
                 break;
         }
     }
 
-    public void setResourcePresentationCallback(ResourcePresentationCallback resourcePresentationCallback) {
+    public synchronized void setResourcePresentationCallback(ResourcePresentationCallback resourcePresentationCallback) {
         this.mReportPresentationListener = resourcePresentationCallback;
     }
 
@@ -247,6 +252,8 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         private ProgressBar progressState;
 
         private AccountServerData accountServerData;
+        private int mPageCount;
+        private int mCurrentPage;
 
         public ReportPresentation(Context serviceContext, Display display) {
             super(serviceContext, display);
@@ -349,6 +356,14 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             return 0;
         }
 
+        private int getPageCount() {
+            return mPageCount;
+        }
+
+        private int getCurrentPage() {
+            return mCurrentPage;
+        }
+
         //---------------------------------------------------------------------
         // Helper methods
         //---------------------------------------------------------------------
@@ -444,7 +459,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    mPresentation.hideLoading();
+                    hideLoading();
 
                     mState = INITIALIZED;
                     if (mReportPresentationListener != null) {
@@ -462,6 +477,9 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                     mPresentation.showLoading();
 
                     mState = LOADING;
+                    mCurrentPage = 1;
+                    mPageCount = -1;
+
                     if (mReportPresentationListener != null) {
                         mReportPresentationListener.onLoadingStarted();
                     }
@@ -502,7 +520,11 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    if (mReportPresentationListener != null && pages > 0) {
+                    mPageCount = pages;
+                    if (pages == 0) {
+                        webView.setVisibility(View.GONE);
+                    }
+                    if (mReportPresentationListener != null) {
                         mReportPresentationListener.onPageCountObtain(pages);
                     }
                 }
@@ -517,6 +539,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                     if (mReportPresentationListener != null) {
                         mReportPresentationListener.onPageChanged(page, null);
                     }
+                    mCurrentPage = page;
                 }
             });
         }
@@ -556,6 +579,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                     if (mReportPresentationListener != null) {
                         mReportPresentationListener.onPageChanged(page, errorMessage);
                     }
+                    mCurrentPage = page;
                 }
             });
         }

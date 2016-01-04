@@ -314,6 +314,9 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
 
     @Override
     public void onPageCountObtain(int pageCount) {
+        if (pageCount == 0) {
+            showEmptyView();
+        }
         paginationBar.updateTotalCount(pageCount);
         paginationBar.setVisibility(pageCount > 1 ? View.VISIBLE : View.GONE);
     }
@@ -334,6 +337,9 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         hideProgress();
         showErrorView(error);
         updateReportScroll(1, 0);
+
+        paginationBar.reset();
+        paginationBar.setVisibility(View.GONE);
     }
 
     @Override

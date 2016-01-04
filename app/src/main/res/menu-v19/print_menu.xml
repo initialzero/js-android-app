@@ -23,19 +23,12 @@
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/showFilters"
-        android:icon="@drawable/ic_menu_filter"
-        android:title="@string/rv_ab_show_filters"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/printAction"
-        android:icon="@drawable/ic_action_print"
-        android:title="@string/r_cm_print"
-        android:showAsAction="ifRoom" />
+  <item
+      android:id="@+id/printAction"
+      android:icon="@drawable/ic_action_print"
+      android:title="@string/r_cm_print"
+      android:showAsAction="ifRoom" />
 
 </menu>

@@ -24,16 +24,26 @@
 
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
+import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.MediaRouteActionProvider;
+import android.support.v7.media.MediaRouteSelector;
+import android.support.v7.media.MediaRouter;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.google.android.gms.cast.CastDevice;
+import com.google.android.gms.cast.CastMediaControlIntent;
+import com.google.android.gms.cast.CastRemoteDisplayLocalService;
+import com.google.android.gms.common.api.Status;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.cast.ReportCastHelper;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
@@ -44,22 +54,25 @@ import org.androidannotations.annotations.OptionsMenuItem;
  */
 @EActivity
 @OptionsMenu(R.menu.cast_menu)
-public class RoboCastActivity extends RoboToolbarActivity implements ReportCastHelper.CastServiceCallbacks {
-
-    @Bean
-    protected ReportCastHelper mReportCastHelper;
+public abstract class RoboCastActivity extends RoboToolbarActivity {
 
     @OptionsMenuItem(R.id.castReport)
     protected MenuItem castAction;
 
-    private ReportCastHelper.BaseMediaRouterCallback mediaRouterCallback;
+    private MediaRouter mMediaRouter;
+    private MediaRouteSelector mMediaRouteSelector;
+    private CastDevice mSelectedCastDevice;
+    private MediaRouter.Callback mMediaRouterCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mReportCastHelper.setRouteSelectListener(this);
-        mediaRouterCallback = mReportCastHelper.createCallback();
+        mMediaRouter = MediaRouter.getInstance(getApplicationContext());
+        mMediaRouteSelector = new MediaRouteSelector.Builder()
+                .addControlCategory(CastMediaControlIntent.categoryForCast(getString(R.string.app_cast_id)))
+                .build();
+        mMediaRouterCallback = new BaseMediaRouterCallback();
     }
 
     @Override
@@ -69,7 +82,7 @@ public class RoboCastActivity extends RoboToolbarActivity implements ReportCastH
         if (castAction != null) {
             MediaRouteActionProvider mediaRouteActionProvider =
                     (MediaRouteActionProvider) MenuItemCompat.getActionProvider(castAction);
-            mReportCastHelper.applyRouteSelector(mediaRouteActionProvider);
+            mediaRouteActionProvider.setRouteSelector(mMediaRouteSelector);
             return true;
         }
         return result;
@@ -78,27 +91,83 @@ public class RoboCastActivity extends RoboToolbarActivity implements ReportCastH
     @Override
     protected void onStart() {
         super.onStart();
-        mReportCastHelper.registerCallback(mediaRouterCallback);
+        mMediaRouter.addCallback(mMediaRouteSelector, mMediaRouterCallback, MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
     }
 
     @Override
     protected void onStop() {
-        mReportCastHelper.unregisterCallback(mediaRouterCallback);
+        mMediaRouter.removeCallback(mMediaRouterCallback);
         super.onStop();
     }
 
-    @Override
-    public void onRouteSelected() {
-        mReportCastHelper.startCastService(RoboCastActivity.this);
+    protected void onCastStarted() {
     }
 
-    @Override
-    public void onPresentationStarted() {
-
+    protected void onCastStopped() {
     }
 
-    @Override
-    public void onPresentationStopped() {
+    //---------------------------------------------------------------------
+    // Helper methods
+    //---------------------------------------------------------------------
 
+    private void startCastService() {
+        if (mSelectedCastDevice == null) return;
+
+        CastRemoteDisplayLocalService.NotificationSettings emptySettings =
+                new CastRemoteDisplayLocalService.NotificationSettings.Builder()
+                        .setNotificationPendingIntent(createEmptyIntent(this))
+                        .build();
+
+        CastRemoteDisplayLocalService.startService(this, ResourcePresentationService.class, getString(R.string.app_cast_id),
+                mSelectedCastDevice, emptySettings, new CastServiceCallback());
+    }
+
+    private PendingIntent createEmptyIntent(Activity context) {
+        Intent intent = NavigationActivity_.intent(context).get();
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        return PendingIntent.getActivity(context, 0, intent, 0);
+    }
+
+    //---------------------------------------------------------------------
+    // Nested classes
+    //---------------------------------------------------------------------
+
+    private final class BaseMediaRouterCallback extends MediaRouter.Callback {
+        @Override
+        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
+            super.onRouteSelected(router, route);
+
+            CastDevice castDevice = CastDevice.getFromBundle(route.getExtras());
+            if (castDevice != null) {
+                mSelectedCastDevice = castDevice;
+                startCastService();
+            }
+        }
+
+        @Override
+        public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route) {
+            super.onRouteUnselected(router, route);
+
+            mSelectedCastDevice = null;
+            CastRemoteDisplayLocalService.stopService();
+            onCastStopped();
+        }
+    }
+
+    private final class CastServiceCallback implements CastRemoteDisplayLocalService.Callbacks {
+        @Override
+        public void onServiceCreated(CastRemoteDisplayLocalService castRemoteDisplayLocalService) {
+            onCastStarted();
+        }
+
+        @Override
+        public void onRemoteDisplaySessionStarted(CastRemoteDisplayLocalService castRemoteDisplayLocalService) {
+
+        }
+
+        @Override
+        public void onRemoteDisplaySessionError(Status status) {
+            Toast.makeText(RoboCastActivity.this, "Error casting " + status, Toast.LENGTH_SHORT).show();
+        }
     }
 }

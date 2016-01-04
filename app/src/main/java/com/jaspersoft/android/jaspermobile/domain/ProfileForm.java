@@ -33,20 +33,20 @@ public class ProfileForm {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ProfileForm)) return false;
 
-        ProfileForm that = (ProfileForm) o;
+        ProfileForm form = (ProfileForm) o;
 
-        if (mAlias != null ? !mAlias.equals(that.mAlias) : that.mAlias != null) return false;
-        if (mServerUrl != null ? !mServerUrl.equals(that.mServerUrl) : that.mServerUrl != null)
+        if (mAlias != null ? !mAlias.equals(form.mAlias) : form.mAlias != null) return false;
+        if (mServerUrl != null ? !mServerUrl.equals(form.mServerUrl) : form.mServerUrl != null)
             return false;
-        return !(mCredentials != null ? !mCredentials.equals(that.mCredentials) : that.mCredentials != null);
+        return mCredentials != null ? mCredentials.equals(form.mCredentials) : form.mCredentials == null;
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         int result = mAlias != null ? mAlias.hashCode() : 0;
         result = 31 * result + (mServerUrl != null ? mServerUrl.hashCode() : 0);
         result = 31 * result + (mCredentials != null ? mCredentials.hashCode() : 0);

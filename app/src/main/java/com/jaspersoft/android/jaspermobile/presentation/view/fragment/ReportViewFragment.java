@@ -39,7 +39,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.BackgroundThread;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.UIThread;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
@@ -52,6 +54,8 @@ import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPagesCase;
@@ -213,13 +217,16 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
         ObservableReportService observableReportService = new RestReportService(jsRestClient, reportService);
         ReportRepository reportRepository = new InMemoryReportRepository(reportUri, observableReportService, paramsStorage, paramsTransformer);
 
-        GetReportControlsCase getReportControlsCase = new GetReportControlsCase(reportRepository);
-        GetReportPageCase getReportPageCase = new GetReportPageCase(reportRepository);
-        GetReportTotalPagesCase getReportTotalPagesCase = new GetReportTotalPagesCase(reportRepository);
-        IsReportMultiPageCase isReportMultiPageCase = new IsReportMultiPageCase(reportRepository);
-        RunReportExecutionCase runReportExecutionCase = new RunReportExecutionCase(reportRepository);
-        UpdateReportExecutionCaseSimple updateReportExecutionCase = new UpdateReportExecutionCaseSimple(reportRepository);
-        ReloadReportCase reloadReportCase = new ReloadReportCase(reportRepository);
+        PreExecutionThread preExecutionThread = new BackgroundThread();
+        PostExecutionThread postExecutionThread = new UIThread();
+
+        GetReportControlsCase getReportControlsCase = new GetReportControlsCase(preExecutionThread, postExecutionThread, reportRepository);
+        GetReportPageCase getReportPageCase = new GetReportPageCase(preExecutionThread, postExecutionThread, reportRepository);
+        GetReportTotalPagesCase getReportTotalPagesCase = new GetReportTotalPagesCase(preExecutionThread, postExecutionThread, reportRepository);
+        IsReportMultiPageCase isReportMultiPageCase = new IsReportMultiPageCase(preExecutionThread, postExecutionThread, reportRepository);
+        RunReportExecutionCase runReportExecutionCase = new RunReportExecutionCase(preExecutionThread, postExecutionThread, reportRepository);
+        UpdateReportExecutionCaseSimple updateReportExecutionCase = new UpdateReportExecutionCaseSimple(preExecutionThread, postExecutionThread, reportRepository);
+        ReloadReportCase reloadReportCase = new ReloadReportCase(preExecutionThread, postExecutionThread, reportRepository);
 
         mPresenter = new ReportViewPresenter(
                 exceptionHandler,

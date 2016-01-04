@@ -69,7 +69,7 @@ public class ProfileValidatorTest {
     public void shouldRejectProfileIfAccountAlreadyRegistered() throws Exception {
         when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(true);
 
-        TestSubscriber<Void> test = new TestSubscriber<>();
+        TestSubscriber<Profile> test = new TestSubscriber<>();
         Profile fakeProfile = Profile.create("name");
 
         validator.validate(fakeProfile).subscribe(test);
@@ -79,7 +79,7 @@ public class ProfileValidatorTest {
 
     @Test
     public void shouldRejectProfileIfAccountNameIsReserved() throws Exception {
-        TestSubscriber<Void> test = new TestSubscriber<>();
+        TestSubscriber<Profile> test = new TestSubscriber<>();
 
         validator.validate(Profile.create(JasperSettings.RESERVED_ACCOUNT_NAME)).subscribe(test);
 
@@ -92,7 +92,7 @@ public class ProfileValidatorTest {
         when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(false);
 
         Profile fakeProfile = Profile.create("name");
-        TestSubscriber<Void> test = new TestSubscriber<>();
+        TestSubscriber<Profile> test = new TestSubscriber<>();
         validator.validate(fakeProfile).subscribe(test);
         test.assertNoErrors();
     }

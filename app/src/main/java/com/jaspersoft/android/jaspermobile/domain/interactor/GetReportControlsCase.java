@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
+import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 
@@ -38,7 +40,10 @@ import rx.Observable;
 public final class GetReportControlsCase extends AbstractSimpleUseCase<List<InputControl>> {
     private final ReportRepository mReportRepository;
 
-    public GetReportControlsCase(ReportRepository reportRepository) {
+    public GetReportControlsCase(PreExecutionThread preExecutionThread,
+                                 PostExecutionThread postExecutionThread,
+                                 ReportRepository reportRepository) {
+        super(preExecutionThread, postExecutionThread);
         mReportRepository = reportRepository;
     }
 

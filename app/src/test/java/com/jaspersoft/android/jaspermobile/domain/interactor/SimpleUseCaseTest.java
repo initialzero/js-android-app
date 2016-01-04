@@ -1,5 +1,7 @@
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
+import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
+import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 
@@ -31,7 +33,10 @@ public class SimpleUseCaseTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.useCase = new SimpleUseCaseTestClass();
+        this.useCase = new SimpleUseCaseTestClass(
+                FakePreExecutionThread.create(),
+                FakePostExecutionThread.create()
+        );
     }
 
     @Test
@@ -57,6 +62,12 @@ public class SimpleUseCaseTest {
     }
 
     private static class SimpleUseCaseTestClass extends AbstractSimpleUseCase {
+        protected SimpleUseCaseTestClass(
+                PreExecutionThread preExecutionThread,
+                PostExecutionThread postExecutionThread) {
+            super(preExecutionThread, postExecutionThread);
+        }
+
         @Override
         protected Observable buildUseCaseObservable() {
             return Observable.empty();

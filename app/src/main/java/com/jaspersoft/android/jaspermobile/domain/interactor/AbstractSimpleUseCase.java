@@ -23,7 +23,8 @@
  */
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
-import com.jaspersoft.android.jaspermobile.util.rx.RxTransformer;
+import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -47,15 +48,24 @@ public abstract class AbstractSimpleUseCase<Result> implements SimpleUseCase<Res
      */
     protected abstract Observable<Result> buildUseCaseObservable();
 
+    private final PreExecutionThread mPreExecutionThread;
+    private final PostExecutionThread mPostExecutionThread;
+
+    protected AbstractSimpleUseCase(PreExecutionThread preExecutionThread, PostExecutionThread postExecutionThread) {
+        mPreExecutionThread = preExecutionThread;
+        mPostExecutionThread = postExecutionThread;
+    }
+
     /**
      * Executes the current use case.
      *
      * @param useCaseSubscriber The guy who will be listen to the observable build with {@link #buildUseCaseObservable()}.
      */
     @Override
-    public final void execute(Subscriber<? super Result> useCaseSubscriber) {
+    public void execute(Subscriber<? super Result> useCaseSubscriber) {
         this.subscription = this.buildUseCaseObservable()
-                .compose(RxTransformer.<Result>applySchedulers())
+                .observeOn(mPreExecutionThread.getScheduler())
+                .subscribeOn(mPostExecutionThread.getScheduler())
                 .subscribe(useCaseSubscriber);
     }
 
@@ -63,7 +73,7 @@ public abstract class AbstractSimpleUseCase<Result> implements SimpleUseCase<Res
      * Unsubscribes from current {@link rx.Subscription}.
      */
     @Override
-    public final void unsubscribe() {
+    public void unsubscribe() {
         if (!subscription.isUnsubscribed()) {
             subscription.unsubscribe();
         }

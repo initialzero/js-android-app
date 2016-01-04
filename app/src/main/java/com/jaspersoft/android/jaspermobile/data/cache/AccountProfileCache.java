@@ -31,6 +31,7 @@ import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
+import rx.functions.Func0;
 
 /**
  * Implementation of profile cache around {@link AccountManager}. This cache used in order to persist
@@ -65,19 +67,27 @@ public final class AccountProfileCache implements ProfileCache {
      * {@inheritDoc}
      */
     @Override
-    public Observable<Profile> put(@NonNull Profile profile) {
-        Account accountProfile = mAccountDataMapper.transform(profile);
-        Bundle userData = new Bundle();
-        userData.putString(ALIAS_KEY, profile.getKey());
-        mAccountManager.addAccountExplicitly(accountProfile, null, userData);
-        return Observable.just(profile);
+    public Observable<Profile> put(@NonNull final Profile profile) {
+        return Observable.defer(new Func0<Observable<Profile>>() {
+            @Override
+            public Observable<Profile> call() {
+                Account accountProfile = mAccountDataMapper.transform(profile);
+                Bundle userData = new Bundle();
+                userData.putString(ALIAS_KEY, profile.getKey());
+                boolean saved = mAccountManager.addAccountExplicitly(accountProfile, null, userData);
+                if (!saved) {
+                    return Observable.error(new FailedToSaveProfile(profile));
+                }
+                return Observable.just(profile);
+            }
+        });
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean hasProfile(@NonNull  Profile profile) {
+    public boolean hasProfile(@NonNull Profile profile) {
         Account accountProfile = mAccountDataMapper.transform(profile);
         Account[] accounts = mAccountManager.getAccountsByType(accountProfile.type);
         Set<Account> accountsSet = new HashSet<>(Arrays.asList(accounts));

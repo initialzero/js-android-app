@@ -41,6 +41,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import rx.observers.TestSubscriber;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
@@ -69,9 +71,10 @@ public class AccountProfileCacheTest {
         assertThat("Failed precondition. There should be no accounts",
                 accountManager.getAccountsByType(FakeAccount.TYPE).length == 0
         );
-        assertThat("Failed to put profile in cache",
-                cacheUnderTest.put(fakeProfile)
-        );
+
+        TestSubscriber<Profile> test = new TestSubscriber<>();
+        cacheUnderTest.put(fakeProfile).subscribe(test);
+
         Account account = new Account("name", JasperSettings.JASPER_ACCOUNT_TYPE);
         String alias = accountManager.getUserData(account, "ALIAS_KEY");
         assertThat("Failed to put profile alias in cache",

@@ -24,19 +24,26 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.JasperServerMapper;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
+import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
+import com.jaspersoft.android.sdk.service.rx.info.RxServerInfoService;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -45,37 +52,50 @@ import static org.hamcrest.Matchers.notNullValue;
  */
 public class ServerValidatorImplTest {
     public static final String MINIMUM_SUPPORTED_VERSION_MESSAGE = "Server with version with 5.5 is a minimum we support!";
-    ServerValidator validator;
+
+    private static final String SERVER_URL = "http://localhost";
+
+    @Mock
+    JasperServerMapper serverMapper;
+    @Mock
+    RxServerInfoService rxServerInfoService;
+
+    @Mock
+    ServerInfo mServerInfo;
+
+    private ServerValidator validator;
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         validator = new ServerValidatorImpl(serverMapper, rxServerInfoService);
+        when(rxServerInfoService.requestServerInfo()).thenReturn(Observable.just(mServerInfo));
     }
 
     @Test
     public void serverThatIsEquals5_5IsValid() {
-        JasperServer server = JasperServer.builder().setVersion(ServerVersion.v5_5).create();
-        TestSubscriber<Void> test = new TestSubscriber<>();
+        when(mServerInfo.getVersion()).thenReturn(ServerVersion.v5_5);
+        TestSubscriber<JasperServer> test = new TestSubscriber<>();
 
-        validator.validate(server).subscribe(test);
+        validator.validate(SERVER_URL).subscribe(test);
         test.assertNoErrors();
     }
 
     @Test
     public void serverThatIsHigherThan5_5IsValid() throws Exception {
-        JasperServer server = JasperServer.builder().setVersion(ServerVersion.v6).create();
-        TestSubscriber<Void> test = new TestSubscriber<>();
+        when(mServerInfo.getVersion()).thenReturn(ServerVersion.v6);
+        TestSubscriber<JasperServer> test = new TestSubscriber<>();
 
-        validator.validate(server).subscribe(test);
+        validator.validate(SERVER_URL).subscribe(test);
         test.assertNoErrors();
     }
 
     @Test
     public void serverThatIsEquals5_0IsNotValid() throws Exception {
-        JasperServer server = JasperServer.builder().setVersion(ServerVersion.valueOf("5.0")).create();
-        TestSubscriber<Void> test = new TestSubscriber<>();
+        when(mServerInfo.getVersion()).thenReturn(ServerVersion.valueOf("5.0"));
+        TestSubscriber<JasperServer> test = new TestSubscriber<>();
 
-        validator.validate(server).subscribe(test);
+        validator.validate(SERVER_URL).subscribe(test);
 
         ServerVersionNotSupportedException ex = (ServerVersionNotSupportedException) test.getOnErrorEvents().get(0);
         assertThat(MINIMUM_SUPPORTED_VERSION_MESSAGE, ex, is(notNullValue()));

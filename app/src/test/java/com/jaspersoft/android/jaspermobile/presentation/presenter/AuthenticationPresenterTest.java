@@ -27,22 +27,19 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 import com.jaspersoft.android.jaspermobile.data.network.RestErrorAdapter;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
-import com.jaspersoft.android.jaspermobile.presentation.mapper.CredentialsDataMapper;
-import com.jaspersoft.android.jaspermobile.presentation.mapper.ProfileDataMapper;
-import com.jaspersoft.android.jaspermobile.presentation.model.CredentialsModel;
-import com.jaspersoft.android.jaspermobile.presentation.model.ProfileModel;
-import com.jaspersoft.android.jaspermobile.presentation.validation.ProfileClientValidation;
-import com.jaspersoft.android.jaspermobile.presentation.validation.exception.AliasMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.validation.exception.PasswordMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.validation.exception.ServerUrlFormatException;
-import com.jaspersoft.android.jaspermobile.presentation.validation.exception.ServerUrlMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.validation.exception.UsernameMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.AliasMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.PasswordMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.ProfileFormValidation;
+import com.jaspersoft.android.jaspermobile.presentation.validation.ServerUrlFormatException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.ServerUrlMissingException;
+import com.jaspersoft.android.jaspermobile.presentation.validation.UsernameMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
 
 import org.junit.Before;
@@ -57,10 +54,9 @@ import org.robolectric.annotation.Config;
 import rx.Subscriber;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -70,64 +66,49 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @Config(manifest = Config.NONE)
 public class AuthenticationPresenterTest {
 
-    // Presentation mock components
     @Mock
-    CredentialsDataMapper mCredentialsDataMapper;
-    @Mock
-    ProfileDataMapper mProfileDataMapper;
-    @Mock
-    ProfileModel uiProfile;
-    @Mock
-    CredentialsModel uiCredentials;
-    @Mock
-    AuthenticationView mAuthenticationView;
-    @Mock
-    CredentialsClientValidation credentialsClientValidation;
-    @Mock
-    ProfileClientValidation profileClientValidation;
+    ProfileFormValidation profileFormValidation;
     @Mock
     RestErrorAdapter mRestErrorAdapter;
 
+    @Mock
+    AuthenticationView mAuthenticationView;
+
     // Domain mock components
     @Mock
-    SaveProfileUseCase mSaveProfileUseCase;
+    ProfileForm mForm;
     @Mock
-    Profile domainProfile;
+    Profile mProfile;
     @Mock
-    AppCredentials domainCredentials;
+    AppCredentials mCredentials;
 
     AuthenticationPresenter presenterUnderTest;
+
+    @Mock
+    SaveProfileUseCase mSaveProfileUseCase;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
         presenterUnderTest = new AuthenticationPresenter(
                 RuntimeEnvironment.application,
                 mSaveProfileUseCase,
-                mProfileDataMapper,
-                mCredentialsDataMapper,
-                credentialsClientValidation,
-                profileClientValidation,
+                profileFormValidation,
                 mRestErrorAdapter
         );
         presenterUnderTest.setView(mAuthenticationView);
 
-        when(uiProfile.getCredentials()).thenReturn(uiCredentials);
-        when(mProfileDataMapper.transform(any(ProfileModel.class))).thenReturn(domainProfile);
-        when(mCredentialsDataMapper.transform(any(CredentialsModel.class))).thenReturn(domainCredentials);
+        when(mForm.getProfile()).thenReturn(mProfile);
+        when(mForm.getCredentials()).thenReturn(mCredentials);
+        when(mForm.getServerUrl()).thenReturn("http://localhost");
     }
 
     @Test
     public void testSaveProfile() throws Exception {
-        when(uiProfile.getServerUrl()).thenReturn("http://localhost");
-
-        presenterUnderTest.saveProfile(uiProfile);
-
+        presenterUnderTest.saveProfile(mForm);
         verify(mAuthenticationView).showLoading();
-
-        verify(mProfileDataMapper).transform(uiProfile);
-        verify(mCredentialsDataMapper).transform(uiCredentials);
-        verify(mSaveProfileUseCase).execute(eq("http://localhost"), eq(domainProfile), eq(domainCredentials), any(Subscriber.class));
+        verify(mSaveProfileUseCase).execute(any(ProfileForm.class), any(Subscriber.class));
     }
 
     @Test
@@ -146,36 +127,36 @@ public class AuthenticationPresenterTest {
 
     @Test
     public void testPresenterHandlesAliasMissing() throws Exception {
-        doThrow(new AliasMissingException()).when(profileClientValidation).validate(uiProfile);
-        presenterUnderTest.saveProfile(uiProfile);
+        doThrow(new AliasMissingException()).when(profileFormValidation).validate(mForm);
+        presenterUnderTest.saveProfile(mForm);
         verify(mAuthenticationView).showAliasRequiredError();
     }
 
     @Test
     public void testPresenterHandlesServerUrlInvalidFormat() throws Exception {
-        doThrow(new ServerUrlFormatException()).when(profileClientValidation).validate(uiProfile);
-        presenterUnderTest.saveProfile(uiProfile);
+        doThrow(new ServerUrlFormatException()).when(profileFormValidation).validate(mForm);
+        presenterUnderTest.saveProfile(mForm);
         verify(mAuthenticationView).showServerUrlFormatError();
     }
 
     @Test
     public void testPresenterHandlesServerUrlMissing() throws Exception {
-        doThrow(new ServerUrlMissingException()).when(profileClientValidation).validate(uiProfile);
-        presenterUnderTest.saveProfile(uiProfile);
+        doThrow(new ServerUrlMissingException()).when(profileFormValidation).validate(mForm);
+        presenterUnderTest.saveProfile(mForm);
         verify(mAuthenticationView).showServerUrlRequiredError();
     }
 
     @Test
     public void testPresenterHandlesUsernameMissing() throws Exception {
-        doThrow(new UsernameMissingException()).when(credentialsClientValidation).validate(uiCredentials);
-        presenterUnderTest.saveProfile(uiProfile);
+        doThrow(new UsernameMissingException()).when(profileFormValidation).validate(mForm);
+        presenterUnderTest.saveProfile(mForm);
         verify(mAuthenticationView).showUsernameRequiredError();
     }
 
     @Test
     public void testPresenterHandlesPasswordMissing() throws Exception {
-        doThrow(new PasswordMissingException()).when(credentialsClientValidation).validate(uiCredentials);
-        presenterUnderTest.saveProfile(uiProfile);
+        doThrow(new PasswordMissingException()).when(profileFormValidation).validate(mForm);
+        presenterUnderTest.saveProfile(mForm);
         verify(mAuthenticationView).showPasswordRequiredError();
     }
 
@@ -197,7 +178,6 @@ public class AuthenticationPresenterTest {
         presenterUnderTest.handleProfileComplete();
         verify(mAuthenticationView).hideLoading();
     }
-
 
     @Test
     public void testPresenterHandlesRestErrors() throws Exception {

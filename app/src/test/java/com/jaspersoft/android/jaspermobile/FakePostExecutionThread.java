@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.domain;
+package com.jaspersoft.android.jaspermobile;
 
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 

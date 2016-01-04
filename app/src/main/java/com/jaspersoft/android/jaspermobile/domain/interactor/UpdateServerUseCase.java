@@ -26,6 +26,8 @@ package com.jaspersoft.android.jaspermobile.domain.interactor;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 
 import javax.inject.Singleton;
 
@@ -38,7 +40,9 @@ import rx.Observable;
 @Singleton
 public final class UpdateServerUseCase extends AbstractUseCase<Boolean, Profile> {
     @Inject
-    public UpdateServerUseCase() {
+    public UpdateServerUseCase(PreExecutionThread preExecutionThread,
+                               PostExecutionThread postExecutionThread) {
+        super(preExecutionThread, postExecutionThread);
     }
 
     @Override

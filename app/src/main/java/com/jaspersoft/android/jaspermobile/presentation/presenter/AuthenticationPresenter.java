@@ -81,7 +81,7 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
 
     private boolean isClientDataValid(ProfileForm form) {
         try {
-             mProfileFormValidation.validate(form);
+            mProfileFormValidation.validate(form);
             return true;
         } catch (UsernameMissingException e) {
             mView.showUsernameRequiredError();
@@ -126,7 +126,7 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
 
     @VisibleForTesting
     void handleProfileSaveSuccess() {
-//        mView.navigateToApp();
+        mView.navigateToApp();
     }
 
     /**
@@ -135,7 +135,7 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
      */
     private void initLegacyJsRestClient() {
         Application application = (Application) mContext.getApplicationContext();
-        if (application instanceof  JasperMobileApplication) {
+        if (application instanceof JasperMobileApplication) {
             JasperMobileApplication app = ((JasperMobileApplication) mContext.getApplicationContext());
             if (app != null) {
                 app.initLegacyJsRestClient();

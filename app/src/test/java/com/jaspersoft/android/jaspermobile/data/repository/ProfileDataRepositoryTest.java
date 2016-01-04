@@ -27,22 +27,21 @@ package com.jaspersoft.android.jaspermobile.data.repository;
 import com.jaspersoft.android.jaspermobile.data.cache.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
+import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import rx.Observable;
 import rx.observers.TestSubscriber;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -51,9 +50,12 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class ProfileDataRepositoryTest {
 
     @Mock
+    ProfileValidator mProfileValidator;
+    @Mock
     ProfileCache mAccountCache;
     @Mock
     ActiveProfileCache mPreferencesCache;
+
 
     ProfileDataRepository repositoryUnderTest;
     Profile fakeProfile;
@@ -62,48 +64,38 @@ public class ProfileDataRepositoryTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         fakeProfile = Profile.create("any");
-        repositoryUnderTest = new ProfileDataRepository(mAccountCache, mPreferencesCache, profileValidator);
+        repositoryUnderTest = new ProfileDataRepository(mAccountCache, mPreferencesCache, mProfileValidator);
+
+        when(mProfileValidator.validate(any(Profile.class))).thenReturn(Observable.just(fakeProfile));
+        when(mAccountCache.put(any(Profile.class))).thenReturn(Observable.just(fakeProfile));
     }
 
     @Test
-    public void shouldNotSaveProfileIfInCache() throws Exception {
-        when(mAccountCache.hasProfile(any(Profile.class))).thenReturn(true);
-
-        TestSubscriber<Void> test = new TestSubscriber<>();
+    public void should_validate_and_save() throws Exception {
+        TestSubscriber<Profile> test = new TestSubscriber<>();
         repositoryUnderTest.saveProfile(fakeProfile).subscribe(test);
 
-        FailedToSaveProfile ex = (FailedToSaveProfile) test.getOnErrorEvents().get(0);
-        assertThat("Should not save profile. It is already in cache", ex , is(notNullValue()));
-    }
-
-    @Test
-    public void shouldSaveProfileForTheFirstTime() throws Exception {
-        when(mAccountCache.hasProfile(any(Profile.class))).thenReturn(false);
-        when(mAccountCache.put(any(Profile.class))).thenReturn(true);
-
-        TestSubscriber<Void> test = new TestSubscriber<>();
-        repositoryUnderTest.saveProfile(fakeProfile).subscribe(test);
-        test.assertNoErrors();
-
+        verify(mProfileValidator).validate(fakeProfile);
         verify(mAccountCache).put(fakeProfile);
     }
 
     @Test
-    public void shouldNotSaveProfileIfCacheFailedToPerformOperation() {
-        when(mAccountCache.hasProfile(any(Profile.class))).thenReturn(false);
-        when(mAccountCache.put(any(Profile.class))).thenReturn(false);
+    public void should_not_save_if_validation_failed() throws Exception {
+        when(mProfileValidator.validate(any(Profile.class)))
+                .thenReturn(Observable.<Profile>error(new ProfileReservedException()));
+        when(mAccountCache.put(any(Profile.class))).thenReturn(Observable.just(fakeProfile));
 
-        TestSubscriber<Void> test = new TestSubscriber<>();
+        TestSubscriber<Profile> test = new TestSubscriber<>();
         repositoryUnderTest.saveProfile(fakeProfile).subscribe(test);
-
-        FailedToSaveProfile ex = (FailedToSaveProfile) test.getOnErrorEvents().get(0);
-        assertThat("If cache failed, should not save profile", ex , is(notNullValue()));
     }
 
     @Test
-    public void testActivate() throws Exception {
-        TestSubscriber<Void> test = new TestSubscriber<>();
+    public void should_delegate_activate_on_preference_cache() throws Exception {
+        when(mPreferencesCache.put(any(Profile.class))).thenReturn(Observable.just(fakeProfile));
+
+        TestSubscriber<Profile> test = new TestSubscriber<>();
         repositoryUnderTest.activate(fakeProfile).subscribe(test);
+
         verify(mPreferencesCache).put(fakeProfile);
         verifyNoMoreInteractions(mPreferencesCache);
     }

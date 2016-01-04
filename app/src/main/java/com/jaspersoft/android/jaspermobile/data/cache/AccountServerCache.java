@@ -35,7 +35,6 @@ import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * Implements server cache on the basis of {@link AccountManager}.
@@ -101,10 +100,13 @@ public final class AccountServerCache implements ServerCache {
             Account accountProfile = mAccountDataMapper.transform(profile);
 
             String baseUrl = mAccountManager.getUserData(accountProfile, SERVER_URL_KEY);
+            baseUrl = "null".equals(baseUrl) ? null : baseUrl;
             String edition = mAccountManager.getUserData(accountProfile, EDITION_KEY);
+            edition = "null".equals(edition) ? null : edition;
             String versionString = mAccountManager.getUserData(accountProfile, VERSION_NAME_KEY);
+            versionString = "null".equals(versionString) ? null : versionString;
 
-            return !(TextUtils.isEmpty(baseUrl) && TextUtils.isEmpty(edition) && TextUtils.isEmpty(versionString));
+            return !(TextUtils.isEmpty(baseUrl) || TextUtils.isEmpty(edition) || TextUtils.isEmpty(versionString));
         }
         return false;
     }

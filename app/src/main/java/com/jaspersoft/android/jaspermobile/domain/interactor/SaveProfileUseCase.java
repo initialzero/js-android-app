@@ -31,6 +31,8 @@ import com.jaspersoft.android.jaspermobile.data.validator.ServerValidatorImpl;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
+import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
@@ -61,9 +63,13 @@ public class SaveProfileUseCase extends AbstractUseCase<Profile, ProfileForm> {
     private final CredentialsRepository mCredentialsDataRepository;
 
     @Inject
-    public SaveProfileUseCase(ProfileRepository profileRepository,
-                              JasperServerRepository jasperServerRepository,
-                              CredentialsRepository credentialsDataRepository) {
+    public SaveProfileUseCase(
+            PreExecutionThread preExecutionThread,
+            PostExecutionThread postExecutionThread,
+            ProfileRepository profileRepository,
+            JasperServerRepository jasperServerRepository,
+            CredentialsRepository credentialsDataRepository) {
+        super(preExecutionThread, postExecutionThread);
         mProfileRepository = profileRepository;
         mJasperServerRepository = jasperServerRepository;
         mCredentialsDataRepository = credentialsDataRepository;

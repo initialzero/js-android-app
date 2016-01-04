@@ -27,8 +27,10 @@ package com.jaspersoft.android.jaspermobile.data.validator;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.JasperServerMapper;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.jaspersoft.android.sdk.service.rx.info.RxServerInfoService;
 
 import javax.inject.Inject;
@@ -59,10 +61,16 @@ public final class ServerValidatorImpl implements ServerValidator {
     @Override
     public Observable<JasperServer> validate(final String serverUrl) {
         return mRxServerInfoService.requestServerInfo()
-                .map(new Func1<ServerInfo, JasperServer>() {
+                .flatMap(new Func1<ServerInfo, Observable<JasperServer>>() {
                     @Override
-                    public JasperServer call(ServerInfo serverInfo) {
-                        return mServerMapper.toDomainModel(serverUrl, serverInfo);
+                    public Observable<JasperServer> call(ServerInfo serverInfo) {
+                        ServerVersion version = serverInfo.getVersion();
+                        if (version.lessThan(ServerVersion.v5_5)) {
+                            return Observable.error(new ServerVersionNotSupportedException(version.toString()));
+                        }
+
+                        JasperServer jrs = mServerMapper.toDomainModel(serverUrl, serverInfo);
+                        return Observable.just(jrs);
                     }
                 });
     }

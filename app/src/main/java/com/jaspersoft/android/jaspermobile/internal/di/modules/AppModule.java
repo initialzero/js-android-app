@@ -11,7 +11,6 @@ import com.jaspersoft.android.jaspermobile.data.network.AuthenticatorFactory;
 import com.jaspersoft.android.jaspermobile.data.network.ServerApiFactory;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
-import com.jaspersoft.android.jaspermobile.domain.interactor.CompositeUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.Authenticator;
 import com.jaspersoft.android.jaspermobile.domain.network.ServerApi;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
@@ -66,12 +65,6 @@ public final class AppModule {
     @Named("accountType")
     String provideAccountType() {
         return JasperSettings.JASPER_ACCOUNT_TYPE;
-    }
-
-    @Provides
-    @Singleton
-    CompositeUseCase provideCompositeUseCase(PostExecutionThread uiThread, PreExecutionThread backgroundThread) {
-        return new CompositeUseCase(uiThread, backgroundThread);
     }
 
     @Provides

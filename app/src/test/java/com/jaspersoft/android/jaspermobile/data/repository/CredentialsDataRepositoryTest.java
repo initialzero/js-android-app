@@ -29,6 +29,7 @@ import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
+import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import org.junit.Before;
@@ -36,13 +37,13 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -54,6 +55,8 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class CredentialsDataRepositoryTest {
     @Mock
     CredentialsCache mCredentialsCache;
+    @Mock
+    CredentialsValidator mCredentialsValidator;
 
     private CredentialsDataRepository repoUnderTest;
     private AppCredentials fakeCredentials;
@@ -62,18 +65,21 @@ public class CredentialsDataRepositoryTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        repoUnderTest = new CredentialsDataRepository(mCredentialsCache, credentialsValidator);
+        repoUnderTest = new CredentialsDataRepository(mCredentialsCache, mCredentialsValidator);
         fakeProfile = Profile.create("name");
         fakeCredentials = AppCredentials.builder()
                 .setPassword("1234")
                 .setUsername("nay")
                 .create();
+
+        when(mCredentialsValidator.validate(any(AppCredentials.class))).thenReturn(Observable.just(fakeCredentials));
+        when(mCredentialsCache.put(any(Profile.class), any(AppCredentials.class))).thenReturn(Observable.just(fakeCredentials));
+        when(mCredentialsCache.get(any(Profile.class))).thenReturn(Observable.just(fakeCredentials));
     }
 
     @Test
-    public void testSaveCredentials() throws Exception {
-        TestSubscriber<Void> test = new TestSubscriber<>();
-
+    public void should_validate_and_save_credentials() throws Exception {
+        TestSubscriber<Profile> test = new TestSubscriber<>();
         repoUnderTest.saveCredentials(fakeProfile, fakeCredentials).subscribe(test);
         test.assertNoErrors();
 
@@ -82,20 +88,20 @@ public class CredentialsDataRepositoryTest {
     }
 
     @Test
-    public void testGetCredentials() throws Exception {
+    public void should_retrieve_credentials_from_cache() throws Exception {
         TestSubscriber<AppCredentials> test = new TestSubscriber<>();
         repoUnderTest.getCredentials(fakeProfile).subscribe(test);
         test.assertNoErrors();
+
         verify(mCredentialsCache).get(fakeProfile);
     }
 
     @Test
     public void testSaveCredentialsEncountersEncryptionError() throws Exception {
-        doThrow(new PasswordManager.EncryptionException(null))
-                .when(mCredentialsCache)
-                .put(any(Profile.class), any(AppCredentials.class));
+        when(mCredentialsCache.put(any(Profile.class), any(AppCredentials.class)))
+                .thenReturn(Observable.<AppCredentials>error(new PasswordManager.EncryptionException(null)));
 
-        TestSubscriber<Void> test = new TestSubscriber<>();
+        TestSubscriber<Profile> test = new TestSubscriber<>();
         repoUnderTest.saveCredentials(fakeProfile, fakeCredentials).subscribe(test);
 
         FailedToSaveCredentials ex = (FailedToSaveCredentials) test.getOnErrorEvents().get(0);
@@ -104,7 +110,8 @@ public class CredentialsDataRepositoryTest {
 
     @Test
     public void should_contain_error_if_decryption_failed() throws Exception {
-        when(mCredentialsCache.get(any(Profile.class))).thenThrow(new PasswordManager.DecryptionException(null));
+        when(mCredentialsCache.get(any(Profile.class)))
+                .thenReturn(Observable.<AppCredentials>error(new PasswordManager.DecryptionException(null)));
 
         TestSubscriber<AppCredentials> test = new TestSubscriber<>();
         repoUnderTest.getCredentials(fakeProfile).subscribe(test);

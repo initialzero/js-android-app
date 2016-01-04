@@ -1,5 +1,7 @@
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
+import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.service.ObservableExecutionService;
 
@@ -13,7 +15,10 @@ import rx.functions.Func1;
 public final class ReloadReportCase extends AbstractSimpleUseCase<Void> {
     private final ReportRepository mReportRepository;
 
-    public ReloadReportCase(ReportRepository reportRepository) {
+    public ReloadReportCase(PreExecutionThread preExecutionThread,
+                            PostExecutionThread postExecutionThread,
+                            ReportRepository reportRepository) {
+        super(preExecutionThread, postExecutionThread);
         mReportRepository = reportRepository;
     }
 

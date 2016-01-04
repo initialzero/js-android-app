@@ -51,11 +51,11 @@ public final class ProfileDataRepository implements ProfileRepository {
     /**
      * Injected by {@link ProfileModule#providesProfileAccountCache(AccountProfileCache)}}
      */
-    private final ProfileCache mProfileCache;
+    private final ProfileCache mAccountCache;
     /**
      * Injected by {@link ProfileModule#providesPreferencesProfileCache(PreferencesActiveProfileCache)}}
      */
-    private final ActiveProfileCache mProfileActiveCache;
+    private final ActiveProfileCache mPrefActiveCache;
     /**
      * Injected by {@link ProfileModule#provideProfileValidator(ProfileValidatorImpl)}
      */
@@ -65,8 +65,8 @@ public final class ProfileDataRepository implements ProfileRepository {
     public ProfileDataRepository(ProfileCache accountProfileCache,
                                  ActiveProfileCache preferencesProfileCache,
                                  ProfileValidator profileValidator) {
-        mProfileCache = accountProfileCache;
-        mProfileActiveCache = preferencesProfileCache;
+        mAccountCache = accountProfileCache;
+        mPrefActiveCache = preferencesProfileCache;
         mProfileValidator = profileValidator;
     }
 
@@ -76,7 +76,7 @@ public final class ProfileDataRepository implements ProfileRepository {
     @Override
     public Observable<Profile> saveProfile(final Profile profile) {
         Observable<Profile> validateAction = mProfileValidator.validate(profile);
-        Observable<Profile> saveAction = mProfileCache.put(profile);
+        Observable<Profile> saveAction = mAccountCache.put(profile);
         return validateAction.concatWith(saveAction);
     }
 
@@ -85,6 +85,6 @@ public final class ProfileDataRepository implements ProfileRepository {
      */
     @Override
     public Observable<Profile> activate(final Profile profile) {
-        return mProfileActiveCache.put(profile);
+        return mPrefActiveCache.put(profile);
     }
 }

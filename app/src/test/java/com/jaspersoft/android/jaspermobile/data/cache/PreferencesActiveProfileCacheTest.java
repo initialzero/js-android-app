@@ -36,6 +36,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import rx.observers.TestSubscriber;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
@@ -62,7 +64,7 @@ public class PreferencesActiveProfileCacheTest {
 
     @Test
     public void testPut() throws Exception {
-        cacheUnderTest.put(fakeProfile);
+        cacheUnderTest.put(fakeProfile).subscribe();
         assertThat("Failed to put " + fakeProfile + " in cache",
                 !store.getAll().isEmpty()
         );
@@ -71,8 +73,13 @@ public class PreferencesActiveProfileCacheTest {
     @Test
     public void testGet() throws Exception {
         store.edit().putString("ACCOUNT_NAME_KEY", "name").apply();
+
+        TestSubscriber<Profile> test = new TestSubscriber<>();
+        cacheUnderTest.get().subscribe(test);
+        Profile profile = test.getOnNextEvents().get(0);
+
         assertThat("Failed to retrieve " + fakeProfile + " back",
-                cacheUnderTest.get().equals(fakeProfile)
+                profile.equals(fakeProfile)
         );
     }
 

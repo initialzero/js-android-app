@@ -44,8 +44,11 @@ import org.robolectric.annotation.Config;
 
 import javax.crypto.BadPaddingException;
 
+import rx.observers.TestSubscriber;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -85,7 +88,8 @@ public class AccountCredentialsCacheTest {
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
         Account fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
 
-        cacheUnderTest.put(fakeProfile, fakeCredentials);
+        TestSubscriber<AppCredentials> test = new TestSubscriber<>();
+        cacheUnderTest.put(fakeProfile, fakeCredentials).subscribe(test);
 
         assertThat("Password should be injected in cache",
                 "encrypted".equals(accountManager.getPassword(fakeAccount)));
@@ -103,11 +107,12 @@ public class AccountCredentialsCacheTest {
         when(mPasswordManager.encrypt(anyString())).thenThrow(
                 new PasswordManager.EncryptionException(new BadPaddingException())
         );
-        try {
-            cacheUnderTest.put(fakeProfile, fakeCredentials);
-            fail("Put operation should not save credentials if PasswordManager failed");
-        } catch (PasswordManager.EncryptionException ex) {
-        }
+
+        TestSubscriber<AppCredentials> test = new TestSubscriber<>();
+        cacheUnderTest.put(fakeProfile, fakeCredentials).subscribe(test);
+
+        PasswordManager.EncryptionException ex = (PasswordManager.EncryptionException) test.getOnErrorEvents().get(0);
+        assertThat("Put operation should not save credentials if PasswordManager failed", ex, is(notNullValue()));
     }
 
     @Test
@@ -116,7 +121,10 @@ public class AccountCredentialsCacheTest {
                 .injectCredentials(fakeCredentials)
                 .done();
 
-        AppCredentials credentials = cacheUnderTest.get(fakeProfile);
+        TestSubscriber<AppCredentials> test = new TestSubscriber<>();
+        cacheUnderTest.get(fakeProfile).subscribe(test);
+
+        AppCredentials credentials = test.getOnNextEvents().get(0);
         assertThat("Failed to retrieve password for profile " + fakeProfile,
                 "1234".equals(credentials.getPassword()));
         assertThat("Failed to retrieve username for profile " + fakeProfile,

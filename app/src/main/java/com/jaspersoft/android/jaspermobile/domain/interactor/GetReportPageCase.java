@@ -25,6 +25,8 @@
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
+import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
 
 import rx.Observable;
@@ -40,7 +42,10 @@ public final class GetReportPageCase extends AbstractSimpleUseCase<ReportPage> {
 
     private String mPageRange = DEFAULT_PAGE;
 
-    public GetReportPageCase(ReportRepository reportRepository) {
+    public GetReportPageCase(PreExecutionThread preExecutionThread,
+                             PostExecutionThread postExecutionThread,
+                             ReportRepository reportRepository) {
+        super(preExecutionThread, postExecutionThread);
         mReportRepository = reportRepository;
     }
 

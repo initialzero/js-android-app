@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
+import rx.functions.Func0;
 
 /**
  * Implementation of profile cache around {@link SharedPreferences}. This cache used for persisting
@@ -74,9 +75,14 @@ public final class PreferencesActiveProfileCache implements ActiveProfileCache {
      * {@inheritDoc}
      */
     @Override
-    public Observable<Profile> put(@NonNull Profile profile) {
-        mPreference.edit().putString(ACCOUNT_NAME_KEY, profile.getKey()).apply();
-        return Observable.just(profile);
+    public Observable<Profile> put(@NonNull final Profile profile) {
+        return Observable.defer(new Func0<Observable<Profile>>() {
+            @Override
+            public Observable<Profile> call() {
+                mPreference.edit().putString(ACCOUNT_NAME_KEY, profile.getKey()).apply();
+                return Observable.just(profile);
+            }
+        });
     }
 
     @Override

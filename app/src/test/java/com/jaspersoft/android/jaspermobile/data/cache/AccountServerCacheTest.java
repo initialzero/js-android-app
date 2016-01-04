@@ -107,7 +107,7 @@ public class AccountServerCacheTest {
         assertThat("Failed to retrieve version for profile " + fakeAccount,
                 server.getVersionName().equals("6.0"));
         assertThat("Failed to retrieve edition for profile " + fakeAccount,
-                "CE".equals(server.isProEdition()));
+                !server.isProEdition());
     }
 
     @Test
@@ -125,7 +125,7 @@ public class AccountServerCacheTest {
 
     @Test
     public void testServerMissingIfServerUrlMissing() throws Exception {
-        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(false);
+        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(true);
         FakeAccount.injectAccount(fakeProfile)
                 .injectServer(
                         JasperServer.builder()
@@ -141,7 +141,7 @@ public class AccountServerCacheTest {
 
     @Test
     public void testServerMissingIfEditionMissing() throws Exception {
-        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(false);
+        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(true);
         FakeAccount.injectAccount(fakeProfile)
                 .injectServer(
                         JasperServer.builder()
@@ -157,7 +157,7 @@ public class AccountServerCacheTest {
 
     @Test
     public void testServerMissingIfVersionMissing() throws Exception {
-        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(false);
+        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(true);
         FakeAccount.injectAccount(fakeProfile)
                 .injectServer(
                         JasperServer.builder()

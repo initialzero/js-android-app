@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.domain;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
@@ -34,10 +35,10 @@ import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
  */
 public class JasperServer {
     private final String baseUrl;
-    private final boolean edition;
+    private final Boolean edition;
     private final ServerVersion version;
 
-    private JasperServer(String baseUrl, boolean edition, ServerVersion version) {
+    private JasperServer(String baseUrl, Boolean edition, ServerVersion version) {
         this.baseUrl = baseUrl;
         this.edition = edition;
         this.version = version;
@@ -48,11 +49,16 @@ public class JasperServer {
         return baseUrl;
     }
 
-    public boolean isProEdition() {
+    @Nullable
+    public Boolean isProEdition() {
         return edition;
     }
 
+    @Nullable
     public String getVersionName() {
+        if (version == null) {
+            return null;
+        }
         return version.toString();
     }
 
@@ -61,21 +67,21 @@ public class JasperServer {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof JasperServer)) return false;
 
         JasperServer that = (JasperServer) o;
 
-        if (edition != that.edition) return false;
         if (baseUrl != null ? !baseUrl.equals(that.baseUrl) : that.baseUrl != null) return false;
+        if (edition != null ? !edition.equals(that.edition) : that.edition != null) return false;
         return version != null ? version.equals(that.version) : that.version == null;
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         int result = baseUrl != null ? baseUrl.hashCode() : 0;
-        result = 31 * result + (edition ? 1 : 0);
+        result = 31 * result + (edition != null ? edition.hashCode() : 0);
         result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
     }
@@ -92,10 +98,11 @@ public class JasperServer {
 
     public static class Builder {
         private String mBaseUrl;
-        private boolean mEdition;
+        private Boolean mEdition;
         private ServerVersion mVersion;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public Builder setBaseUrl(String baseUrl) {
             mBaseUrl = baseUrl;

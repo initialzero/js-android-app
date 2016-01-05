@@ -43,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
-            android:text="@string/logo_presentation_message"
+            android:text="@string/cast_logo_presentation_message"
             android:textAppearance="?android:attr/textAppearanceLarge" />
     </LinearLayout>
 

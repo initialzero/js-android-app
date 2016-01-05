@@ -30,6 +30,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.MediaRouteActionProvider;
+import android.support.v7.app.MediaRouteDialogFactory;
+import android.support.v7.media.MediaRouteProvider;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.view.Menu;
@@ -42,6 +44,7 @@ import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.google.android.gms.common.api.Status;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.util.cast.ResourceCastDialogFactory;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 
 import org.androidannotations.annotations.EActivity;
@@ -83,6 +86,7 @@ public abstract class RoboCastActivity extends RoboToolbarActivity {
             MediaRouteActionProvider mediaRouteActionProvider =
                     (MediaRouteActionProvider) MenuItemCompat.getActionProvider(castAction);
             mediaRouteActionProvider.setRouteSelector(mMediaRouteSelector);
+            mediaRouteActionProvider.setDialogFactory(new ResourceCastDialogFactory());
             return true;
         }
         return result;

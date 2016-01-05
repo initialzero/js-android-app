@@ -142,8 +142,8 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         if (!ResourcePresentationService.isStarted()) {
             finish();
         } else {
-            mResourcePresentationService.setResourcePresentationCallback(this);
-            mResourcePresentationService.synchronizeState(resource.getUri());
+            mResourcePresentationService.addResourcePresentationCallback(this);
+            mResourcePresentationService.synchronizeState(resource, this);
         }
     }
 
@@ -151,7 +151,7 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     protected void onStop() {
         super.onStop();
 
-        mResourcePresentationService.setResourcePresentationCallback(null);
+        mResourcePresentationService.removeResourcePresentationCallback(this);
     }
 
     @Override
@@ -378,7 +378,7 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     }
 
     private void requestReportCasting() {
-        mResourcePresentationService.startPresentation(resource.getUri(), paramsSerializer.toJson(getReportParameters()));
+        mResourcePresentationService.startPresentation(resource, paramsSerializer.toJson(getReportParameters()));
     }
 
     private void requestApplyParams() {

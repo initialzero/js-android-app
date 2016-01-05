@@ -158,9 +158,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         if (isDevMode()) {
             ViewServer.get(this).addWindow(this);
         }
-
-        // Listen to account changes
-        mJasperAccountManager.setOnAccountsUpdatedListener(accountsUpdateListener);
     }
 
     @Override
@@ -184,10 +181,17 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        mJasperAccountManager.setOnAccountsUpdatedListener(accountsUpdateListener);
         if (isDevMode()) {
             ViewServer.get(this).setFocusedWindow(this);
         }
         updateAccountDependentUi();
+    }
+
+    @Override
+    protected void onPause() {
+        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
+        super.onPause();
     }
 
     @Override
@@ -203,7 +207,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
         if (isDevMode()) {
             ViewServer.get(this).removeWindow(this);
         }

@@ -25,8 +25,6 @@
 package com.jaspersoft.android.jaspermobile.domain.repository;
 
 import com.jaspersoft.android.jaspermobile.data.repository.JasperServerDataRepository;
-import com.jaspersoft.android.jaspermobile.data.repository.datasource.CloudServerDataSource;
-import com.jaspersoft.android.jaspermobile.data.repository.datasource.ServerDataSource;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
@@ -41,8 +39,7 @@ import rx.Observable;
  */
 public interface JasperServerRepository {
     /**
-     * Saves server in corresponding {@link ServerDataSource}.
-     * {@link CloudServerDataSource} does not support this operation.
+     * Saves server
      *
      * @param profile the target profile we use to associate with credentials
      * @param baseUrl the http url that points to users Jasper server
@@ -50,18 +47,10 @@ public interface JasperServerRepository {
     Observable<Profile> saveServer(final Profile profile, final String baseUrl);
 
     /**
-     * Retrieves server instance from corresponding {@link ServerDataSource}.
+     * Retrieves server instance from cache.
      *
      * @param profile the target profile we use to associate with credentials
      * @return {@link JasperServer} abstraction that encompass additional server metadata
      */
     Observable<JasperServer> getServer(Profile profile);
-
-    /**
-     * Fetches and updates server data in corresponding {@link ServerDataSource}.
-     *
-     * @param profile the target profile we use to associate with credentials
-     * @return true if server was updated. False if server metadata has not changed, as result was not updated
-     */
-    Observable<Boolean> updateServer(Profile profile);
 }

@@ -37,8 +37,8 @@ public abstract class AbstractUseCase<Result, Argument> implements UseCase<Resul
     public void execute(Argument argument, Subscriber<? super Result> useCaseSubscriber) {
         Observable<Result> command = this.buildUseCaseObservable(argument);
         this.subscription = command
-                .observeOn(mPreExecutionThread.getScheduler())
-                .subscribeOn(mPostExecutionThread.getScheduler())
+                .subscribeOn(mPreExecutionThread.getScheduler())
+                .observeOn(mPostExecutionThread.getScheduler())
                 .subscribe(useCaseSubscriber);
     }
 

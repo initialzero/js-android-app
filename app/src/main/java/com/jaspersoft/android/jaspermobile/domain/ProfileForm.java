@@ -79,16 +79,8 @@ public class ProfileForm {
         }
 
         public Builder setBaseUrl(String url) {
-            mBaseUrl = trimUrl(url);
+            mBaseUrl = url;
             return this;
-        }
-
-        @NonNull
-        private String trimUrl(String url) {
-            if ((url != null || url.length() > 0) && url.endsWith("/")) {
-                url = url.substring(0, url.length() - 1);
-            }
-            return url;
         }
 
         public Builder setCredentials(AppCredentials credentials) {

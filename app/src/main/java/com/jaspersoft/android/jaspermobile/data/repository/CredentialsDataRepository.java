@@ -29,7 +29,6 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
-import com.jaspersoft.android.jaspermobile.data.validator.CredentialsValidatorImpl;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
@@ -58,15 +57,11 @@ public final class CredentialsDataRepository implements CredentialsRepository {
      * Injected by {@link CredentialsModule#provideCredentialsCache(Context, AccountManager, AccountDataMapper)}}
      */
     private final CredentialsCache mCredentialsCache;
-    /**
-     * Injected by {@link CredentialsModule#providesCredentialsValidator(CredentialsValidatorImpl)}
-     */
-    private final CredentialsValidator mCredentialsValidator;
+
 
     @Inject
     public CredentialsDataRepository(CredentialsCache credentialsCache, CredentialsValidator credentialsValidator) {
         mCredentialsCache = credentialsCache;
-        mCredentialsValidator = credentialsValidator;
     }
 
     /**
@@ -74,9 +69,8 @@ public final class CredentialsDataRepository implements CredentialsRepository {
      */
     @Override
     public Observable<Profile> saveCredentials(final Profile profile, final AppCredentials credentials) {
-        Observable<AppCredentials> validateAction = mCredentialsValidator.validate(credentials);
         Observable<AppCredentials> saveAction = mCredentialsCache.put(profile, credentials);
-        return validateAction.concatWith(saveAction)
+        return saveAction
                 .flatMap(new Func1<AppCredentials, Observable<Profile>>() {
                     @Override
                     public Observable<Profile> call(AppCredentials appCredentials) {
@@ -93,15 +87,6 @@ public final class CredentialsDataRepository implements CredentialsRepository {
                     }
                 });
     }
-
-    /**
-     *
-     * if (throwable instanceof PasswordManager.EncryptionException) {
-     return Observable.error(new FailedToSaveCredentials(credentials));
-     }
-     return Observable.error(throwable);
-     *
-     */
 
     /**
      * {@inheritDoc}

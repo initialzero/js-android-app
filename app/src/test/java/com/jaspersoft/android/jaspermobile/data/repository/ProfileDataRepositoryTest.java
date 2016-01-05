@@ -27,8 +27,6 @@ package com.jaspersoft.android.jaspermobile.data.repository;
 import com.jaspersoft.android.jaspermobile.data.cache.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
-import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,8 +48,6 @@ import static org.mockito.Mockito.when;
 public class ProfileDataRepositoryTest {
 
     @Mock
-    ProfileValidator mProfileValidator;
-    @Mock
     ProfileCache mAccountCache;
     @Mock
     ActiveProfileCache mPreferencesCache;
@@ -64,30 +60,20 @@ public class ProfileDataRepositoryTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         fakeProfile = Profile.create("any");
-        repositoryUnderTest = new ProfileDataRepository(mAccountCache, mPreferencesCache, mProfileValidator);
+        repositoryUnderTest = new ProfileDataRepository(mAccountCache, mPreferencesCache);
 
-        when(mProfileValidator.validate(any(Profile.class))).thenReturn(Observable.just(fakeProfile));
         when(mAccountCache.put(any(Profile.class))).thenReturn(Observable.just(fakeProfile));
     }
 
     @Test
-    public void should_validate_and_save() throws Exception {
+    public void should_save() throws Exception {
         TestSubscriber<Profile> test = new TestSubscriber<>();
         repositoryUnderTest.saveProfile(fakeProfile).subscribe(test);
 
-        verify(mProfileValidator).validate(fakeProfile);
         verify(mAccountCache).put(fakeProfile);
     }
 
-    @Test
-    public void should_not_save_if_validation_failed() throws Exception {
-        when(mProfileValidator.validate(any(Profile.class)))
-                .thenReturn(Observable.<Profile>error(new ProfileReservedException()));
-        when(mAccountCache.put(any(Profile.class))).thenReturn(Observable.just(fakeProfile));
 
-        TestSubscriber<Profile> test = new TestSubscriber<>();
-        repositoryUnderTest.saveProfile(fakeProfile).subscribe(test);
-    }
 
     @Test
     public void should_delegate_activate_on_preference_cache() throws Exception {

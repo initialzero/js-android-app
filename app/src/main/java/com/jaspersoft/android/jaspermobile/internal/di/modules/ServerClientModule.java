@@ -14,7 +14,7 @@ public class ServerClientModule {
     private final String mBaseUrl;
 
     public ServerClientModule(String baseUrl) {
-        mBaseUrl = baseUrl;
+        mBaseUrl = appendPath(baseUrl);
     }
 
     @Provides
@@ -22,5 +22,12 @@ public class ServerClientModule {
         return Server.builder()
                 .withBaseUrl(mBaseUrl)
                 .build();
+    }
+
+    private String appendPath(String url) {
+        if ((url != null && url.length() > 0) && !url.endsWith("/")) {
+            url += "/";
+        }
+        return url;
     }
 }

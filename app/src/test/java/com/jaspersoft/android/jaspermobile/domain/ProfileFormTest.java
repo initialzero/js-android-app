@@ -13,14 +13,6 @@ import static org.hamcrest.core.Is.is;
  */
 public class ProfileFormTest {
     @Test
-    public void testBaseUrlTrimmedDuringBuildProcess() {
-        ProfileForm form = ProfileForm.builder()
-                .setBaseUrl("http://localhost/")
-                .build();
-        assertThat(form.getServerUrl(), is("http://localhost"));
-    }
-
-    @Test
     public void testEquals() throws Exception {
         EqualsVerifier.forClass(ProfileForm.class).verify();
     }

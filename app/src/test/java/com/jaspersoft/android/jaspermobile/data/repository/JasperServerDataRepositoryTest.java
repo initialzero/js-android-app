@@ -25,20 +25,21 @@
 package com.jaspersoft.android.jaspermobile.data.repository;
 
 import com.jaspersoft.android.jaspermobile.data.cache.ServerCache;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.JasperServerMapper;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
+import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
+import com.jaspersoft.android.sdk.service.rx.info.RxServerInfoService;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import rx.Observable;
-import rx.observers.TestSubscriber;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,12 +51,20 @@ import static org.mockito.Mockito.when;
 public class JasperServerDataRepositoryTest {
 
     public static final String SERVER_URL = "http://localhost";
+
     @Mock
     ServerCache mServerCache;
     @Mock
-    ServerValidator mServerValidator;
+    JasperServerMapper mJasperServerMapper;
 
-    JasperServer server5_5, server6_0, serverCE, serverPRO;
+    /**
+     * SDK mocks
+     */
+    @Mock
+    RxServerInfoService mRxServerInfoService;
+    @Mock
+    ServerInfo mServerInfo;
+
     JasperServerDataRepository repoUnderTest;
     Profile fakeProfile;
     JasperServer fakeServer;
@@ -65,10 +74,9 @@ public class JasperServerDataRepositoryTest {
         MockitoAnnotations.initMocks(this);
 
         JasperServer.Builder serverBuilder = JasperServer.builder().setBaseUrl(SERVER_URL);
-        server5_5 = serverCE = serverBuilder.setVersion(ServerVersion.v5_5).setEditionIsPro(false).create();
-        server6_0 = serverPRO = serverBuilder.setVersion(ServerVersion.v6).setEditionIsPro(true).create();
 
-        repoUnderTest = new JasperServerDataRepository(mServerCache, mServerValidator);
+
+        repoUnderTest = new JasperServerDataRepository(mServerCache, mJasperServerMapper, mRxServerInfoService);
         fakeProfile = Profile.create("name");
         fakeServer = JasperServer.builder()
                 .setBaseUrl("http://localhost")
@@ -79,38 +87,19 @@ public class JasperServerDataRepositoryTest {
 
     @Test
     public void testSaveServer() throws Exception {
-        when(mServerValidator.validate(anyString())).thenReturn(Observable.just(server5_5));
+        when(mRxServerInfoService.requestServerInfo()).thenReturn(Observable.just(mServerInfo));
+        when(mJasperServerMapper.toDomainModel(anyString(), any(ServerInfo.class))).thenReturn(fakeServer);
 
-        TestSubscriber<Profile> test = new TestSubscriber<>();
+        repoUnderTest.saveServer(fakeProfile, SERVER_URL).subscribe();
 
-        repoUnderTest.saveServer(fakeProfile, SERVER_URL).subscribe(test);
-
-        verify(mServerValidator).validate(SERVER_URL);
-        verify(mServerCache).put(fakeProfile, server5_5);
+        verify(mRxServerInfoService).requestServerInfo();
+        verify(mJasperServerMapper).toDomainModel(SERVER_URL, mServerInfo);
+        verify(mServerCache).put(fakeProfile, fakeServer);
     }
 
-    @Ignore
+    @Test
     public void testGetServer() throws Exception {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Ignore
-    public void testUpdateServer() throws Exception {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Ignore
-    public void testUpdateServerIfVersionUpdated() throws Exception {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Ignore
-    public void testUpdateServerIfEditionUpdated() throws Exception {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Ignore
-    public void testShouldNotUpdateServerIfInstancesEqual() throws Exception {
-       throw new UnsupportedOperationException("Not yet implemented");
+        repoUnderTest.getServer(fakeProfile).subscribe();
+        verify(mServerCache).get(fakeProfile);
     }
 }

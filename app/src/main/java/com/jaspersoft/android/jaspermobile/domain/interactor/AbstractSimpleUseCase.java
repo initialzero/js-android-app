@@ -64,8 +64,8 @@ public abstract class AbstractSimpleUseCase<Result> implements SimpleUseCase<Res
     @Override
     public void execute(Subscriber<? super Result> useCaseSubscriber) {
         this.subscription = this.buildUseCaseObservable()
-                .observeOn(mPreExecutionThread.getScheduler())
-                .subscribeOn(mPostExecutionThread.getScheduler())
+                .subscribeOn(mPreExecutionThread.getScheduler())
+                .observeOn(mPostExecutionThread.getScheduler())
                 .subscribe(useCaseSubscriber);
     }
 

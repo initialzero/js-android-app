@@ -28,10 +28,8 @@ import com.jaspersoft.android.jaspermobile.data.cache.AccountProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
-import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 
 import javax.inject.Inject;
@@ -56,18 +54,12 @@ public final class ProfileDataRepository implements ProfileRepository {
      * Injected by {@link ProfileModule#providesPreferencesProfileCache(PreferencesActiveProfileCache)}}
      */
     private final ActiveProfileCache mPrefActiveCache;
-    /**
-     * Injected by {@link ProfileModule#provideProfileValidator(ProfileValidatorImpl)}
-     */
-    private final ProfileValidator mProfileValidator;
 
     @Inject
     public ProfileDataRepository(ProfileCache accountProfileCache,
-                                 ActiveProfileCache preferencesProfileCache,
-                                 ProfileValidator profileValidator) {
+                                 ActiveProfileCache preferencesProfileCache) {
         mAccountCache = accountProfileCache;
         mPrefActiveCache = preferencesProfileCache;
-        mProfileValidator = profileValidator;
     }
 
     /**
@@ -75,9 +67,7 @@ public final class ProfileDataRepository implements ProfileRepository {
      */
     @Override
     public Observable<Profile> saveProfile(final Profile profile) {
-        Observable<Profile> validateAction = mProfileValidator.validate(profile);
-        Observable<Profile> saveAction = mAccountCache.put(profile);
-        return validateAction.concatWith(saveAction);
+        return mAccountCache.put(profile);
     }
 
     /**

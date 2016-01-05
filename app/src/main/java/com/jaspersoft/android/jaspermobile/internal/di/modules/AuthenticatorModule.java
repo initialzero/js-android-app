@@ -6,6 +6,9 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
+import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
@@ -32,12 +35,18 @@ public final class AuthenticatorModule {
             PostExecutionThread postExecutionThread,
             ProfileRepository profileRepository,
             JasperServerRepository jasperServerRepository,
-            CredentialsRepository credentialsDataRepository) {
+            CredentialsRepository credentialsDataRepository,
+            ProfileValidator profileValidator,
+            ServerValidator serverValidator,
+            CredentialsValidator credentialsValidator) {
         return new SaveProfileUseCase(
                 preExecutionThread,
                 postExecutionThread,
                 profileRepository,
                 jasperServerRepository,
-                credentialsDataRepository);
+                credentialsDataRepository,
+                profileValidator,
+                serverValidator,
+                credentialsValidator);
     }
 }

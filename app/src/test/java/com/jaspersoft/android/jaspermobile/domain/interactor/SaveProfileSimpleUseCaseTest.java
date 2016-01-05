@@ -3,11 +3,15 @@ package com.jaspersoft.android.jaspermobile.domain.interactor;
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.domain.repository.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
+import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,9 +41,18 @@ public class SaveProfileSimpleUseCaseTest {
     CredentialsRepository mCredentialsDataRepository;
 
     @Mock
+    ProfileValidator mProfileValidator;
+    @Mock
+    ServerValidator mServerValidator;
+    @Mock
+    CredentialsValidator mCredentialsValidator;
+
+    @Mock
     ProfileForm mForm;
     @Mock
     Profile mProfile;
+    @Mock
+    JasperServer mServer;
     @Mock
     AppCredentials mCredentials;
 
@@ -53,8 +66,10 @@ public class SaveProfileSimpleUseCaseTest {
                 FakePostExecutionThread.create(),
                 mProfileRepository,
                 mJasperServerRepository,
-                mCredentialsDataRepository
-        );
+                mCredentialsDataRepository,
+                mProfileValidator,
+                mServerValidator,
+                mCredentialsValidator);
     }
 
     @Test
@@ -63,10 +78,15 @@ public class SaveProfileSimpleUseCaseTest {
         when(mForm.getCredentials()).thenReturn(mCredentials);
         when(mForm.getServerUrl()).thenReturn(SERVER_URL);
 
-        when(mProfileRepository.saveProfile(any(Profile.class))).thenReturn(Observable.just(mProfile));
-        when(mJasperServerRepository.saveServer(any(Profile.class), anyString())).thenReturn(Observable.just(mProfile));
-        when(mCredentialsDataRepository.saveCredentials(any(Profile.class), any(AppCredentials.class))).thenReturn(Observable.just(mProfile));
-        when(mProfileRepository.activate(any(Profile.class))).thenReturn(Observable.just(mProfile));
+        Observable<Profile> justProfile = Observable.just(mProfile);
+        when(mProfileRepository.saveProfile(any(Profile.class))).thenReturn(justProfile);
+        when(mJasperServerRepository.saveServer(any(Profile.class), anyString())).thenReturn(justProfile);
+        when(mCredentialsDataRepository.saveCredentials(any(Profile.class), any(AppCredentials.class))).thenReturn(justProfile);
+        when(mProfileRepository.activate(any(Profile.class))).thenReturn(justProfile);
+
+        when(mProfileValidator.validate(any(Profile.class))).thenReturn(justProfile);
+        when(mServerValidator.validate(anyString())).thenReturn(Observable.just(mServer));
+        when(mCredentialsValidator.validate(any(AppCredentials.class))).thenReturn(Observable.just(mCredentials));
 
         TestSubscriber<Profile> test = new TestSubscriber<>();
         mSaveProfileUseCase.execute(mForm, test);

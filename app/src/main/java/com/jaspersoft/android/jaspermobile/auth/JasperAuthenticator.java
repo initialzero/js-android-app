@@ -33,37 +33,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 public class JasperAuthenticator extends AbstractAccountAuthenticator {
-    private final Context mContext;
 
-    /**
-     * Injected as downstream dependency. For its dependency declaration take a look into {@link ProfileModule}
-     */
-//    @Inject
-//    UpdateServerUseCase updateServer;
     /**
      * Injected as downstream dependency. For its dependency declaration take a look into {@link AppModule}
      */
-//    @Inject
-//    AccountManager mAccountManager;
+    @Inject
+    AccountManager mAccountManager;
 
     public JasperAuthenticator(Context context) {
         super(context);
-        mContext = context;
-//        JasperMobileApplication.get(context).getComponent().inject(this);
+        JasperMobileApplication.get(context).getComponent().inject(this);
     }
 
     @Override
@@ -89,29 +79,14 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     public Bundle getAuthToken(final AccountAuthenticatorResponse response,
                                final Account account,
                                final String authTokenType, Bundle options) throws NetworkErrorException {
+        String authToken = mAccountManager.peekAuthToken(account, authTokenType);
 
-//        Profile profile = Profile.create(account.name);
-//        try {
-//            boolean serverWasUpdated = updateServer.execute(profile);
-//            if (serverWasUpdated) {
-//                return createErrorBundle(
-//                        JasperAccountManager.TokenException.SERVER_UPDATED_ERROR,
-//                        mContext.getString(R.string.r_error_server_not_found)
-//                );
-//            } else {
-//                String authToken = mAccountManager.peekAuthToken(account, authTokenType);
-//
-//                Bundle result = new Bundle();
-//                result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-//                result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-//                result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-//
-//                return result;
-//            }
-//        } catch (RestStatusException restEx) {
-//            return createRestErrorBundle(restEx);
-//        }
-        throw new UnsupportedOperationException("Not yet implemented");
+        Bundle result = new Bundle();
+        result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+        result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+        result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+
+        return result;
     }
 
     @Override
@@ -127,31 +102,5 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     @Override
     public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features) throws NetworkErrorException {
         return null;
-    }
-
-    private Bundle createRestErrorBundle(RestStatusException restEx) {
-        int status;
-        String message;
-
-        if (restEx.code() == RestErrorCodes.NETWORK_ERROR) {
-            status = JasperAccountManager.TokenException.SERVER_NOT_FOUND;
-            message = mContext.getString(R.string.r_error_server_not_found);
-        } else {
-            status = restEx.code();
-            message = restEx.getMessage();
-        }
-
-        return createErrorBundle(status, message);
-    }
-
-    private Bundle createErrorBundle(int status, String message) {
-        Bundle result = new Bundle();
-
-        // For android 4.4+ we need to send face intent with any data. In other case we will get error in AccountManagerFuture.getResult() method
-        result.putParcelable(AccountManager.KEY_INTENT, new Intent(mContext, AuthenticatorActivity.class));
-        result.putString(AccountManager.KEY_ERROR_MESSAGE, message);
-        result.putInt(AccountManager.KEY_ERROR_CODE, status);
-
-        return result;
     }
 }

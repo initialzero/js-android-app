@@ -29,6 +29,6 @@
         android:id="@+id/sort"
         android:icon="@drawable/ic_menu_sort"
         android:orderInCategory="70"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:title="@string/s_ab_sort_by"/>
 </menu>

@@ -31,10 +31,12 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.DaggerAppComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ReportComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
+import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -51,16 +53,18 @@ import timber.log.Timber;
  * @since 1.0
  */
 @EApplication
-public class JasperMobileApplication extends Application {
+public class JasperMobileApplication extends Application implements GraphObject {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
     public static final String SHARED_DIR = "com.jaspersoft.account.none";
 
-    private AppComponent mComponent;
+    private AppComponent mAppComponent;
+    private ProfileComponent mProfileComponent;
+    private ReportComponent mReportComponent;
 
     @Inject
     AppConfigurator appConfigurator;
     @Inject
-    JsRestClient jsRestClient;
+    JsRestClientWrapper jsRestClient;
     @Inject
     Analytics analytics;
 
@@ -113,23 +117,42 @@ public class JasperMobileApplication extends Application {
         L.writeLogs(false);
     }
 
-    public AppComponent getComponent() {
-        if (mComponent == null) {
-            synchronized (JasperMobileApplication.class) {
-                if (mComponent == null) {
-                    mComponent = DaggerAppComponent.builder().appModule(new AppModule(this)).build();
-                }
-            }
-        }
-
-        return mComponent;
-    }
-
-    public void setComponent(AppComponent component) {
-        mComponent = component;
-    }
-
     public static JasperMobileApplication get(Context context) {
         return (JasperMobileApplication) context.getApplicationContext();
+    }
+
+    @Override
+    public AppComponent getComponent() {
+        if (mAppComponent == null) {
+            mAppComponent = DaggerAppComponent.builder()
+                    .appModule(new AppModule(this))
+                    .build();
+        }
+        return mAppComponent;
+    }
+
+    @Override
+    public void setProfileComponent(ProfileComponent profileComponent) {
+        mProfileComponent = profileComponent;
+    }
+
+    @Override
+    public void setReportComponent(ReportComponent reportComponent) {
+        mReportComponent = reportComponent;
+    }
+
+    @Override
+    public ProfileComponent getProfileComponent() {
+        return mProfileComponent;
+    }
+
+    @Override
+    public ReportComponent getReportComponent() {
+        return mReportComponent;
+    }
+
+    @Override
+    public void releaseReportComponent() {
+        mReportComponent = null;
     }
 }

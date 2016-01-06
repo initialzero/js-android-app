@@ -47,6 +47,7 @@ public abstract class AbstractPaginationView extends RelativeLayout {
     private static final String TOTAL_PAGE = "TOTAL_PAGE";
 
     protected OnPageChangeListener onPageChangeListener;
+    protected OnPickerSelectedListener onOnPickerSelectedListener;
 
     private int currentPage = FIRST_PAGE;
     private int mTotalPages = UNDEFINED_PAGE_NUMBER;
@@ -68,8 +69,16 @@ public abstract class AbstractPaginationView extends RelativeLayout {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    public RxPaginationBarView toRx() {
+        return new RxPaginationBarView(this);
+    }
+
     public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
         this.onPageChangeListener = onPageChangeListener;
+    }
+
+    public void setOnPickerSelectedListener(OnPickerSelectedListener onOnPickerSelectedListener) {
+        this.onOnPickerSelectedListener = onOnPickerSelectedListener;
     }
 
     public void updateCurrentPage(int page) {
@@ -138,6 +147,9 @@ public abstract class AbstractPaginationView extends RelativeLayout {
 
     public interface OnPageChangeListener {
         void onPageSelected(int currentPage);
+    }
+
+    public interface OnPickerSelectedListener {
         void onPagePickerRequested();
     }
 }

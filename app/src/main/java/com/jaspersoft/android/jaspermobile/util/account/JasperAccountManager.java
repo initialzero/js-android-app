@@ -65,6 +65,7 @@ public class JasperAccountManager {
     private final Context mContext;
     private final SharedPreferences mPreference;
     private final AccountManager mDelegateManager;
+    private final PasswordManager passwordManager;
 
     public static JasperAccountManager get(Context context) {
         if (context == null) {
@@ -77,6 +78,10 @@ public class JasperAccountManager {
         mContext = context;
         mDelegateManager = AccountManager.get(context);
         mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
+
+        String salt = mContext.getResources().getString(R.string.password_salt_key);
+        passwordManager = PasswordManager.init(mContext, salt);
+
         Timber.tag(PREF_NAME);
     }
 
@@ -295,8 +300,6 @@ public class JasperAccountManager {
     }
 
     private String encryptPassword(String newPassword) {
-        String salt = mContext.getResources().getString(R.string.password_salt_key);
-        PasswordManager passwordManager = PasswordManager.init(mContext, salt);
         try {
             return passwordManager.encrypt(newPassword);
         } catch (PasswordManager.EncryptionException encryptionException) {
@@ -304,8 +307,16 @@ public class JasperAccountManager {
         }
     }
 
+    private String decryptPassword(String newPassword) {
+        try {
+            return passwordManager.decrypt(newPassword);
+        } catch (PasswordManager.DecryptionException encryptionException) {
+            throw new RuntimeException(encryptionException);
+        }
+    }
+
     public String getPassword(Account account) {
-        return mDelegateManager.getPassword(account);
+        return decryptPassword(mDelegateManager.getPassword(account));
     }
 
     //---------------------------------------------------------------------

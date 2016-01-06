@@ -28,8 +28,9 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.jaspermobile.network.XmlSpiceService;
+import com.jaspersoft.android.jaspermobile.network.AppSpiceService;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.octo.android.robospice.SpiceManager;
@@ -46,19 +47,21 @@ public class JsSpiceManager extends SpiceManager {
     private static final String LOG_TAG = JsSpiceManager.class.getSimpleName();
 
     @Inject
+    JsRestClientWrapper jsRestClientWrapper;
+    @Inject
     JsRestClient jsRestClient;
     @Inject
     Context mContext;
 
     @Inject
     public JsSpiceManager() {
-        super(XmlSpiceService.class);
+        super(AppSpiceService.class);
     }
 
     @Override
     public <T> void execute(final CachedSpiceRequest<T> cachedSpiceRequest, final RequestListener<T> requestListener) {
         if (!isRestClientValid()) {
-            JsServerProfileCompat.initLegacyJsRestClient(mContext, jsRestClient);
+            JsServerProfileCompat.initLegacyJsRestClient(mContext, jsRestClientWrapper);
         }
         super.execute(cachedSpiceRequest, requestListener);
     }

@@ -40,12 +40,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.FilterableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.MultiSelectAvailableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.MultiSelectSelectedAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ReportComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
@@ -59,6 +61,10 @@ import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
+
+import javax.inject.Inject;
+
+import timber.log.Timber;
 
 /**
  * @author Andrew Tivodar
@@ -101,6 +107,16 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
 
     @AfterViews
     protected void init() {
+        ReportComponent reportComponent = JasperMobileApplication.get(this).getReportComponent();
+        if (reportComponent == null) {
+            Timber.w("Report component was garbage collected");
+            finish();
+            return;
+        }
+        reportComponent
+                .plusControlsActivity(new ActivityModule(this))
+                .inject(this);
+
         initInputControlOptions();
         initAdapters();
         initViews();

@@ -5,6 +5,8 @@ package com.jaspersoft.android.jaspermobile.domain;
  * @since 2.3
  */
 public final class ReportPage {
+    public static final ReportPage EMPTY = new ReportPage(null, true);
+
     private final String mContent;
     private final boolean mFinal;
 

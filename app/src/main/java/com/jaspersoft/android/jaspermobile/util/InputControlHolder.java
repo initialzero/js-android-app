@@ -40,7 +40,6 @@ public class InputControlHolder{
     private List<ReportOptionHolder> mReportOptions;
 
     public InputControlHolder() {
-        this.mInputControls = new ArrayList<>();
         this.mReportOptions = new ArrayList<>();
         this.mReportParams = new ArrayList<>();
     }

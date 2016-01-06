@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -43,8 +44,15 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
+import com.jaspersoft.android.jaspermobile.GraphObject;
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
@@ -158,6 +166,17 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         if (isDevMode()) {
             ViewServer.get(this).addWindow(this);
         }
+
+        // Listen to account changes
+        mJasperAccountManager.setOnAccountsUpdatedListener(accountsUpdateListener);
+
+        if (JasperMobileApplication.get(this).getProfileComponent() == null) {
+            ActiveProfileCache activeProfileCache = new PreferencesActiveProfileCache(this);
+            Profile profile = activeProfileCache.get();
+            if (profile != null) {
+                setupProfileModule(profile);
+            }
+        }
     }
 
     @Override
@@ -165,6 +184,11 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == AUTHORIZE_CODE) {
             if (resultCode == Activity.RESULT_OK) {
+                String profileName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                Profile profile = Profile.create(profileName);
+
+                setupProfileModule(profile);
+
                 onActiveAccountChanged();
             } else {
                 finish();
@@ -178,20 +202,20 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         }
     }
 
+    private void setupProfileModule(Profile profile) {
+        GraphObject graphObject = JasperMobileApplication.get(this);
+        ProfileComponent profileComponent = graphObject.getComponent()
+                .plus(new ProfileModule(profile));
+        graphObject.setProfileComponent(profileComponent);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        mJasperAccountManager.setOnAccountsUpdatedListener(accountsUpdateListener);
         if (isDevMode()) {
             ViewServer.get(this).setFocusedWindow(this);
         }
         updateAccountDependentUi();
-    }
-
-    @Override
-    protected void onPause() {
-        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
-        super.onPause();
     }
 
     @Override
@@ -207,6 +231,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
         if (isDevMode()) {
             ViewServer.get(this).removeWindow(this);
         }

@@ -26,8 +26,15 @@ package com.jaspersoft.android.jaspermobile.presentation.view.activity;
 
 import android.os.Bundle;
 
+import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ReportActivityComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ReportComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ReportModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportViewFragment;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportViewFragment_;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -42,16 +49,25 @@ import org.androidannotations.annotations.Extra;
  * @since 2.3
  */
 @EActivity(R.layout.report_viewer_layout)
-public class ReportViewActivity extends RoboToolbarActivity {
+public class ReportViewActivity extends RoboToolbarActivity implements HasComponent<ReportActivityComponent> {
     @Extra
     protected ResourceLookup resource;
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
 
+    private JasperMobileApplication graphObject;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         scrollableTitleHelper.injectTitle(resource.getLabel());
+        graphObject = JasperMobileApplication.get(this);
+
+        if (graphObject.getReportComponent() == null) {
+            ProfileComponent profileComponent = graphObject.getProfileComponent();
+            ReportComponent reportComponent = profileComponent.plus(new ReportModule(resource.getUri()));
+            graphObject.setReportComponent(reportComponent);
+        }
 
         if (savedInstanceState == null) {
             ReportViewFragment viewFragment = ReportViewFragment_.builder()
@@ -61,5 +77,18 @@ public class ReportViewActivity extends RoboToolbarActivity {
                     .add(R.id.control, viewFragment, ReportViewFragment.TAG)
                     .commit();
         }
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        graphObject.releaseReportComponent();
+    }
+
+    @Override
+    public ReportActivityComponent getComponent() {
+        return JasperMobileApplication.get(this)
+                .getReportComponent()
+                .plusReportActivity(new ActivityModule(this));
     }
 }

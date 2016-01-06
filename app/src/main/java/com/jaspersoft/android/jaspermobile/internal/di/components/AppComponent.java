@@ -1,10 +1,14 @@
 package com.jaspersoft.android.jaspermobile.internal.di.components;
 
+import com.jaspersoft.android.jaspermobile.JasperMobileModule;
 import com.jaspersoft.android.jaspermobile.auth.JasperAuthenticator;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ActivityModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ServerClientModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.app.CacheModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ServerClientModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.app.RepoModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.app.ValidatorModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.BaseActivity;
 
 import javax.inject.Singleton;
@@ -18,12 +22,15 @@ import dagger.Component;
 @Singleton
 @Component(modules = {
         AppModule.class,
-        ProfileModule.class,
-
+        CacheModule.class,
+        RepoModule.class,
+        ValidatorModule.class
 })
 public interface AppComponent {
     void inject(BaseActivity baseActivity);
     void inject(JasperAuthenticator authenticator);
+    void inject(JasperMobileModule module);
 
     AuthenticatorActivityComponent plus(ActivityModule activityModule, ServerClientModule serverClientModule);
+    ProfileComponent plus(ProfileModule profileModule);
 }

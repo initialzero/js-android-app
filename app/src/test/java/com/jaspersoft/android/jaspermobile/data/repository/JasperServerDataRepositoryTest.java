@@ -24,8 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.ServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.ServerCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.JasperServerMapper;
+import com.jaspersoft.android.jaspermobile.data.repository.profile.JasperServerDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;

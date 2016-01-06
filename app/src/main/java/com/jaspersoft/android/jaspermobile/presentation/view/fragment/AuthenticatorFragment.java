@@ -38,9 +38,9 @@ import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AuthenticatorActivityComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ActivityModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.AuthenticatorModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ServerClientModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.AuthenticatorModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ServerClientModule;
 import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
@@ -253,6 +253,6 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
                 .getComponent()
                 .plus(new ActivityModule(getActivity()), new ServerClientModule(baseUrl));
         component.inject(this);
-        mPresenter.setView(this);
+        mPresenter.injectView(this);
     }
 }

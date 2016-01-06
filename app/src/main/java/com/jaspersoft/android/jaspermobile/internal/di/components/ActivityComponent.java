@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.internal.di.components;
 import android.app.Activity;
 
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 
 import dagger.Component;
 

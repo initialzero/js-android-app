@@ -25,7 +25,8 @@
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.JasperServerRepository;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.UpdateServerUseCase;
+import com.jaspersoft.android.jaspermobile.domain.repository.profile.JasperServerRepository;
 
 import org.junit.Before;
 import org.junit.Ignore;

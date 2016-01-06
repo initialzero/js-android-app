@@ -1,0 +1,345 @@
+package com.jaspersoft.android.jaspermobile.presentation.presenter;
+
+import android.support.annotation.NonNull;
+
+import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
+import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.ReportPage;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMultiPagePropertyCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportPageContentCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportTotalPagesPropertyCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.ReloadReportCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.RunReportCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.UpdateReportCase;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
+import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
+import com.jaspersoft.android.sdk.service.exception.ServiceException;
+import com.jaspersoft.android.sdk.service.exception.StatusCodes;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import rx.Observable;
+import rx.Subscriber;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+/**
+ * @author Tom Koptel
+ * @since 2.3
+ */
+public class ReportViewPresenterTest {
+    private static final String REPORT_URI = "my/uri";
+    private static final String PAGE_CONTENT = "page content";
+    private static final ReportPage PAGE = new ReportPage(PAGE_CONTENT, true);
+    private static final String CURRENT_PAGE = "10";
+
+    @Mock
+    RequestExceptionHandler mExceptionHandler;
+    @Mock
+    ReportView mView;
+
+    private ReportViewPresenter presenter;
+    private FakeGetReportNeedParamsPropertyCase mFakeGetReportNeedParamsPropertyCase;
+    private FakeGetReportPageContentCase mFakeGetReportPageContentCase;
+    private FakeGetReportMultiPagePropertyCase mFakeGetReportMultiPagePropertyCase;
+    private FakeGetReportTotalPagesPropertyCase mFakeGetReportTotalPagesPropertyCase;
+    private FakeRunReportCase mFakeRunReportCase;
+    private FakeUpdateReportCase mFakeUpdateReportCase;
+    private FakeReloadReportCase mFakeReloadReportCase;
+
+    private ReportPageState mReportPageState;
+
+    @Before
+    public void setUp() throws Exception {
+        initMocks(this);
+        setupMocks();
+        presenter = new ReportViewPresenter(
+                REPORT_URI,
+                mExceptionHandler,
+                mFakeGetReportNeedParamsPropertyCase,
+                mFakeGetReportMultiPagePropertyCase,
+                mFakeGetReportTotalPagesPropertyCase,
+                mFakeGetReportPageContentCase,
+                mFakeRunReportCase,
+                mFakeUpdateReportCase,
+                mFakeReloadReportCase
+        );
+        presenter.injectView(mView);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void should_show_filters_page_if_check_for_controls_was_positive() throws Exception {
+        mFakeGetReportNeedParamsPropertyCase.setNeedParams(true);
+        presenter.init();
+
+        verify(mView).showLoading();
+        verify(mFakeGetReportNeedParamsPropertyCase).execute(eq(REPORT_URI), any(Subscriber.class));
+        verify(mView).setFilterActionVisibility(true);
+        verify(mView).hideLoading();
+
+        verify(mView).showInitialFiltersPage();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void should_run_report_if_check_for_controls_was_negative() throws Exception {
+        mFakeGetReportNeedParamsPropertyCase.setNeedParams(false);
+        presenter.init();
+        verify(mReportPageState).setControlsPageShown(true);
+        verify(mView).setFilterActionVisibility(false);
+        verify(mFakeRunReportCase).execute(any(Subscriber.class));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void should_load_current_page_if_controls_page_shown() throws Exception {
+        mReportPageState.setControlsPageShown(true);
+
+        presenter.init();
+
+        verify(mFakeGetReportPageContentCase).execute(eq(CURRENT_PAGE), any(Subscriber.class));
+        verify(mReportPageState).setCurrentPage(CURRENT_PAGE);
+        verify(mView).showPage(PAGE_CONTENT);
+
+        verify(mFakeGetReportMultiPagePropertyCase).execute(any(Subscriber.class));
+        verify(mFakeGetReportTotalPagesPropertyCase).execute(any(Subscriber.class));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void should_perform_load_page_action() throws Exception {
+        presenter.loadPage("10");
+
+        verify(mView).showPageLoader();
+        verify(mFakeGetReportPageContentCase).execute(eq("10"), any(Subscriber.class));
+
+        verify(mReportPageState).setCurrentPage("10");
+        verify(mView).showCurrentPage(10);
+        verify(mView).showPage(PAGE_CONTENT);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void should_perform_run_report_action() throws Exception {
+        presenter.runReport();
+
+        verify(mFakeGetReportTotalPagesPropertyCase).execute(any(Subscriber.class));
+
+        verify(mView).showLoading();
+        verify(mReportPageState).setCurrentPage("1");
+        verify(mView).showCurrentPage(1);
+        verify(mView).showPage(PAGE_CONTENT);
+        verify(mView).hideLoading();
+
+        verify(mFakeGetReportMultiPagePropertyCase).execute(any(Subscriber.class));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void should_perform_update_report_action() throws Exception {
+        presenter.updateReport();
+
+        verify(mFakeUpdateReportCase).execute(any(Subscriber.class));
+        verify(mView).resetPaginationControl();
+        verify(mReportPageState).setCurrentPage("1");
+        verify(mView).showCurrentPage(1);
+        verify(mView).showPage(PAGE_CONTENT);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void should_perform_refresh_report_action() throws Exception {
+        presenter.refresh();
+
+        verify(mView).showLoading();
+        verify(mFakeReloadReportCase).execute(any(Subscriber.class));
+        verify(mView).hideLoading();
+
+        verify(mView).resetPaginationControl();
+        verify(mReportPageState).setCurrentPage("1");
+        verify(mView).showCurrentPage(1);
+        verify(mView).showPage(PAGE_CONTENT);
+    }
+
+    @Test
+    public void should_un_subscribe_from_use_cases_on_destroy_action() throws Exception {
+        presenter.destroy();
+        verify(mFakeGetReportNeedParamsPropertyCase).unsubscribe();
+        verify(mFakeGetReportMultiPagePropertyCase).unsubscribe();
+        verify(mFakeGetReportTotalPagesPropertyCase).unsubscribe();
+        verify(mFakeGetReportPageContentCase).unsubscribe();
+        verify(mFakeRunReportCase).unsubscribe();
+        verify(mFakeUpdateReportCase).unsubscribe();
+        verify(mFakeReloadReportCase).unsubscribe();
+    }
+
+    @Test
+    public void should_handle_not_empty_pages_case() throws Exception {
+        mFakeGetReportTotalPagesPropertyCase.setPages(10);
+        presenter.loadTotalPagesProperty();
+        verify(mView).showTotalPages(10);
+        verify(mView).setSaveActionVisibility(true);
+        verify(mView).reloadMenu();
+    }
+
+    @Test
+    public void should_handle_empty_pages_case() throws Exception {
+        mFakeGetReportTotalPagesPropertyCase.setPages(0);
+        presenter.loadTotalPagesProperty();
+        verify(mView).showEmptyPageMessage();
+        verify(mView).setSaveActionVisibility(false);
+        verify(mView).reloadMenu();
+    }
+
+    @Test
+    public void should_toggle_pagination_control_if_multi_page_loaded() throws Exception {
+        mFakeGetReportMultiPagePropertyCase.setIsMuptiPage(false);
+        presenter.loadMultiPageProperty();
+        verify(mView).setPaginationControlVisibility(false);
+    }
+
+    @Test
+    public void should_hide_error_showing_page() throws Exception {
+        presenter.showPage("1", PAGE);
+        verify(mView).hideError();
+        verify(mReportPageState).setCurrentPage("1");
+        verify(mView).showCurrentPage(1);
+        verify(mView).showPage(PAGE_CONTENT);
+    }
+
+    @Test
+    public void should_handle_report_execution_invalidation_case() throws Exception {
+        ServiceException serviceException = new ServiceException("message", null, StatusCodes.REPORT_EXECUTION_INVALID);
+        presenter.handleError(serviceException);
+        verify(mFakeReloadReportCase).execute(any(Subscriber.class));
+    }
+
+    @Test
+    public void should_handle_report_page_out_of_range_case() throws Exception {
+        ServiceException serviceException = new ServiceException("message", null, StatusCodes.EXPORT_PAGE_OUT_OF_RANGE);
+        presenter.handleError(serviceException);
+        verify(mView).showPageOutOfRangeError();
+        verify(mFakeGetReportPageContentCase).execute(eq(CURRENT_PAGE), any(Subscriber.class));
+    }
+
+    private void setupMocks() {
+        ReportPageState state = new ReportPageState();
+        state.setCurrentPage(CURRENT_PAGE);
+        mReportPageState = spy(state);
+
+        mFakeGetReportNeedParamsPropertyCase = spy(new FakeGetReportNeedParamsPropertyCase());
+        mFakeGetReportPageContentCase = spy(new FakeGetReportPageContentCase());
+        mFakeGetReportMultiPagePropertyCase = spy(new FakeGetReportMultiPagePropertyCase());
+        mFakeGetReportTotalPagesPropertyCase = spy(new FakeGetReportTotalPagesPropertyCase());
+        mFakeRunReportCase = spy(new FakeRunReportCase());
+        mFakeUpdateReportCase = spy(new FakeUpdateReportCase());
+        mFakeReloadReportCase = spy(new FakeReloadReportCase());
+
+        when(mView.getState()).thenReturn(mReportPageState);
+    }
+
+    private static class FakeGetReportTotalPagesPropertyCase extends GetReportTotalPagesPropertyCase {
+        private int mPages;
+
+        public FakeGetReportTotalPagesPropertyCase() {
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+        }
+
+        public void setPages(int pages) {
+            mPages = pages;
+        }
+
+        @Override
+        protected Observable<Integer> buildUseCaseObservable() {
+            return Observable.just(mPages);
+        }
+    }
+
+    private static class FakeUpdateReportCase extends UpdateReportCase {
+        public FakeUpdateReportCase() {
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+        }
+
+        @Override
+        protected Observable<ReportPage> buildUseCaseObservable() {
+            return Observable.just(PAGE);
+        }
+    }
+
+    private static class FakeRunReportCase extends RunReportCase {
+        public FakeRunReportCase() {
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+        }
+
+        @Override
+        protected Observable<ReportPage> buildUseCaseObservable() {
+            return Observable.just(PAGE);
+        }
+    }
+
+    private static class FakeReloadReportCase extends ReloadReportCase {
+        public FakeReloadReportCase() {
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+        }
+
+        @Override
+        protected Observable<ReportPage> buildUseCaseObservable() {
+            return Observable.just(PAGE);
+        }
+    }
+
+    private static class FakeGetReportMultiPagePropertyCase extends GetReportMultiPagePropertyCase {
+        private boolean mFakeResult;
+
+        public FakeGetReportMultiPagePropertyCase() {
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+        }
+
+        public void setIsMuptiPage(boolean fakeResult) {
+            mFakeResult = fakeResult;
+        }
+
+        @Override
+        protected Observable<Boolean> buildUseCaseObservable() {
+            return Observable.just(mFakeResult);
+        }
+    }
+
+    private static class FakeGetReportPageContentCase extends GetReportPageContentCase {
+        public FakeGetReportPageContentCase() {
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+        }
+
+        @Override
+        protected Observable<ReportPage> buildUseCaseObservable(@NonNull String uri) {
+            return Observable.just(PAGE);
+        }
+    }
+
+    private static class FakeGetReportNeedParamsPropertyCase extends GetReportShowControlsPropertyCase {
+        private boolean mFakeResult;
+
+        public FakeGetReportNeedParamsPropertyCase() {
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null);
+        }
+
+        public void setNeedParams(boolean fakeResult) {
+            mFakeResult = fakeResult;
+        }
+
+        @Override
+        protected Observable<Boolean> buildUseCaseObservable(@NonNull String uri) {
+            return Observable.just(mFakeResult);
+        }
+    }
+}

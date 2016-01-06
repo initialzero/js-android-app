@@ -26,16 +26,19 @@ package com.jaspersoft.android.jaspermobile.util;
 
 import android.support.annotation.NonNull;
 
-import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 /**
  * @author Andrew Tivodar
  * @author Tom Koptel
  * @since 2.0
  */
+@PerReport
 public class ReportParamsStorage {
     private final Map<String, InputControlHolder> mInputControlHolderCache = new HashMap<>();
 

@@ -65,6 +65,7 @@ public class AccountServerData {
     private String serverCookie;
 
     public static AccountServerData get(Context context, Account account) {
+        JasperAccountManager jasper = JasperAccountManager.get(context);
         AccountManager accountManager = AccountManager.get(context);
         if (account == null) {
             return EMPTY;
@@ -75,7 +76,7 @@ public class AccountServerData {
         String organization = accountManager.getUserData(account, ORGANIZATION_KEY);
         String username = accountManager.getUserData(account, USERNAME_KEY);
         String edition = accountManager.getUserData(account, EDITION_KEY);
-        String password = accountManager.getPassword(account);
+        String password = jasper.getPassword(account);
         String versionName = accountManager.getUserData(account, VERSION_NAME_KEY);
 
         AccountServerData data = new AccountServerData();

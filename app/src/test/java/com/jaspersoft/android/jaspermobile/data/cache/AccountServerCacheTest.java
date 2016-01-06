@@ -29,6 +29,8 @@ import android.accounts.AccountManager;
 
 import com.jaspersoft.android.jaspermobile.data.FakeAccount;
 import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;

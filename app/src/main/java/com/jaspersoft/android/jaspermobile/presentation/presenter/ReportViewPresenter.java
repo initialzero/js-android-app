@@ -1,131 +1,134 @@
-/*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- * http://community.jaspersoft.com/project/jaspermobile-android
- *
- * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
- * the following license terms apply:
- *
- * This program is part of TIBCO Jaspersoft Mobile for Android.
- *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>.
- */
-
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
-import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPagesCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.IsReportMultiPageCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.ReloadReportCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.RunReportExecutionCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCaseSimple;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMultiPagePropertyCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportPageContentCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportTotalPagesPropertyCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.ReloadReportCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.RunReportCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.UpdateReportCase;
+import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
-import com.jaspersoft.android.jaspermobile.util.rx.DefaultSubscriber;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
-import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Named;
 
-import rx.Subscriber;
 import timber.log.Timber;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public final class ReportViewPresenter implements ReportActionListener, Presenter {
+@PerActivity
+public class ReportViewPresenter implements ReportActionListener, Presenter<ReportView> {
+    private ReportView mView;
 
-    private static final String FIRST_PAGE = "1";
+    private final String mReportUri;
+    private final RequestExceptionHandler mExceptionHandler;
 
-    private final GetReportPageCase mGetReportPageCase;
-    private final GetReportControlsCase mGetReportControlsCase;
-    private final GetReportTotalPagesCase mGetReportTotalPagesCase;
-    private final IsReportMultiPageCase mIsReportMultiPageCase;
-    private final RunReportExecutionCase mRunReportExecutionCase;
-    private final UpdateReportExecutionCaseSimple mUpdateReportExecutionCase;
+    private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
+    private final GetReportMultiPagePropertyCase mGetReportMultiPagePropertyCase;
+    private final GetReportTotalPagesPropertyCase mGetReportTotalPagesPropertyCase;
+    private final GetReportPageContentCase mGetReportPageContentCase;
+    private final RunReportCase mRunReportCase;
+    private final UpdateReportCase mUpdateReportCase;
     private final ReloadReportCase mReloadReportCase;
 
-    private RequestExceptionHandler mExceptionHandler;
-    private ReportView mView;
-    private String mCurrentPage;
-
-    public ReportViewPresenter(
-            RequestExceptionHandler exceptionHandler,
-            GetReportControlsCase getReportControlsCase,
-            GetReportPageCase getReportPageCase,
-            GetReportTotalPagesCase getReportTotalPagesCase,
-            IsReportMultiPageCase isReportMultiPageCase,
-            RunReportExecutionCase runReportExecutionCase,
-            UpdateReportExecutionCaseSimple updateReportExecutionCase,
-            ReloadReportCase reloadReportCase) {
+    @Inject
+    public ReportViewPresenter(@Named("report_uri") String reportUri,
+                               RequestExceptionHandler exceptionHandler,
+                               GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
+                               GetReportMultiPagePropertyCase getReportMultiPagePropertyCase,
+                               GetReportTotalPagesPropertyCase getReportTotalPagesPropertyCase,
+                               GetReportPageContentCase getReportPageContentCase,
+                               RunReportCase runReportCase,
+                               UpdateReportCase updateReportCase,
+                               ReloadReportCase reloadReportCase
+    ) {
+        mReportUri = reportUri;
         mExceptionHandler = exceptionHandler;
-        mGetReportPageCase = getReportPageCase;
-        mGetReportControlsCase = getReportControlsCase;
-        mGetReportTotalPagesCase = getReportTotalPagesCase;
-        mIsReportMultiPageCase = isReportMultiPageCase;
-        mRunReportExecutionCase = runReportExecutionCase;
-        mUpdateReportExecutionCase = updateReportExecutionCase;
+        mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
+        mGetReportMultiPagePropertyCase = getReportMultiPagePropertyCase;
+        mGetReportTotalPagesPropertyCase = getReportTotalPagesPropertyCase;
+        mGetReportPageContentCase = getReportPageContentCase;
+        mRunReportCase = runReportCase;
+        mUpdateReportCase = updateReportCase;
         mReloadReportCase = reloadReportCase;
     }
 
-    public void setView(ReportView view) {
-        mView = view;
+    public void init() {
+        if (mView == null) {
+            throw new NullPointerException("Please inject view before calling this method");
+        }
+        if (mView.getState().isControlsPageShown()) {
+            loadLastSavedPage();
+            loadMultiPageProperty();
+            loadTotalPagesProperty();
+        } else {
+            showLoading();
+            loadReportMetadata();
+        }
     }
 
-    public void init() {
-        if (mCurrentPage == null) {
-            mView.showLoading();
-            loadInputControls();
+    private void loadLastSavedPage() {
+        loadPageByPosition(mView.getState().getCurrentPage());
+    }
+
+    private void loadPageByPosition(final String position) {
+        showPageLoader();
+        mGetReportPageContentCase.execute(position, new SimpleSubscriber<ReportPage>() {
+            @Override
+            public void onError(Throwable e) {
+                handleError(e);
+            }
+
+            @Override
+            public void onNext(ReportPage item) {
+                showPage(position, item);
+            }
+        });
+    }
+
+    private void loadReportMetadata() {
+        mGetReportShowControlsPropertyCase.execute(mReportUri, new SimpleSubscriber<Boolean>() {
+            @Override
+            public void onCompleted() {
+                hideLoading();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                handleError(e);
+            }
+
+            @Override
+            public void onNext(Boolean needControls) {
+                mView.getState().setControlsPageShown(true);
+                toggleFiltersAction(needControls);
+                resolveNeedControls(needControls);
+            }
+        });
+    }
+
+    private void resolveNeedControls(boolean needControls) {
+        if (needControls) {
+            mView.showInitialFiltersPage();
         } else {
-            loadCurrentPage();
-            checkIsMultiPageReport();
+            runReport();
         }
     }
 
     @Override
-    public void loadPage(String pageRange) {
-        mView.showLoading();
-        mGetReportPageCase.setPageRange(pageRange);
-        mGetReportPageCase.execute(new PageResultListener(pageRange));
-    }
-
-    @Override
-    public void runReport() {
-        mView.setSaveActionVisibility(false);
-        mView.reloadMenu();
-
-        mView.showLoading();
-        mRunReportExecutionCase.execute(new RunReportListener());
-    }
-
-    @Override
-    public void updateReport() {
-        mUpdateReportExecutionCase.execute(new UpdateExecutionListener());
-    }
-
-    @Override
-    public void refresh() {
-        mView.showCurrentPage(1);
-        reloadReport(FIRST_PAGE);
+    public void injectView(ReportView view) {
+        mView = view;
     }
 
     @Override
@@ -138,247 +141,211 @@ public final class ReportViewPresenter implements ReportActionListener, Presente
 
     @Override
     public void destroy() {
-        mGetReportPageCase.unsubscribe();
-        mGetReportControlsCase.unsubscribe();
-        mGetReportTotalPagesCase.unsubscribe();
-        mIsReportMultiPageCase.unsubscribe();
-        mRunReportExecutionCase.unsubscribe();
-        mUpdateReportExecutionCase.unsubscribe();
+        mGetReportShowControlsPropertyCase.unsubscribe();
+        mGetReportMultiPagePropertyCase.unsubscribe();
+        mGetReportTotalPagesPropertyCase.unsubscribe();
+        mGetReportPageContentCase.unsubscribe();
+        mRunReportCase.unsubscribe();
+        mUpdateReportCase.unsubscribe();
         mReloadReportCase.unsubscribe();
     }
 
-    private void loadInputControls() {
-        mGetReportControlsCase.execute(new InputControlsListener());
+    @Override
+    public void loadPage(String pageRange) {
+        loadPageByPosition(pageRange);
     }
 
-    private void checkIsMultiPageReport() {
-        mIsReportMultiPageCase.execute(new IsMultiPageListener());
+    @Override
+    public void runReport() {
+        showLoading();
+        mRunReportCase.execute(new SimpleSubscriber<ReportPage>() {
+            @Override
+            public void onCompleted() {
+                hideLoading();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                handleError(e);
+            }
+
+            @Override
+            public void onNext(ReportPage page) {
+                showPage("1", page);
+                loadMultiPageProperty();
+                loadTotalPagesProperty();
+            }
+        });
     }
 
-    private void loadTotalPagesCount() {
-        mGetReportTotalPagesCase.execute(new TotalPagesListener());
+    @VisibleForTesting
+    void loadMultiPageProperty() {
+        mGetReportMultiPagePropertyCase.execute(new SimpleSubscriber<Boolean>() {
+            @Override
+            public void onError(Throwable e) {
+                handleError(e);
+            }
+
+            @Override
+            public void onNext(Boolean multiPage) {
+                togglePaginationControl(multiPage);
+            }
+        });
+    }
+
+    @VisibleForTesting
+    void loadTotalPagesProperty() {
+        mGetReportTotalPagesPropertyCase.execute(new SimpleSubscriber<Integer>() {
+            @Override
+            public void onError(Throwable e) {
+                handleError(e);
+            }
+
+            @Override
+            public void onNext(Integer totalPages) {
+                boolean hasNoPages = (totalPages == 0);
+                toggleSaveAction(!hasNoPages);
+
+                if (hasNoPages) {
+                    showEmptyPage();
+                } else {
+                    updateTotalPagesLabel(totalPages);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void updateReport() {
+        showLoading();
+        resetTotalPagesLabel();
+        mUpdateReportCase.execute(new SimpleSubscriber<ReportPage>() {
+            @Override
+            public void onCompleted() {
+                hideLoading();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                handleError(e);
+            }
+
+            @Override
+            public void onNext(ReportPage page) {
+                showPage("1", page);
+                loadMultiPageProperty();
+                loadTotalPagesProperty();
+            }
+        });
+    }
+
+    @Override
+    public void refresh() {
+        reloadByPosition("1");
+    }
+
+    private void reloadByPosition(final String position) {
+        showLoading();
+        resetTotalPagesLabel();
+        mReloadReportCase.execute(new SimpleSubscriber<ReportPage>() {
+            @Override
+            public void onCompleted() {
+                hideLoading();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                handleError(e);
+            }
+
+            @Override
+            public void onNext(ReportPage page) {
+                showPage(position, page);
+                loadMultiPageProperty();
+                loadTotalPagesProperty();
+            }
+        });
+    }
+
+    private void showPageLoader() {
+        mView.showPageLoader();
+    }
+
+    private void showPageOutOfRangeError() {
+        mView.showPageOutOfRangeError();
+    }
+
+    private void showEmptyPage() {
+        mView.showEmptyPageMessage();
+    }
+
+    private void resetTotalPagesLabel() {
+        mView.resetPaginationControl();
+    }
+
+    private void updateTotalPagesLabel(int pages) {
+        mView.showTotalPages(pages);
+    }
+
+    private void toggleSaveAction(boolean visibility) {
+        mView.setSaveActionVisibility(visibility);
+        mView.reloadMenu();
+    }
+
+    private void toggleFiltersAction(boolean visibility) {
+        mView.setFilterActionVisibility(visibility);
+        mView.reloadMenu();
+    }
+
+    private void togglePaginationControl(boolean multiPage) {
+        mView.setPaginationControlVisibility(multiPage);
+    }
+
+    private void hideLoading() {
+        mView.hideLoading();
+    }
+
+    private void showLoading() {
+        mView.showLoading();
+    }
+
+    @VisibleForTesting
+    void showPage(String pagePosition, ReportPage page) {
+        mView.hideError();
+        mView.showCurrentPage(Integer.valueOf(pagePosition));
+        mView.getState().setCurrentPage(pagePosition);
+        mView.showPage(page.getContent());
+    }
+
+    @VisibleForTesting
+    void handleError(Throwable error) {
+        if (error instanceof ServiceException) {
+            ServiceException serviceException = (ServiceException) error;
+            tryToRecoverFromSdkError(serviceException);
+        } else {
+            Timber.e(error, "Presenter received unexpected error");
+            showErrorMessage(error);
+        }
+    }
+
+    private void tryToRecoverFromSdkError(ServiceException serviceException) {
+        int errorCode = serviceException.code();
+        switch (errorCode) {
+            case StatusCodes.EXPORT_PAGE_OUT_OF_RANGE:
+                showPageOutOfRangeError();
+                loadLastSavedPage();
+                break;
+            case StatusCodes.REPORT_EXECUTION_INVALID:
+                reloadByPosition(mView.getState().getCurrentPage());
+                break;
+            default:
+                Timber.e(serviceException, "Page request operation crashed with SDK exception");
+                showErrorMessage(serviceException);
+        }
     }
 
     private void showErrorMessage(Throwable error) {
         mView.hideLoading();
         mView.showError(mExceptionHandler.extractMessage(error));
-    }
-
-    private void handleErrorForPage(@Nullable String pagePosition, @NonNull Throwable e) {
-        if (pagePosition == null) {
-            pagePosition = FIRST_PAGE;
-        }
-
-        if (e instanceof ServiceException) {
-            ServiceException serviceException = (ServiceException) e;
-            int errorCode = serviceException.code();
-            switch (errorCode) {
-                case StatusCodes.EXPORT_EXECUTION_FAILED:
-                    mView.showPageOutOfRangeError();
-                    loadCurrentPage();
-                    break;
-                case StatusCodes.REPORT_EXECUTION_INVALID:
-                    mView.showLoading();
-                    mView.showReloadMessage();
-                    reloadReport(pagePosition);
-                    break;
-                default:
-                    Timber.e(e, "Page request operation crashed with SDK exception");
-                    showErrorMessage(e);
-            }
-        } else {
-            Timber.e(e, "Page request operation crashed");
-            showErrorMessage(e);
-        }
-    }
-
-    private void loadCurrentPage() {
-        if (mCurrentPage != null) {
-            loadPage(mCurrentPage);
-        }
-    }
-
-    private void reloadReport(String page) {
-        mView.resetPaginationControl();
-        mReloadReportCase.execute(new ReloadReportListener(page));
-    }
-
-    private void onControlsLoaded(List<InputControl> controls) {
-        boolean showFilterActionVisible = !controls.isEmpty();
-
-        mView.hideError();
-        mView.setFilterActionVisibility(showFilterActionVisible);
-        mView.reloadMenu();
-
-        if (showFilterActionVisible) {
-            mView.hideLoading();
-            mView.showInitialFiltersPage();
-        } else {
-            runReport();
-        }
-    }
-
-    private void onRunStarted() {
-        mView.hideError();
-        checkIsMultiPageReport();
-        loadPage(FIRST_PAGE);
-    }
-
-    private void onPageLoaded(String pagePosition, ReportPage page) {
-        mCurrentPage = pagePosition;
-        mView.hideError();
-        mView.showCurrentPage(Integer.valueOf(pagePosition));
-        mView.showPage(page.getContent());
-    }
-
-    private void onMultiPageCheckFinished(Boolean isMultiPage) {
-        if (isMultiPage) {
-            mView.showPaginationControl();
-            loadTotalPagesCount();
-        } else {
-            mView.setSaveActionVisibility(true);
-            mView.reloadMenu();
-        }
-    }
-
-    private void onTotalPagesLoaded(Integer totalPages) {
-        boolean hasNoPages = (totalPages == 0);
-        if (hasNoPages) {
-            mView.setSaveActionVisibility(false);
-            mView.showEmptyPageMessage();
-            mView.hidePaginationControl();
-        } else {
-            mView.setSaveActionVisibility(true);
-            mView.showTotalPages(totalPages);
-            loadCurrentPage();
-
-            boolean hasMoreThanOnePage = (totalPages > 1);
-            if (hasMoreThanOnePage) {
-                mView.showPaginationControl();
-            } else {
-                mView.hidePaginationControl();
-            }
-        }
-        mView.reloadMenu();
-    }
-
-    private void onExecutionUpdated() {
-        mView.resetPaginationControl();
-        checkIsMultiPageReport();
-        loadPage(FIRST_PAGE);
-    }
-
-    private void onReloadFinished(String pagePosition) {
-        mView.hideError();
-        checkIsMultiPageReport();
-        loadPage(pagePosition);
-    }
-
-    private class InputControlsListener extends DefaultSubscriber<List<InputControl>> {
-        @Override
-        public void onError(Throwable e) {
-            Timber.e(e, "Request for input controls crashed");
-            showErrorMessage(e);
-        }
-
-        @Override
-        public void onNext(List<InputControl> controls) {
-            onControlsLoaded(controls);
-        }
-    }
-
-    private class RunReportListener extends DefaultSubscriber<Void> {
-        @Override
-        public void onError(Throwable e) {
-            Timber.e(e, "Run report operation crashed");
-            handleErrorForPage(mCurrentPage, e);
-        }
-
-        @Override
-        public void onNext(Void aVoid) {
-            onRunStarted();
-        }
-    }
-
-    private class PageResultListener extends Subscriber<ReportPage> {
-        private final String pagePosition;
-
-        private PageResultListener(String pagePosition) {
-            this.pagePosition = pagePosition;
-        }
-
-        @Override
-        public void onCompleted() {
-            mView.hideLoading();
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            Timber.e(e, "Page request operation crashed");
-            handleErrorForPage(pagePosition, e);
-        }
-
-        @Override
-        public void onNext(ReportPage page) {
-            onPageLoaded(pagePosition, page);
-        }
-    }
-
-    private class IsMultiPageListener extends DefaultSubscriber<Boolean> {
-        @Override
-        public void onError(Throwable e) {
-            Timber.e(e, "Is multi page request operation crashed");
-            handleErrorForPage(mCurrentPage, e);
-        }
-
-        @Override
-        public void onNext(Boolean isMultiPage) {
-            onMultiPageCheckFinished(isMultiPage);
-        }
-    }
-
-    private class TotalPagesListener extends DefaultSubscriber<Integer> {
-        @Override
-        public void onError(Throwable e) {
-            Timber.e(e, "Total pages request operation crashed");
-            handleErrorForPage(mCurrentPage, e);
-        }
-
-        @Override
-        public void onNext(Integer totalPages) {
-            onTotalPagesLoaded(totalPages);
-        }
-    }
-
-    private class UpdateExecutionListener extends DefaultSubscriber<Void> {
-        @Override
-        public void onError(Throwable e) {
-            Timber.e(e, "Update execution operation crashed");
-            handleErrorForPage(mCurrentPage, e);
-        }
-
-        @Override
-        public void onNext(Void Void) {
-            onExecutionUpdated();
-        }
-    }
-
-    private class ReloadReportListener extends DefaultSubscriber<Void> {
-        private final String mPage;
-
-        public ReloadReportListener(String page) {
-            mPage = page;
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            Timber.e(e, "Failed to reload report");
-            showErrorMessage(e);
-        }
-
-        @Override
-        public void onNext(Void aVoid) {
-            onReloadFinished(mPage);
-        }
     }
 }

@@ -128,6 +128,7 @@ import rx.subscriptions.CompositeSubscription;
 public class ReportViewerActivity extends RoboToolbarActivity
         implements ReportCallback,
         AbstractPaginationView.OnPageChangeListener,
+        AbstractPaginationView.OnPickerSelectedListener,
         GetInputControlsFragment.OnInputControlsListener,
         ReportView, PageDialogFragment.PageDialogClickListener,
         NumberDialogFragment.NumberDialogClickListener,

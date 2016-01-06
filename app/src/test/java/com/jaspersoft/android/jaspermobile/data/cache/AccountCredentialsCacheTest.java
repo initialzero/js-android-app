@@ -29,6 +29,7 @@ import android.accounts.AccountManager;
 
 import com.jaspersoft.android.jaspermobile.data.FakeAccount;
 import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountCredentialsCache;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
@@ -89,7 +90,7 @@ public class AccountCredentialsCacheTest {
         Account fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
 
         TestSubscriber<AppCredentials> test = new TestSubscriber<>();
-        cacheUnderTest.put(fakeProfile, fakeCredentials).subscribe(test);
+        cacheUnderTest.putAsObservable(fakeProfile, fakeCredentials).subscribe(test);
 
         assertThat("Password should be injected in cache",
                 "encrypted".equals(accountManager.getPassword(fakeAccount)));
@@ -109,7 +110,7 @@ public class AccountCredentialsCacheTest {
         );
 
         TestSubscriber<AppCredentials> test = new TestSubscriber<>();
-        cacheUnderTest.put(fakeProfile, fakeCredentials).subscribe(test);
+        cacheUnderTest.putAsObservable(fakeProfile, fakeCredentials).subscribe(test);
 
         PasswordManager.EncryptionException ex = (PasswordManager.EncryptionException) test.getOnErrorEvents().get(0);
         assertThat("Put operation should not save credentials if PasswordManager failed", ex, is(notNullValue()));
@@ -122,7 +123,7 @@ public class AccountCredentialsCacheTest {
                 .done();
 
         TestSubscriber<AppCredentials> test = new TestSubscriber<>();
-        cacheUnderTest.get(fakeProfile).subscribe(test);
+        cacheUnderTest.getAsObservable(fakeProfile).subscribe(test);
 
         AppCredentials credentials = test.getOnNextEvents().get(0);
         assertThat("Failed to retrieve password for profile " + fakeProfile,

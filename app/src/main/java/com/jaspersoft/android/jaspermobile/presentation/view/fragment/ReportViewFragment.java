@@ -34,39 +34,27 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.ConsoleMessage;
+import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.BackgroundThread;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.UIThread;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
-import com.jaspersoft.android.jaspermobile.data.mapper.ReportParamsTransformer;
-import com.jaspersoft.android.jaspermobile.data.repository.InMemoryReportRepository;
-import com.jaspersoft.android.jaspermobile.data.service.RestReportService;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
-import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
-import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportControlsCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportPageCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.GetReportTotalPagesCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.IsReportMultiPageCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.ReloadReportCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.RunReportExecutionCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.UpdateReportExecutionCaseSimple;
-import com.jaspersoft.android.jaspermobile.domain.repository.ReportRepository;
-import com.jaspersoft.android.jaspermobile.domain.service.ObservableReportService;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ReportActivityComponent;
+import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -74,27 +62,31 @@ import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
-import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
+import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListener;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.network.AuthorizedClient;
-import com.jaspersoft.android.sdk.service.report.ReportService;
+import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
-import roboguice.fragment.RoboFragment;
+import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
+
+import rx.Subscription;
+import rx.functions.Action1;
 
 /**
  * @author Tom Koptel
@@ -102,7 +94,7 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment(R.layout.report_html_viewer)
 @OptionsMenu({R.menu.report_filter_manager_menu, R.menu.webview_menu, R.menu.retrofit_report_menu})
-public class ReportViewFragment extends RoboFragment implements ReportView, NumberDialogFragment.NumberDialogClickListener, PageDialogFragment.PageDialogClickListener {
+public class ReportViewFragment extends BaseFragment implements ReportView, NumberDialogFragment.NumberDialogClickListener, PageDialogFragment.PageDialogClickListener {
 
     public static final String TAG = "report-view";
     private static final String MIME = "text/html";
@@ -138,23 +130,33 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     protected FavoritesHelper favoritesHelper;
 
     @Inject
-    protected JsRestClient jsRestClient;
+    protected JsRestClientWrapper mJsRestClientWrapper;
     @Inject
-    protected AuthorizedClient restClient;
+    protected Server mServer;
     @Inject
     protected ReportParamsStorage paramsStorage;
+    @Inject
+    protected ReportViewPresenter mPresenter;
+    @Inject
+    protected ReportActionListener mActionListener;
+    @Inject
+    protected PostExecutionThread mPostExecutionThread;
 
-    private ReportViewPresenter mPresenter;
-    private ReportActionListener mActionListener;
+    @InstanceState
+    protected ReportPageState mReportPageState;
+
     private Uri favoriteEntryUri;
     private Toast mToast;
 
     protected boolean filtersMenuItemVisibilityFlag, saveMenuItemVisibilityFlag;
+    private Subscription onPageChangeSubscription;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+        if (mReportPageState == null) {
+            mReportPageState = new ReportPageState();
+        }
         mToast = Toast.makeText(getActivity(), "", Toast.LENGTH_LONG);
         favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
     }
@@ -177,12 +179,17 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     private void setupPaginationControl() {
-        paginationControl.setOnPageChangeListener(new AbstractPaginationView.OnPageChangeListener() {
-            @Override
-            public void onPageSelected(int currentPage) {
-                mActionListener.loadPage(String.valueOf(currentPage));
-            }
-
+        onPageChangeSubscription = paginationControl.toRx()
+                .pagesChangeEvents()
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .observeOn(mPostExecutionThread.getScheduler())
+                .subscribe(new Action1<Integer>() {
+                    @Override
+                    public void call(Integer currentPage) {
+                        mActionListener.loadPage(String.valueOf(currentPage));
+                    }
+                });
+        paginationControl.setOnPickerSelectedListener(new AbstractPaginationView.OnPickerSelectedListener() {
             @Override
             public void onPagePickerRequested() {
                 if (paginationControl.isTotalPagesLoaded()) {
@@ -207,39 +214,8 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     }
 
     private void injectComponents() {
-        if (mPresenter != null) return;
-
-        RequestExceptionHandler exceptionHandler = new RequestExceptionHandler(getActivity());
-
-        String reportUri = resource.getUri();
-        ReportParamsTransformer paramsTransformer = new ReportParamsTransformer();
-        ReportService reportService = ReportService.newService(restClient);
-        ObservableReportService observableReportService = new RestReportService(jsRestClient, reportService);
-        ReportRepository reportRepository = new InMemoryReportRepository(reportUri, observableReportService, paramsStorage, paramsTransformer);
-
-        PreExecutionThread preExecutionThread = new BackgroundThread();
-        PostExecutionThread postExecutionThread = new UIThread();
-
-        GetReportControlsCase getReportControlsCase = new GetReportControlsCase(preExecutionThread, postExecutionThread, reportRepository);
-        GetReportPageCase getReportPageCase = new GetReportPageCase(preExecutionThread, postExecutionThread, reportRepository);
-        GetReportTotalPagesCase getReportTotalPagesCase = new GetReportTotalPagesCase(preExecutionThread, postExecutionThread, reportRepository);
-        IsReportMultiPageCase isReportMultiPageCase = new IsReportMultiPageCase(preExecutionThread, postExecutionThread, reportRepository);
-        RunReportExecutionCase runReportExecutionCase = new RunReportExecutionCase(preExecutionThread, postExecutionThread, reportRepository);
-        UpdateReportExecutionCaseSimple updateReportExecutionCase = new UpdateReportExecutionCaseSimple(preExecutionThread, postExecutionThread, reportRepository);
-        ReloadReportCase reloadReportCase = new ReloadReportCase(preExecutionThread, postExecutionThread, reportRepository);
-
-        mPresenter = new ReportViewPresenter(
-                exceptionHandler,
-                getReportControlsCase,
-                getReportPageCase,
-                getReportTotalPagesCase,
-                isReportMultiPageCase,
-                runReportExecutionCase,
-                updateReportExecutionCase,
-                reloadReportCase
-        );
-        mPresenter.setView(this);
-        mActionListener = mPresenter;
+        getComponent(ReportActivityComponent.class).inject(this);
+        mPresenter.injectView(this);
     }
 
     @Override
@@ -251,6 +227,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     @Override
     public void onPause() {
         super.onPause();
+        onPageChangeSubscription.unsubscribe();
         mPresenter.pause();
     }
 
@@ -287,7 +264,23 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
         progressBar.setVisibility(View.VISIBLE);
 
         SystemChromeClient systemChromeClient = SystemChromeClient.from(getActivity())
-                .withDelegateListener(new JasperChromeClientListenerImpl(progressBar));
+                .withDelegateListener(new JasperChromeClientListener() {
+                    @Override
+                    public void onProgressChanged(WebView webView, int progress) {
+                        int maxProgress = progressBar.getMax();
+                        if (progress == maxProgress) {
+                            progressBar.setVisibility(View.GONE);
+                            webView.setVisibility(View.VISIBLE);
+                        } else {
+                            progressBar.setVisibility(View.VISIBLE);
+                            webView.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onConsoleMessage(ConsoleMessage consoleMessage) {
+                    }
+                });
         WebViewEnvironment.configure(webView)
                 .withDefaultSettings()
                 .withChromeClient(systemChromeClient);
@@ -351,17 +344,12 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
 
     @Override
     public void showPage(String pageContent) {
-//        webView.loadDataWithBaseURL(restClient.getServerUrl(), pageContent, MIME, UTF_8, null);
+        webView.loadDataWithBaseURL(mServer.getBaseUrl(), pageContent, MIME, UTF_8, null);
     }
 
     @Override
-    public void showPaginationControl() {
-        paginationControl.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void hidePaginationControl() {
-        paginationControl.setVisibility(View.GONE);
+    public void setPaginationControlVisibility(boolean visibility) {
+        paginationControl.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -394,6 +382,17 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
         showNotification("Restoring report");
     }
 
+    @Override
+    public void showPageLoader() {
+        webView.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public ReportPageState getState() {
+        return mReportPageState;
+    }
+
     @OptionsItem
     final void saveReport() {
         if (FileUtils.isExternalStorageWritable()) {
@@ -423,7 +422,7 @@ public class ReportViewFragment extends RoboFragment implements ReportView, Numb
     final void printAction() {
         ResourcePrintJob job = JasperPrintJobFactory.createReportPrintJob(
                 getActivity(),
-                jsRestClient,
+                mJsRestClientWrapper.getClient(),
                 resource,
                 paramsStorage.getInputControlHolder(resource.getUri()).getReportParams()
         );

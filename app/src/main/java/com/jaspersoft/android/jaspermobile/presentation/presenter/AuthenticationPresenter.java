@@ -8,7 +8,7 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.data.network.RestErrorAdapter;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
-import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
@@ -34,7 +34,7 @@ import rx.Subscriber;
  * @since 2.3
  */
 @PerActivity
-public final class AuthenticationPresenter implements Presenter, ProfileActionListener {
+public final class AuthenticationPresenter implements Presenter<AuthenticationView>, ProfileActionListener {
     private final Context mContext;
     private AuthenticationView mView;
 
@@ -54,7 +54,8 @@ public final class AuthenticationPresenter implements Presenter, ProfileActionLi
         mRestErrorAdapter = restErrorAdapter;
     }
 
-    public void setView(AuthenticationView view) {
+    @Override
+    public void injectView(AuthenticationView view) {
         mView = view;
     }
 

@@ -30,13 +30,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
 
+import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
@@ -47,8 +49,8 @@ import static org.junit.Assert.assertThat;
  * @author Tom Koptel
  * @since 2.1
  */
-@RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class InfoProviderTest {
     private static final String ALIAS_KEY = "ALIAS_KEY";
     private static final String SERVER_URL_KEY = "SERVER_URL_KEY";
@@ -64,6 +66,8 @@ public class InfoProviderTest {
 
     @Before
     public void setup() {
+        Settings.Secure.putString(RuntimeEnvironment.application.getContentResolver(), Settings.Secure.ANDROID_ID, "ROBOLECTRICYOUAREBAD");
+
         Context context = RuntimeEnvironment.application;
 
         fakeAccount = new Account("TEST", "com.jaspersoft");

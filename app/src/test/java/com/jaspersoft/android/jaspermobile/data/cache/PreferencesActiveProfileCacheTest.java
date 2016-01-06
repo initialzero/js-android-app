@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.data.cache;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
+import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import org.junit.Before;
@@ -75,7 +76,7 @@ public class PreferencesActiveProfileCacheTest {
         store.edit().putString("ACCOUNT_NAME_KEY", "name").apply();
 
         TestSubscriber<Profile> test = new TestSubscriber<>();
-        cacheUnderTest.get().subscribe(test);
+        cacheUnderTest.getAsObservable().subscribe(test);
         Profile profile = test.getOnNextEvents().get(0);
 
         assertThat("Failed to retrieve " + fakeProfile + " back",

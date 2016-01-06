@@ -28,7 +28,7 @@ import com.jaspersoft.android.jaspermobile.data.network.RestErrorAdapter;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
-import com.jaspersoft.android.jaspermobile.domain.interactor.SaveProfileUseCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
 import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
@@ -97,7 +97,7 @@ public class AuthenticationPresenterTest {
                 profileFormValidation,
                 mRestErrorAdapter
         );
-        presenterUnderTest.setView(mAuthenticationView);
+        presenterUnderTest.injectView(mAuthenticationView);
 
         when(mForm.getProfile()).thenReturn(mProfile);
         when(mForm.getCredentials()).thenReturn(mCredentials);

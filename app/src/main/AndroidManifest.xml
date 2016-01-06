@@ -214,7 +214,7 @@
 
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
-            android:name=".network.XmlSpiceService"
+            android:name=".network.AppSpiceService"
             android:exported="false" />
 
         <service android:name="com.google.android.gms.analytics.AnalyticsService"

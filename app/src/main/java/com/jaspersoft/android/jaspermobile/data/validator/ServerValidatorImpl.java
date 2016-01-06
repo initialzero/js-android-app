@@ -28,7 +28,6 @@ import com.jaspersoft.android.jaspermobile.data.entity.mapper.JasperServerMapper
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.jaspersoft.android.sdk.service.rx.info.RxServerInfoService;
@@ -44,7 +43,6 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
 public final class ServerValidatorImpl implements ServerValidator {
     private final JasperServerMapper mServerMapper;
     private final RxServerInfoService mRxServerInfoService;

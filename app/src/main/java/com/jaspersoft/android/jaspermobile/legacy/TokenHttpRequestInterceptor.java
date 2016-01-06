@@ -1,32 +1,12 @@
-/*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- * http://community.jaspersoft.com/project/jaspermobile-android
- *
- * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
- * the following license terms apply:
- *
- * This program is part of TIBCO Jaspersoft Mobile for Android.
- *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>.
- */
-
 package com.jaspersoft.android.jaspermobile.legacy;
 
-import android.content.Context;
-
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.sdk.network.AnonymousClient;
+import com.jaspersoft.android.sdk.network.Credentials;
+import com.jaspersoft.android.sdk.network.HttpException;
+import com.jaspersoft.android.sdk.network.Server;
+import com.jaspersoft.android.sdk.network.SpringCredentials;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
@@ -35,41 +15,52 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
+import java.net.CookieManager;
 
 /**
- * For description of flow refer to http://code2flow.com/uyFdCJ
- *
  * @author Tom Koptel
- * @since 2.0
+ * @since 2.3
  */
-public class TokenHttpRequestInterceptor implements ClientHttpRequestInterceptor {
-    private static final String COOKIE = "Cookie";
+final class TokenHttpRequestInterceptor implements ClientHttpRequestInterceptor {
+    private final JsRestClientWrapper mJsRestClientWrapper;
 
-    private final Context mContext;
-
-    public TokenHttpRequestInterceptor(Context mContext) {
-        this.mContext = mContext;
+    public TokenHttpRequestInterceptor(JsRestClientWrapper jsRestClientWrapper) {
+        mJsRestClientWrapper = jsRestClientWrapper;
     }
 
     @Override
-    public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        JasperAccountManager manager = JasperAccountManager.get(mContext);
+    public ClientHttpResponse intercept(HttpRequest request,
+                                        byte[] body,
+                                        ClientHttpRequestExecution execution) throws IOException {
+        ClientHttpResponse firstResponse = execution.execute(request, body);
+        HttpStatus firstStatus = firstResponse.getStatusCode();
+        if (firstStatus == HttpStatus.UNAUTHORIZED) {
+            JsRestClient jsRestClient = mJsRestClientWrapper.getClient();
+            JsServerProfile profile = jsRestClient.getServerProfile();
+            Server server = Server.builder()
+                    .withBaseUrl(profile.getServerUrl() + "/")
+                    .build();
+            AnonymousClient client = server.newClient()
+                    .withCookieHandler(CookieManager.getDefault())
+                    .create();
 
-        String token = manager.getActiveAuthToken();
-        request.getHeaders().add(COOKIE, token);
-        ClientHttpResponse response = execution.execute(request, body);
-        HttpStatus status = response.getStatusCode();
+            Credentials credentials = SpringCredentials.builder()
+                    .withPassword(profile.getPassword())
+                    .withUsername(profile.getUsername())
+                    .withOrganization(profile.getOrganization())
+                    .build();
+            try {
+                client.authenticationApi().authenticate(credentials);
+            } catch (HttpException e) {
+                return firstResponse;
+            }
 
-        // Token expired
-        if (status == HttpStatus.UNAUTHORIZED) {
-            manager.invalidateActiveToken();
-            token = manager.getActiveAuthToken();
-            request.getHeaders().remove(COOKIE);
-            request.getHeaders().add(COOKIE, token);
-            response = execution.execute(request, body);
+            ClientHttpResponse secondResponse = execution.execute(request, body);
+            HttpStatus secondStatus = firstResponse.getStatusCode();
+            if (secondStatus == HttpStatus.UNAUTHORIZED) {
+                return secondResponse;
+            }
         }
-
-        return response;
+        return firstResponse;
     }
-
 }

@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
 
 /**

@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.data.validator;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.CredentialsMapper;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.sdk.network.Credentials;
 import com.jaspersoft.android.sdk.service.rx.auth.RxAuthorizationService;
 
@@ -42,7 +41,6 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
 public final class CredentialsValidatorImpl implements CredentialsValidator {
 
     private final RxAuthorizationService mAuthorizationService;

@@ -24,7 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.repository.profile.CredentialsDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
@@ -65,7 +66,7 @@ public class CredentialsDataRepositoryTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        repoUnderTest = new CredentialsDataRepository(mCredentialsCache, mCredentialsValidator);
+        repoUnderTest = new CredentialsDataRepository(mCredentialsCache);
         fakeProfile = Profile.create("name");
         fakeCredentials = AppCredentials.builder()
                 .setPassword("1234")
@@ -73,8 +74,8 @@ public class CredentialsDataRepositoryTest {
                 .create();
 
         when(mCredentialsValidator.validate(any(AppCredentials.class))).thenReturn(Observable.just(fakeCredentials));
-        when(mCredentialsCache.put(any(Profile.class), any(AppCredentials.class))).thenReturn(Observable.just(fakeCredentials));
-        when(mCredentialsCache.get(any(Profile.class))).thenReturn(Observable.just(fakeCredentials));
+        when(mCredentialsCache.putAsObservable(any(Profile.class), any(AppCredentials.class))).thenReturn(Observable.just(fakeCredentials));
+        when(mCredentialsCache.getAsObservable(any(Profile.class))).thenReturn(Observable.just(fakeCredentials));
     }
 
     @Test
@@ -83,7 +84,7 @@ public class CredentialsDataRepositoryTest {
         repoUnderTest.saveCredentials(fakeProfile, fakeCredentials).subscribe(test);
         test.assertNoErrors();
 
-        verify(mCredentialsCache).put(fakeProfile, fakeCredentials);
+        verify(mCredentialsCache).putAsObservable(fakeProfile, fakeCredentials);
         verifyNoMoreInteractions(mCredentialsCache);
     }
 
@@ -93,12 +94,12 @@ public class CredentialsDataRepositoryTest {
         repoUnderTest.getCredentials(fakeProfile).subscribe(test);
         test.assertNoErrors();
 
-        verify(mCredentialsCache).get(fakeProfile);
+        verify(mCredentialsCache).getAsObservable(fakeProfile);
     }
 
     @Test
     public void testSaveCredentialsEncountersEncryptionError() throws Exception {
-        when(mCredentialsCache.put(any(Profile.class), any(AppCredentials.class)))
+        when(mCredentialsCache.putAsObservable(any(Profile.class), any(AppCredentials.class)))
                 .thenReturn(Observable.<AppCredentials>error(new PasswordManager.EncryptionException(null)));
 
         TestSubscriber<Profile> test = new TestSubscriber<>();
@@ -110,7 +111,7 @@ public class CredentialsDataRepositoryTest {
 
     @Test
     public void should_contain_error_if_decryption_failed() throws Exception {
-        when(mCredentialsCache.get(any(Profile.class)))
+        when(mCredentialsCache.getAsObservable(any(Profile.class)))
                 .thenReturn(Observable.<AppCredentials>error(new PasswordManager.DecryptionException(null)));
 
         TestSubscriber<AppCredentials> test = new TestSubscriber<>();

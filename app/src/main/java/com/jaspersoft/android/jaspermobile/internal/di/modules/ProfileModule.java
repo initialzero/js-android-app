@@ -1,41 +1,25 @@
-/*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
- * http://community.jaspersoft.com/project/jaspermobile-android
- *
- * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
- * the following license terms apply:
- *
- * This program is part of TIBCO Jaspersoft Mobile for Android.
- *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
- * <http://www.gnu.org/licenses/lgpl>.
- */
-
 package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
-import com.jaspersoft.android.jaspermobile.data.cache.AccountProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ActiveProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.PreferencesActiveProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
-import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
-import com.jaspersoft.android.jaspermobile.data.repository.ProfileDataRepository;
-import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
-import com.jaspersoft.android.jaspermobile.domain.repository.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
+import android.content.Context;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.ServerCache;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.sdk.network.AuthorizedClient;
+import com.jaspersoft.android.sdk.network.Credentials;
+import com.jaspersoft.android.sdk.network.Server;
+import com.jaspersoft.android.sdk.network.SpringCredentials;
+import com.jaspersoft.android.sdk.service.report.ReportService;
+import com.jaspersoft.android.sdk.service.rx.report.RxFiltersService;
+import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
+
+import java.net.CookieManager;
+import java.util.concurrent.TimeUnit;
 
 import dagger.Module;
 import dagger.Provides;
@@ -46,34 +30,60 @@ import dagger.Provides;
  */
 @Module
 public final class ProfileModule {
+    private final Profile mProfile;
 
-    @Singleton
-    @Provides
-    ProfileRepository providesProfileRepository(ProfileDataRepository dataRepository) {
-        return dataRepository;
+    public ProfileModule(Profile profile) {
+        mProfile = profile;
     }
 
-    @Singleton
+
     @Provides
-    AccountDataMapper providesAccountDataMapper(@Named("accountType") String accountType) {
-        return new AccountDataMapper(accountType);
+    @PerProfile
+    Server provideServer(Context context, ServerCache serverCache) {
+        JasperServer server = serverCache.get(mProfile);
+
+        DefaultPrefHelper prefHelper = DefaultPrefHelper_.getInstance_(context);
+        int connectTimeout = prefHelper.getConnectTimeoutValue();
+        int readTimeout = prefHelper.getReadTimeoutValue();
+
+        return Server.builder()
+                .withBaseUrl(server.getBaseUrl() + "/")
+                .withConnectionTimeOut(connectTimeout, TimeUnit.MILLISECONDS)
+                .withReadTimeout(readTimeout, TimeUnit.MILLISECONDS)
+                .build();
     }
 
-    @Singleton
     @Provides
-    ActiveProfileCache providesPreferencesProfileCache(PreferencesActiveProfileCache profileCache) {
-        return profileCache;
+    @PerProfile
+    ReportService provideReportService(AuthorizedClient authorizedClient) {
+        return ReportService.newService(authorizedClient);
     }
 
-    @Singleton
     @Provides
-    ProfileCache providesProfileAccountCache(AccountProfileCache profileCache) {
-        return profileCache;
+    @PerProfile
+    RxReportService provideRxReportService(AuthorizedClient authorizedClient) {
+        return RxReportService.newService(authorizedClient);
     }
 
-    @Singleton
     @Provides
-    ProfileValidator provideProfileValidator(ProfileValidatorImpl profileValidator) {
-        return profileValidator;
+    @PerProfile
+    RxFiltersService provideRxFiltersService(AuthorizedClient authorizedClient) {
+        return RxFiltersService.newService(authorizedClient);
     }
+
+    @Provides
+    @PerProfile
+    AuthorizedClient provideAuthorizedClient(Server server, CredentialsCache credentialsCache) {
+        AppCredentials appCredentials = credentialsCache.get(mProfile);
+        Credentials credentials = SpringCredentials.builder()
+                .withUsername(appCredentials.getUsername())
+                .withPassword(appCredentials.getPassword())
+                .withOrganization(appCredentials.getOrganization())
+                .build();
+
+        return server.newClient(credentials)
+                .withCookieHandler(CookieManager.getDefault())
+                .create();
+    }
+
 }

@@ -33,21 +33,12 @@ import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializerImpl;
-import com.jaspersoft.android.jaspermobile.legacy.TokenHttpRequestInterceptor;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.network.AuthorizedClient;
-import com.jaspersoft.android.sdk.network.Server;
-import com.jaspersoft.android.sdk.util.KeepAliveHttpRequestInterceptor;
-import com.jaspersoft.android.sdk.util.LocalesHttpRequestInterceptor;
 
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-
-import java.net.CookieStore;
-import java.util.ArrayList;
-import java.util.List;
+import javax.inject.Inject;
 
 /**
  * @author Ivan Gadzhega
@@ -57,22 +48,21 @@ import java.util.List;
 public class JasperMobileModule extends AbstractModule {
     private final Context mContext;
 
+    @Inject
+    JsRestClientWrapper mJsRestClientWrapper;
+
     public JasperMobileModule(Application application) {
         super();
         mContext = application;
+        JasperMobileApplication.get(mContext)
+                .getComponent()
+                .inject(this);
     }
 
     @Override
     protected void configure() {
-        JsRestClient jsRestClient = JsRestClient.builder().setDataType(JsRestClient.DataType.JSON).build();
-        List<ClientHttpRequestInterceptor> interceptors = new ArrayList<ClientHttpRequestInterceptor>();
-        interceptors.add(new LocalesHttpRequestInterceptor());
-        interceptors.add(new TokenHttpRequestInterceptor(mContext));
-        interceptors.add(new KeepAliveHttpRequestInterceptor());
-        jsRestClient.setRequestInterceptors(interceptors);
-        jsRestClient.setConnectTimeout(DefaultPrefHelper_.getInstance_(mContext).getConnectTimeoutValue());
-        jsRestClient.setReadTimeout(DefaultPrefHelper_.getInstance_(mContext).getReadTimeoutValue());
-        bind(JsRestClient.class).toInstance(jsRestClient);
+        bind(JsRestClientWrapper.class).toInstance(mJsRestClientWrapper);
+        bind(JsRestClient.class).toInstance(mJsRestClientWrapper.getClient());
 
         int animationSpeed = mContext.getResources().getInteger(
                 android.R.integer.config_longAnimTime);

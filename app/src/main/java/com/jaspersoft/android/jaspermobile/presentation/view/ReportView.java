@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.view;
 
+import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
+
 /**
  * @author Tom Koptel
  * @since 2.3
@@ -39,9 +41,7 @@ public interface ReportView extends LoadDataView {
 
     void showPage(String pageContent);
 
-    void showPaginationControl();
-
-    void hidePaginationControl();
+    void setPaginationControlVisibility(boolean visibility);
 
     void resetPaginationControl();
 
@@ -54,4 +54,8 @@ public interface ReportView extends LoadDataView {
     void showEmptyPageMessage();
 
     void showReloadMessage();
+
+    void showPageLoader();
+
+    ReportPageState getState();
 }

@@ -32,8 +32,10 @@ import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
+import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
@@ -51,9 +53,11 @@ import java.net.UnknownHostException;
  * @author Ivan Gadzhega
  * @since 1.6
  */
+@PerActivity
 public class RequestExceptionHandler {
     private final Context mContext;
 
+    @Inject
     public RequestExceptionHandler(Context context) {
         mContext = context;
     }

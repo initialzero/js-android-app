@@ -24,8 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.ActiveProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
+import com.jaspersoft.android.jaspermobile.data.repository.profile.ProfileDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import org.junit.Before;

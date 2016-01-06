@@ -34,7 +34,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.AppModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import javax.inject.Inject;

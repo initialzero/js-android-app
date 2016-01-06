@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
-import com.jaspersoft.android.jaspermobile.data.cache.ProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;

@@ -89,6 +89,8 @@
         this.onReportExecution = bind(this.onReportExecution, this);
         this.onReferenceClick = bind(this.onReferenceClick, this);
         this.onPageChange = bind(this.onPageChange, this);
+        this.onBookmarksReady = bind(this.onBookmarksReady, this);
+        this.onPartsReady = bind(this.onPartsReady, this);
         this.onTotalPagesLoaded = bind(this.onTotalPagesLoaded, this);
         this.onReportCompleted = bind(this.onReportCompleted, this);
         this.onLoadError = bind(this.onLoadError, this);
@@ -140,6 +142,18 @@
           return Android.onPageChange(page);
         });
       };
+
+      ReportCallback.prototype.onBookmarksReady = function(bookmarks) {
+         this.dispatch(function() {
+           return Android.onBookmarksReady(bookmarks);
+        });
+      };
+
+       ReportCallback.prototype.onPartsReady = function(parts) {
+         this.dispatch(function() {
+            return Android.onPartsReady(parts);
+         });
+       };
 
       ReportCallback.prototype.onReferenceClick = function(location) {
         this.dispatch(function() {
@@ -334,6 +348,8 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         this._processSuccess = bind(this._processSuccess, this);
         this._processMultipageState = bind(this._processMultipageState, this);
         this._processCurrentPageChanged = bind(this._processCurrentPageChanged, this);
+        this._processBookmarksReady = bind(this._processBookmarksReady, this);
+        this._processPartsReady = bind(this._processPartsReady, this);
         this._processReportComplete = bind(this._processReportComplete, this);
         this._getChartTypeList = bind(this._getChartTypeList, this);
         this._updateComponent = bind(this._updateComponent, this);
@@ -470,7 +486,9 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
           error: this._processErrors,
           events: {
             reportCompleted: this._processReportComplete,
-            changePagesState: this._processCurrentPageChanged
+            changePagesState: this._processCurrentPageChanged,
+            bookmarksReady : this._processBookmarksReady,
+            reportPartsReady: this._processPartsReady
           },
           success: (function(_this) {
             return function(parameters) {
@@ -631,6 +649,16 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       ReportController.prototype._processCurrentPageChanged = function(page) {
         js_mobile.log("Current page changed: " + page);
         return this.callback.onPageChange(page);
+      };
+
+      ReportController.prototype._processBookmarksReady = function(bookmarks) {
+         js_mobile.log("Bookmarks list ready: " + bookmarks.length);
+         return this.callback.onBookmarksReady(JSON.stringify(bookmarks));
+      };
+
+      ReportController.prototype._processPartsReady = function(parts) {
+         js_mobile.log("Report parts list ready: " + parts.length);
+         return this.callback.onPartsReady(JSON.stringify(parts));
       };
 
       ReportController.prototype._processMultipageState = function(isMultipage) {

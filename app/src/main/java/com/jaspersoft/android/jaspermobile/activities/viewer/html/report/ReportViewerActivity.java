@@ -564,6 +564,18 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @UiThread
     @Override
+    public void onBookmarksReady(String bookmarks) {
+        Toast.makeText(this, bookmarks, Toast.LENGTH_SHORT).show();
+    }
+
+    @UiThread
+    @Override
+    public void onPartsReady(String parts) {
+        Toast.makeText(this, parts, Toast.LENGTH_SHORT).show();
+    }
+
+    @UiThread
+    @Override
     public void onPageLoadError(String errorMessage, int page) {
         paginationControl.updateCurrentPage(page);
         paginationControl.setEnabled(true);

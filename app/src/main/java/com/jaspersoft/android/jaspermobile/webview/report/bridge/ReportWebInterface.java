@@ -134,6 +134,28 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
 
     @JavascriptInterface
     @Override
+    public void onBookmarksReady(final String bookmarks) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onBookmarksReady(bookmarks);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onPartsReady(final String parts) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onPartsReady(parts);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @Override
     public void onReferenceClick(final String type) {
         handleCallback(new Runnable() {
             @Override

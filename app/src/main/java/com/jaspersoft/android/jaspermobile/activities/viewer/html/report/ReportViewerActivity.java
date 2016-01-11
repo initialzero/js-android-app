@@ -30,6 +30,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -41,9 +42,11 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
@@ -58,6 +61,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.dialog.BookmarksDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
@@ -76,6 +80,8 @@ import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
+import com.jaspersoft.android.jaspermobile.visualize.ReportBookmark;
+import com.jaspersoft.android.jaspermobile.visualize.ReportPart;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.ErrorWebViewClientListener;
@@ -100,7 +106,6 @@ import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
@@ -118,6 +123,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +131,6 @@ import java.util.concurrent.TimeUnit;
 
 import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
@@ -142,7 +147,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
         GetInputControlsFragment.OnInputControlsListener,
         ReportView, PageDialogFragment.PageDialogClickListener,
         NumberDialogFragment.NumberDialogClickListener,
-        ErrorWebViewClientListener.OnWebViewErrorListener {
+        ErrorWebViewClientListener.OnWebViewErrorListener,
+        BookmarksDialogFragment.BookmarksDialogClickListener {
 
     @Bean
     protected JSWebViewClient jsWebViewClient;
@@ -165,6 +171,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected ProgressBar progressBar;
     @ViewById
     protected PaginationBarView paginationControl;
+    @ViewById(R.id.reportParts)
+    protected TabLayout reportTabParts;
 
     @Extra
     protected ResourceLookup resource;
@@ -182,6 +190,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected MenuItem printAction;
     @OptionsMenuItem
     protected MenuItem refreshAction;
+    @OptionsMenuItem
+    protected MenuItem bookmarksAction;
 
     @Inject
     protected ReportParamsStorage paramsStorage;
@@ -198,6 +208,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private JasperChromeClientListenerImpl chromeClientListener;
     private WebInterface mWebInterface;
     private boolean isFlowLoaded;
+    private List<ReportBookmark> mReportBookmarks;
+    private List<ReportPart> mReportParts;
 
     private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
@@ -283,6 +295,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.debug, menu);
         }
+
+        bookmarksAction.setVisible(mReportBookmarks != null);
 
         return result;
     }
@@ -419,6 +433,13 @@ public class ReportViewerActivity extends RoboToolbarActivity
         JasperPrinter.print(job);
     }
 
+    @OptionsItem
+    final void bookmarksAction() {
+        BookmarksDialogFragment.createBuilder(getSupportFragmentManager())
+                .setBookmarksList((ArrayList<ReportBookmark>) mReportBookmarks)
+                .show();
+    }
+
     //---------------------------------------------------------------------
     // Input controls loading callbacks
     //---------------------------------------------------------------------
@@ -499,6 +520,11 @@ public class ReportViewerActivity extends RoboToolbarActivity
         }
     }
 
+    @Override
+    public void onBookmarkSelected(ReportBookmark reportBookmark) {
+        goToBookmark(reportBookmark.getAnchor());
+    }
+
     //---------------------------------------------------------------------
     // Javascript callbacks
     //---------------------------------------------------------------------
@@ -560,18 +586,32 @@ public class ReportViewerActivity extends RoboToolbarActivity
     public void onPageChange(int page) {
         paginationControl.updateCurrentPage(page);
         paginationControl.setEnabled(true);
+
+        for (int i = mReportParts.size() - 1; i >= 0; i--) {
+            if (page >= mReportParts.get(i).getPage()) {
+                TabLayout.Tab tab = reportTabParts.getTabAt(i);
+                reportTabParts.setOnTabSelectedListener(null);
+                tab.select();
+                reportTabParts.setOnTabSelectedListener(new ReportPartSelectListener());
+                break;
+            }
+        }
     }
 
     @UiThread
     @Override
     public void onBookmarksReady(String bookmarks) {
-        Toast.makeText(this, bookmarks, Toast.LENGTH_SHORT).show();
+        ReportBookmark[] reportBookmarksArray = new Gson().fromJson(bookmarks, ReportBookmark[].class);
+        mReportBookmarks = new ArrayList<>(Arrays.asList(reportBookmarksArray));
+        invalidateOptionsMenu();
     }
 
     @UiThread
     @Override
     public void onPartsReady(String parts) {
-        Toast.makeText(this, parts, Toast.LENGTH_SHORT).show();
+        ReportPart[] reportBookmarksArray = new Gson().fromJson(parts, ReportPart[].class);
+        mReportParts = new ArrayList<>(Arrays.asList(reportBookmarksArray));
+        updateReportPartsTab();
     }
 
     @UiThread
@@ -796,8 +836,50 @@ public class ReportViewerActivity extends RoboToolbarActivity
         webView.loadUrl(String.format("javascript:MobileReport.selectPage(%d)", page));
     }
 
+    private void goToBookmark(String bookmarkAnchor) {
+        webView.loadUrl(String.format("javascript:MobileReport.goToBookmark(\"%s\")", bookmarkAnchor));
+    }
+
     private void exposeError(String error) {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
         showErrorView(error);
+    }
+
+    private void updateReportPartsTab() {
+        reportTabParts.setVisibility(mReportParts.isEmpty() ? View.GONE : View.VISIBLE);
+
+        if (mReportParts.isEmpty()) return;
+
+        reportTabParts.setOnTabSelectedListener(null);
+
+        int selected = reportTabParts.getSelectedTabPosition();
+        reportTabParts.removeAllTabs();
+        for (ReportPart reportPart : mReportParts) {
+            reportTabParts.addTab(reportTabParts.newTab().setText(reportPart.getName()));
+        }
+        if (selected != -1) {
+            reportTabParts.getTabAt(selected).select();
+        }
+
+        reportTabParts.setOnTabSelectedListener(new ReportPartSelectListener());
+    }
+
+    private class ReportPartSelectListener implements TabLayout.OnTabSelectedListener {
+
+        @Override
+        public void onTabSelected(TabLayout.Tab tab) {
+            int selectedPage = mReportParts.get(tab.getPosition()).getPage();
+            onPageSelected(selectedPage);
+        }
+
+        @Override
+        public void onTabUnselected(TabLayout.Tab tab) {
+
+        }
+
+        @Override
+        public void onTabReselected(TabLayout.Tab tab) {
+
+        }
     }
 }

@@ -397,6 +397,11 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         return this.report.params(parameters).run().done(this._processSuccess).fail(this._processErrors);
       };
 
+      ReportController.prototype.goToBookmark = function(bookmarkAnchor) {
+        js_mobile.log("go to bookmark");
+        return this.report.pages({anchor: bookmarkAnchor}).run().done(this._processSuccess).fail(this._processErrors);
+      };
+
       ReportController.prototype.selectPage = function(page) {
         if (this.report != null) {
           return this.report.pages(page).run().done(this._notifyPageChange).fail(this._notifyPageChangeError);
@@ -487,8 +492,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
           events: {
             reportCompleted: this._processReportComplete,
             changePagesState: this._processCurrentPageChanged,
-            bookmarksReady : this._processBookmarksReady,
-            reportPartsReady: this._processPartsReady
+            bookmarksReady : this._processBookmarksReady
           },
           success: (function(_this) {
             return function(parameters) {
@@ -643,6 +647,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       ReportController.prototype._processReportComplete = function(status, error) {
         js_mobile.log("onReportCompleted");
+        this._processPartsReady(this.report.data().reportParts);
         return this.callback.onReportCompleted(status, this.report.data().totalPages, error);
       };
 
@@ -833,6 +838,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         return this._instance._applyReportParams(params);
       };
 
+      MobileReport.goToBookmark = function(bookmarkAnchor) {
+        return this._instance._goToBookmark(bookmarkAnchor);
+      };
+
       MobileReport.updateComponent = function(chartType) {
         return this._instance._updateComponent(chartType);
       };
@@ -882,6 +891,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       MobileReport.prototype._applyReportParams = function(params) {
         return this._controller.applyReportParams(params);
+      };
+
+      MobileReport.prototype._goToBookmark = function(bookmarkAnchor) {
+        return this._controller.goToBookmark(bookmarkAnchor);
       };
 
       MobileReport.prototype._updateComponent = function(chartType) {

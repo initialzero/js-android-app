@@ -44,4 +44,9 @@
         android:title="@string/r_cm_view_details"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/bookmarksAction"
+        android:title="Bookmarks"
+        app:showAsAction="never" />
+
 </menu>

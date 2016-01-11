@@ -25,51 +25,65 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:layout_height="match_parent">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal" />
+    <android.support.design.widget.TabLayout
+        android:id="@+id/reportParts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?colorPrimary"
+        android:visibility="gone"/>
 
-    <com.jaspersoft.android.jaspermobile.widget.JSWebView
-        android:id="@+id/webView"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/paginationControl"
-        android:layout_below="@id/progressBar"
-        android:visibility="invisible" />
+        android:background="@android:color/white"
+        android:layout_below="@+id/reportParts">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center">
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal" />
 
-        <TextView
-            android:id="@android:id/empty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:textColor="@android:color/black"
-            tools:text="@string/rv_error_empty_report"
+        <com.jaspersoft.android.jaspermobile.widget.JSWebView
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/paginationControl"
+            android:layout_below="@id/progressBar"
+            android:visibility="invisible" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@android:id/empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:textColor="@android:color/black"
+                android:visibility="gone"
+                tools:text="@string/rv_error_empty_report" />
+
+            <Button
+                android:id="@+id/reload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rv_dialog_reload"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView_
+            android:id="@+id/paginationControl"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:layout_alignParentBottom="true"
+            android:background="#454850"
+            android:padding="4dp"
             android:visibility="gone" />
 
-        <Button
-            android:id="@+id/reload"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/rv_dialog_reload"
-            android:visibility="gone" />
-    </LinearLayout>
-
-    <com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView_
-        android:id="@+id/paginationControl"
-        android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
-        android:layout_alignParentBottom="true"
-        android:background="#454850"
-        android:padding="4dp"
-        android:visibility="gone" />
+    </RelativeLayout>
 
 </RelativeLayout>

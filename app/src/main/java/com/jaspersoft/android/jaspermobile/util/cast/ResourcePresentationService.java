@@ -25,23 +25,32 @@
 package com.jaspersoft.android.jaspermobile.util.cast;
 
 import android.accounts.Account;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
+import android.widget.RemoteViews;
 
 import com.google.android.gms.cast.CastPresentation;
 import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
@@ -94,6 +103,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     @Inject
     private ReportParamsStorage paramsStorage;
     private ReportPresentation mPresentation;
+    private String mCastDeviceName;
     private ArrayList<ResourcePresentationCallback> mReportPresentationListeners;
     private ResourceLookup mCurrentResource;
     private int mState;
@@ -125,7 +135,11 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             mPresentation.dismiss();
             mPresentation = null;
         }
-        mState = IDLE;
+        changeState(IDLE);
+    }
+
+    public void setCastDeviceName(String castDeviceName) {
+        this.mCastDeviceName = castDeviceName;
     }
 
     public static boolean isStarted() {
@@ -134,6 +148,13 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
     public boolean isPresenting() {
         return mState == PRESENTING;
+    }
+
+    private void updateCastNotification() {
+        NotificationSettings notificationSettings = new NotificationSettings.Builder()
+                .setNotification(createCastNotification())
+                .build();
+        updateNotificationSettings(notificationSettings);
     }
 
     public void synchronizeState(ResourceLookup resourceLookup, ResourcePresentationCallback resourcePresentationCallback) {
@@ -236,6 +257,11 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     // Helper methods
     //---------------------------------------------------------------------
 
+    private void changeState(int state) {
+        mState = state;
+        updateCastNotification();
+    }
+
     private void clearReportParams() {
         if (mCurrentResource != null) {
             paramsStorage.clearInputControlHolder(mCurrentResource.getUri());
@@ -245,7 +271,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     private void resetPresentation() {
         mPresentation.hideLoading();
         mPresentation.hideReport();
-        mState = INITIALIZED;
+        changeState(INITIALIZED);
     }
 
     private void handleError(String error) {
@@ -253,6 +279,49 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         for (ResourcePresentationCallback reportPresentationListener : mReportPresentationListeners) {
             reportPresentationListener.onErrorOccurred(error);
         }
+    }
+
+    private Notification createCastNotification() {
+        NotificationCompat.Builder castNotificationBuilder = new NotificationCompat.Builder(this);
+
+        Intent intent = NavigationActivity_.intent(this).get();
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        String title;
+
+        switch (mState) {
+            case IDLE:
+                title = getString(R.string.r_pd_initializing_msg);
+                break;
+            case INITIALIZED:
+                title = getString(R.string.cast_ready_message);
+                break;
+            case LOADING:
+                title = getString(R.string.r_pd_running_report_msg);
+                break;
+            case PRESENTING:
+                title = getCurrentResourceLabel();
+                intent = ReportCastActivity_.intent(this).resource(mCurrentResource).get();
+
+                castNotificationBuilder
+                        .addAction(R.drawable.ic_menu_stop, "", PendingIntent.getBroadcast(this, 0, new Intent(getString(R.string.resource_cast_cancel_intent)), 0))
+                        .setLargeIcon(getCurrentResourceThumbnail())
+                        .setStyle(new NotificationCompat.MediaStyle()
+                                .setShowActionsInCompactView(0));
+                break;
+            default:
+                title = getString(R.string.r_pd_initializing_msg);
+        }
+
+        castNotificationBuilder.setSmallIcon(R.drawable.im_logo_single)
+                .setWhen(0)
+                .setContentTitle(title)
+                .setContentText(mCastDeviceName)
+                .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0));
+
+        castNotificationBuilder.addAction(R.drawable.ic_menu_close, "", PendingIntent.getBroadcast(this, 0, new Intent(getString(R.string.resource_presentation_stop_intent)), 0));
+
+        return castNotificationBuilder.build();
     }
 
     //---------------------------------------------------------------------
@@ -501,7 +570,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                 public void run() {
                     hideLoading();
 
-                    mState = INITIALIZED;
+                    changeState(INITIALIZED);
                     for (ResourcePresentationCallback reportPresentationListener : mReportPresentationListeners) {
                         reportPresentationListener.onInitializationDone();
                     }
@@ -516,7 +585,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                 public void run() {
                     mPresentation.showLoading();
 
-                    mState = LOADING;
+                    changeState(LOADING);
                     mCurrentPage = 1;
                     mPageCount = -1;
 
@@ -537,7 +606,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                     mPresentation.hideLoading();
                     mPresentation.showReport();
 
-                    mState = PRESENTING;
+                    changeState(PRESENTING);
 
                     for (ResourcePresentationCallback reportPresentationListener : mReportPresentationListeners) {
                         reportPresentationListener.onPresentationBegun();

@@ -25,13 +25,16 @@
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.MediaRouteActionProvider;
-import android.support.v7.app.MediaRouteDialogFactory;
-import android.support.v7.media.MediaRouteProvider;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.view.Menu;
@@ -64,7 +67,6 @@ public abstract class RoboCastActivity extends RoboToolbarActivity {
 
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mMediaRouteSelector;
-    private CastDevice mSelectedCastDevice;
     private MediaRouter.Callback mMediaRouterCallback;
 
     @Override
@@ -114,22 +116,28 @@ public abstract class RoboCastActivity extends RoboToolbarActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void startCastService() {
-        if (mSelectedCastDevice == null) return;
+    private void startCastService(CastDevice castDevice) {
+        if (castDevice == null) return;
 
         CastRemoteDisplayLocalService.NotificationSettings emptySettings =
                 new CastRemoteDisplayLocalService.NotificationSettings.Builder()
-                        .setNotificationPendingIntent(createEmptyIntent(this))
+                        .setNotification(createCastNotification(castDevice.getFriendlyName()))
                         .build();
 
         CastRemoteDisplayLocalService.startService(this, ResourcePresentationService.class, getString(R.string.app_cast_id),
-                mSelectedCastDevice, emptySettings, new CastServiceCallback());
+                castDevice, emptySettings, new CastServiceCallback());
     }
 
-    private PendingIntent createEmptyIntent(Activity context) {
-        Intent intent = NavigationActivity_.intent(context).get();
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        return PendingIntent.getActivity(context, 0, intent, 0);
+    private Notification createCastNotification(String castDeviceName) {
+        NotificationCompat.Builder castNotificationBuilder = new NotificationCompat.Builder(this);
+
+        castNotificationBuilder.setSmallIcon(R.drawable.im_logo_single)
+                .setContentTitle(getString(R.string.r_pd_initializing_msg))
+                .setContentText(castDeviceName)
+                .setContentIntent(PendingIntent.getActivity(this, 0, new Intent(), 0))
+                .setWhen(0);
+
+        return castNotificationBuilder.build();
     }
 
     //---------------------------------------------------------------------
@@ -143,8 +151,7 @@ public abstract class RoboCastActivity extends RoboToolbarActivity {
 
             CastDevice castDevice = CastDevice.getFromBundle(route.getExtras());
             if (castDevice != null) {
-                mSelectedCastDevice = castDevice;
-                startCastService();
+                startCastService(castDevice);
             }
         }
 
@@ -152,7 +159,6 @@ public abstract class RoboCastActivity extends RoboToolbarActivity {
         public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route) {
             super.onRouteUnselected(router, route);
 
-            mSelectedCastDevice = null;
             CastRemoteDisplayLocalService.stopService();
             onCastStopped();
         }
@@ -161,6 +167,10 @@ public abstract class RoboCastActivity extends RoboToolbarActivity {
     private final class CastServiceCallback implements CastRemoteDisplayLocalService.Callbacks {
         @Override
         public void onServiceCreated(CastRemoteDisplayLocalService castRemoteDisplayLocalService) {
+            CastDevice castDevice = CastDevice.getFromBundle(mMediaRouter.getSelectedRoute().getExtras());
+            if (castDevice != null) {
+                ((ResourcePresentationService) castRemoteDisplayLocalService).setCastDeviceName(castDevice.getFriendlyName());
+            }
             onCastStarted();
         }
 

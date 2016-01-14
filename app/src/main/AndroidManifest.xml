@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -24,7 +23,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jaspersoft.android.jaspermobile" >
+    package="com.jaspersoft.android.jaspermobile">
 
     <!-- Allows applications to access information about networks -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -41,11 +40,11 @@
 
     <application
         android:name=".JasperMobileApplication_"
+        android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_label"
-        android:theme="@style/Theme.JasperMobile"
-        android:allowBackup="false"
-        android:largeHeap="true">
+        android:largeHeap="true"
+        android:theme="@style/Theme.JasperMobile">
         <meta-data
             android:name="roboguice.modules"
             android:value="com.jaspersoft.android.jaspermobile.JasperMobileModule" />
@@ -62,8 +61,7 @@
             android:value="@integer/google_play_services_version" />
 
         <!-- Main activity -->
-        <activity
-            android:name=".activities.navigation.NavigationActivity_">
+        <activity android:name=".activities.navigation.NavigationActivity_">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -75,11 +73,11 @@
         <activity
             android:name=".activities.inputcontrols.InputControlsActivity_"
             android:label="@string/ro_page_title"
-            android:theme="@style/Theme.JasperMobile.NoToolbar"/>
+            android:theme="@style/Theme.JasperMobile.NoToolbar" />
 
         <activity
             android:name=".activities.inputcontrols.SingleSelectActivity_"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".activities.inputcontrols.MultiSelectActivity_"
@@ -90,21 +88,19 @@
         <activity
             android:name=".activities.viewer.html.report.ReportViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".activities.navigation.NavigationActivity_" >
+            android:parentActivityName=".activities.navigation.NavigationActivity_">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.navigation.NavigationActivity_" />
         </activity>
 
-        <activity
-            android:name=".activities.viewer.html.report.ReportCastActivity_">
-        </activity>
+        <activity android:name=".activities.viewer.html.report.ReportCastActivity_"></activity>
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity
             android:name=".activities.viewer.html.report.ReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".activities.navigation.NavigationActivity_" >
+            android:parentActivityName=".activities.navigation.NavigationActivity_">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.navigation.NavigationActivity_" />
@@ -118,18 +114,18 @@
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
             android:name=".activities.viewer.html.dashboard.Amber2DashboardActivity_"
-            android:windowSoftInputMode="adjustPan"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
+            android:windowSoftInputMode="adjustPan" />
 
         <activity
             android:name=".activities.viewer.html.dashboard.AmberDashboardActivity_"
-            android:windowSoftInputMode="adjustPan"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
+            android:windowSoftInputMode="adjustPan" />
 
         <activity
             android:name=".activities.viewer.html.dashboard.LegacyDashboardViewerActivity_"
-            android:windowSoftInputMode="adjustPan"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
+            android:windowSoftInputMode="adjustPan" />
 
         <!-- Activity that performs report saving to the local storage -->
         <activity
@@ -141,9 +137,9 @@
         <!-- Activity that allows to specify the application settings -->
         <activity
             android:name=".activities.settings.SettingsActivity_"
-            android:theme="@style/Theme.JasperMobile.Settings"
             android:configChanges="locale"
-            android:label="@string/st_title" >
+            android:label="@string/st_title"
+            android:theme="@style/Theme.JasperMobile.Settings">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.navigation.NavigationActivity_" />
@@ -152,14 +148,12 @@
         <activity
             android:name=".activities.library.LibrarySearchableActivity_"
             android:configChanges="locale"
-            android:launchMode="singleTop" >
-        </activity>
+            android:launchMode="singleTop"></activity>
 
         <activity
             android:name=".activities.repository.RepositorySearchableActivity_"
             android:configChanges="locale"
-            android:launchMode="singleTop" >
-        </activity>
+            android:launchMode="singleTop"></activity>
 
         <!-- Activity that allows to make search in Saved Items activity -->
         <activity
@@ -175,10 +169,10 @@
 
         <!-- Activity that shows Privacy Policy -->
         <activity
-            android:windowSoftInputMode="adjustPan"
             android:name=".activities.PrivacyPolicyActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".activities.navigation.NavigationActivity_" >
+            android:parentActivityName=".activities.navigation.NavigationActivity_"
+            android:windowSoftInputMode="adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.navigation.NavigationActivity_" />
@@ -192,8 +186,7 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".activities.auth.AuthenticatorActivity" >
+        <activity android:name=".activities.auth.AuthenticatorActivity">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 
@@ -203,7 +196,7 @@
 
         <receiver
             android:name=".auth.AccountsReceiver"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
             </intent-filter>
@@ -217,16 +210,30 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".util.cast.ResourceCastReceiver"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="com.jaspersoft.android.jaspermobile.RESOURCE_CAST_CANCEL" />
+                <action android:name="com.jaspersoft.android.jaspermobile.RESOURCE_PRESENTATION_STOP" />
+            </intent-filter>
+
+        </receiver>
+
         <!-- Service used to manage the cache and provide web service result to an activity -->
         <service
             android:name=".network.XmlSpiceService"
             android:exported="false" />
 
-        <service android:name="com.google.android.gms.analytics.AnalyticsService"
+        <service
+            android:name="com.google.android.gms.analytics.AnalyticsService"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false" />
 
-        <service android:name=".util.cast.ResourcePresentationService" android:exported="false" />
+        <service
+            android:name=".util.cast.ResourcePresentationService"
+            android:exported="false" />
 
         <provider
             android:name=".db.MobileDbProvider"
@@ -236,7 +243,7 @@
         <!-- SDK external components -->
         <service
             android:name=".auth.JasperAuthenticatorService"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>

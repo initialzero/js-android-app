@@ -56,4 +56,10 @@ public class ScreenUtil {
                 (widthInches * widthInches)
                         + (heightInches * heightInches));
     }
+
+    public int getWidth() {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+
+        return metrics.widthPixels;
+    }
 }

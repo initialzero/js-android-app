@@ -526,7 +526,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
             InputStream stream = null;
             try {
-                stream = getContext().getAssets().open("report.html");
+                stream = getContext().getAssets().open("report_cast.html");
                 StringWriter writer = new StringWriter();
                 IOUtils.copy(stream, writer, "UTF-8");
 
@@ -536,11 +536,11 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                         .build();
                 String visualizeUrl = visualizeEndpoint.createUri();
 
-                double initialScale = ScreenUtil_.getInstance_(getContext()).getDiagonal() / 10.1;
+                double width = ScreenUtil_.getInstance_(getContext()).getWidth() * 1.5;
 
                 Map<String, Object> data = new HashMap<String, Object>();
                 data.put("visualize_url", visualizeUrl);
-                data.put("initial_scale", initialScale);
+                data.put("width", width);
                 data.put("optimized", optimized);
                 Template tmpl = Mustache.compiler().compile(writer.toString());
                 String html = tmpl.execute(data);

@@ -28,7 +28,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ViewStub;
 import android.widget.AbsListView;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -43,7 +42,7 @@ import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 public class GridItemView extends CheckedRelativeLayout implements ResourceView {
 
     @ViewById(android.R.id.icon)
-    protected ImageView mImageIcon;
+    protected TopCropImageView mImageIcon;
     @ViewById(android.R.id.text1)
     protected TextView mTitleTxt;
     @ViewById(android.R.id.text2)
@@ -96,7 +95,7 @@ public class GridItemView extends CheckedRelativeLayout implements ResourceView 
         }
     }
 
-    public ImageView getImageView() {
+    public TopCropImageView getImageView() {
         return mImageIcon;
     }
 

@@ -47,10 +47,10 @@ import java.util.List;
 @EBean
 public class RepositoryResourceFilter extends ResourceFilter {
 
-    private ServerRelease serverRelease;
-
     @RootContext
     protected FragmentActivity activity;
+
+    private ServerRelease serverRelease;
 
     private enum RepositoryFilterCategory {
         all(R.string.s_fd_option_all);
@@ -72,7 +72,6 @@ public class RepositoryResourceFilter extends ResourceFilter {
         AccountServerData accountServerData = AccountServerData.get(activity, account);
         this.serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
     }
-
 
     @Override
     public String getFilterLocalizedTitle(Filter filter) {
@@ -103,6 +102,7 @@ public class RepositoryResourceFilter extends ResourceFilter {
         filterValues.addAll(JasperResources.report());
         filterValues.addAll(JasperResources.dashboard(serverRelease));
         filterValues.addAll(JasperResources.folder());
+        filterValues.addAll(JasperResources.files());
 
         return new Filter(RepositoryFilterCategory.all.name(), filterValues);
     }

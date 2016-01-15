@@ -50,7 +50,7 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFra
 import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
@@ -74,7 +74,7 @@ import org.androidannotations.annotations.ViewById;
  * @since 1.0
  */
 @EActivity(R.layout.activity_navigation)
-public class NavigationActivity extends RoboToolbarActivity implements NavigationPanelController {
+public class NavigationActivity extends RoboSpiceActivity implements NavigationPanelController {
 
     private static final int NEW_ACCOUNT = 20;
 

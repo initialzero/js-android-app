@@ -63,6 +63,7 @@ import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPo
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
+import com.jaspersoft.android.sdk.client.async.request.GetRootFoldersDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -315,7 +316,7 @@ public class RepositoryFragment extends RoboSpiceFragment
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
         // Fetch default URI
-        GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
+        GetRootFoldersDataRequest request = new GetRootFoldersDataRequest(jsRestClient);
         long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
                 ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
@@ -395,7 +396,7 @@ public class RepositoryFragment extends RoboSpiceFragment
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class GetRootFolderDataRequestListener extends SimpleRequestListener<FolderDataResponse> {
+    private class GetRootFolderDataRequestListener extends SimpleRequestListener<List<FolderDataResponse>> {
 
         @Override
         protected Context getContext() {
@@ -410,20 +411,14 @@ public class RepositoryFragment extends RoboSpiceFragment
         }
 
         @Override
-        public void onRequestSuccess(FolderDataResponse folderDataResponse) {
+        public void onRequestSuccess(List<FolderDataResponse> folderDataResponse) {
             // Do this for explicit refresh during pull to refresh interaction
             if (mLoaderState == LOAD_FROM_NETWORK) {
                 mAdapter.setNotifyOnChange(false);
                 mAdapter.clear();
             }
 
-            mAdapter.add(folderDataResponse);
-
-            ResourceLookup publicLookup = new ResourceLookup();
-            publicLookup.setResourceType(ResourceLookup.ResourceType.folder);
-            publicLookup.setLabel("Public");
-            publicLookup.setUri("/public");
-            mAdapter.add(publicLookup);
+            mAdapter.addAll(folderDataResponse);
 
             mAdapter.setNotifyOnChange(true);
             mAdapter.notifyDataSetChanged();

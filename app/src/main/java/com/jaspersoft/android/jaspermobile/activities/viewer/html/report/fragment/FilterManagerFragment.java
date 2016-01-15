@@ -252,6 +252,12 @@ public class FilterManagerFragment extends RoboSpiceFragment {
             mShowFilterOption = showFilterActionVisible;
             getActivity().supportInvalidateOptionsMenu();
 
+            List<ReportParameter> reportParameters = paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
+            if (!reportParameters.isEmpty()) {
+                getReportExecutionFragment().executeReport(reportParameters);
+                return;
+            }
+
             if (showFilterActionVisible) {
                 ProgressDialogFragment.dismiss(getFragmentManager());
                 showReportOptions();

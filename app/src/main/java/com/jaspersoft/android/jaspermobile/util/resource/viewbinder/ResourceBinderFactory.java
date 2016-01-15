@@ -47,6 +47,8 @@ final class ResourceBinderFactory {
                 return new DashboardResourceBinder(context);
             case reportUnit:
                 return new ReportResourceBinder(context);
+            case file:
+                return new FileResourceBinder(context);
             default:
                 return new UnknownResourceBinder(context);
         }

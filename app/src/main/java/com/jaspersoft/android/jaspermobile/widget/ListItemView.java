@@ -29,7 +29,6 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.ViewStub;
 import android.widget.AbsListView;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -45,7 +44,7 @@ import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 public class ListItemView extends CheckedRelativeLayout implements ResourceView {
 
     @ViewById(android.R.id.icon)
-    protected ImageView mImageIcon;
+    protected TopCropImageView mImageIcon;
     @ViewById(android.R.id.text1)
     protected TextView mTitleTxt;
     @ViewById(android.R.id.text2)
@@ -109,7 +108,7 @@ public class ListItemView extends CheckedRelativeLayout implements ResourceView 
 
 
     @Override
-    public ImageView getImageView() {
+    public TopCropImageView getImageView() {
         return mImageIcon;
     }
 

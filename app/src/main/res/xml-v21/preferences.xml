@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -33,7 +32,7 @@
             android:summary="@string/st_summary_cache_enable"
             android:title="@string/st_title_cache_enable" />
 
-        <EditTextPreference
+        <com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference
             android:defaultValue="48"
             android:dependency="pref_repo_cache_enabled"
             android:inputType="number"
@@ -42,20 +41,20 @@
 
         <Preference
             android:key="pref_clear_cache"
-            android:title="@string/st_title_clear_cache"
-            android:summary="@string/st_summary_clear_cache"/>
+            android:summary="@string/st_summary_clear_cache"
+            android:title="@string/st_title_clear_cache" />
 
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/st_category_connection">
 
-        <EditTextPreference
+        <com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference
             android:defaultValue="15"
             android:inputType="number"
             android:key="pref_connect_timeout"
             android:title="@string/st_title_connect_timeout" />
 
-        <EditTextPreference
+        <com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference
             android:defaultValue="120"
             android:inputType="number"
             android:key="pref_read_timeout"
@@ -77,10 +76,10 @@
             android:title="@string/st_send_crashes" />
 
         <SwitchPreference
-            android:key="pref_screen_capturing_enabled"
             android:defaultValue="false"
-            android:title="@string/st_screenshot_enable"
-            android:summary="@string/st_restart_note"/>
+            android:key="pref_screen_capturing_enabled"
+            android:summary="@string/st_restart_note"
+            android:title="@string/st_screenshot_enable" />
 
     </PreferenceCategory>
 

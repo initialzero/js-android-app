@@ -32,6 +32,7 @@ import java.io.InputStream;
 import javax.security.auth.login.LoginException;
 
 import roboguice.inject.InjectView;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action1;
 
@@ -71,18 +72,22 @@ public class HtmlFileViewFragment extends FileLoadFragment {
                     }
                 }).show();
 
-        mCookieSubscription = CookieManagerFactory.syncCookies(getActivity()).subscribe(
-                new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean aBoolean) {
-                        loadFile();
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        showErrorMessage();
-                    }
-                });
+        mCookieSubscription = CookieManagerFactory.syncCookies(getActivity()).subscribe(new Subscriber<Void>() {
+            @Override
+            public void onCompleted() {
+                loadFile();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                showErrorMessage();
+            }
+
+            @Override
+            public void onNext(Void aVoid) {
+
+            }
+        });
     }
 
     @Override

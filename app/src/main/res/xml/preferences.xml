@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -28,37 +27,38 @@
     <PreferenceCategory android:title="@string/st_category_resource_cache">
 
         <CheckBoxPreference
-            android:key="pref_repo_cache_enabled"
             android:defaultValue="true"
+            android:key="pref_repo_cache_enabled"
+            android:summary="@string/st_summary_cache_enable"
             android:title="@string/st_title_cache_enable"
-            android:summary="@string/st_summary_cache_enable"/>
+            android:widgetLayout="@layout/view_switch_pref" />
 
-        <EditTextPreference
-            android:key="pref_repo_cache_expiration"
+        <com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference
             android:defaultValue="48"
             android:dependency="pref_repo_cache_enabled"
             android:inputType="number"
-            android:title="@string/st_title_cache_expiration"/>
+            android:key="pref_repo_cache_expiration"
+            android:title="@string/st_title_cache_expiration" />
 
         <Preference
             android:key="pref_clear_cache"
-            android:title="@string/st_title_clear_cache"
-            android:summary="@string/st_summary_clear_cache"/>
+            android:summary="@string/st_summary_clear_cache"
+            android:title="@string/st_title_clear_cache" />
 
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/st_category_connection">
 
-        <EditTextPreference
-            android:key="pref_connect_timeout"
+        <com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference
             android:defaultValue="15"
-            android:title="@string/st_title_connect_timeout"
-            android:inputType="number"/>
+            android:inputType="number"
+            android:key="pref_connect_timeout"
+            android:title="@string/st_title_connect_timeout" />
 
-        <EditTextPreference
-            android:key="pref_read_timeout"
+        <com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference
             android:defaultValue="120"
             android:inputType="number"
+            android:key="pref_read_timeout"
             android:title="@string/st_title_read_timeout" />
 
     </PreferenceCategory>
@@ -66,21 +66,24 @@
     <PreferenceCategory android:title="@string/st_category_more">
 
         <CheckBoxPreference
+            android:defaultValue="true"
             android:key="pref_animation_enabled"
-            android:defaultValue="true"
-            android:title="@string/st_title_animations" />
+            android:title="@string/st_title_animations"
+            android:widgetLayout="@layout/view_switch_pref" />
 
         <CheckBoxPreference
+            android:defaultValue="true"
             android:key="pref_crash_reports"
-            android:defaultValue="true"
+            android:summary="@string/st_restart_note"
             android:title="@string/st_send_crashes"
-            android:summary="@string/st_restart_note"/>
+            android:widgetLayout="@layout/view_switch_pref" />
 
         <CheckBoxPreference
-            android:key="pref_screen_capturing_enabled"
             android:defaultValue="false"
+            android:key="pref_screen_capturing_enabled"
+            android:summary="@string/st_restart_note"
             android:title="@string/st_screenshot_enable"
-            android:summary="@string/st_restart_note"/>
+            android:widgetLayout="@layout/view_switch_pref" />
 
     </PreferenceCategory>
 

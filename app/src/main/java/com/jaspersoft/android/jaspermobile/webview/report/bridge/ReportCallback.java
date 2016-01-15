@@ -33,6 +33,7 @@ public interface ReportCallback {
     void onLoadStart();
     void onLoadDone(String parameters);
     void onLoadError(String error);
+    void onAuthError(String error);
     void onReportCompleted(String status, int pages, String errorMessage);
     void onPageChange(int page);
     void onReferenceClick(String location);

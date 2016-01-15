@@ -32,8 +32,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 
+import javax.inject.Inject;
+
+import roboguice.RoboGuice;
 import roboguice.fragment.RoboFragment;
 
 import static com.jaspersoft.android.jaspermobile.util.ViewType.GRID;
@@ -50,8 +54,13 @@ public abstract class ControllerFragment extends RoboFragment {
     protected ControllerPref controllerPref;
     private int switchMenuIcon;
 
+    @Inject
+    protected Analytics analytics;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        RoboGuice.getInjector(getActivity()).injectMembersWithoutViews(this);
+
         restoreSavedInstanceState(savedInstanceState);
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
@@ -110,6 +119,8 @@ public abstract class ControllerFragment extends RoboFragment {
         if (itemId_ == R.id.switchLayout) {
             togglePref();
             switchLayout();
+
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.CHANGED_VIEW_TYPE.getValue(),  ViewType.valueOf(controllerPref).name());
             return true;
         }
         return false;

@@ -42,6 +42,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
@@ -75,6 +77,9 @@ import org.androidannotations.annotations.ViewById;
 public class NavigationActivity extends RoboSpiceActivity implements NavigationPanelController {
 
     private static final int NEW_ACCOUNT = 20;
+
+    @Inject
+    protected Analytics analytics;
 
     @ViewById(R.id.dl_navigation)
     protected DrawerLayout drawerLayout;
@@ -210,6 +215,8 @@ public class NavigationActivity extends RoboSpiceActivity implements NavigationP
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
+                analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.OPENED.getValue(), null);
+
                 invalidateOptionsMenu();
                 customToolbarDisplayEnabled = false;
                 setDisplayCustomToolbarEnable(false);

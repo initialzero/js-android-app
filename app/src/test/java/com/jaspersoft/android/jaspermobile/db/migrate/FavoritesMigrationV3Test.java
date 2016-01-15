@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate.v3;
+package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertThat;
         constants = BuildConfig.class,
         sdk = 21
 )
-public class FavoritesMigrationTest {
+public class FavoritesMigrationV3Test {
 
     private ResourceDatabase resourceDatabase;
     private SQLiteDatabase database;

@@ -42,6 +42,8 @@ import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import roboguice.RoboGuice;
@@ -55,27 +57,34 @@ class ReportResourceBinder extends ResourceBinder {
     @Inject
     protected JsRestClient jsRestClient;
 
+    private ImageView thumbnail;
+
     public ReportResourceBinder(Context context) {
         super(context);
         RoboGuice.getInjector(context).injectMembersWithoutViews(this);
     }
 
     @Override
-    public void setIcon(ImageView imageView, JasperResource jasperResource) {
+    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
-        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        imageView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
 
         if (jasperResource.getResourceType() == JasperResourceType.report) {
             String thumbnailUri = ((ReportResource) jasperResource).getThumbnailUri();
-            loadFromNetwork(imageView, thumbnailUri);
+            thumbnail = imageView;
+            loadFromNetwork(thumbnailUri);
         }
     }
 
-    private void loadFromNetwork(ImageView imageView, String uri) {
+    @Override
+    public void unbindView(TopCropImageView imageView) {
+        ImageLoader.getInstance().cancelDisplayTask(imageView);
+    }
+
+    private void loadFromNetwork(String uri) {
         ImageLoader.getInstance().displayImage(
-                uri, imageView, getDisplayImageOptions(),
-                new ThumbnailLoadingListener()
-        );
+                uri, thumbnail, getDisplayImageOptions(),
+                new ThumbnailLoadingListener());
     }
 
     private DisplayImageOptions getDisplayImageOptions() {
@@ -93,7 +102,6 @@ class ReportResourceBinder extends ResourceBinder {
         @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
             if (view != null) {
-                ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.MATRIX);
                 ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.TOP_CROP);
             }
         }

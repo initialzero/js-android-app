@@ -25,12 +25,15 @@
 package com.jaspersoft.android.jaspermobile.dialog;
 
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 
@@ -49,6 +52,7 @@ public class ProgressDialogFragment extends DialogFragment {
     private static final String TAG = ProgressDialogFragment.class.getSimpleName();
     private DialogInterface.OnCancelListener onCancelListener;
     private DialogInterface.OnShowListener onShowListener;
+    private static boolean isPreparing = false;
 
     @FragmentArg
     int loadingMessage;
@@ -64,11 +68,31 @@ public class ProgressDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ProgressDialog progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage(getString(loadingMessage));
-        progressDialog.setOnShowListener(onShowListener);
-        progressDialog.setCanceledOnTouchOutside(false);
-        return progressDialog;
+        View customLayout = LayoutInflater.from(getActivity())
+                .inflate(R.layout.dialog_progress, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        TextView message = (TextView) customLayout.findViewById(R.id.progressMessage);
+        message.setText(getString(loadingMessage));
+        builder.setView(customLayout);
+
+        Dialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+
+        dialog.setOnShowListener(new OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                if (!isPreparing) {
+                    dialog.dismiss();
+                    return;
+                }
+                if (onShowListener != null) {
+                    onShowListener.onShow(dialog);
+                }
+                isPreparing = false;
+            }
+        });
+        return dialog;
     }
 
     @Override
@@ -79,25 +103,12 @@ public class ProgressDialogFragment extends DialogFragment {
         }
     }
 
-    @Deprecated
-    public static void show(FragmentManager fm,
-                            OnCancelListener onCancelListener,
-                            OnShowListener onShowListener) {
-        ProgressDialogFragment dialogFragment = getInstance(fm);
-
-        if (dialogFragment == null) {
-            dialogFragment = ProgressDialogFragment_.builder()
-                    .loadingMessage(R.string.r_pd_running_report_msg).build();
-            dialogFragment.setOnCancelListener(onCancelListener);
-            dialogFragment.setOnShowListener(onShowListener);
-            dialogFragment.show(fm, TAG);
-        }
-    }
-
     public static void dismiss(FragmentManager fm) {
         ProgressDialogFragment dialogFragment = getInstance(fm);
         if (dialogFragment != null) {
             dialogFragment.dismiss();
+        } else if (isPreparing) {
+            isPreparing = false;
         }
     }
 
@@ -148,7 +159,18 @@ public class ProgressDialogFragment extends DialogFragment {
                 dialogFragment.setOnCancelListener(onCancelListener);
                 dialogFragment.setOnShowListener(onShowListener);
                 dialogFragment.show(fm, TAG);
+
+                isPreparing = true;
             }
+        }
+
+        public void display() {
+            ProgressDialogFragment dialogFragment = ProgressDialogFragment_.builder().loadingMessage(loadingMessage).build();
+            dialogFragment.setOnCancelListener(onCancelListener);
+            dialogFragment.setOnShowListener(onShowListener);
+            dialogFragment.show(fm, TAG);
+
+            isPreparing = true;
         }
     }
 }

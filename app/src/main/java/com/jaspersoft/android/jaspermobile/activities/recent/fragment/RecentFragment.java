@@ -34,6 +34,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
@@ -61,6 +62,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -87,6 +89,8 @@ public class RecentFragment extends RoboSpiceFragment
     protected JsRestClient jsRestClient;
     @Inject
     protected ResourceLookupSearchCriteria mSearchCriteria;
+    @Inject
+    protected Analytics analytics;
 
     @FragmentArg
     protected ViewType viewType;
@@ -112,6 +116,8 @@ public class RecentFragment extends RoboSpiceFragment
         mSearchCriteria.setTypes(recentlyViewedResourceFilter.getCurrent().getValues());
         mSearchCriteria.setSortBy(SortOrder.ACCESS_TIME.getValue());
         mSearchCriteria.setFolderUri(ROOT_URI);
+
+        analytics.setScreenName(Analytics.ScreenName.RECENTLY_VIEWED.getValue());
     }
 
     @Override
@@ -138,6 +144,10 @@ public class RecentFragment extends RoboSpiceFragment
         if (actionBar != null) {
             actionBar.setTitle(getString(R.string.recent_card_label));
         }
+
+        List<Analytics.Dimension> viewDimension = new ArrayList<>();
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
+        analytics.sendScreenView(Analytics.ScreenName.RECENTLY_VIEWED.getValue(),viewDimension);
     }
 
     @Override
@@ -154,6 +164,8 @@ public class RecentFragment extends RoboSpiceFragment
     public void onRefresh() {
         clearData();
         loadResources();
+
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.RECENTLY_VIEWED.getValue());
     }
 
     //---------------------------------------------------------------------

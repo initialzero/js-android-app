@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -28,8 +28,8 @@ import android.content.Context;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 
 /**
- * @author Andrew Tivodar
- * @since 2.3
+ * @author Tom Koptel
+ * @since 1.9
  */
 public class ResourceBinderFactory {
 

@@ -48,10 +48,9 @@ class SavedItemResourceBinder extends ResourceBinder {
     private static final Map<SavedItemResource.FileType, Integer> DRAWABLE_IDS_MAP = new EnumMap<SavedItemResource.FileType, Integer>(SavedItemResource.FileType.class);
 
     static {
-        DRAWABLE_IDS_MAP.put(SavedItemResource.FileType.HTML, R.drawable.bg_saved_html);
-        DRAWABLE_IDS_MAP.put(SavedItemResource.FileType.PDF, R.drawable.bg_saved_pdf);
-        DRAWABLE_IDS_MAP.put(SavedItemResource.FileType.XLS, R.drawable.bg_saved_xls);
-        DRAWABLE_IDS_MAP.put(SavedItemResource.FileType.UNKNOWN, R.drawable.bg_gradient_grey);
+        DRAWABLE_IDS_MAP.put(SavedItemResource.FileType.HTML, R.drawable.ic_file_html);
+        DRAWABLE_IDS_MAP.put(SavedItemResource.FileType.PDF, R.drawable.ic_file_pdf);
+        DRAWABLE_IDS_MAP.put(SavedItemResource.FileType.XLS, R.drawable.ic_file_xls);
     }
 
     public SavedItemResourceBinder(Context context) {
@@ -59,21 +58,14 @@ class SavedItemResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void setIcon(ImageView imageView, JasperResource jasperResource) {
-        ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
 
         if (jasperResource.getResourceType() == JasperResourceType.saved_item) {
             SavedItemResource.FileType fileType = ((SavedItemResource) jasperResource).getFileType();
             int iconRes = DRAWABLE_IDS_MAP.get(fileType);
-            ImageLoader.getInstance().displayImage("", imageView, getDisplayImageOptions(iconRes));
+            imageView.setImageResource(iconRes);
         }
     }
-
-    private DisplayImageOptions getDisplayImageOptions(int iconRes) {
-        return new DisplayImageOptions.Builder()
-                .showImageForEmptyUri(iconRes)
-                .build();
-    }
-
 }

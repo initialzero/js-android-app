@@ -174,6 +174,11 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
         return true;
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_ms_ic_s);
+    }
+
     private void initAdapters() {
         mAvailableAdapter = new MultiSelectAvailableAdapter(mInputControlOptions);
         mSelectedAdapter = new MultiSelectSelectedAdapter(mInputControlOptions);

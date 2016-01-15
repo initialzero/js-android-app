@@ -38,20 +38,15 @@ import com.nostra13.universalimageloader.core.ImageLoader;
  * @since 1.9
  */
 class DashboardResourceBinder extends ResourceBinder {
+
     public DashboardResourceBinder(Context context) {
         super(context);
     }
 
     @Override
-    public void setIcon(ImageView imageView, JasperResource jasperResource) {
-        ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_blue);
-        ImageLoader.getInstance().displayImage("", imageView, getDisplayImageOptions());
-    }
-
-    private DisplayImageOptions getDisplayImageOptions() {
-        return new DisplayImageOptions.Builder()
-                .showImageForEmptyUri(R.drawable.placeholder_dashboard)
-                .build();
+        imageView.setImageResource(R.drawable.placeholder_dashboard);
     }
 }

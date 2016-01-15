@@ -102,6 +102,11 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
                 .show();
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_s_hf_s);
+    }
+
     //---------------------------------------------------------------------
     // Implements Implements DeleteDialogFragment.DeleteDialogClickListener
     //---------------------------------------------------------------------

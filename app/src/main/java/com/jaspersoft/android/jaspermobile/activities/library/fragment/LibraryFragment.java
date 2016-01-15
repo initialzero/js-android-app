@@ -40,6 +40,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
@@ -52,7 +53,6 @@ import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
@@ -76,6 +76,7 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -125,6 +126,8 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     @Inject
     @Named("THRESHOLD")
     protected int mTreshold;
+    @Inject
+    protected Analytics analytics;
 
     @InstanceState
     protected boolean mLoading;
@@ -206,12 +209,24 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
                 actionBar.setTitle(resourceLabel);
             }
         }
+
+        List<Analytics.Dimension> viewDimension = new ArrayList<>();
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_HIT_KEY, libraryResourceFilter.getCurrent().getName()));
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
+        analytics.sendScreenView(Analytics.ScreenName.LIBRARY.getValue(), viewDimension);
     }
 
     @Override
     public void onPause() {
         swipeRefreshLayout.clearAnimation();
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        listView.setVisibility(View.GONE);
     }
 
     public void setQuery(String query) {
@@ -229,6 +244,8 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         ImageLoader.getInstance().clearMemoryCache();
         mLoaderState = LOAD_FROM_NETWORK;
         loadFirstPage();
+
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.LIBRARY.getValue());
     }
 
     //---------------------------------------------------------------------
@@ -236,12 +253,16 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     //---------------------------------------------------------------------
 
     public void loadResourcesByTypes() {
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.FILTERED.getValue(), libraryResourceFilter.getCurrent().getName());
+
         mSearchCriteria.setTypes(libraryResourceFilter.getCurrent().getValues());
         clearData();
         loadFirstPage();
     }
 
     public void loadResourcesBySortOrder(SortOrder order) {
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.SORTED.getValue(), sortOrder.name());
+
         sortOrder = order;
         mSearchCriteria.setSortBy(order.getValue());
         clearData();
@@ -414,6 +435,8 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
 
             if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
                 loadNextPage();
+
+                analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.LOADED_NEXT.getValue(), Analytics.EventLabel.LIBRARY.getValue());
             }
             enableRefreshLayout(listView);
         }

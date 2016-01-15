@@ -38,6 +38,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,6 +63,7 @@ import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -97,7 +100,9 @@ import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
@@ -116,7 +121,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
@@ -135,8 +142,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         GetInputControlsFragment.OnInputControlsListener,
         ReportView, PageDialogFragment.PageDialogClickListener,
         NumberDialogFragment.NumberDialogClickListener,
-        ErrorWebViewClientListener.OnWebViewErrorListener
-{
+        ErrorWebViewClientListener.OnWebViewErrorListener {
 
     @Bean
     protected JSWebViewClient jsWebViewClient;
@@ -153,6 +159,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected WebView webView;
     @ViewById(android.R.id.empty)
     protected TextView emptyView;
+    @ViewById(R.id.reload)
+    protected Button reloadReportBtn;
     @ViewById
     protected ProgressBar progressBar;
     @ViewById
@@ -161,7 +169,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Extra
     protected ResourceLookup resource;
     @Extra
-    protected ArrayList<ReportParameter> reportParameters = new ArrayList<ReportParameter>();
+    protected ArrayList<ReportParameter> reportParameters;
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
@@ -188,7 +196,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private WebInterface mWebInterface;
     private boolean isFlowLoaded;
 
-    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+    private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
         @Override
         public void onCancel(DialogInterface dialog) {
@@ -200,7 +208,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!getReportParameters().isEmpty()) {
+        if (reportParameters == null) {
             reportParameters = (ArrayList<ReportParameter>) getReportParameters();
         }
 
@@ -215,23 +223,32 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @AfterViews
     final void init() {
-        showErrorView(getString(R.string.loading_msg));
+        ProgressDialogFragment
+                .builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .setOnCancelListener(cancelListener)
+                .show();
 
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(
-                new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean aBoolean) {
-                        hideErrorView();
-                        setupPaginationControl();
-                        initWebView();
-                        loadInputControls();
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        showErrorView(throwable.getMessage());
-                    }
-                });
+        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(new Subscriber<Void>() {
+            @Override
+            public void onCompleted() {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                setupPaginationControl();
+                initWebView();
+                loadInputControls();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                showErrorView(e.getMessage());
+            }
+
+            @Override
+            public void onNext(Void aVoid) {
+
+            }
+        });
         mCompositeSubscription.add(cookieSubscription);
     }
 
@@ -287,6 +304,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected void onStop() {
         super.onStop();
         mCompositeSubscription.unsubscribe();
+        mCompositeSubscription = new CompositeSubscription();
     }
 
     @Override
@@ -299,6 +317,42 @@ public class ReportViewerActivity extends RoboToolbarActivity
             webView.destroy();
         }
         paramsStorage.clearInputControlHolder(resource.getUri());
+    }
+
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_rvs_v);
+    }
+
+    @Click(R.id.reload)
+    protected void rerunReport() {
+        ProgressDialogFragment
+                .builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .setOnCancelListener(cancelListener)
+                .show();
+
+        JasperAccountManager.get(this).invalidateActiveToken();
+        hideErrorView();
+        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(new Subscriber<Void>() {
+            @Override
+            public void onCompleted() {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                runReport(paramsSerializer.toJson(getReportParameters()));
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                showErrorView(e.getMessage());
+            }
+
+            @Override
+            public void onNext(Void aVoid) {
+
+            }
+        });
+        mCompositeSubscription.add(cookieSubscription);
     }
 
     //---------------------------------------------------------------------
@@ -355,7 +409,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void printAction() {
-        analytics.trackPrintEvent(Analytics.PrintType.REPORT);
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRINTED.getValue(), Analytics.EventLabel.REPORT.getValue());
         ResourcePrintJob job = JasperPrintJobFactory
                 .createReportPrintJob(this, jsRestClient, resource, reportParameters);
         JasperPrinter.print(job);
@@ -477,6 +531,13 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @UiThread
     @Override
+    public void onAuthError(String error) {
+        exposeError(error);
+        reloadReportBtn.setVisibility(View.VISIBLE);
+    }
+
+    @UiThread
+    @Override
     public void onReportCompleted(String status, int pages, String errorMessage) {
         if (status.equals("ready")) {
             boolean noPages = (pages == 0);
@@ -562,6 +623,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public void hideErrorView() {
         emptyView.setVisibility(View.GONE);
+        reloadReportBtn.setVisibility(View.GONE);
+    }
+
+    @UiThread
+    protected void showError(Exception error) {
+        RequestExceptionHandler.handle(error, ReportViewerActivity.this);
     }
 
     //---------------------------------------------------------------------
@@ -569,11 +636,19 @@ public class ReportViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     @Override
-    public void onWebViewError(String title, String message) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        progressBar.setVisibility(View.GONE);
-        webView.setVisibility(View.GONE);
-        showErrorView(title + "\n" + message);
+    public void onWebViewError(String title, String message, String failingUrl, int errorCode) {
+        String baseUrl = accountServerData.getServerUrl();
+        boolean isReportPage = baseUrl.equals(failingUrl);
+        boolean isTimeout = (errorCode == WebViewClient.ERROR_TIMEOUT);
+
+        if (isReportPage && isTimeout) {
+            showErrorView(getString(R.string.rv_webview_still_loading));
+        } else {
+            ProgressDialogFragment.dismiss(getSupportFragmentManager());
+            progressBar.setVisibility(View.GONE);
+            webView.setVisibility(View.GONE);
+            showErrorView(title + "\n" + message);
+        }
     }
 
     //---------------------------------------------------------------------
@@ -598,7 +673,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 .withDelegateListener(chromeClientListener);
 
         JasperWebViewClientListener errorListener = new ErrorWebViewClientListener(this, this);
-        JasperWebViewClientListener clientListener = TimeoutWebViewClientListener.wrap(errorListener);
+        JasperWebViewClientListener clientListener = TimeoutWebViewClientListener
+                .wrap(errorListener)
+                .withTimeout(TimeUnit.SECONDS.toMillis(15));
 
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
                 .withInterceptor(new InjectionRequestInterceptor())

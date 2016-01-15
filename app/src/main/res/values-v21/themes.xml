@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -24,38 +25,8 @@
 
 <resources>
 
-    <style name="Theme.JasperMobile" parent="Base.Theme.AppCompat">
-        <item name="android:windowBackground">@drawable/bg_application_main</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:fontFamily">sans-serif-light</item>
-
-        <item name="colorAccent">@color/js_blue</item>
-        <item name="colorPrimary">@color/js_gray</item>
-        <item name="colorPrimaryDark">@color/js_night_gray</item>
-
-        <item name="android:alertDialogTheme">@style/Theme.JasperMobile.Dialog.Alert</item>
-        <item name="actionModeStyle">@style/Widget.JasperMobile.ActionMode</item>
-        <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
-        <item name="android:textViewStyle">@style/Widget.JasperMobile.TextView</item>
-        <item name="android:editTextStyle">@style/Widget.JasperMobile.EditText</item>
-        <item name="android:spinnerStyle">@style/Widget.JasperMobile.Spinner</item>
-        <item name="android:buttonStyle">@style/Widget.JasperMobile.Button</item>
-        <item name="android:checkboxStyle">@style/Widget.JasperMobile.CheckBox</item>
-        <item name="android:scrollbarThumbVertical">@drawable/im_scrollbar_thumb</item>
-
-        <!-- For Action Mode http://stackoverflow.com/questions/26450936/actionmode-with-toolbar-offsetting-content-->
-        <item name="windowActionModeOverlay">true</item>
-    </style>
-
-    <style name="Theme.JasperMobile.NoToolbar" parent="Theme.JasperMobile">
-        <item name="windowToolbar">false</item>
-    </style>
-
     <style name="Theme.JasperMobile.NoToolbar.TransparentStatusBar" parent="Theme.JasperMobile.NoToolbar">
         <item name="android:windowTranslucentStatus">true</item>
     </style>
-
-    <style name="Theme.JasperMobile.Settings" parent="Theme.JasperMobile"/>
 
 </resources>

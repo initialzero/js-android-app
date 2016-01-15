@@ -43,7 +43,7 @@ subprojects {
     ext.androidBuildToolsVersion = '23.0.2';
     ext.androidMinSdkVersion = 15;
     ext.androidCompileSdkVersion = 23;
-    ext.androidTargetSdkVersion = 21;
+    ext.androidTargetSdkVersion = 23;
 
     ext.jasperSdkVersion = '1.12-SNAPSHOT';
 

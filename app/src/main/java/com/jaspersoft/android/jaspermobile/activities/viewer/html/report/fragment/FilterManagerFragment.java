@@ -166,7 +166,7 @@ public class FilterManagerFragment extends RoboSpiceFragment {
 
     @OptionsItem
     final void printAction() {
-        analytics.trackPrintEvent(Analytics.PrintType.REPORT);
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRINTED.getValue(), Analytics.EventLabel.REPORT.getValue());
         ResourcePrintJob job = JasperPrintJobFactory
                 .createReportPrintJob(getActivity(), jsRestClient, resource, paramsStorage.getInputControlHolder(resource.getUri()).getReportParams());
         JasperPrinter.print(job);
@@ -255,6 +255,12 @@ public class FilterManagerFragment extends RoboSpiceFragment {
             boolean showFilterActionVisible = !icList.isEmpty();
             mShowFilterOption = showFilterActionVisible;
             getActivity().supportInvalidateOptionsMenu();
+
+            List<ReportParameter> reportParameters = paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
+            if (!reportParameters.isEmpty()) {
+                getReportExecutionFragment().executeReport(reportParameters);
+                return;
+            }
 
             if (showFilterActionVisible) {
                 ProgressDialogFragment.dismiss(getFragmentManager());

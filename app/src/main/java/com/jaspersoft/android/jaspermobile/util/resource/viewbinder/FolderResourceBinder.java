@@ -44,15 +44,9 @@ class FolderResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void setIcon(ImageView imageView, JasperResource jasperResource) {
-        ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_XY);
+    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_blue);
-        ImageLoader.getInstance().displayImage("", imageView, getDisplayImageOptions());
-    }
-
-    private DisplayImageOptions getDisplayImageOptions() {
-        return new DisplayImageOptions.Builder()
-                .showImageForEmptyUri(R.drawable.placeholder_folder)
-                .build();
+        imageView.setImageResource(R.drawable.ic_folder);
     }
 }

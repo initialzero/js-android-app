@@ -29,6 +29,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment_;
@@ -62,6 +63,8 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
+    protected Analytics analytics;
 
     @Pref
     protected LibraryPref_ pref;
@@ -76,6 +79,8 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        analytics.setScreenName(Analytics.ScreenName.LIBRARY.getValue());
     }
 
     @Override
@@ -97,6 +102,8 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
                     .build();
             transaction.replace(R.id.search_controller, searchControllerFragment);
             transaction.commit();
+
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.LIBRARY.getValue());
         } else {
             libraryControllerFragment = (LibraryControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(LibraryControllerFragment.TAG);

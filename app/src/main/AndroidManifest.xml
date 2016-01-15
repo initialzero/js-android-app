@@ -138,10 +138,15 @@
             android:label="@string/sr_ab_title"
             android:windowSoftInputMode="stateHidden" />
 
+        <activity
+            android:name=".activities.file.FileViewerActivity_"/>
+
+        <activity
+            android:name=".activities.viewer.html.report.SavedValuesActivity_"/>
+
         <!-- Activity that allows to specify the application settings -->
         <activity
             android:name=".activities.settings.SettingsActivity_"
-            android:theme="@style/Theme.JasperMobile.Settings"
             android:configChanges="locale"
             android:label="@string/st_title" >
             <meta-data
@@ -172,25 +177,6 @@
             android:name=".activities.favorites.FavoritesSearchableActivity_"
             android:configChanges="locale"
             android:launchMode="singleTop" />
-
-        <!-- Activity that shows Privacy Policy -->
-        <activity
-            android:windowSoftInputMode="adjustPan"
-            android:name=".activities.PrivacyPolicyActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".activities.navigation.NavigationActivity_" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.navigation.NavigationActivity_" />
-
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <data android:scheme="com.jaspersoft.android.privacy_policy" />
-            </intent-filter>
-        </activity>
 
         <activity
             android:name=".activities.auth.AuthenticatorActivity" >

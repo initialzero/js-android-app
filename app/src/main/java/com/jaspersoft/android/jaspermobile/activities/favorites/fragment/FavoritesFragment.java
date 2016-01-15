@@ -39,6 +39,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
@@ -112,6 +113,9 @@ public class FavoritesFragment extends RoboFragment
     @OptionsMenuItem(R.id.sort)
     MenuItem sortAction;
 
+    @Inject
+    protected Analytics analytics;
+
     @Bean
     ResourceOpener resourceOpener;
 
@@ -140,6 +144,7 @@ public class FavoritesFragment extends RoboFragment
             sortOptions.putOrder(SortOrder.LABEL);
         }
         jasperResourceConverter = new JasperResourceConverter(getActivity());
+        analytics.setScreenName(Analytics.ScreenName.FAVORITES.getValue());
     }
 
     @Override
@@ -178,6 +183,17 @@ public class FavoritesFragment extends RoboFragment
         if (actionBar != null) {
             actionBar.setTitle(searchQuery == null ? getString(R.string.f_title) : getString(R.string.search_result_format, searchQuery));
         }
+
+        List<Analytics.Dimension> viewDimension = new ArrayList<>();
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_HIT_KEY, favoritesResourceFilter.getCurrent().getName()));
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
+        analytics.sendScreenView(Analytics.ScreenName.FAVORITES.getValue(),viewDimension);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        getActivity().getSupportLoaderManager().destroyLoader(FAVORITES_LOADER_ID);
     }
 
     @UiThread
@@ -303,6 +319,8 @@ public class FavoritesFragment extends RoboFragment
 
     @Override
     public void onOptionSelected(SortOrder sortOrder) {
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.SORTED.getValue(), sortOrder.name());
+
         sortOptions.putOrder(sortOrder);
         getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, this);
     }
@@ -314,6 +332,8 @@ public class FavoritesFragment extends RoboFragment
     private class FilterChangeListener implements FilterTitleView.FilterListener {
         @Override
         public void onFilter(Filter filter) {
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.FILTERED.getValue(), filter.getName());
+
             favoritesResourceFilter.persist(filter);
             showFavoritesByFilter();
         }

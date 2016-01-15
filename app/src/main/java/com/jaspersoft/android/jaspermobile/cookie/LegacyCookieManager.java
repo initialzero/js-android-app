@@ -41,38 +41,18 @@ import rx.schedulers.Schedulers;
  * @author Tom Koptel
  * @since 1.9
  */
-public class LegacyCookieManager implements JsCookieManager {
-    private final Context mContext;
+public class LegacyCookieManager extends JsCookieManager {
 
     public LegacyCookieManager(Context context) {
-        mContext = context;
+        super(context);
     }
 
-    @Override
-    public Observable<Boolean> manage() {
-        return JasperAccountManager.get(mContext)
-                .getAsyncActiveServerData()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(new Func1<AccountServerData, Observable<Boolean>>() {
-                    @Override
-                    public Observable<Boolean> call(final AccountServerData accountServerData) {
-                        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-                            @Override
-                            public void call(final Subscriber<? super Boolean> subscriber) {
-                                CookieSyncManager.createInstance(mContext);
+    protected void setCookies(AccountServerData accountServerData) {
+        CookieSyncManager.createInstance(mContext);
 
-                                final CookieManager cookieManager = CookieManager.getInstance();
-                                cookieManager.removeSessionCookie();
-                                cookieManager.setCookie(accountServerData.getServerUrl(), accountServerData.getServerCookie());
-                                CookieSyncManager.getInstance().sync();
-                                if (!subscriber.isUnsubscribed()) {
-                                    subscriber.onNext(true);
-                                    subscriber.onCompleted();
-                                }
-                            }
-                        });
-                    }
-                });
+        final CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeAllCookie();
+        cookieManager.setCookie(accountServerData.getServerUrl(), accountServerData.getServerCookie());
+        CookieSyncManager.getInstance().sync();
     }
 }

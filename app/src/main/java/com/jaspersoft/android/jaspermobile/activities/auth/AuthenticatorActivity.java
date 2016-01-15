@@ -28,9 +28,14 @@ import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.view.Window;
+import android.view.WindowManager;
 
-import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 
+import roboguice.RoboGuice;
 import roboguice.activity.RoboFragmentActivity;
 
 /**
@@ -38,10 +43,12 @@ import roboguice.activity.RoboFragmentActivity;
  * @since 2.0
  */
 public class AuthenticatorActivity extends RoboFragmentActivity {
-    private ActivitySecureDelegate mActivitySecureDelegate;
 
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle mResultBundle = null;
+
+    @Inject
+    protected Analytics analytics;
 
     /**
      * Set the result that is to be sent as the result of the request that caused this
@@ -62,12 +69,13 @@ public class AuthenticatorActivity extends RoboFragmentActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mActivitySecureDelegate = ActivitySecureDelegate.create(this);
+        RoboGuice.getInjector(this).injectMembersWithoutViews(this);
+        analytics.setScreenName(getString(R.string.ja_aas));
 
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
 
-        mActivitySecureDelegate.onCreate(savedInstanceState);
+        disableScreenCapturing();
 
         mAccountAuthenticatorResponse =
                 getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
@@ -81,6 +89,13 @@ public class AuthenticatorActivity extends RoboFragmentActivity {
                     .add(android.R.id.content, AuthenticatorFragment_.builder().build())
                     .commit();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        analytics.sendScreenView(getString(R.string.ja_aas), null);
     }
 
     /**
@@ -99,4 +114,14 @@ public class AuthenticatorActivity extends RoboFragmentActivity {
         }
         super.finish();
     }
+
+    private void disableScreenCapturing(){
+        boolean isScreenCaptureEnable = DefaultPrefHelper_.getInstance_(this).isScreenCapturingEnabled();
+
+        if (!isScreenCaptureEnable) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+                    WindowManager.LayoutParams.FLAG_SECURE);
+        }
+    }
+
 }

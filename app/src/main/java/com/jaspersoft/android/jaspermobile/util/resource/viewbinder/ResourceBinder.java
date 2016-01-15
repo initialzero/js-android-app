@@ -28,6 +28,7 @@ import android.content.Context;
 import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import timber.log.Timber;
@@ -47,14 +48,19 @@ public abstract class ResourceBinder {
     }
 
     public void bindView(ResourceView resourceView, JasperResource item) {
+        unbindView(resourceView.getImageView());
         setIcon(resourceView.getImageView(), item);
         resourceView.setTitle(item.getLabel());
         resourceView.setSubTitle(item.getDescription());
+    }
+
+    protected void unbindView(TopCropImageView imageView){
+
     }
 
     public Context getContext() {
         return mContext;
     }
 
-    public abstract void setIcon(ImageView imageView, JasperResource jasperResource);
+    public abstract void setIcon(TopCropImageView imageView, JasperResource jasperResource);
 }

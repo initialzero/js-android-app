@@ -38,27 +38,22 @@ import android.webkit.MimeTypeMap;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
-import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.Bean;
@@ -96,6 +91,8 @@ public class SavedItemsFragment extends RoboFragment
 
     @Inject
     protected JsRestClient jsRestClient;
+    @Inject
+    protected Analytics analytics;
 
     @InjectView(android.R.id.list)
     protected JasperRecyclerView listView;
@@ -120,6 +117,7 @@ public class SavedItemsFragment extends RoboFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         jasperResourceConverter = new JasperResourceConverter(getActivity());
+        analytics.setScreenName(Analytics.ScreenName.SAVED_ITEMS.getValue());
     }
 
     @Override
@@ -130,6 +128,16 @@ public class SavedItemsFragment extends RoboFragment
         setDataAdapter();
 
         getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        List<Analytics.Dimension> viewDimension = new ArrayList<>();
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_HIT_KEY, storageResourceFilter.getCurrent().getName()));
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
+        analytics.sendScreenView(Analytics.ScreenName.SAVED_ITEMS.getValue(),viewDimension);
     }
 
     @UiThread
@@ -143,10 +151,14 @@ public class SavedItemsFragment extends RoboFragment
     }
 
     public void showSavedItemsByFilter() {
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.FILTERED.getValue(), storageResourceFilter.getCurrent().getName());
+
         getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
     }
 
     public void showSavedItemsBySortOrder(SortOrder selectedSortOrder) {
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.SORTED.getValue(), sortOrder.name());
+
         sortOrder = selectedSortOrder;
         getActivity().getSupportLoaderManager().restartLoader(SAVED_ITEMS_LOADER_ID, null, this);
     }

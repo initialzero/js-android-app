@@ -25,35 +25,34 @@
 
 <resources>
     <style name="Theme.JasperMobile" parent="Base.Theme.AppCompat">
+        <item name="colorAccent">@color/js_blue</item>
+        <item name="colorPrimary">@color/js_gray</item>
+        <item name="colorPrimaryDark">@color/js_night_gray</item>
+        <item name="fontTypePrimary">sans-serif-light</item>
+
         <item name="android:windowBackground">@drawable/bg_application_main</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:fontFamily">?fontTypePrimary</item>
 
-        <item name="colorAccent">@color/js_blue</item>
-        <item name="colorPrimary">@color/js_gray</item>
-
+        <item name="alertDialogTheme">@style/Theme.JasperMobile.Dialog.Alert</item>
         <item name="drawerArrowStyle">@style/Widget.JasperMobile.DrawerArrowToggle</item>
         <item name="actionModeStyle">@style/Widget.JasperMobile.ActionMode</item>
         <item name="android:textViewStyle">@style/Widget.JasperMobile.TextView</item>
         <item name="android:editTextStyle">@style/Widget.JasperMobile.EditText</item>
-        <item name="android:spinnerStyle">@style/Widget.JasperMobile.Spinner</item>
+        <item name="spinnerStyle">@style/Widget.JasperMobile.Spinner</item>
         <item name="android:buttonStyle">@style/Widget.JasperMobile.Button</item>
+        <item name="android:progressBarStyleHorizontal">@style/Widget.JasperMobile.ProgressBar.Horizontal</item>
+        <item name="android:scrollbarThumbVertical">@drawable/im_scrollbar_thumb</item>
         <item name="android:checkboxStyle">@style/Widget.JasperMobile.CheckBox</item>
-
-        <!-- For Action Mode http://stackoverflow.com/questions/26450936/actionmode-with-toolbar-offsetting-content-->
-        <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <style name="Theme.JasperMobile.NoToolbar" parent="Theme.JasperMobile">
+    <style name="Theme.JasperMobile.NoToolbar">
        <item name="windowToolbar">false</item>
     </style>
 
     <style name="Theme.JasperMobile.NoToolbar.TransparentStatusBar" parent="Theme.JasperMobile.NoToolbar">
-    </style>
-
-    <style name="Theme.JasperMobile.Settings" parent="Theme.JasperMobile">
-        <item name="android:editTextStyle">@android:style/Widget.Holo.EditText</item>
     </style>
 
 </resources>

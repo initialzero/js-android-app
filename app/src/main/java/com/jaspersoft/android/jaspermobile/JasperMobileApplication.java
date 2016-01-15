@@ -24,12 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile;
 
+import android.accounts.Account;
 import android.app.Application;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -49,6 +52,7 @@ import timber.log.Timber;
 @EApplication
 public class JasperMobileApplication extends Application {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
+    public static final String RESOURCES_CACHE_DIR_NAME = "resources";
     public static final String SHARED_DIR = "com.jaspersoft.account.none";
 
     @Inject
@@ -62,6 +66,7 @@ public class JasperMobileApplication extends Application {
     public void onCreate() {
         super.onCreate();
         RoboGuice.getInjector(this).injectMembers(this);
+
         initLegacyJsRestClient();
 
         forceDatabaseUpdate();
@@ -75,7 +80,6 @@ public class JasperMobileApplication extends Application {
         // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
         System.setProperty("http.keepAlive", "false");
 
-        analytics.init(this);
         appConfigurator.configCrashAnalytics(this);
         initImageLoader();
     }
@@ -86,6 +90,16 @@ public class JasperMobileApplication extends Application {
 
     public void initLegacyJsRestClient() {
         JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
+
+        Account account = JasperAccountManager.get(this).getActiveAccount();
+        if (account != null) {
+            AccountServerData serverData = AccountServerData.get(this, account);
+            String serverVersion = serverData.getVersionName();
+            if (serverData.isDemo()) {
+                serverVersion = serverVersion + " DEMO";
+            }
+            analytics.setServerInfo(serverVersion, serverData.getEdition());
+        }
     }
 
     private void initImageLoader() {

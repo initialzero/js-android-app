@@ -44,6 +44,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
@@ -60,9 +61,8 @@ import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInt
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
+import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Action0;
-import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -85,7 +85,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     private FavoritesHelper_ favoritesHelper;
     private JasperChromeClientListenerImpl chromeClientListener;
 
-    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+    private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
     @Inject
     protected Analytics analytics;
@@ -110,21 +110,25 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         emptyView = (TextView) findViewById(android.R.id.empty);
 
-        showMessage(getString(R.string.loading_msg));
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(
-                new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean aBoolean) {
-                        hideMessage();
-                        initWebView();
-                    }
-                },
-                new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        showMessage(throwable.getMessage());
-                    }
-                });
+        showProgressDialog(R.string.loading_msg);
+        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(new Subscriber<Void>() {
+            @Override
+            public void onCompleted() {
+                hideProgressDialog();
+                initWebView();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                hideProgressDialog();
+                showMessage(e.getMessage());
+            }
+
+            @Override
+            public void onNext(Void aVoid) {
+
+            }
+        });
         mCompositeSubscription.add(cookieSubscription);
     }
 
@@ -164,7 +168,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
             onHomeAsUpCalled();
         }
         if (itemId == R.id.printAction) {
-            analytics.trackPrintEvent(Analytics.PrintType.DASHBOARD);
+            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRINTED.getValue(), Analytics.EventLabel.DASHBOARD.getValue());
             ResourcePrintJob job = JasperPrintJobFactory.createDashboardPrintJob(webView, resource);
             JasperPrinter.print(job);
         }
@@ -176,6 +180,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     protected void onStop() {
         super.onStop();
         mCompositeSubscription.unsubscribe();
+        mCompositeSubscription = new CompositeSubscription();
     }
 
     @Override
@@ -203,10 +208,14 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         }
     }
 
-    protected void hideMessage() {
-        if (emptyView != null) {
-            emptyView.setVisibility(View.GONE);
-        }
+    private void showProgressDialog(int message) {
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(message)
+                .show();
+    }
+
+    private void hideProgressDialog() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
     //---------------------------------------------------------------------
@@ -232,32 +241,27 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
 
     @Override
     public void onSessionExpired() {
+        showProgressDialog(R.string.loading_msg);
+        JasperAccountManager.get(BaseDashboardActivity.this).invalidateActiveToken();
         Subscription cookieSubscription = CookieManagerFactory.syncCookies(this)
-                .doOnSubscribe(new Action0() {
+                .subscribe(new Subscriber<Void>() {
                     @Override
-                    public void call() {
-                        JasperAccountManager.get(BaseDashboardActivity.this).invalidateActiveToken();
+                    public void onCompleted() {
+                        onSessionRefreshed();
+                        hideProgressDialog();
                     }
-                })
-                .subscribe(
-                        new Action1<Boolean>() {
-                            @Override
-                            public void call(Boolean isRefreshed) {
-                                if (isRefreshed) {
-                                    onSessionRefreshed();
-                                } else {
-                                    Toast.makeText(BaseDashboardActivity.this,
-                                            R.string.da_session_refresh_failed, Toast.LENGTH_LONG).show();
-                                    finish();
-                                }
-                            }
-                        },
-                        new Action1<Throwable>() {
-                            @Override
-                            public void call(Throwable throwable) {
-                                showMessage(throwable.getMessage());
-                            }
-                        });
+
+                    @Override
+                    public void onError(Throwable e) {
+                        hideProgressDialog();
+                        showMessage(e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(Void aVoid) {
+
+                    }
+                });
         mCompositeSubscription.add(cookieSubscription);
     }
 

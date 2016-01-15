@@ -91,10 +91,19 @@
     <string name="s_ab_filter_by">Filter by</string>
     <string name="s_ab_sort_by">Sort by</string>
 
+    <!-- File viewing -->
+    <string name="fv_try_again_btn" translatable="false">Try again</string>
+    <string name="fv_can_not_show_message" translatable="false">Can not show file content</string>
+    <string name="fv_undefined_message" translatable="false">Can not open. Resource type undefined</string>
+    <string name="fv_opening_message" translatable="false">Opening file...</string>
+
     <!-- Filter Dialog -->
     <string name="s_fd_option_all">All</string>
     <string name="s_fd_option_reports">Reports</string>
+    <string name="s_fd_option_saved_values" translatable="false">Saved values</string>
     <string name="s_fd_option_dashboards">Dashboards</string>
+    <string name="s_fd_option_files" translatable="false">Files</string>
+    <string name="s_fd_option_others" translatable="false">Others</string>
     <string name="s_fd_sort_label">Label</string>
     <string name="s_fd_sort_date">Creation date</string>
 
@@ -103,7 +112,7 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">About</string>
-    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Management tool and report viewer for TIBCO JasperReports® Server 5.5 and greater.<br><br>For more information visit:<br><a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a><br><br>For privacy policy information visit:<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
+    <string name="sa_about_info" translatable="false"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Management tool and report viewer for TIBCO JasperReports® Server 5.5 and greater.<br><br>For more information visit:<br><a href="http://community.jaspersoft.com/project/tibco-jaspermobile-android">http://community.jaspersoft.com/project/tibco-jaspermobile-android</a><br><br>For privacy policy information visit:<br><a href="http://www.tibco.com/company/privacy-cma">http://www.tibco.com/company/privacy-cma</a><br><br>For latest update information visit:<br><a href="https://github.com/Jaspersoft/js-android-app/wiki/What\'s-new">https://github.com/Jaspersoft/js-android-app/wiki/What\'s-new</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">Privacy Policy</string>
     <string name="sa_show_feedback">Feedback</string>
 
@@ -148,6 +157,7 @@
     <string name="rv_out_of_range">The requested page is out of range.</string>
     <string name="rv_dialog_reload">Reload</string>
     <string name="rv_open_link_chooser">Open link in</string>
+    <string name="rv_webview_still_loading" translatable="false">Its taking too much time to load. Please, wait or try again later.</string>
 
     <!-- Toasts -->
     <string name="rv_t_external_storage_not_available">The external memory card is not available. Please insert the card and try again.</string>
@@ -205,20 +215,25 @@
 
     <!-- Settings activity -->
     <string name="st_title">Settings</string>
-    <string name="st_category_repo_cache">Repository Cache</string>
+    <string name="st_category_resource_cache" translatable="false">Resources cache</string>
     <string name="st_category_connection">Connection</string>
     <string name="st_title_cache_enable">Enable cache</string>
-    <string name="st_title_cache_expiration">Cache expiration</string>
+    <string name="st_title_cache_expiration" translatable="false">Cache expiration period</string>
+    <string name="st_title_clear_cache" translatable="false">Clear cache</string>
     <string name="st_title_connect_timeout">Connection timeout</string>
     <string name="st_title_read_timeout">Data read timeout</string>
     <string name="st_title_animations">Animations</string>
     <string name="st_send_crashes">Send crash reports</string>
-    <string name="st_send_crashes_note">NOTE: Restart the app after changing this setting.</string>
-    <string name="st_summary_cache_enable">Cache repository requests for the specified amount of time</string>
+    <string name="st_restart_note">NOTE: Restart the app after changing this setting.</string>
+    <string name="st_summary_cache_enable" translatable="false">Cache resources for the specified amount of time</string>
+    <string name="st_summary_clear_cache" translatable="false">Remove all cached resources</string>
+    <string name="st_screenshot_enable" translatable="false">Screen capturing</string>
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Invalid number format</string>
     <string name="st_category_more">More</string>
+    <string name="st_action_clear_cache">Cache cleared</string>
+    <string name="st_action_clear_cache_fail">Can not clear cache</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>
@@ -308,5 +323,7 @@
     <string name="error_webview_file_not_found_title" translatable="false">File</string>
     <string name="error_webview_io_msg" translatable="false">The server failed to communicate. Try again later.</string>
     <string name="error_webview_io_title" translatable="false">IO Error</string>
+    <!-- Permissions -->
+    <string name="enable_write_permission" translatable="false">Can not save. Permission denied</string>
 
 </resources>

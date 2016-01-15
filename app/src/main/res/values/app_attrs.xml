@@ -28,7 +28,12 @@
     <declare-styleable name="Theme.JasperMobile">
         <attr name="listLayoutStyle" format="reference" />
         <attr name="gridLayoutStyle" format="reference" />
+
         <attr name="windowToolbar" format="boolean" />
+
+        <attr name="fontTypePrimary" format="string"/>
+        <attr name="fontTypeSecondary" format="string"/>
+
     </declare-styleable>
 
 </resources>

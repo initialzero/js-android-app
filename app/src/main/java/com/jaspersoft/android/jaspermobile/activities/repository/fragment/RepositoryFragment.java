@@ -40,6 +40,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
@@ -52,7 +53,6 @@ import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
@@ -61,7 +61,7 @@ import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResour
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
+import com.jaspersoft.android.sdk.client.async.request.GetRootFoldersDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -80,6 +80,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -109,6 +110,8 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     protected JsRestClient jsRestClient;
     @Inject
     protected ResourceLookupSearchCriteria mSearchCriteria;
+    @Inject
+    protected Analytics analytics;
 
     @InstanceState
     @FragmentArg
@@ -213,12 +216,23 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
                 actionBar.setTitle(resourceLabel);
             }
         }
+
+        List<Analytics.Dimension> viewDimension = new ArrayList<>();
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
+        analytics.sendScreenView(Analytics.ScreenName.REPOSITORY.getValue(), viewDimension);
     }
 
     @Override
     public void onPause() {
         swipeRefreshLayout.clearAnimation();
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        listView.setVisibility(View.GONE);
     }
 
     public void setQuery(String query) {
@@ -236,6 +250,8 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         ImageLoader.getInstance().clearMemoryCache();
         mLoaderState = LOAD_FROM_NETWORK;
         loadPage();
+
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.REPOSITORY.getValue());
     }
 
     //---------------------------------------------------------------------
@@ -316,7 +332,7 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
         // Fetch default URI
-        GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
+        GetRootFoldersDataRequest request = new GetRootFoldersDataRequest(jsRestClient);
         long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
                 ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
@@ -392,7 +408,7 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         }
     }
 
-    private class GetRootFolderDataRequestListener extends SimpleRequestListener<FolderDataResponse> {
+    private class GetRootFolderDataRequestListener extends SimpleRequestListener<List<FolderDataResponse>> {
 
         @Override
         protected Context getContext() {
@@ -407,16 +423,10 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         }
 
         @Override
-        public void onRequestSuccess(FolderDataResponse folderDataResponse) {
+        public void onRequestSuccess(List<FolderDataResponse> folderDataResponse) {
 
             List<ResourceLookup> datum = new ArrayList<>();
-            datum.add(folderDataResponse);
-
-            ResourceLookup publicLookup = new ResourceLookup();
-            publicLookup.setResourceType(ResourceLookup.ResourceType.folder);
-            publicLookup.setLabel("Public");
-            publicLookup.setUri("/public");
-            datum.add(publicLookup);
+            datum.addAll(folderDataResponse);
 
             addData(datum);
 
@@ -476,6 +486,8 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
 
             if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
                 loadNextPage();
+
+                analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.LOADED_NEXT.getValue(),  Analytics.EventLabel.REPOSITORY.getValue());
             }
             enableRefreshLayout(listView);
         }

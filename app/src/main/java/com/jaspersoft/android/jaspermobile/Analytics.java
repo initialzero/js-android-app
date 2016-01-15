@@ -26,16 +26,121 @@ package com.jaspersoft.android.jaspermobile;
 
 import android.app.Application;
 
+import java.util.List;
+
 /**
  * @author Andrew Tivodar
  * @since 2.1
  */
 public interface Analytics {
-    void init(Application appContext);
-    void trackPrintEvent(PrintType printType);
+    void setScreenName(String screenName);
+    void sendScreenView(String screenName, List<Dimension> dimension);
+    void sendEvent(String eventCategory, String eventAction, String eventLabel);
+    void sendUserChangedEvent();
+    void setServerInfo(String serverVersion, String serverEdition);
 
-    enum PrintType{
-        REPORT,
-        DASHBOARD
+    enum ScreenName {
+        LIBRARY("Library screen"),
+        REPOSITORY("Repository screen"),
+        RECENTLY_VIEWED("Recently viewed screen"),
+        FAVORITES("Favorites screen"),
+        SAVED_ITEMS("Saved items screen");
+
+        String mName;
+
+        ScreenName(String name) {
+            mName = name;
+        }
+
+        public String getValue() {
+            return mName;
+        }
+    }
+
+    enum EventCategory {
+        MENU("Menu"),
+        ACCOUNT("Account"),
+        CATALOG("Catalog"),
+        RESOURCE("Resource");
+
+        String mName;
+
+        EventCategory(String name) {
+            mName = name;
+        }
+
+        public String getValue() {
+            return mName;
+        }
+    }
+
+    enum EventAction {
+        OPENED("Opened"),
+        CLICKED("Clicked"),
+        VIEWED("Viewed"),
+        REFRESHED("Refreshed"),
+        LOADED_NEXT("Loaded next"),
+        SORTED("Sorted"),
+        FILTERED("Filtered"),
+        CHANGED_VIEW_TYPE("Changed view type"),
+        CHANGED("Changed"),
+        PRINTED("Printed");
+
+        String mName;
+
+        EventAction(String name) {
+            mName = name;
+        }
+
+        public String getValue() {
+            return mName;
+        }
+    }
+
+    enum EventLabel {
+        LIBRARY("Library"),
+        REPOSITORY("Repository"),
+        RECENTLY_VIEWED("Recently viewed"),
+        FAVORITES("Favorites"),
+        SAVED_ITEMS("Saved items"),
+        ADD_ACCOUNT("Add account"),
+        SWITCH_ACCOUNT("Switch account"),
+        SETTINGS("Settings"),
+        FEEDBACK("Feedback"),
+        ABOUT("About"),
+        MANAGE_ACCOUNT("Manage account"),
+        REPORT("Report"),
+        DASHBOARD("Dashboard");
+
+        String mName;
+
+        EventLabel(String name) {
+            mName = name;
+        }
+
+        public String getValue() {
+            return mName;
+        }
+    }
+
+    class Dimension {
+        public static final int FILTER_TYPE_HIT_KEY = 3;
+        public static final int RESOURCE_VIEW_HIT_KEY = 4;
+
+        private int mKey;
+        private String mValue;
+
+        public Dimension(int key, String value) {
+            this.mKey = key;
+            this.mValue = value;
+        }
+
+        public int getKey() {
+            return mKey;
+        }
+
+        public String getValue() {
+            return mValue;
+        }
     }
 }

@@ -317,7 +317,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                 .setWhen(0)
                 .setContentTitle(title)
                 .setContentText(mCastDeviceName)
-                .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0));
+                .setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT));
 
         castNotificationBuilder.addAction(R.drawable.ic_menu_close, "", PendingIntent.getBroadcast(this, 0, new Intent(getString(R.string.resource_presentation_stop_intent)), 0));
 

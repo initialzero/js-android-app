@@ -50,31 +50,39 @@ public class JasperResourceConverter {
         isAmberOrHigher = serverRelease.code() >= ServerRelease.AMBER.code();
     }
 
+    public JasperResource convertToJasperResource(ResourceLookup resourceLookup) {
+        JasperResource resource;
+        switch (resourceLookup.getResourceType()) {
+            case folder:
+                resource = new FolderResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
+                break;
+            case legacyDashboard:
+            case dashboard:
+                resource = new DashboardResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
+                break;
+            case reportUnit:
+                String imageUri = "";
+                if (isAmberOrHigher) {
+                    imageUri = jsRestClient.generateThumbNailUri(resourceLookup.getUri());
+                }
+                resource = new ReportResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription(), imageUri);
+                break;
+            case file:
+                resource = new FileResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription(), resourceLookup.getUri());
+                break;
+            default:
+                resource = new UndefinedResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
+                break;
+        }
+        return resource;
+    }
+
     public List<JasperResource> convertToJasperResource(List<ResourceLookup> listToConvert) {
         List<JasperResource> jasperResourceList = new ArrayList<>();
         if (listToConvert == null) return jasperResourceList;
 
         for (ResourceLookup resourceLookup : listToConvert) {
-            JasperResource resource;
-            switch (resourceLookup.getResourceType()) {
-                case folder:
-                    resource = new FolderResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
-                    break;
-                case legacyDashboard:
-                case dashboard:
-                    resource = new DashboardResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
-                    break;
-                case reportUnit:
-                    String imageUri = "";
-                    if (isAmberOrHigher) {
-                        imageUri = jsRestClient.generateThumbNailUri(resourceLookup.getUri());
-                    }
-                    resource = new ReportResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription(), imageUri);
-                    break;
-                default:
-                    resource = new UndefinedResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
-                    break;
-            }
+            JasperResource resource = convertToJasperResource(resourceLookup);
             jasperResourceList.add(resource);
         }
         return jasperResourceList;
@@ -93,6 +101,9 @@ public class JasperResourceConverter {
                 break;
             case report:
                 resourceType = ResourceLookup.ResourceType.reportUnit;
+                break;
+            case file:
+                resourceType = ResourceLookup.ResourceType.file;
                 break;
             default:
                 resourceType = ResourceLookup.ResourceType.unknown;
@@ -120,6 +131,9 @@ public class JasperResourceConverter {
                     case legacyDashboard:
                     case dashboard:
                         resource = new DashboardResource(entryUri, resourceLookup.getLabel(), resourceLookup.getDescription());
+                        break;
+                    case file:
+                        resource = new FileResource(entryUri, resourceLookup.getLabel(), resourceLookup.getDescription(), resourceLookup.getUri());
                         break;
                     case reportUnit:
                         String imageUri = "";
@@ -172,16 +186,6 @@ public class JasperResourceConverter {
         Cursor cursor = context.getContentResolver().query(Uri.parse(id), null, null, null, null);
         cursor.moveToFirst();
         return convertFromFavoritesCursorToLookup(cursor);
-    }
-
-    public String convertFavoriteIdToResourceUri(String id, Context context) {
-        Cursor cursor = context.getContentResolver().query(Uri.parse(id), null, null, null, null);
-
-        if (cursor != null) {
-            cursor.moveToFirst();
-            return cursor.getString(cursor.getColumnIndex(FavoritesTable.URI));
-        }
-        return id;
     }
 
     public File convertToFile(String id, Context context) {

@@ -59,7 +59,7 @@ class SavedItemResourceBinder extends ResourceBinder {
 
     @Override
     public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
-        imageView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+        imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
 
         if (jasperResource.getResourceType() == JasperResourceType.saved_item) {

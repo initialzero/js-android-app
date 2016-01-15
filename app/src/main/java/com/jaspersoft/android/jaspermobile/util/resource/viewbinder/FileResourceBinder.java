@@ -25,8 +25,6 @@ import roboguice.RoboGuice;
  */
 public class FileResourceBinder extends ResourceBinder {
 
-    private final static int REQUEST_TAG = 20495;
-
     @Inject
     protected JsRestClient jsRestClient;
     private final SpiceManager mSpiceManager;
@@ -42,14 +40,9 @@ public class FileResourceBinder extends ResourceBinder {
         imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
         imageView.setImageResource(R.drawable.ic_file);
-        loadFileType(imageView, null);
-    }
 
-    @Override
-    public void unbindView(TopCropImageView imageView) {
-        Object fileTypeRequest = imageView.getTag(REQUEST_TAG);
-        if (fileTypeRequest != null && fileTypeRequest instanceof SpiceRequest) {
-            mSpiceManager.cancel(((SpiceRequest) fileTypeRequest));
+        if (jasperResource instanceof FileResource) {
+            loadFileType(imageView, ((FileResource) jasperResource).getFileUri());
         }
     }
 
@@ -57,7 +50,7 @@ public class FileResourceBinder extends ResourceBinder {
         GetFileResourceRequest mFileResourceRequest = new GetFileResourceRequest(jsRestClient, uri);
         long cacheExpiryDuration = DefaultPrefHelper_.getInstance_(getContext()).getRepoCacheExpirationValue();
 
-        imageView.setTag(REQUEST_TAG, mFileResourceRequest);
+        imageView.setTag(mFileResourceRequest);
         mSpiceManager.execute(mFileResourceRequest, mFileResourceRequest.createCacheKey(), cacheExpiryDuration, new SimpleRequestListener<FileLookup>() {
             @Override
             protected Context getContext() {

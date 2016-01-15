@@ -76,11 +76,6 @@ class ReportResourceBinder extends ResourceBinder {
         }
     }
 
-    @Override
-    public void unbindView(TopCropImageView imageView) {
-        ImageLoader.getInstance().cancelDisplayTask(imageView);
-    }
-
     private void loadFromNetwork(String uri) {
         ImageLoader.getInstance().displayImage(
                 uri, thumbnail, getDisplayImageOptions(),

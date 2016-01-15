@@ -100,9 +100,9 @@ public class InfoView extends CardView {
     public void fillWithBaseData(String type, String label, String description, String uri, String creationDate, String modifiedDate, String version, String permissions) {
         infoDataContainer.removeAllViews();
 
+        addInfoItem(getContext().getString(R.string.ri_type_title), type);
         addInfoItem(getContext().getString(R.string.ri_label_title), label);
         addInfoItem(getContext().getString(R.string.ri_description_title), description);
-        addInfoItem(getContext().getString(R.string.ri_type_title), type);
         addInfoItem(getContext().getString(R.string.ri_uri_title), uri);
         addInfoItem(getContext().getString(R.string.ri_creation_title), creationDate);
         addInfoItem(getContext().getString(R.string.ri_modified_title), modifiedDate);

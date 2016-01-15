@@ -76,7 +76,7 @@ import org.androidannotations.annotations.ViewById;
  * @since 1.0
  */
 @EActivity(R.layout.activity_navigation)
-public class NavigationActivity extends RoboToolbarActivity {
+public class NavigationActivity extends RoboSpiceActivity {
 
     private static final int NEW_ACCOUNT = 20;
 

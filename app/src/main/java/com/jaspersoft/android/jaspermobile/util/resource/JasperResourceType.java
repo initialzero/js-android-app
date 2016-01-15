@@ -9,5 +9,6 @@ public enum JasperResourceType {
     dashboard,
     folder,
     saved_item,
+    file,
     undefined
 }

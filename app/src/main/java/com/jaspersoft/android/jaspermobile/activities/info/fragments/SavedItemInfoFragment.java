@@ -55,7 +55,7 @@ public class SavedItemInfoFragment extends SimpleInfoFragment implements DeleteD
                 jasperResource.getDescription(), mFileUri,
                 mCreationTime, null, null, null);
 
-        infoView.addInfoItem(getString(R.string.ri_file_format), mFileExtension, 3);
+        infoView.addInfoItem(getString(R.string.ri_file_format), mFileExtension, 1);
         infoView.addInfoItem(getString(R.string.ri_file_size), getHumanReadableFileSize(new File(mFileUri)), 4);
     }
 

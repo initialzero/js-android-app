@@ -24,35 +24,28 @@
 
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
-import android.content.Context;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 
 /**
- * @author Tom Koptel
- * @since 1.9
+ * @author Andrew Tivodar
+ * @since 2.0
  */
-public class ResourceBinderFactory {
+public class FileResource extends JasperResource {
 
-    private Context mContext;
+    private String fileUri;
 
-    public ResourceBinderFactory(Context mContext) {
-        this.mContext = mContext;
+    public FileResource(String id, String label, String description, String fileUri) {
+        super(id, label, description);
+        this.fileUri = fileUri;
     }
 
-    public ResourceBinder create(JasperResourceType type) {
-        switch (type) {
-            case folder:
-                return new FolderResourceBinder(mContext);
-            case dashboard:
-                return new DashboardResourceBinder(mContext);
-            case report:
-                return new ReportResourceBinder(mContext);
-            case saved_item:
-                return new SavedItemResourceBinder(mContext);
-            case file:
-                return new FileResourceBinder(mContext);
-            default:
-                return new UnknownResourceBinder(mContext);
-        }
+    @Override
+    public JasperResourceType getResourceType() {
+        return JasperResourceType.file;
+    }
+
+    public String getFileUri() {
+        return fileUri;
     }
 }

@@ -225,10 +225,10 @@ public class FavoritesFragment extends RoboFragment
 
             @Override
             public void onResourceInfoClicked(JasperResource jasperResource) {
-                jasperResource.setId(jasperResourceConverter.convertFavoriteIdToResourceUri(jasperResource.getId(), getActivity()));
+                ResourceLookup resource = jasperResourceConverter.convertFavoriteToResourceLookup(jasperResource.getId(), getActivity());
 
                 ResourceInfoActivity_.intent(getActivity())
-                        .jasperResource(jasperResource)
+                        .jasperResource(jasperResourceConverter.convertToJasperResource(resource))
                         .start();
             }
         });

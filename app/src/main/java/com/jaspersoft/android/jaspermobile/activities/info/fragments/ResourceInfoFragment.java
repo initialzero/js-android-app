@@ -77,6 +77,13 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
         favoriteHelper.switchFavoriteState(mResourceLookup, favoriteAction);
     }
 
+    protected void onDataObtain () {
+        jasperResource.setLabel(mResourceLookup.getLabel());
+        fillWithData();
+        updateHeaderViewLabel(mResourceLookup.getLabel());
+        getActivity().invalidateOptionsMenu();
+    }
+
     private void fillWithData() {
         infoView.fillWithBaseData(mResourceLookup.getResourceType().name(), mResourceLookup.getLabel(),
                 mResourceLookup.getDescription(), mResourceLookup.getUri(),
@@ -102,12 +109,7 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
         @Override
         public void onRequestSuccess(final ResourceLookup resourceLookup) {
             mResourceLookup = resourceLookup;
-            jasperResource.setLabel(resourceLookup.getLabel());
-
-            fillWithData();
-            updateHeaderViewLabel(resourceLookup.getLabel());
-
-            getActivity().invalidateOptionsMenu();
+            onDataObtain();
         }
     }
 }

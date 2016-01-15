@@ -5,10 +5,12 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
+import com.jaspersoft.android.jaspermobile.activities.info.fragments.FileInfoFragment_;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.ReportInfoFragment_;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.ResourceInfoFragment;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.ResourceInfoFragment_;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.SavedItemInfoFragment_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
@@ -22,7 +24,7 @@ import org.androidannotations.annotations.Extra;
  * @since 2.2
  */
 @EActivity
-public class ResourceInfoActivity extends RoboToolbarActivity {
+public class ResourceInfoActivity extends RoboSpiceActivity {
 
     @Extra
     protected JasperResource jasperResource;
@@ -37,6 +39,11 @@ public class ResourceInfoActivity extends RoboToolbarActivity {
             switch (jasperResource.getResourceType()) {
                 case report:
                     resourceInfoFragment = ReportInfoFragment_.builder()
+                            .jasperResource(jasperResource)
+                            .build();
+                    break;
+                case file:
+                    resourceInfoFragment = FileInfoFragment_.builder()
                             .jasperResource(jasperResource)
                             .build();
                     break;

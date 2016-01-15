@@ -27,9 +27,12 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 import android.content.Context;
 import android.widget.ImageView;
 
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.octo.android.robospice.request.SpiceRequest;
 
 import timber.log.Timber;
 
@@ -54,8 +57,13 @@ public abstract class ResourceBinder {
         resourceView.setSubTitle(item.getDescription());
     }
 
-    protected void unbindView(TopCropImageView imageView){
+    protected final void unbindView(TopCropImageView imageView){
+        Object fileTypeRequest = imageView.getTag();
+        if (fileTypeRequest != null && fileTypeRequest instanceof SpiceRequest) {
+            ((RoboSpiceActivity) mContext).getSpiceManager().cancel((SpiceRequest) fileTypeRequest);
+        }
 
+        ImageLoader.getInstance().cancelDisplayTask(imageView);
     }
 
     public Context getContext() {

@@ -41,6 +41,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
+import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
@@ -137,7 +138,7 @@ public class SavedItemsFragment extends RoboFragment
         List<Analytics.Dimension> viewDimension = new ArrayList<>();
         viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_HIT_KEY, storageResourceFilter.getCurrent().getName()));
         viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
-        analytics.sendScreenView(Analytics.ScreenName.SAVED_ITEMS.getValue(),viewDimension);
+        analytics.sendScreenView(Analytics.ScreenName.SAVED_ITEMS.getValue(), viewDimension);
     }
 
     @UiThread
@@ -166,7 +167,7 @@ public class SavedItemsFragment extends RoboFragment
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
-    
+
     private void openReportFile(File reportOutputFile, String recordUri) {
         Locale current = getResources().getConfiguration().locale;
         String fileName = reportOutputFile.getName();
@@ -197,29 +198,46 @@ public class SavedItemsFragment extends RoboFragment
         }
     }
 
-    private void showFileNotReadyMessage(){
+    private void showFileNotReadyMessage() {
         Toast.makeText(getActivity(), getString(R.string.sdr_loading_msg), Toast.LENGTH_SHORT).show();
     }
 
     private void setDataAdapter() {
-        mAdapter = new JasperResourceAdapter(getActivity(), Collections.<JasperResource> emptyList(), viewType);
+        mAdapter = new JasperResourceAdapter(getActivity(), Collections.<JasperResource>emptyList(), viewType);
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
             public void onResourceItemClicked(String id) {
-                File file = jasperResourceConverter.convertToFile(id, getActivity());
-                openReportFile(file, id);
+                if (isDownloading(id)) {
+                    File file = jasperResourceConverter.convertToFile(id, getActivity());
+                    openReportFile(file, id);
+                } else {
+                    showFileNotReadyMessage();
+                }
             }
 
             @Override
-            public void onResourceInfoClicked(JasperResource jasperResource) {
-                ResourceInfoActivity_.intent(getActivity())
-                        .jasperResource(jasperResource)
-                        .start();
+            public void onSecondaryActionClicked(JasperResource jasperResource) {
+                if (isDownloading(jasperResource.getId())) {
+                    ResourceInfoActivity_.intent(getActivity())
+                            .jasperResource(jasperResource)
+                            .start();
+                } else {
+                    File file = jasperResourceConverter.convertToFile(jasperResource.getId(), getActivity());
+                    SaveReportService_.intent(getContext()).cancelSaving(jasperResource.getId(), file).start();
+                }
             }
         });
 
         listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
+    }
+
+    private boolean isDownloading(String id) {
+        Cursor cursor = getActivity().getContentResolver().query(Uri.parse(id), null, null, null, null);
+        cursor.moveToFirst();
+        boolean downloaded = cursor.getInt(cursor.getColumnIndex(SavedItemsTable.DOWNLOADED)) == 1;
+        cursor.close();
+        return downloaded;
     }
 
     //---------------------------------------------------------------------

@@ -145,7 +145,7 @@ public class SaveReportService extends RoboIntentService {
     }
 
     @ServiceAction
-    protected void cancelSaving(int reportId, File reportFile) {
+    protected void cancelSaving(String itemUri, File reportFile) {
     }
 
     private ExportExecution exportReport(String requestId, SaveItemFragment.OutputFormat outputFormat, String pageRange) {
@@ -268,8 +268,7 @@ public class SaveReportService extends RoboIntentService {
     }
 
     private void cancelSavingReport(Bundle reportBundle) {
-        int reportId = reportBundle.getInt(SaveReportService_.REPORT_ID_EXTRA);
-        Uri reportUri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI, String.valueOf(reportId));
+        Uri reportUri = Uri.parse(reportBundle.getString(SaveReportService_.ITEM_URI_EXTRA));
 
         if (reportUri.equals(mCurrent)) {
             mCurrent = null;
@@ -278,7 +277,7 @@ public class SaveReportService extends RoboIntentService {
 
         if (mRecordsToDel.add(reportUri)) {
             File reportFile = ((File) reportBundle.getSerializable(SaveReportService_.REPORT_FILE_EXTRA));
-            savedItemHelper.deleteSavedItem(reportFile, reportId);
+            savedItemHelper.deleteSavedItem(reportFile, reportUri);
             notifyDownloadingCount();
         }
     }

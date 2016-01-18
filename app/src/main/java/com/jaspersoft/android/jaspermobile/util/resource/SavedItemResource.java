@@ -22,10 +22,12 @@ public class SavedItemResource extends JasperResource {
     }
 
     private FileType fileType;
+    private boolean downloaded;
 
-    public SavedItemResource(String id, String label, String description, FileType fileType) {
+    public SavedItemResource(String id, String label, String description, FileType fileType, boolean downloaded) {
         super(id, label, description);
         this.fileType = fileType;
+        this.downloaded = downloaded;
     }
 
     @Override
@@ -37,4 +39,7 @@ public class SavedItemResource extends JasperResource {
         return fileType;
     }
 
+    public boolean isDownloaded() {
+        return downloaded;
+    }
 }

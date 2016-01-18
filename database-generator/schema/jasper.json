@@ -1,7 +1,7 @@
 {
   "packageName": "com.jaspersoft.android.jaspermobile.db",
   "providerName": "jasper_mobile_db",
-  "databaseVersion": 6,
+  "databaseVersion": 7,
   "tables": [
     {
       "name": "server_profiles",

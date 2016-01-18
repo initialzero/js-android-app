@@ -26,7 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
-        android:layout_toLeftOf="@+id/showInfo"
+        android:layout_toLeftOf="@+id/secondaryAction"
         android:layout_toRightOf="@android:id/icon"
         android:gravity="center_vertical"
         android:orientation="vertical">
@@ -49,12 +49,11 @@
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/showInfo"
+        android:id="@+id/secondaryAction"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
         android:background="@drawable/bg_info_btn"
-        android:padding="16dp"
-        android:src="@drawable/ic_info" />
+        android:padding="16dp" />
 
 </RelativeLayout>

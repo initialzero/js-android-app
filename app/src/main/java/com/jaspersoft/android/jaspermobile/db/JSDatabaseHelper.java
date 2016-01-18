@@ -28,10 +28,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.db.database.JasperMobileDbDatabase;
-import com.jaspersoft.android.jaspermobile.db.migrate.v2.MigrationV2;
-import com.jaspersoft.android.jaspermobile.db.migrate.v3.MigrationV3;
-import com.jaspersoft.android.jaspermobile.db.migrate.v4.MigrationV4;
-import com.jaspersoft.android.jaspermobile.db.migrate.v5.MigrationV5;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 /**
  * @author Tom Koptel
@@ -56,10 +53,10 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
                 Migration.Factory.v3(mContext).migrate(db);
             case 4:
                 Migration.Factory.v4(mContext).migrate(db);
-                break;
             case 5:
                 Migration.Factory.v5(mContext).migrate(db);
-                break;
+            case 6:
+                Migration.Factory.v6().migrate(db);
         }
     }
 }

@@ -37,4 +37,6 @@ public interface ResourceView {
     void setSubTitle(CharSequence subTitle);
 
     TopCropImageView getImageView();
+
+    void setSecondaryAction(int actionImage);
 }

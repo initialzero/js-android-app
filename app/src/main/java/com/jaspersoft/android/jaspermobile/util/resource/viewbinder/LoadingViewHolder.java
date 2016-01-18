@@ -30,4 +30,9 @@ public class LoadingViewHolder extends BaseResourceViewHolder{
     public TopCropImageView getImageView() {
         return null;
     }
+
+    @Override
+    public void setSecondaryAction(int actionImage) {
+
+    }
 }

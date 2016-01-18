@@ -26,11 +26,8 @@ package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.db.migrate.v3.MigrationV3;
-import com.jaspersoft.android.jaspermobile.db.migrate.v5.*;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.TestResource;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
@@ -66,9 +63,9 @@ public class MigrationV6Test {
     public void setup() {
         // Dirty hack in order to revert AccountSeed side effect
         AccountUtil.get(RuntimeEnvironment.application).removeAllAccounts();
-        resourceDatabase = PermanentDatabase.create("jasper_mobile_db_v5").prepare();
+        resourceDatabase = PermanentDatabase.create("jasper_mobile_db_v6").prepare();
         database = resourceDatabase.open();
-        MigrationV6 migration = new com.jaspersoft.android.jaspermobile.db.migrate.v5.MigrationV5();
+        MigrationV6 migration = new MigrationV6();
 
         String insertSavedItemSql = TestResource.get("insert_saved_item.sql").asString();
 

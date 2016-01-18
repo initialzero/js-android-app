@@ -40,19 +40,18 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="8dp"
-                android:layout_toLeftOf="@+id/showInfo"
+                android:layout_toLeftOf="@+id/secondaryAction"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
                 tools:text="Large Text" />
 
             <ImageButton
-                android:id="@+id/showInfo"
+                android:id="@+id/secondaryAction"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_alignParentRight="true"
                 android:background="@drawable/bg_info_btn"
-                android:padding="8dp"
-                android:src="@drawable/ic_info" />
+                android:padding="8dp" />
 
         </RelativeLayout>
 

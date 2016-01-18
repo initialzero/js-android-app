@@ -306,7 +306,7 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
             }
 
             @Override
-            public void onResourceInfoClicked(JasperResource jasperResource) {
+            public void onSecondaryActionClicked(JasperResource jasperResource) {
                 ResourceInfoActivity_.intent(getActivity())
                         .jasperResource(jasperResource)
                         .start();

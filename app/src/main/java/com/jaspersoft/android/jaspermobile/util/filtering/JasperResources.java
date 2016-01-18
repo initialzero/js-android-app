@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -29,10 +29,7 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.ArrayList;
 
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.dashboard;
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.folder;
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.legacyDashboard;
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.reportUnit;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.*;
 
 /**
  * @author Andrew Tivodar
@@ -48,6 +45,10 @@ public class JasperResources {
         return JasperFilter.REPORT.getAsList();
     }
 
+    public static ArrayList<String> files() {
+        return JasperFilter.FILES.getAsList();
+    }
+
     public static ArrayList<String> dashboard(ServerRelease serverRelease) {
         boolean isPreAmber = serverRelease.code() < ServerRelease.AMBER.code();
         if (isPreAmber) {
@@ -61,7 +62,8 @@ public class JasperResources {
         FOLDER(folder),
         REPORT(reportUnit),
         DASHBOARD_PRE_AMBER(dashboard),
-        DASHBOARD_AMBER(legacyDashboard, dashboard);
+        DASHBOARD_AMBER(legacyDashboard, dashboard),
+        FILES(file);
 
         private final ArrayList<String> mTypes = new ArrayList<String>();
 

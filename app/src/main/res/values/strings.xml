@@ -91,10 +91,19 @@
     <string name="s_ab_filter_by">Filter by</string>
     <string name="s_ab_sort_by">Sort by</string>
 
+    <!-- File viewing -->
+    <string name="fv_try_again_btn" translatable="false">Try again</string>
+    <string name="fv_can_not_show_message" translatable="false">Can not show file content</string>
+    <string name="fv_undefined_message" translatable="false">Can not open. Resource type undefined</string>
+    <string name="fv_opening_message" translatable="false">Opening file...</string>
+
     <!-- Filter Dialog -->
     <string name="s_fd_option_all">All</string>
     <string name="s_fd_option_reports">Reports</string>
+    <string name="s_fd_option_saved_values" translatable="false">Saved values</string>
     <string name="s_fd_option_dashboards">Dashboards</string>
+    <string name="s_fd_option_files" translatable="false">Files</string>
+    <string name="s_fd_option_others" translatable="false">Others</string>
     <string name="s_fd_sort_label">Label</string>
     <string name="s_fd_sort_date">Creation date</string>
 
@@ -124,6 +133,20 @@
     <string name="ro_deselect_all" translatable="false">Deselect all</string>
     <string name="ro_inverse" translatable="false">Inverse</string>
     <string name="ro_search" translatable="false">Search list…</string>
+    <string name="ro_show" translatable="false">Saved values</string>
+
+    <!-- Resource Info Activity -->
+    <string name="ri_report_option_title" translatable="false">Report options:</string>
+    <string name="ri_type_title" translatable="false">Type:</string>
+    <string name="ri_label_title" translatable="false">Label:</string>
+    <string name="ri_description_title" translatable="false">Description:</string>
+    <string name="ri_uri_title" translatable="false">URI:</string>
+    <string name="ri_modified_title" translatable="false">Modified date:</string>
+    <string name="ri_creation_title" translatable="false">Creation date:</string>
+    <string name="ri_file_format" translatable="false">File format:</string>
+    <string name="ri_file_size" translatable="false">File size:</string>
+    <string name="ri_version_title" translatable="false">Version:</string>
+    <string name="ri_permissions_title" translatable="false">User Access:</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
@@ -162,6 +185,11 @@
     <!-- Saved Files Activity -->
     <string name="sdr_ab_title">Saved Files</string>
     <string name="sdr_ab_list_msg">No saved files</string>
+    <string name="sdr_saving_multiply_msg" translatable="false">%s reports downloading</string>
+    <string name="sdr_starting_downloading_msg" translatable="false">Starting downloading…</string>
+    <string name="sdr_saving_msg" translatable="false">Downloading report…</string>
+    <string name="sdr_saving_error_msg" translatable="false">Failed to save report</string>
+    <string name="sdr_loading_msg" translatable="false">Report is still downloading…</string>
 
     <!-- Context Menu -->
     <string name="action_mode_title">Selected item</string>
@@ -183,6 +211,7 @@
     <!-- Remove Favorites Dialog -->
     <string name="sdr_dfd_title">Remove from Favorites</string>
     <string name="sdr_dfd_msg">Do you really want to remove \"%s\"?</string>
+    <string name="sdr_dfd_msg_multi" translatable="false">Do you really want to remove selected items (%s items)?</string>
 
     <!-- Toasts -->
     <string name="sdr_t_no_app_available">No \"%s\" viewer installed.</string>
@@ -191,21 +220,25 @@
 
     <!-- Settings activity -->
     <string name="st_title">Settings</string>
-    <string name="st_category_repo_cache">Repository Cache</string>
+    <string name="st_category_resource_cache" translatable="false">Resources cache</string>
     <string name="st_category_connection">Connection</string>
     <string name="st_title_cache_enable">Enable cache</string>
-    <string name="st_title_cache_expiration">Cache expiration</string>
+    <string name="st_title_cache_expiration" translatable="false">Cache expiration period</string>
+    <string name="st_title_clear_cache" translatable="false">Clear cache</string>
     <string name="st_title_connect_timeout">Connection timeout</string>
     <string name="st_title_read_timeout">Data read timeout</string>
     <string name="st_title_animations">Animations</string>
     <string name="st_send_crashes">Send crash reports</string>
     <string name="st_restart_note">NOTE: Restart the app after changing this setting.</string>
+    <string name="st_summary_cache_enable" translatable="false">Cache resources for the specified amount of time</string>
+    <string name="st_summary_clear_cache" translatable="false">Remove all cached resources</string>
     <string name="st_screenshot_enable" translatable="false">Screen capturing</string>
-    <string name="st_summary_cache_enable">Cache repository requests for the specified amount of time</string>
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Invalid number format</string>
     <string name="st_category_more">More</string>
+    <string name="st_action_clear_cache">Cache cleared</string>
+    <string name="st_action_clear_cache_fail">Can not clear cache</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>
@@ -231,6 +264,9 @@
     <string name="request_was_cancelled_explicitly">Cancelled</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
+    <string name="voice_command_btn" translatable="false">Voice command</string>
+    <string name="voice_command_title" translatable="false">Say some command</string>
+    <string name="voice_command_undefined" translatable="false">Can not recognize command</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Library</string>

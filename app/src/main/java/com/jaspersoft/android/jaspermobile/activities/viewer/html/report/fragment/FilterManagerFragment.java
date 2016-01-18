@@ -120,14 +120,18 @@ public class FilterManagerFragment extends RoboSpiceFragment {
                 .setSpiceManager(getSpiceManager())
                 .create();
 
-        final GetInputControlsRequest request =
-                new GetInputControlsRequest(jsRestClient, resource.getUri());
-        requestExecutor.execute(request, new GetInputControlsListener(), new RequestExecutor.OnProgressDialogCancelListener() {
-            @Override
-            public void onCancel() {
-                getActivity().finish();
-            }
-        });
+        if (getReportParameters().isEmpty()) {
+            final GetInputControlsRequest request =
+                    new GetInputControlsRequest(jsRestClient, resource.getUri());
+            requestExecutor.execute(request, new GetInputControlsListener(), new RequestExecutor.OnProgressDialogCancelListener() {
+                @Override
+                public void onCancel() {
+                    getActivity().finish();
+                }
+            });
+        } else {
+            getReportExecutionFragment().executeReport(getReportParameters());
+        }
     }
 
     @Override
@@ -251,6 +255,12 @@ public class FilterManagerFragment extends RoboSpiceFragment {
             boolean showFilterActionVisible = !icList.isEmpty();
             mShowFilterOption = showFilterActionVisible;
             getActivity().supportInvalidateOptionsMenu();
+
+            List<ReportParameter> reportParameters = paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
+            if (!reportParameters.isEmpty()) {
+                getReportExecutionFragment().executeReport(reportParameters);
+                return;
+            }
 
             if (showFilterActionVisible) {
                 ProgressDialogFragment.dismiss(getFragmentManager());

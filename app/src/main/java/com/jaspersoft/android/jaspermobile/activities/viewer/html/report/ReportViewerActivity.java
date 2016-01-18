@@ -169,10 +169,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Extra
     protected ResourceLookup resource;
     @Extra
-    protected ArrayList<ReportParameter> reportParameters = new ArrayList<ReportParameter>();
-
-    @InstanceState
-    protected Uri favoriteEntryUri;
+    protected ArrayList<ReportParameter> reportParameters;
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
@@ -211,14 +208,14 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (reportParameters == null) {
+            reportParameters = (ArrayList<ReportParameter>) getReportParameters();
+        }
+
         mHasInitialParameters = !reportParameters.isEmpty();
         paramsStorage.getInputControlHolder(resource.getUri()).setReportParams(reportParameters);
 
         scrollableTitleHelper.injectTitle(resource.getLabel());
-
-        if (savedInstanceState == null) {
-            favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
-        }
 
         Account account = JasperAccountManager.get(this).getActiveAccount();
         accountServerData = AccountServerData.get(this, account);
@@ -271,8 +268,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
-        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
-        favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+        favoritesHelper.updateFavoriteIconState(favoriteAction, resource.getUri());
+
         saveReport.setVisible(mShowSaveAndPrintMenuItems);
         refreshAction.setVisible(mShowRefreshMenuItem);
         if (printAction != null) {
@@ -371,8 +368,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void favoriteAction() {
-        favoriteEntryUri = favoritesHelper.
-                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
+        favoritesHelper.switchFavoriteState(resource, favoriteAction);
     }
 
     @OptionsItem

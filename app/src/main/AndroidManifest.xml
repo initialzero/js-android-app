@@ -111,6 +111,10 @@
             android:name=".activities.viewer.html.SavedReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
 
+        <activity
+            android:theme="@style/Theme.JasperMobile.NoToolbar.TransparentStatusBar"
+            android:name=".activities.info.ResourceInfoActivity_"/>
+
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
             android:name=".activities.viewer.html.dashboard.Amber2DashboardActivity_"
@@ -133,6 +137,12 @@
             android:configChanges="screenSize|orientation|locale"
             android:label="@string/sr_ab_title"
             android:windowSoftInputMode="stateHidden" />
+
+        <activity
+            android:name=".activities.file.FileViewerActivity_"/>
+
+        <activity
+            android:name=".activities.viewer.html.report.SavedValuesActivity_"/>
 
         <!-- Activity that allows to specify the application settings -->
         <activity
@@ -206,6 +216,10 @@
             android:name=".db.MobileDbProvider"
             android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
             android:exported="false" />
+
+        <service
+        android:name=".activities.save.SaveReportService_"
+        android:exported="false" />
 
         <!-- SDK external components -->
         <service

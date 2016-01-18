@@ -44,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultPrefHelper {
     public static final String KEY_PREF_REPO_CACHE_ENABLED = "pref_repo_cache_enabled";
     public static final String KEY_PREF_REPO_CACHE_EXPIRATION = "pref_repo_cache_expiration";
+    public static final String KEY_PREF_CLEAR_CACHE = "pref_clear_cache";
     public static final String KEY_PREF_CONNECT_TIMEOUT = "pref_connect_timeout";
     public static final String KEY_PREF_READ_TIMEOUT = "pref_read_timeout";
     public static final String KEY_PREF_ANIMATION_ENABLED = "pref_animation_enabled";

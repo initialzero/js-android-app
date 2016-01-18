@@ -46,14 +46,13 @@
         <item name="android:progressBarStyleHorizontal">@style/Widget.JasperMobile.ProgressBar.Horizontal</item>
         <item name="android:scrollbarThumbVertical">@drawable/im_scrollbar_thumb</item>
         <item name="android:checkboxStyle">@style/Widget.JasperMobile.CheckBox</item>
-
-        <!--App reference styles-->
-        <item name="listLayoutStyle">@style/list2.item.layout</item>
-        <item name="gridLayoutStyle">@style/grid.item.layout</item>
     </style>
 
     <style name="Theme.JasperMobile.NoToolbar">
        <item name="windowToolbar">false</item>
+    </style>
+
+    <style name="Theme.JasperMobile.NoToolbar.TransparentStatusBar" parent="Theme.JasperMobile.NoToolbar">
     </style>
 
 </resources>

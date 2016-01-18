@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -57,7 +57,9 @@ public class FavoritesResourceFilter extends ResourceFilter {
         all(R.string.s_fd_option_all),
         reports(R.string.s_fd_option_reports),
         dashboards(R.string.s_fd_option_dashboards),
-        folders(R.string.f_fd_option_folders);
+        folders(R.string.f_fd_option_folders),
+        files(R.string.s_fd_option_files),
+        others(R.string.s_fd_option_others);
 
         private int mTitleId = -1;
 
@@ -94,6 +96,7 @@ public class FavoritesResourceFilter extends ResourceFilter {
             availableFilters.add(getFilterDashboard());
         }
         availableFilters.add(getFilterFolder());
+        availableFilters.add(getFilterFiles());
 
         return availableFilters;
     }
@@ -112,6 +115,7 @@ public class FavoritesResourceFilter extends ResourceFilter {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
         filterValues.addAll(JasperResources.dashboard(serverRelease));
+        filterValues.addAll(JasperResources.files());
         filterValues.addAll(JasperResources.folder());
 
         return new Filter(FavoritesFilterCategory.all.name(), filterValues);
@@ -129,6 +133,13 @@ public class FavoritesResourceFilter extends ResourceFilter {
         filterValues.addAll(JasperResources.dashboard(serverRelease));
 
         return new Filter(FavoritesFilterCategory.dashboards.name(), filterValues);
+    }
+
+    private Filter getFilterFiles() {
+        ArrayList<String> filterValues = new ArrayList<>();
+        filterValues.addAll(JasperResources.files());
+
+        return new Filter(FavoritesFilterCategory.files.name(), filterValues);
     }
 
     private Filter getFilterFolder() {

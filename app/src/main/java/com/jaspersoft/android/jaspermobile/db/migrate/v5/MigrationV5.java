@@ -22,37 +22,37 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate;
+package com.jaspersoft.android.jaspermobile.db.migrate.v5;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.Settings;
+import android.util.Base64;
+
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
+
+import java.io.UnsupportedEncodingException;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
 
 /**
- * @author Tom Koptel
- * @since 2.0
+ * @author Andrew Tivodar
+ * @since 2.3
  */
-public interface Migration {
-    void migrate(SQLiteDatabase database);
+public final class MigrationV5 implements Migration {
 
-    class Factory {
-        public static Migration v2() {
-            return new MigrationV2();
-        }
-
-        public static Migration v3(Context context) {
-            return new MigrationV3(context);
-        }
-
-        public static Migration v4(Context context) {
-            return new MigrationV4(context);
-        }
-
-        public static Migration v5(Context context) {
-            return new MigrationV5(context);
-        }
-
-        public static Migration v6() {
-            return new MigrationV6();
-        }
+    @Override
+    public void migrate(SQLiteDatabase db) {
+        db.execSQL("ALTER TABLE saved_items ADD COLUMN downloaded NUMERIC DEFAULT 1");
     }
 }

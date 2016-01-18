@@ -34,4 +34,9 @@ public class InfoHeaderView implements ResourceView {
     public TopCropImageView getImageView() {
         return imageView;
     }
+
+    @Override
+    public void setSecondaryAction(int actionImage) {
+
+    }
 }

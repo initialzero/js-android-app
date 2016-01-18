@@ -24,35 +24,20 @@
 
 package com.jaspersoft.android.jaspermobile.db.migrate;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 /**
- * @author Tom Koptel
- * @since 2.0
+ * @author Andrew Tivodar
+ * @since 2.3
  */
-public interface Migration {
-    void migrate(SQLiteDatabase database);
+final class MigrationV6 implements Migration {
 
-    class Factory {
-        public static Migration v2() {
-            return new MigrationV2();
-        }
-
-        public static Migration v3(Context context) {
-            return new MigrationV3(context);
-        }
-
-        public static Migration v4(Context context) {
-            return new MigrationV4(context);
-        }
-
-        public static Migration v5(Context context) {
-            return new MigrationV5(context);
-        }
-
-        public static Migration v6() {
-            return new MigrationV6();
-        }
+    @Override
+    public void migrate(SQLiteDatabase database) {
+        database.execSQL("ALTER TABLE saved_items ADD COLUMN downloaded NUMERIC DEFAULT 1");
     }
 }

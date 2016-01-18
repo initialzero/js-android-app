@@ -46,31 +46,25 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService_;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
-import com.jaspersoft.android.sdk.client.async.request.SaveExportAttachmentRequest;
-import com.jaspersoft.android.sdk.client.async.request.SaveExportOutputRequest;
-import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportOutputResource;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.SpiceRequest;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ItemSelect;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
@@ -79,9 +73,6 @@ import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import timber.log.Timber;
@@ -119,27 +110,19 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     @FragmentArg
     int pageCount;
 
-    @OptionsMenuItem
-    MenuItem saveAction;
-
     @Inject
     JsRestClient jsRestClient;
-
     @Inject
     protected ReportParamsStorage paramsStorage;
 
-    @InstanceState
-    int runningRequests;
-
-    private List<SpiceRequest<?>> requests = new ArrayList<SpiceRequest<?>>();
-    private File reportFile;
-    private Uri recordUri;
+    @OptionsMenuItem
+    MenuItem saveAction;
 
     private int mFromPage;
     private int mToPage;
     private JasperAccountManager accountManager;
 
-    public static enum OutputFormat {
+    public enum OutputFormat {
         HTML,
         PDF,
         XLS
@@ -195,45 +178,23 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
             if (reportDir == null) {
                 Toast.makeText(getActivity(), R.string.sr_failed_to_create_local_repo, Toast.LENGTH_SHORT).show();
             } else {
-                reportFile = new File(reportDir, reportName);
+                File reportFile = new File(reportDir, reportName);
 
                 if (reportFile.exists() || getSharedReportDir(reportName).exists()) {
                     // show validation message
                     reportNameInput.setError(getString(R.string.sr_error_report_exists));
                 } else {
-                    // save report
-                    // run new report execution
-                    setRefreshActionButtonState(true);
-                    disableAllViewsWhileSaving();
-
-                    final ReportExecutionRequest executionData = new ReportExecutionRequest();
-                    executionData.setReportUnitUri(resource.getUri());
-                    executionData.setInteractive(false);
-                    executionData.setOutputFormat(outputFormat.toString());
-                    executionData.setEscapedAttachmentsPrefix("./");
-
-                    boolean hasPagination = (pageCount > 1);
-                    if (hasPagination) {
-                        boolean rangeIsValid = mFromPage < mToPage;
-                        if (rangeIsValid) {
-                            executionData.setPages(mFromPage + "-" + mToPage);
-                        }
-                        boolean exactPage = (mFromPage == mToPage);
-                        if (exactPage) {
-                            executionData.setPages(String.valueOf(mFromPage));
-                        }
-                    }
-
-                    List<ReportParameter> reportParameters = paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
-
-                    if (!reportParameters.isEmpty()) {
-                        executionData.setParameters(reportParameters);
-                    }
+                    String pageRange = calculatePages(mFromPage, mToPage);
+                    ReportExecutionRequest executionData = createReportExecutionRequest(resource, outputFormat, pageRange);
 
                     RunReportExecutionRequest request =
                             new RunReportExecutionRequest(jsRestClient, executionData);
                     getSpiceManager().execute(request,
-                            new RunReportExecutionListener(outputFormat));
+                            new RunReportExecutionListener(outputFormat, reportFile, pageRange));
+
+                    ProgressDialogFragment.builder(getFragmentManager())
+                            .setLoadingMessage(R.string.loading_msg)
+                            .show();
                 }
             }
         }
@@ -301,22 +262,6 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void disableAllViewsWhileSaving() {
-        formatSpinner.setEnabled(false);
-        reportNameInput.setEnabled(false);
-        rangeControls.setEnabled(false);
-        fromPageControl.setEnabled(false);
-        toPageControl.setEnabled(false);
-    }
-
-    private void enableAllViewsAfterSaving() {
-        formatSpinner.setEnabled(true);
-        reportNameInput.setEnabled(true);
-        rangeControls.setEnabled(true);
-        fromPageControl.setEnabled(true);
-        toPageControl.setEnabled(true);
-    }
-
     private boolean isReportNameValid() {
         String reportName = reportNameInput.getText().toString();
 
@@ -361,60 +306,38 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         return new File(accountReportDir, reportName);
     }
 
-    private void addSavedItemRecord(File reportFile, OutputFormat fileFormat) {
-        Account currentAccount = JasperAccountManager.get(getActivity()).getActiveAccount();
-        SavedItems savedItemsEntry = new SavedItems();
+    private ReportExecutionRequest createReportExecutionRequest(ResourceLookup resource, SaveItemFragment.OutputFormat outputFormat,
+                                                                String pageRange) {
 
-        savedItemsEntry.setName(reportNameInput.getText().toString());
-        savedItemsEntry.setFilePath(reportFile.getPath());
-        savedItemsEntry.setFileFormat(fileFormat.toString());
-        savedItemsEntry.setDescription(resource.getDescription());
-        savedItemsEntry.setWstype(resource.getResourceType().toString());
-        savedItemsEntry.setCreationTime(new Date().getTime());
-        savedItemsEntry.setAccountName(currentAccount.name);
+        ReportExecutionRequest executionData = new ReportExecutionRequest();
+        executionData.setReportUnitUri(resource.getUri());
+        executionData.setInteractive(false);
+        executionData.setOutputFormat(outputFormat.toString());
+        executionData.setAsync(true);
+        executionData.setEscapedAttachmentsPrefix("./");
+        executionData.setPages(pageRange);
 
-        getActivity().getContentResolver().insert(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
-                savedItemsEntry.getContentValues());
-    }
-
-    private void setRefreshActionButtonState(boolean refreshing) {
-        if (refreshing) {
-            saveAction.setActionView(R.layout.actionbar_indeterminate_progress);
-        } else {
-            saveAction.setActionView(null);
+        List<ReportParameter> reportParameters = paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
+        if (!reportParameters.isEmpty()) {
+            executionData.setParameters(reportParameters);
         }
+
+        return executionData;
     }
 
-    private void removeArtifacts() {
-        removeTemplate();
-        removeRecord();
-    }
-
-    private void removeTemplate() {
-        if (reportFile == null) return;
-
-        File dir = reportFile.getParentFile();
-        try {
-            org.apache.commons.io.FileUtils.deleteDirectory(dir);
-        } catch (IOException e) {
-            Timber.w(TAG, "Failed to remove template file", e);
+    private String calculatePages(int fromPage, int toPage) {
+        boolean pagesNumbersIsValid = fromPage > 0 && toPage > 0 && toPage >= fromPage;
+        if (pagesNumbersIsValid) {
+            boolean isRange = fromPage < toPage;
+            if (isRange) {
+                return fromPage + "-" + toPage;
+            } else {
+                return String.valueOf(fromPage);
+            }
         }
-        Toast.makeText(getActivity(), R.string.sr_failed_to_execute_report, Toast.LENGTH_SHORT).show();
+        return "";
     }
 
-    private void removeRecord() {
-        if (recordUri == null) return;
-
-        getActivity().getContentResolver().delete(recordUri, null, null);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (runningRequests > 0) {
-            removeArtifacts();
-        }
-    }
     //---------------------------------------------------------------------
     // Page Select Listeners
     //---------------------------------------------------------------------
@@ -446,10 +369,13 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
 
     private class RunReportExecutionListener extends SimpleRequestListener<ReportExecutionResponse> {
         private OutputFormat outputFormat;
+        private File reportFile;
+        private String pageRange;
 
-        private RunReportExecutionListener(OutputFormat outputFormat) {
-            runningRequests++;
+        public RunReportExecutionListener(OutputFormat outputFormat, File reportFile, String pageRange) {
             this.outputFormat = outputFormat;
+            this.reportFile = reportFile;
+            this.pageRange = pageRange;
         }
 
         @Override
@@ -460,91 +386,17 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         @Override
         public void onRequestFailure(SpiceException exception) {
             super.onRequestFailure(exception);
-            setRefreshActionButtonState(false);
-            enableAllViewsAfterSaving();
-            runningRequests--;
-            removeArtifacts();
+            ProgressDialogFragment.dismiss(getFragmentManager());
         }
 
         @Override
         public void onRequestSuccess(ReportExecutionResponse response) {
-            runningRequests--;
+            ProgressDialogFragment.dismiss(getFragmentManager());
 
-            ExportExecution execution = response.getExports().get(0);
-            String exportOutput = execution.getId();
-            String executionId = response.getRequestId();
-
-            // save report file
-            SaveExportOutputRequest outputRequest = new SaveExportOutputRequest(jsRestClient,
-                    executionId, exportOutput, reportFile);
-            requests.add(outputRequest);
-            getSpiceManager().execute(outputRequest, new ReportFileSaveListener(outputFormat));
-
-            // save attachments
-            if (OutputFormat.HTML == outputFormat) {
-                for (ReportOutputResource attachment : execution.getAttachments()) {
-                    String attachmentName = attachment.getFileName();
-                    File attachmentFile = new File(reportFile.getParentFile(), attachmentName);
-
-                    SaveExportAttachmentRequest attachmentRequest = new SaveExportAttachmentRequest(jsRestClient,
-                            executionId, exportOutput, attachmentName, attachmentFile);
-                    requests.add(attachmentRequest);
-                    getSpiceManager().execute(attachmentRequest, new AttachmentFileSaveListener());
-                }
-            }
-        }
-    }
-
-    private class AttachmentFileSaveListener extends SimpleRequestListener<File> {
-
-        private AttachmentFileSaveListener() {
-            runningRequests++;
-        }
-
-        @Override
-        protected Context getContext() {
-            return getActivity();
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            super.onRequestFailure(exception);
-            for (SpiceRequest<?> request : requests) {
-                runningRequests--;
-                request.cancel();
-            }
-            removeArtifacts();
-            setRefreshActionButtonState(false);
-            enableAllViewsAfterSaving();
-        }
-
-        @Override
-        public void onRequestSuccess(File outputFile) {
-            runningRequests--;
-
-            if (runningRequests == 0) {
-                // activity is done and should be closed
-                setRefreshActionButtonState(false);
-                enableAllViewsAfterSaving();
-                Toast.makeText(getActivity(), R.string.sr_t_report_saved, Toast.LENGTH_SHORT).show();
-                getActivity().finish();
-            }
-        }
-
-    }
-
-    private class ReportFileSaveListener extends AttachmentFileSaveListener {
-        private OutputFormat outputFormat;
-
-        private ReportFileSaveListener(OutputFormat outputFormat) {
-            super();
-            this.outputFormat = outputFormat;
-        }
-
-        @Override
-        public void onRequestSuccess(File outputFile) {
-            addSavedItemRecord(reportFile, outputFormat);
-            super.onRequestSuccess(outputFile);
+            SaveReportService_.intent(getActivity()).saveReport(reportNameInput.getText().toString(), resource.getDescription(), outputFormat,
+                    reportFile, pageRange, response.getRequestId()).start();
+            Toast.makeText(getActivity().getApplicationContext(), getString(R.string.sdr_starting_downloading_msg), Toast.LENGTH_SHORT).show();
+            getActivity().finish();
         }
     }
 }

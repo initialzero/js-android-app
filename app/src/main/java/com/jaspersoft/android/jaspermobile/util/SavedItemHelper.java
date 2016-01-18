@@ -65,6 +65,16 @@ public class SavedItemHelper {
         }
     }
 
+    public void deleteSavedItem(File reportFile, Uri reportUri) {
+        File reportFolderFile = reportFile.getParentFile();
+        if (reportFolderFile.isDirectory()) {
+            boolean reportFolderDeleted = deleteReportFolder(reportFolderFile);
+            if (reportFolderDeleted) {
+                deleteReferenceInDb(reportUri);
+            }
+        }
+    }
+
     private boolean deleteReportFolder(File reportFolderFile) {
         try {
             FileUtils.deleteDirectory(reportFolderFile);
@@ -79,6 +89,10 @@ public class SavedItemHelper {
     private void deleteReferenceInDb(long reportId) {
         Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
                 String.valueOf(reportId));
-        context.getContentResolver().delete(uri, null, null);
+        deleteReferenceInDb(uri);
+    }
+
+    private void deleteReferenceInDb(Uri reportUri) {
+        context.getContentResolver().delete(reportUri, null, null);
     }
 }

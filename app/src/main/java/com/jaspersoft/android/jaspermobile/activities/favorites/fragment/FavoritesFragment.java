@@ -224,7 +224,7 @@ public class FavoritesFragment extends RoboFragment
             }
 
             @Override
-            public void onResourceInfoClicked(JasperResource jasperResource) {
+            public void onSecondaryActionClicked(JasperResource jasperResource) {
                 ResourceLookup resource = jasperResourceConverter.convertFavoriteToResourceLookup(jasperResource.getId(), getActivity());
 
                 ResourceInfoActivity_.intent(getActivity())

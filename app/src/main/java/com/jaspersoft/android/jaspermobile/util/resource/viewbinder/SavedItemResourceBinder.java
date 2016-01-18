@@ -68,4 +68,26 @@ class SavedItemResourceBinder extends ResourceBinder {
             imageView.setImageResource(iconRes);
         }
     }
+
+    @Override
+    protected void setSubtitle(ResourceView resourceView, JasperResource jasperResource) {
+        if (isDownloading(jasperResource)) {
+            resourceView.setSubTitle(getContext().getString(R.string.loading_msg));
+        } else {
+            super.setSubtitle(resourceView, jasperResource);
+        }
+    }
+
+    @Override
+    protected void setActionResource(ResourceView resourceView, JasperResource jasperResource) {
+        if (isDownloading(jasperResource)) {
+            resourceView.setSecondaryAction(R.drawable.im_cancel);
+        } else {
+            super.setActionResource(resourceView, jasperResource);
+        }
+    }
+
+    private boolean isDownloading(JasperResource jasperResource) {
+        return jasperResource.getResourceType() == JasperResourceType.saved_item && !((SavedItemResource) jasperResource).isDownloaded();
+    }
 }

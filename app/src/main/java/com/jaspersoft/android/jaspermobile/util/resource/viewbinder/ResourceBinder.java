@@ -25,12 +25,11 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
-import android.widget.ImageView;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.octo.android.robospice.request.SpiceRequest;
 
@@ -53,11 +52,30 @@ public abstract class ResourceBinder {
     public void bindView(ResourceView resourceView, JasperResource item) {
         unbindView(resourceView.getImageView());
         setIcon(resourceView.getImageView(), item);
+        setTitle(resourceView, item);
+        setSubtitle(resourceView, item);
+        setActionResource(resourceView, item);
+    }
+
+    public abstract void setIcon(TopCropImageView imageView, JasperResource jasperResource);
+
+    protected void setTitle (ResourceView resourceView, JasperResource item) {
         resourceView.setTitle(item.getLabel());
+    }
+
+    protected void setSubtitle (ResourceView resourceView, JasperResource item) {
         resourceView.setSubTitle(item.getDescription());
     }
 
-    protected final void unbindView(TopCropImageView imageView){
+    protected void setActionResource(ResourceView resourceView, JasperResource item) {
+        resourceView.setSecondaryAction(R.drawable.im_info);
+    }
+
+    protected Context getContext() {
+        return mContext;
+    }
+
+    private void unbindView(TopCropImageView imageView){
         Object fileTypeRequest = imageView.getTag();
         if (fileTypeRequest != null && fileTypeRequest instanceof SpiceRequest) {
             ((RoboSpiceActivity) mContext).getSpiceManager().cancel((SpiceRequest) fileTypeRequest);
@@ -65,10 +83,4 @@ public abstract class ResourceBinder {
 
         ImageLoader.getInstance().cancelDisplayTask(imageView);
     }
-
-    public Context getContext() {
-        return mContext;
-    }
-
-    public abstract void setIcon(TopCropImageView imageView, JasperResource jasperResource);
 }

@@ -26,6 +26,6 @@ public abstract class BaseResourceViewHolder extends RecyclerView.ViewHolder imp
     //---------------------------------------------------------------------
     public interface OnViewClickListener {
         void onViewSingleClick(int position);
-        void onViewInfoClick(int position);
+        void onSecondaryActionClick(int position);
     }
 }

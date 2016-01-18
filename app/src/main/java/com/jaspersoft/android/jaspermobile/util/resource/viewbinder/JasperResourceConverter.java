@@ -164,8 +164,9 @@ public class JasperResourceConverter {
                 String fileDescription = cursor.getString(cursor.getColumnIndex(SavedItemsTable.DESCRIPTION));
                 String fileFormat = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
                 SavedItemResource.FileType fileType = SavedItemResource.FileType.getValueOf(fileFormat);
+                boolean downloaded = cursor.getInt(cursor.getColumnIndex(SavedItemsTable.DOWNLOADED)) == 1;
 
-                JasperResource resource = new SavedItemResource(entryUri, fileName, fileDescription, fileType);
+                JasperResource resource = new SavedItemResource(entryUri, fileName, fileDescription, fileType, downloaded);
                 jasperResourceList.add(resource);
             } while (cursor.moveToNext());
         }
@@ -185,13 +186,17 @@ public class JasperResourceConverter {
     public ResourceLookup convertFavoriteToResourceLookup(String id, Context context) {
         Cursor cursor = context.getContentResolver().query(Uri.parse(id), null, null, null, null);
         cursor.moveToFirst();
-        return convertFromFavoritesCursorToLookup(cursor);
+        ResourceLookup resourceLookup = convertFromFavoritesCursorToLookup(cursor);
+        cursor.close();
+        return resourceLookup;
     }
 
     public File convertToFile(String id, Context context) {
         Cursor cursor = context.getContentResolver().query(Uri.parse(id), null, null, null, null);
         cursor.moveToFirst();
-        return new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
+        File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
+        cursor.close();
+        return file;
     }
 
     private ResourceLookup convertFromFavoritesCursorToLookup(Cursor cursor) {

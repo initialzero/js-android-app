@@ -2,15 +2,10 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
-import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,7 +105,7 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
     //---------------------------------------------------------------------
     public interface OnResourceInteractionListener {
         void onResourceItemClicked(String id);
-        void onResourceInfoClicked(JasperResource jasperResource);
+        void onSecondaryActionClicked(JasperResource jasperResource);
     }
 
     private class OnResourceItemClickListener implements BaseResourceViewHolder.OnViewClickListener {
@@ -123,10 +118,10 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
         }
 
         @Override
-        public void onViewInfoClick(int position) {
+        public void onSecondaryActionClick(int position) {
             if (mItemInteractionListener != null) {
                 JasperResource jasperResource = jasperResources.get(position);
-                mItemInteractionListener.onResourceInfoClicked(jasperResource);
+                mItemInteractionListener.onSecondaryActionClicked(jasperResource);
             }
         }
     }

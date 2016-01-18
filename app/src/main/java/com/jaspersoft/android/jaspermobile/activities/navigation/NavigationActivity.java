@@ -118,6 +118,13 @@ public class NavigationActivity extends RoboSpiceActivity {
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        currentSelection = intent.getIntExtra(NavigationActivity_.CURRENT_SELECTION_EXTRA, R.id.vg_library);
+        navigateToCurrentSelection();
+    }
+
+    @Override
     protected void onAccountsChanged() {
         navigationPanelLayout.notifyAccountChange();
     }

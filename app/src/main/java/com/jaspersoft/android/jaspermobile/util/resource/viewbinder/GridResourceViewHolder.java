@@ -5,7 +5,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 
 /**
@@ -19,14 +18,14 @@ import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 public class GridResourceViewHolder extends BaseResourceViewHolder {
     protected TopCropImageView ivIcon;
     protected TextView tvName;
-    protected ImageButton btnInfo;
+    protected ImageButton btnSecondaryAction;
 
     public GridResourceViewHolder(View itemView) {
         super(itemView);
 
         this.ivIcon = (TopCropImageView) itemView.findViewById(android.R.id.icon);
         this.tvName = (TextView) itemView.findViewById(android.R.id.text1);
-        this.btnInfo = (ImageButton) itemView.findViewById(R.id.showInfo);
+        this.btnSecondaryAction = (ImageButton) itemView.findViewById(R.id.secondaryAction);
 
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,11 +36,11 @@ public class GridResourceViewHolder extends BaseResourceViewHolder {
             }
         });
 
-        btnInfo.setOnClickListener(new View.OnClickListener() {
+        btnSecondaryAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mItemInteractionListener != null) {
-                    mItemInteractionListener.onViewInfoClick(getAdapterPosition());
+                    mItemInteractionListener.onSecondaryActionClick(getAdapterPosition());
                 }
             }
         });
@@ -60,5 +59,10 @@ public class GridResourceViewHolder extends BaseResourceViewHolder {
     @Override
     public TopCropImageView getImageView() {
         return ivIcon;
+    }
+
+    @Override
+    public void setSecondaryAction(int actionImage) {
+        btnSecondaryAction.setImageResource(actionImage);
     }
 }

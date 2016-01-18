@@ -25,8 +25,14 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
+import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 
 /**
@@ -34,16 +40,21 @@ import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
  * @since 1.9
  */
 class UnknownResourceBinder extends ResourceBinder {
-
     public UnknownResourceBinder(Context context) {
         super(context);
     }
 
     @Override
-    public void setIcon(TopCropImageView imageView, String uri) {
-        imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
+    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
         imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
-        imageView.setImageResource(R.drawable.ic_undefined);
+        imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
+        ImageLoader.getInstance().displayImage("", imageView, getDisplayImageOptions());
+    }
+
+    private DisplayImageOptions getDisplayImageOptions() {
+        return new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.ic_undefined)
+                .build();
     }
 
 }

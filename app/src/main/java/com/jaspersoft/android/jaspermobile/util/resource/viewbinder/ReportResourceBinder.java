@@ -27,17 +27,24 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 import android.accounts.Account;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
+import com.jaspersoft.android.jaspermobile.util.resource.ReportResource;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import roboguice.RoboGuice;
 
@@ -46,45 +53,53 @@ import roboguice.RoboGuice;
  * @since 1.9
  */
 class ReportResourceBinder extends ResourceBinder {
-    private final boolean isAmberOrHigher;
 
     @Inject
     protected JsRestClient jsRestClient;
 
+    private ImageView thumbnail;
+
     public ReportResourceBinder(Context context) {
         super(context);
         RoboGuice.getInjector(context).injectMembersWithoutViews(this);
-
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(context, account);
-        ServerRelease serverRelease = ServerRelease.parseVersion(serverData.getVersionName());
-        isAmberOrHigher = serverRelease.code() >= ServerRelease.AMBER.code();
     }
 
     @Override
-    public void setIcon(TopCropImageView imageView, String uri) {
-        imageView.setScaleType(TopCropImageView.ScaleType.TOP_CROP);
+    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
-        imageView.setImageResource(R.drawable.placeholder_report);
-        loadFromNetwork(imageView, uri);
+        imageView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+
+        if (jasperResource.getResourceType() == JasperResourceType.report) {
+            String thumbnailUri = ((ReportResource) jasperResource).getThumbnailUri();
+            thumbnail = imageView;
+            loadFromNetwork(thumbnailUri);
+        }
     }
 
-    private void loadFromNetwork(ImageView imageView, String uri) {
-        String path = "";
-        if (isAmberOrHigher) {
-            path = jsRestClient.generateThumbNailUri(uri);
-        }
+    private void loadFromNetwork(String uri) {
         ImageLoader.getInstance().displayImage(
-                path, imageView, getDisplayImageOptions()
-        );
+                uri, thumbnail, getDisplayImageOptions(),
+                new ThumbnailLoadingListener());
     }
 
     private DisplayImageOptions getDisplayImageOptions() {
         return new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.drawable.placeholder_report)
+                .showImageForEmptyUri(R.drawable.placeholder_report)
                 .considerExifParams(true)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .build();
     }
+
+    private static class ThumbnailLoadingListener extends SimpleImageLoadingListener {
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            if (view != null) {
+                ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.TOP_CROP);
+            }
+        }
+    }
+
 }

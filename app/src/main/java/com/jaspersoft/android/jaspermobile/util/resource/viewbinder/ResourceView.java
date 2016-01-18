@@ -36,7 +36,5 @@ public interface ResourceView {
 
     void setSubTitle(CharSequence subTitle);
 
-    void setInfo(CharSequence timestamp);
-
     TopCropImageView getImageView();
 }

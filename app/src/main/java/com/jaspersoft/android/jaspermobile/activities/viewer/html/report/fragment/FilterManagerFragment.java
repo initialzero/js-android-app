@@ -120,14 +120,18 @@ public class FilterManagerFragment extends RoboSpiceFragment {
                 .setSpiceManager(getSpiceManager())
                 .create();
 
-        final GetInputControlsRequest request =
-                new GetInputControlsRequest(jsRestClient, resource.getUri());
-        requestExecutor.execute(request, new GetInputControlsListener(), new RequestExecutor.OnProgressDialogCancelListener() {
-            @Override
-            public void onCancel() {
-                getActivity().finish();
-            }
-        });
+        if (getReportParameters().isEmpty()) {
+            final GetInputControlsRequest request =
+                    new GetInputControlsRequest(jsRestClient, resource.getUri());
+            requestExecutor.execute(request, new GetInputControlsListener(), new RequestExecutor.OnProgressDialogCancelListener() {
+                @Override
+                public void onCancel() {
+                    getActivity().finish();
+                }
+            });
+        } else {
+            getReportExecutionFragment().executeReport(getReportParameters());
+        }
     }
 
     @Override

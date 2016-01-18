@@ -8,12 +8,14 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetFileResourceRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.SpiceRequest;
 
 import roboguice.RoboGuice;
 
@@ -23,10 +25,9 @@ import roboguice.RoboGuice;
  */
 public class FileResourceBinder extends ResourceBinder {
 
-    private final SpiceManager mSpiceManager;
     @Inject
     protected JsRestClient jsRestClient;
-    private GetFileResourceRequest mFileResourceRequest;
+    private final SpiceManager mSpiceManager;
 
     public FileResourceBinder(Context context) {
         super(context);
@@ -35,23 +36,21 @@ public class FileResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void setIcon(TopCropImageView imageView, String uri) {
+    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
         imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
         imageView.setImageResource(R.drawable.ic_file);
-        loadFileType(imageView, uri);
-    }
 
-    @Override
-    public void unbindView() {
-        if (mFileResourceRequest != null) {
-            mFileResourceRequest.cancel();
+        if (jasperResource instanceof FileResource) {
+            loadFileType(imageView, ((FileResource) jasperResource).getFileUri());
         }
     }
 
     private void loadFileType(final ImageView imageView, String uri) {
-        mFileResourceRequest = new GetFileResourceRequest(jsRestClient, uri);
+        GetFileResourceRequest mFileResourceRequest = new GetFileResourceRequest(jsRestClient, uri);
         long cacheExpiryDuration = DefaultPrefHelper_.getInstance_(getContext()).getRepoCacheExpirationValue();
+
+        imageView.setTag(mFileResourceRequest);
         mSpiceManager.execute(mFileResourceRequest, mFileResourceRequest.createCacheKey(), cacheExpiryDuration, new SimpleRequestListener<FileLookup>() {
             @Override
             protected Context getContext() {

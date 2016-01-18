@@ -25,9 +25,13 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
+import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * @author Tom Koptel
@@ -40,7 +44,7 @@ class FolderResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void setIcon(TopCropImageView imageView, String uri) {
+    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
         imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_blue);
         imageView.setImageResource(R.drawable.ic_folder);

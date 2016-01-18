@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_item_height"
+    android:background="@android:color/white">
+
+    <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
+        android:id="@android:id/icon"
+        android:layout_width="@dimen/list_item_image_width"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:contentDescription="@string/img_cd_list_item"
+        android:scaleType="fitXY"
+        tools:layout_width="96dp"
+        tools:background="@drawable/bg_gradient_grey"
+        tools:src="@drawable/placeholder_report" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_resource_item" />
+
+    <LinearLayout
+        android:id="@+id/metadataContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="16dp"
+        android:layout_toLeftOf="@+id/showInfo"
+        android:layout_toRightOf="@android:id/icon"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@android:id/text1"
+            style="@style/Widget.JasperMobile.TextView.List.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            tools:text="Large Text" />
+
+        <TextView
+            android:id="@android:id/text2"
+            style="@style/Widget.JasperMobile.TextView.List.SubTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            tools:text="Small Text" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/showInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/bg_info_btn"
+        android:padding="16dp"
+        android:src="@drawable/ic_info" />
+
+</RelativeLayout>

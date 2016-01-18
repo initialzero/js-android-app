@@ -133,6 +133,20 @@
     <string name="ro_deselect_all" translatable="false">Deselect all</string>
     <string name="ro_inverse" translatable="false">Inverse</string>
     <string name="ro_search" translatable="false">Search list…</string>
+    <string name="ro_show" translatable="false">Saved values</string>
+
+    <!-- Resource Info Activity -->
+    <string name="ri_report_option_title" translatable="false">Report options:</string>
+    <string name="ri_type_title" translatable="false">Type:</string>
+    <string name="ri_label_title" translatable="false">Label:</string>
+    <string name="ri_description_title" translatable="false">Description:</string>
+    <string name="ri_uri_title" translatable="false">URI:</string>
+    <string name="ri_modified_title" translatable="false">Modified date:</string>
+    <string name="ri_creation_title" translatable="false">Creation date:</string>
+    <string name="ri_file_format" translatable="false">File format:</string>
+    <string name="ri_file_size" translatable="false">File size:</string>
+    <string name="ri_version_title" translatable="false">Version:</string>
+    <string name="ri_permissions_title" translatable="false">User Access:</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
@@ -192,6 +206,7 @@
     <!-- Remove Favorites Dialog -->
     <string name="sdr_dfd_title">Remove from Favorites</string>
     <string name="sdr_dfd_msg">Do you really want to remove \"%s\"?</string>
+    <string name="sdr_dfd_msg_multi" translatable="false">Do you really want to remove selected items (%s items)?</string>
 
     <!-- Toasts -->
     <string name="sdr_t_no_app_available">No \"%s\" viewer installed.</string>

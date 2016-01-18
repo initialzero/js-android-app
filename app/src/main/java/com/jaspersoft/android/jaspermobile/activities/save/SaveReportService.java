@@ -68,13 +68,13 @@ public class SaveReportService extends RoboIntentService {
     NotificationManager mNotificationManager;
 
     private Queue<Uri> mRecordUrisQe;
-    private Set<Uri> mRecordsToDel;
+    private List<Uri> mRecordsToDel;
     private Uri mCurrent;
 
     public SaveReportService() {
         super(TAG);
         mRecordUrisQe = new LinkedList<>();
-        mRecordsToDel = new ArraySet<>();
+        mRecordsToDel = new ArrayList<>();
     }
 
     @Override

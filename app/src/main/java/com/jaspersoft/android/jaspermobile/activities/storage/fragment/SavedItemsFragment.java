@@ -91,8 +91,6 @@ public class SavedItemsFragment extends RoboFragment
     protected ViewType viewType;
 
     @Inject
-    protected JsRestClient jsRestClient;
-    @Inject
     protected Analytics analytics;
 
     @InjectView(android.R.id.list)

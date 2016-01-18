@@ -156,13 +156,12 @@ public class HtmlFileViewFragment extends FileLoadFragment {
         return null;
     }
 
-    private WebResourceResponse fetchAttachment(WebResourceRequest request) throws LoginException, RestClientException {
-        File attachmentFile = getResourceFile(getAttachmentUrl(request.getUrl().toString()));
+    private WebResourceResponse fetchAttachment(String url) throws LoginException, RestClientException {
+        File attachmentFile = getResourceFile(getAttachmentUrl(url));
         InputStream attachmentInputStream = getCachedAttachment(attachmentFile);
 
         if (attachmentInputStream == null) {
-            String attachmentUri = request.getUrl().toString();
-            byte[] attachmentBinary = jsRestClient.getResourceBinaryData(attachmentUri);
+            byte[] attachmentBinary = jsRestClient.getResourceBinaryData(url);
             cacheAttachment(attachmentFile, attachmentBinary);
             attachmentInputStream = new ByteArrayInputStream(attachmentBinary);
         }
@@ -182,22 +181,12 @@ public class HtmlFileViewFragment extends FileLoadFragment {
 
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-            WebResourceResponse webResourceResponse = null;
-            try {
-                webResourceResponse = fetchAttachment(request);
-            } catch (LoginException ex) {
-                try {
-                    reLogin();
-                    webResourceResponse = fetchAttachment(request);
-                } catch (LoginException exception) {
-                    return webResourceResponse;
-                } catch (JasperAccountManager.TokenException e) {
-                    mException = e;
-                }
-            } catch (RestClientException ex) {
-                mException = ex;
-            }
-            return webResourceResponse;
+            return createWebResourceResponse(request.getUrl().toString());
+        }
+
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            return createWebResourceResponse(url);
         }
 
         @Override
@@ -210,6 +199,26 @@ public class HtmlFileViewFragment extends FileLoadFragment {
                 RequestExceptionHandler.handle(mException, getActivity());
                 showErrorMessage();
             }
+        }
+
+        private WebResourceResponse createWebResourceResponse(String url) {
+            WebResourceResponse webResourceResponse = null;
+            try {
+                webResourceResponse = fetchAttachment(url);
+            } catch (LoginException ex) {
+                try {
+                    reLogin();
+                    webResourceResponse = fetchAttachment(url);
+                } catch (LoginException exception) {
+                    return webResourceResponse;
+                } catch (JasperAccountManager.TokenException e) {
+                    mException = e;
+                }
+            } catch (RestClientException ex) {
+                mException = ex;
+            }
+
+            return webResourceResponse;
         }
     }
 }

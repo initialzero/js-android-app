@@ -26,6 +26,8 @@ package com.jaspersoft.android.jaspermobile.activities.library.fragment;
 
 import android.accounts.Account;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -37,18 +39,23 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.library.LibrarySearchableActivity_;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
+import com.jaspersoft.android.jaspermobile.util.VoiceRecognitionHelper;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
@@ -269,6 +276,24 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         loadFirstPage();
     }
 
+    public void handleVoiceCommand(ArrayList<String> matches) {
+        VoiceRecognitionHelper.VoiceCommand voiceCommand = VoiceRecognitionHelper.parseCommand(matches);
+        switch (voiceCommand.getCommand()) {
+            case VoiceRecognitionHelper.VoiceCommand.FIND:
+                Intent searchIntent = LibrarySearchableActivity_
+                        .intent(getActivity())
+                        .query(voiceCommand.getArgument())
+                        .get();
+                getActivity().startActivity(searchIntent);
+                break;
+            case VoiceRecognitionHelper.VoiceCommand.RUN:
+                requestResourceLookup(voiceCommand.getArgument());
+                break;
+            default:
+                Toast.makeText(getActivity(), R.string.voice_command_undefined, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void loadFirstPage() {
         mSearchCriteria.setOffset(0);
         loadResources(mLoaderState);
@@ -364,6 +389,19 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
+    private void requestResourceLookup(String label) {
+        List<String> resTypes = new ArrayList<String>() {{
+            add(ResourceLookup.ResourceType.reportUnit.name());
+        }};
+
+        ProgressDialogFragment.builder(getActivity().getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
+
+        GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, "/", label, resTypes, true, 0, 0);
+        getSpiceManager().execute(request, new GetResourceMetadataListener(label));
+    }
+
     private void showEmptyText(int resId) {
         boolean noItems = (mAdapter.getItemCount() > 0);
         emptyText.setVisibility(noItems ? View.GONE : View.VISIBLE);
@@ -412,9 +450,42 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         }
     }
 
-    //---------------------------------------------------------------------
-    // Implements AbsListView.OnScrollListener
-    //---------------------------------------------------------------------
+    private class GetResourceMetadataListener extends SimpleRequestListener<ResourceLookupsList> {
+
+        private String mResourceQuery;
+
+        public GetResourceMetadataListener(String mResourceQuery) {
+            this.mResourceQuery = mResourceQuery;
+        }
+
+        @Override
+        protected Context getContext() {
+            return getActivity();
+        }
+
+        @Override
+        public void onRequestFailure(SpiceException exception) {
+            super.onRequestFailure(exception);
+
+            ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+        }
+
+        @Override
+        public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
+            ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+
+            if (resourceLookupsList.getResourceLookups().isEmpty()) {
+                Toast.makeText(getActivity(), "Can not find " + "\"" + mResourceQuery + "\"", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            resourceOpener.openResource(LibraryFragment.this, resourceLookupsList.getResourceLookups().get(0));
+        }
+    }
+
+//---------------------------------------------------------------------
+// Implements AbsListView.OnScrollListener
+//---------------------------------------------------------------------
 
     private class ScrollListener extends RecyclerView.OnScrollListener {
 

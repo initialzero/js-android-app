@@ -65,28 +65,16 @@ public class ReportActionFragment extends Fragment {
     @OptionsMenuItem
     MenuItem aboutAction;
 
-    @InstanceState
-    Uri favoriteEntryUri;
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState == null) {
-            favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
-        }
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
-        favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+        super.onCreateOptionsMenu(menu, menuInflater);
+
+        favoritesHelper.updateFavoriteIconState(favoriteAction, resource.getUri());
     }
 
     @OptionsItem
     final void favoriteAction() {
-        favoriteEntryUri = favoritesHelper.
-                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
+        favoritesHelper.switchFavoriteState(resource, favoriteAction);
     }
 
     @OptionsItem

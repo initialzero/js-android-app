@@ -127,15 +127,12 @@
 
     <!-- Settings activity -->
     <string name="st_title">Configurações</string>
-    <string name="st_category_repo_cache">Cache do repositório</string>
     <string name="st_category_connection">Conexão</string>
     <string name="st_title_cache_enable">Ativar cache</string>
-    <string name="st_title_cache_expiration">Expiração do cache</string>
     <string name="st_title_connect_timeout">Tempo limite da conexão</string>
     <string name="st_title_read_timeout">Tempo limite da leitura de dados</string>
     <string name="st_title_animations">Animações</string>
     <string name="st_send_crashes">Enviar relatórios de falhas</string>
-    <string name="st_summary_cache_enable">Solicitações de repositório de cache para o período de tempo especificado</string>
     <string name="st_summary_sec">%s seg</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Formato do número inválido</string>

@@ -29,7 +29,6 @@ import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 
@@ -40,6 +39,9 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -57,7 +59,7 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
     protected File reportFile;
 
     @Extra
-    protected long reportId;
+    protected String recordUri;
 
     @Extra
     protected String resourceLabel;
@@ -87,12 +89,11 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void deleteItem() {
-        Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
-                String.valueOf(reportId));
+        Uri uri = Uri.parse(recordUri);
 
         DeleteDialogFragment.createBuilder(this, getSupportFragmentManager())
                 .setFile(reportFile)
-                .setRecordUri(uri)
+                .setRecordsUri(uri.toString())
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getString(R.string.sdr_drd_msg, resourceLabel))
@@ -111,8 +112,8 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     @Override
-    public void onDeleteConfirmed(Uri itemToDelete, File fileToDelete) {
-        long id = Long.valueOf(itemToDelete.getLastPathSegment());
+    public void onDeleteConfirmed(String itemsToDelete, File filesToDelete) {
+        long id = Long.valueOf(Uri.parse(itemsToDelete).getLastPathSegment());
         savedItemHelper.deleteSavedItem(reportFile, id);
         finish();
     }

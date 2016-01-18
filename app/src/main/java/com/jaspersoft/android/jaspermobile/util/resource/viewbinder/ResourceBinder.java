@@ -27,7 +27,12 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 import android.content.Context;
 import android.widget.ImageView;
 
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.octo.android.robospice.request.SpiceRequest;
 
 import timber.log.Timber;
 
@@ -35,24 +40,35 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-abstract class ResourceBinder {
+public abstract class ResourceBinder {
     private static final String LOG_TAG = ResourceBinder.class.getSimpleName();
     private final Context mContext;
 
     public ResourceBinder(Context context) {
         mContext = context;
+
         Timber.tag(ResourceBinder.LOG_TAG);
     }
 
-    public void bindView(ResourceView resourceView, ResourceLookup item) {
-        setIcon(resourceView.getImageView(), item.getUri());
+    public void bindView(ResourceView resourceView, JasperResource item) {
+        unbindView(resourceView.getImageView());
+        setIcon(resourceView.getImageView(), item);
         resourceView.setTitle(item.getLabel());
         resourceView.setSubTitle(item.getDescription());
+    }
+
+    protected final void unbindView(TopCropImageView imageView){
+        Object fileTypeRequest = imageView.getTag();
+        if (fileTypeRequest != null && fileTypeRequest instanceof SpiceRequest) {
+            ((RoboSpiceActivity) mContext).getSpiceManager().cancel((SpiceRequest) fileTypeRequest);
+        }
+
+        ImageLoader.getInstance().cancelDisplayTask(imageView);
     }
 
     public Context getContext() {
         return mContext;
     }
 
-    public abstract void setIcon(ImageView imageView, String uri);
+    public abstract void setIcon(TopCropImageView imageView, JasperResource jasperResource);
 }

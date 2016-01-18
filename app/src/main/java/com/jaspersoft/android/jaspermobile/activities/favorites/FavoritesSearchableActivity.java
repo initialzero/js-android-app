@@ -60,4 +60,9 @@ public class FavoritesSearchableActivity extends RoboSpiceActivity {
         }
 
     }
+
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_se_s);
+    }
 }

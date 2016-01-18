@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -28,7 +28,6 @@ import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.storage.adapter.FileAdapter;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
@@ -43,6 +42,12 @@ import java.util.List;
 @EBean
 public class StorageResourceFilter extends ResourceFilter {
 
+    public enum FileType {
+        HTML,
+        PDF,
+        XLS,
+        UNKNOWN
+    }
 
     @RootContext
     protected FragmentActivity activity;
@@ -94,30 +99,30 @@ public class StorageResourceFilter extends ResourceFilter {
 
     private Filter getFilterAll(){
         ArrayList<String> filterValues = new ArrayList<>();
-        filterValues.add(FileAdapter.FileType.HTML.toString());
-        filterValues.add(FileAdapter.FileType.PDF.toString());
-        filterValues.add(FileAdapter.FileType.XLS.toString());
+        filterValues.add(FileType.HTML.toString());
+        filterValues.add(FileType.PDF.toString());
+        filterValues.add(FileType.XLS.toString());
 
         return new Filter(StorageFilterCategory.all.name(), filterValues);
     }
 
     private Filter getFilterHtml(){
         ArrayList<String> filterValues = new ArrayList<>();
-        filterValues.add(FileAdapter.FileType.HTML.toString());
+        filterValues.add(FileType.HTML.toString());
 
         return new Filter(StorageFilterCategory.html.name(), filterValues);
     }
 
     private Filter getFilterPdf(){
         ArrayList<String> filterValues = new ArrayList<>();
-        filterValues.add(FileAdapter.FileType.PDF.toString());
+        filterValues.add(FileType.PDF.toString());
 
         return new Filter(StorageFilterCategory.pdf.name(), filterValues);
     }
 
     private Filter getFilterXls(){
         ArrayList<String> filterValues = new ArrayList<>();
-        filterValues.add(FileAdapter.FileType.XLS.toString());
+        filterValues.add(FileType.XLS.toString());
 
         return new Filter(StorageFilterCategory.xls.name(), filterValues);
     }

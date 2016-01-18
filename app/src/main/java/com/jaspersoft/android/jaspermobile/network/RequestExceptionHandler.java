@@ -56,7 +56,7 @@ public class RequestExceptionHandler {
         throw new AssertionError();
     }
 
-    public static void handle(Exception exception, Context context) {
+    public static void handle(Throwable exception, Context context) {
         if (exception == null) {
             throw new IllegalArgumentException("Exception should not be null");
         }
@@ -73,7 +73,7 @@ public class RequestExceptionHandler {
 
 
     @Nullable
-    public static String extractMessage(@NonNull Context context, @Nullable Exception exception) {
+    public static String extractMessage(@NonNull Context context, @Nullable Throwable exception) {
         if (exception == null) {
             throw new IllegalArgumentException("Exception should not be null");
         }
@@ -90,7 +90,7 @@ public class RequestExceptionHandler {
     /**
      * Extracts HttpStatus code otherwise returns 0.
      */
-    public static int extractStatusCode(@NonNull Exception exception) {
+    public static int extractStatusCode(@NonNull Throwable exception) {
         if (exception instanceof NetworkException) {
             Throwable cause = exception.getCause();
             if (cause instanceof HttpStatusCodeException) {
@@ -118,7 +118,7 @@ public class RequestExceptionHandler {
      * Extracts Localized message otherwise returns null.
      */
     @Nullable
-    private static String extractMessage(@NonNull Context context, @NonNull Exception exception, int statusCode) {
+    private static String extractMessage(@NonNull Context context, @NonNull Throwable exception, int statusCode) {
         if (statusCode == 0) {
             if (exception instanceof NoNetworkException) {
                 return context.getString(R.string.no_network);
@@ -152,7 +152,7 @@ public class RequestExceptionHandler {
         }
     }
 
-    private static void showCommonErrorMessage(@NonNull Context context, @NonNull Exception exception) {
+    private static void showCommonErrorMessage(@NonNull Context context, @NonNull Throwable exception) {
         String message = extractMessage(context, exception);
         if (!TextUtils.isEmpty(message)) {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show();

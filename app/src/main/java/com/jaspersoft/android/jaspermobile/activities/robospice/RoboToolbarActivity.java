@@ -43,6 +43,7 @@ import android.widget.FrameLayout;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
@@ -81,6 +82,8 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     @Inject
     protected SecurityProviderUpdater mSecurityProviderUpdater;
+    @Inject
+    protected Analytics analytics;
 
     private final OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
@@ -187,6 +190,8 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             ViewServer.get(this).setFocusedWindow(this);
         }
         updateAccountDependentUi();
+
+        trackScreenView();
     }
 
     @Override
@@ -363,6 +368,17 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     }
 
     protected void onAccountsChanged() {
+    }
+
+    protected String getScreenName() {
+        return null;
+    }
+
+    protected void trackScreenView() {
+        String screenName = getScreenName();
+        if (screenName != null) {
+            analytics.sendScreenView(screenName, null);
+        }
     }
 
     public enum JasperAccountsStatus {

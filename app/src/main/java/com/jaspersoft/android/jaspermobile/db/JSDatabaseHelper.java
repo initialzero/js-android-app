@@ -51,13 +51,14 @@ public class JSDatabaseHelper extends JasperMobileDbDatabase {
         switch (oldVersion) {
             case 1:
             case 2:
-                new MigrationV2().migrate(db);
+                Migration.Factory.v2().migrate(db);
             case 3:
-                new MigrationV3(mContext).migrate(db);
+                Migration.Factory.v3(mContext).migrate(db);
             case 4:
-                new MigrationV4(mContext).migrate(db);
+                Migration.Factory.v4(mContext).migrate(db);
+                break;
             case 5:
-                new MigrationV5().migrate(db);
+                Migration.Factory.v5(mContext).migrate(db);
                 break;
         }
     }

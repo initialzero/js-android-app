@@ -25,31 +25,30 @@
 package com.jaspersoft.android.jaspermobile.activities.recent.fragment;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
-import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.filtering.RecentlyViewedResourceFilter;
-import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
+import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -61,8 +60,9 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.ItemClick;
 
+import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -71,14 +71,14 @@ import roboguice.inject.InjectView;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment
+@EFragment(R.layout.fragment_refreshable_resource)
 public class RecentFragment extends RoboSpiceFragment
-        implements SwipeRefreshLayout.OnRefreshListener, ResourceAdapter.ResourceInteractionListener {
+        implements SwipeRefreshLayout.OnRefreshListener {
     public static final String TAG = RecentFragment.class.getSimpleName();
     public static final String ROOT_URI = "/";
 
     @InjectView(android.R.id.list)
-    protected AbsListView listView;
+    protected JasperRecyclerView listView;
     @InjectView(R.id.refreshLayout)
     protected SwipeRefreshLayout swipeRefreshLayout;
 
@@ -89,6 +89,8 @@ public class RecentFragment extends RoboSpiceFragment
     protected JsRestClient jsRestClient;
     @Inject
     protected ResourceLookupSearchCriteria mSearchCriteria;
+    @Inject
+    protected Analytics analytics;
 
     @FragmentArg
     protected ViewType viewType;
@@ -100,24 +102,22 @@ public class RecentFragment extends RoboSpiceFragment
     @Bean
     protected FavoritesHelper favoritesHelper;
 
-    private ResourceAdapter mAdapter;
+    private JasperResourceAdapter mAdapter;
+    private HashMap<String, ResourceLookup> mResourceLookupHashMap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mResourceLookupHashMap = new HashMap<>();
 
         mSearchCriteria.setLimit(10);
         mSearchCriteria.setAccessType("viewed");
         mSearchCriteria.setTypes(recentlyViewedResourceFilter.getCurrent().getValues());
         mSearchCriteria.setSortBy(SortOrder.ACCESS_TIME.getValue());
         mSearchCriteria.setFolderUri(ROOT_URI);
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(
-                (viewType == ViewType.LIST) ? R.layout.fragment_resources_list : R.layout.fragment_resources_grid,
-                container, false);
+        analytics.setScreenName(Analytics.ScreenName.RECENTLY_VIEWED.getValue());
     }
 
     @Override
@@ -144,6 +144,10 @@ public class RecentFragment extends RoboSpiceFragment
         if (actionBar != null) {
             actionBar.setTitle(getString(R.string.recent_card_label));
         }
+
+        List<Analytics.Dimension> viewDimension = new ArrayList<>();
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
+        analytics.sendScreenView(Analytics.ScreenName.RECENTLY_VIEWED.getValue(),viewDimension);
     }
 
     @Override
@@ -152,37 +156,58 @@ public class RecentFragment extends RoboSpiceFragment
         super.onPause();
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        if (mAdapter != null) {
-            mAdapter.save(outState);
-        }
-        super.onSaveInstanceState(outState);
-    }
-
-    @ItemClick(android.R.id.list)
-    public void onItemClick(ResourceLookup resource) {
-        mAdapter.finishActionMode();
-        resourceOpener.openResource(this, resource);
-    }
-
     //---------------------------------------------------------------------
     // Implements SwipeRefreshLayout.OnRefreshListener
     //---------------------------------------------------------------------
 
     @Override
     public void onRefresh() {
+        clearData();
         loadResources();
+
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.RECENTLY_VIEWED.getValue());
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
+    private void clearData() {
+        mResourceLookupHashMap.clear();
+        mAdapter.clear();
+    }
+
+    private void addData(List<ResourceLookup> data) {
+        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
+        mResourceLookupHashMap.putAll(jasperResourceConverter.convertToDataMap(data));
+        mAdapter.addAll(jasperResourceConverter.convertToJasperResource(data));
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private void onViewSingleClick(ResourceLookup resource) {
+        resourceOpener.openResource(this, resource);
+    }
+
     private void setDataAdapter() {
-        mAdapter = new ResourceAdapter(getActivity(), null, viewType);
-        mAdapter.setResourcesInteractionListener(this);
-        mAdapter.setAdapterView(listView);
+        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
+
+        List<ResourceLookup> resourceLookupList = null;
+        mAdapter = new JasperResourceAdapter(getActivity(), jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
+        mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
+            @Override
+            public void onResourceItemClicked(String id) {
+                onViewSingleClick(mResourceLookupHashMap.get(id));
+            }
+
+            @Override
+            public void onResourceInfoClicked(JasperResource jasperResource) {
+                ResourceInfoActivity_.intent(getActivity())
+                        .jasperResource(jasperResource)
+                        .start();
+            }
+        });
+
+        listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
     }
 
@@ -196,7 +221,7 @@ public class RecentFragment extends RoboSpiceFragment
     }
 
     private void showEmptyText(int resId) {
-        boolean noItems = (mAdapter.getCount() > 0);
+        boolean noItems = (mAdapter.getItemCount() > 0);
         emptyText.setVisibility(noItems ? View.GONE : View.VISIBLE);
         if (resId != 0) emptyText.setText(resId);
     }
@@ -205,26 +230,6 @@ public class RecentFragment extends RoboSpiceFragment
         if (!refreshing) {
             swipeRefreshLayout.setRefreshing(false);
         }
-    }
-
-    //---------------------------------------------------------------------
-    // Implements FavoritesAdapter.FavoritesInteractionListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onFavorite(ResourceLookup resource) {
-        Uri uri = favoritesHelper.queryFavoriteUri(resource);
-        favoritesHelper.handleFavoriteMenuAction(uri, resource, null);
-    }
-
-    @Override
-    public void onInfo(String resourceTitle, String resourceDescription) {
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        SimpleDialogFragment.createBuilder(getActivity(), fm)
-                .setTitle(resourceTitle)
-                .setMessage(resourceDescription)
-                .setNegativeButtonText(R.string.ok)
-                .show();
     }
 
     //---------------------------------------------------------------------
@@ -247,13 +252,8 @@ public class RecentFragment extends RoboSpiceFragment
 
         @Override
         public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
-            // set data
-            List<ResourceLookup> datum = resourceLookupsList.getResourceLookups();
-            mAdapter.setNotifyOnChange(false);
-            mAdapter.clear();
-            mAdapter.addAll(datum);
-            mAdapter.setNotifyOnChange(true);
-            mAdapter.notifyDataSetChanged();
+
+            addData(resourceLookupsList.getResourceLookups());
 
             // set refresh states
             setRefreshState(false);
@@ -265,26 +265,17 @@ public class RecentFragment extends RoboSpiceFragment
     //---------------------------------------------------------------------
     // Implements AbsListView.OnScrollListener
     //---------------------------------------------------------------------
+    private class ScrollListener extends RecyclerView.OnScrollListener {
 
-    private class ScrollListener extends SimpleScrollListener {
         @Override
-        public void onScroll(AbsListView listView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
             enableRefreshLayout(listView);
         }
 
-        private void enableRefreshLayout(AbsListView listView) {
-            boolean enable = true;
-            if (listView != null && listView.getChildCount() > 0) {
-                // check if the first item of the list is visible
-                boolean firstItemVisible = listView.getFirstVisiblePosition() == 0;
-                // check if the top of the first item is visible
-                boolean topOfFirstItemVisible = listView.getChildAt(0).getTop() == 0;
-                // enabling or disabling the refresh layout
-                enable = firstItemVisible && topOfFirstItemVisible;
-            }
+        private void enableRefreshLayout(RecyclerView listView) {
+            boolean enable = !listView.canScrollVertically(-1);
             swipeRefreshLayout.setEnabled(enable);
         }
     }
-
-
 }

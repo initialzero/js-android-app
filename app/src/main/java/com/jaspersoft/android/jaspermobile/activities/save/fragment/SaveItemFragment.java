@@ -27,8 +27,12 @@ package com.jaspersoft.android.jaspermobile.activities.save.fragment;
 import android.accounts.Account;
 import android.app.ActionBar;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -73,6 +77,8 @@ import java.util.List;
 
 import timber.log.Timber;
 
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 /**
  * @author Tom Koptel
  * @since 1.9
@@ -85,6 +91,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
 
     private final static int FROM_PAGE_REQUEST_CODE = 1243;
     private final static int TO_PAGE_REQUEST_CODE = 2243;
+    private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 100;
 
     @ViewById(R.id.output_format_spinner)
     Spinner formatSpinner;
@@ -136,6 +143,33 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
 
     @OptionsItem
     final void saveAction() {
+        if (canMakeSmores()) {
+            boolean permissionDenied =
+                    (ContextCompat.checkSelfPermission(getActivity(), WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED);
+            if (permissionDenied) {
+                requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                return;
+            }
+        }
+        performSaveAction();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            performSaveAction();
+        } else {
+            Toast.makeText(getActivity(), R.string.enable_write_permission, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public boolean canMakeSmores() {
+        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    }
+
+    private void performSaveAction() {
         if (isReportNameValid()) {
             final OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
             String reportName = reportNameInput.getText() + "." + outputFormat;

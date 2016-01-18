@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -55,11 +55,11 @@ public class ErrorWebViewClientListener implements JasperWebViewClientListener {
     public void onReceivedError(int errorCode, String description, String failingUrl) {
         Context context = mContextWeakReference.get();
         if (context != null) {
-            delegateError(errorCode, context);
+            delegateError(errorCode, context, failingUrl);
         }
     }
 
-    private void delegateError(int errorCode, Context context) {
+    private void delegateError(int errorCode, Context context, String failingUrl) {
         String message = null;
         String title = null;
         if (errorCode == WebViewClient.ERROR_AUTHENTICATION) {
@@ -108,7 +108,7 @@ public class ErrorWebViewClientListener implements JasperWebViewClientListener {
             message = context.getString(R.string.error_webview_io_msg);
             title = context.getString(R.string.error_webview_io_title);
         }
-        mErrorListener.onWebViewError(title, message);
+        mErrorListener.onWebViewError(title, message, failingUrl, errorCode);
     }
 
     @Override
@@ -116,6 +116,6 @@ public class ErrorWebViewClientListener implements JasperWebViewClientListener {
     }
 
     public interface OnWebViewErrorListener {
-        void onWebViewError(String title, String message);
+        void onWebViewError(String title, String message, String failingUrl, int errorCode);
     }
 }

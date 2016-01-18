@@ -37,11 +37,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
@@ -49,6 +52,7 @@ import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragmen
 import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
@@ -74,10 +78,12 @@ import org.androidannotations.annotations.ViewById;
  * @since 1.0
  */
 @EActivity(R.layout.activity_navigation)
-@OptionsMenu(R.menu.cast_menu)
-public class NavigationActivity extends RoboCastActivity implements NavigationPanelController {
+public class NavigationActivity extends RoboCastActivity {
 
     private static final int NEW_ACCOUNT = 20;
+
+    @Inject
+    protected Analytics analytics;
 
     @ViewById(R.id.dl_navigation)
     protected DrawerLayout drawerLayout;
@@ -114,6 +120,13 @@ public class NavigationActivity extends RoboCastActivity implements NavigationPa
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        currentSelection = intent.getIntExtra(NavigationActivity_.CURRENT_SELECTION_EXTRA, R.id.vg_library);
+        navigateToCurrentSelection();
+    }
+
+    @Override
     protected void onAccountsChanged() {
         navigationPanelLayout.notifyAccountChange();
     }
@@ -143,14 +156,19 @@ public class NavigationActivity extends RoboCastActivity implements NavigationPa
     }
 
     @Override
-    public void onActionModeEnabled(boolean enabled) {
-        if (!enabled) {
-            getToolbar().setVisibility(View.VISIBLE);
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        } else {
-            getToolbar().setVisibility(View.INVISIBLE);
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        }
+    public void onSupportActionModeStarted(ActionMode mode) {
+        super.onSupportActionModeStarted(mode);
+
+        getToolbar().setVisibility(View.INVISIBLE);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    @Override
+    public void onSupportActionModeFinished(ActionMode mode) {
+        super.onSupportActionModeFinished(mode);
+
+        getToolbar().setVisibility(View.VISIBLE);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }
 
     @OnActivityResult(NEW_ACCOUNT)
@@ -213,6 +231,8 @@ public class NavigationActivity extends RoboCastActivity implements NavigationPa
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
+                analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.OPENED.getValue(), null);
+
                 invalidateOptionsMenu();
                 customToolbarDisplayEnabled = false;
                 setDisplayCustomToolbarEnable(false);

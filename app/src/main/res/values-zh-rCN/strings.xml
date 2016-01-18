@@ -82,12 +82,10 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">关于</string>
-    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ V%s<br><br>JasperReports® Server 5.5及以上版本的管理工具和报告查看器。<br><br>欲了解更多信息，请访问：<br><a href="http://community.jaspersoft.com/project/jaspermobile-android"> http://community.jaspersoft.com/project/jaspermobile-android </a><br><br>欲查看隐私政策信息，请访问：<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>©2005-2015 TIBCO Software, Inc.版权所有]]></string>
     <string name="sa_about_privacy">隐私政策</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">运行报告</string>
-    <string name="ro_page_title">筛选选项</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">保存报告</string>
@@ -129,15 +127,12 @@
 
     <!-- Settings activity -->
     <string name="st_title">设置</string>
-    <string name="st_category_repo_cache">存储库缓存</string>
     <string name="st_category_connection">连接</string>
     <string name="st_title_cache_enable">启用缓存</string>
-    <string name="st_title_cache_expiration">缓存过期</string>
     <string name="st_title_connect_timeout">连接超时</string>
     <string name="st_title_read_timeout">数据读取超时</string>
     <string name="st_title_animations">动画</string>
     <string name="st_send_crashes">发送崩溃报告</string>
-    <string name="st_summary_cache_enable">缓存存储库要求指定的时间量</string>
     <string name="st_summary_sec">%s 秒</string>
     <string name="st_summary_h">%s 小时</string>
     <string name="st_invalid_number_format">数字格式无效</string>

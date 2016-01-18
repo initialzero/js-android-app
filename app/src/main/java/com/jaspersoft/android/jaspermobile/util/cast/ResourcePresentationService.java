@@ -87,6 +87,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import roboguice.RoboGuice;
+import rx.Subscriber;
 import rx.functions.Action1;
 
 /**
@@ -377,7 +378,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         }
 
         @Override
-        public void onWebViewError(String title, String message) {
+        public void onWebViewError(String title, String message, String failingUrl, int errorCode) {
             handleError(title + "\n" + message);
         }
 
@@ -479,19 +480,24 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
         private void prepareReportCasting() {
             mPresentation.showLoading();
-            CookieManagerFactory.syncCookies(getContext()).subscribe(
-                    new Action1<Boolean>() {
-                        @Override
-                        public void call(Boolean aBoolean) {
-                            initWebView();
-                            loadVisualize();
-                        }
-                    }, new Action1<Throwable>() {
-                        @Override
-                        public void call(Throwable throwable) {
-                            handleError(throwable.getMessage());
-                        }
-                    });
+
+            CookieManagerFactory.syncCookies(getContext()).subscribe(new Subscriber<Void>() {
+                @Override
+                public void onCompleted() {
+                    initWebView();
+                    loadVisualize();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    handleError(e.getMessage());
+                }
+
+                @Override
+                public void onNext(Void aVoid) {
+
+                }
+            });
         }
 
         private void initWebView() {
@@ -693,6 +699,17 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                         reportPresentationListener.onPageChanged(page, errorMessage);
                     }
                     mCurrentPage = page;
+                }
+            });
+        }
+
+
+        @Override
+        public void onAuthError(final String error) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    handleError(error);
                 }
             });
         }

@@ -28,8 +28,10 @@ import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
@@ -40,6 +42,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Lega
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.SavedValuesActivity_;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
@@ -96,7 +99,14 @@ public class ResourceOpener {
             case dashboard:
                 runDashboard(resource);
                 break;
+            case file:
+                showFile(resource);
+                break;
+            case reportOptions:
+                showReportOption(resource);
+                break;
             default:
+                showUnsupported();
                 break;
         }
     }
@@ -156,5 +166,17 @@ public class ResourceOpener {
         if (isVisualizeEngine) {
             Amber2DashboardActivity_.intent(activity).resource(resource).start();
         }
+    }
+
+    private void showFile(ResourceLookup resource){
+        FileViewerActivity_.intent(activity).resourceLookup(resource).start();
+    }
+
+    private void showReportOption(ResourceLookup resource){
+        SavedValuesActivity_.intent(activity).resourceLookup(resource).start();
+    }
+
+    private void showUnsupported(){
+        Toast.makeText(activity, R.string.fv_undefined_message, Toast.LENGTH_SHORT).show();
     }
 }

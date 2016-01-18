@@ -92,6 +92,7 @@
         this.onTotalPagesLoaded = bind(this.onTotalPagesLoaded, this);
         this.onReportCompleted = bind(this.onReportCompleted, this);
         this.onLoadError = bind(this.onLoadError, this);
+        this.onAuthError = bind(this.onAuthError, this);
         this.onLoadDone = bind(this.onLoadDone, this);
         this.onLoadStart = bind(this.onLoadStart, this);
         this.onScriptLoaded = bind(this.onScriptLoaded, this);
@@ -121,6 +122,12 @@
           return Android.onLoadError(error);
         });
       };
+
+      ReportCallback.prototype.onAuthError = function(error) {
+              this.dispatch(function() {
+                return Android.onAuthError(error);
+              });
+            };
 
       ReportCallback.prototype.onReportCompleted = function(status, pages, error) {
         Android.onReportCompleted(status, pages, error);
@@ -641,9 +648,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       ReportController.prototype._processErrors = function(error) {
         js_mobile.log(error);
         if (error.errorCode === "authentication.error") {
-          js_mobile.log("onLoadStart");
-          this.callback.onLoadStart();
-          return this._runReportWithAuth(error);
+          this.callback.onAuthError(error.message);
         } else {
           return this.callback.onLoadError(error.message);
         }

@@ -60,7 +60,7 @@ import org.androidannotations.annotations.OptionsMenuItem;
  */
 @EActivity
 @OptionsMenu(R.menu.cast_menu)
-public abstract class RoboCastActivity extends RoboToolbarActivity {
+public abstract class RoboCastActivity extends RoboSpiceActivity {
 
     @OptionsMenuItem(R.id.castReport)
     protected MenuItem castAction;

@@ -22,44 +22,31 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.util;
+package com.jaspersoft.android.jaspermobile.widget;
 
-import android.app.Activity;
 import android.content.Context;
-import android.util.DisplayMetrics;
-
-import org.androidannotations.annotations.EBean;
-import org.androidannotations.annotations.RootContext;
+import android.util.AttributeSet;
+import android.webkit.WebView;
 
 /**
- * @author Tom Koptel
- * @since 2.0
+ * @author Andrew Tivodar
+ * @since 2.3
  */
-@EBean
-public class ScreenUtil {
-    @RootContext
-    protected Context context;
-
-    public double getDiagonal() {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-
-        int widthPixels = metrics.widthPixels;
-        int heightPixels = metrics.heightPixels;
-
-        float widthDpi = metrics.xdpi;
-        float heightDpi = metrics.ydpi;
-
-        float widthInches = widthPixels / widthDpi;
-        float heightInches = heightPixels / heightDpi;
-
-        return Math.sqrt(
-                (widthInches * widthInches)
-                        + (heightInches * heightInches));
+public class ScrollComputableWebView extends WebView {
+    public ScrollComputableWebView(Context context) {
+        super(context);
     }
 
-    public int getWidth() {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+    public ScrollComputableWebView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
-        return metrics.widthPixels;
+    public ScrollComputableWebView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    @Override
+    public int computeVerticalScrollRange() {
+        return super.computeVerticalScrollRange();
     }
 }

@@ -50,7 +50,7 @@ import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
@@ -72,6 +72,7 @@ import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
@@ -134,9 +135,9 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
  * @author Tom Koptel
  * @since 2.0
  */
-@OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu, R.menu.report_filter_manager_menu})
+@OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu, R.menu.report_filter_manager_menu, R.menu.print_menu})
 @EActivity(R.layout.activity_report_viewer)
-public class ReportViewerActivity extends RoboToolbarActivity
+public class ReportViewerActivity extends RoboCastActivity
         implements ReportCallback,
         AbstractPaginationView.OnPageChangeListener,
         GetInputControlsFragment.OnInputControlsListener,
@@ -267,7 +268,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        boolean result = super.onCreateOptionsMenu(menu);
+        super.onCreateOptionsMenu(menu);
         favoritesHelper.updateFavoriteIconState(favoriteAction, resource.getUri());
 
         saveReport.setVisible(mShowSaveAndPrintMenuItems);
@@ -281,7 +282,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
             inflater.inflate(R.menu.debug, menu);
         }
 
-        return result;
+        return true;
     }
 
     @Override
@@ -289,6 +290,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (mWebInterface != null) {
             mWebInterface.pause();
         }
+
         super.onPause();
     }
 
@@ -316,7 +318,18 @@ public class ReportViewerActivity extends RoboToolbarActivity
             webView.removeAllViews();
             webView.destroy();
         }
-        paramsStorage.clearInputControlHolder(resource.getUri());
+        if (!ResourcePresentationService.isStarted()) {
+            paramsStorage.clearInputControlHolder(resource.getUri());
+        }
+    }
+
+    @Override
+    protected void onCastStarted() {
+        ReportCastActivity_.intent(this)
+                .resource(resource)
+                .start();
+
+        finish();
     }
 
     @Override

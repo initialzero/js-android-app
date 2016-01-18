@@ -39,11 +39,13 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Reposi
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.SavedValuesActivity_;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
 import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
@@ -87,7 +89,11 @@ public class ResourceOpener {
                 openFolder(fragment, prefTag, resource);
                 break;
             case reportUnit:
-                runReport(resource);
+                if (ResourcePresentationService.isStarted()) {
+                    castReport(resource);
+                } else {
+                    runReport(resource);
+                }
                 break;
             case legacyDashboard:
             case dashboard:
@@ -132,6 +138,11 @@ public class ResourceOpener {
             ReportViewerActivity_.intent(activity)
                     .resource(resource).start();
         }
+    }
+
+    private void castReport(final ResourceLookup resource) {
+        ReportCastActivity_.intent(activity)
+                .resource(resource).start();
     }
 
     private void runDashboard(ResourceLookup resource) {

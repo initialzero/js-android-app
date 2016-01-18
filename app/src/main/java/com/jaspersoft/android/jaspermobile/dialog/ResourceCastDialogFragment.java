@@ -22,44 +22,26 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.util;
+package com.jaspersoft.android.jaspermobile.dialog;
 
-import android.app.Activity;
 import android.content.Context;
-import android.util.DisplayMetrics;
+import android.os.Bundle;
+import android.support.v7.app.MediaRouteControllerDialog;
+import android.support.v7.app.MediaRouteControllerDialogFragment;
 
-import org.androidannotations.annotations.EBean;
-import org.androidannotations.annotations.RootContext;
+import com.jaspersoft.android.jaspermobile.util.cast.ResourceCastDialog;
 
 /**
- * @author Tom Koptel
- * @since 2.0
+ * @author Andrew Tivodar
+ * @since 2.3
  */
-@EBean
-public class ScreenUtil {
-    @RootContext
-    protected Context context;
+public class ResourceCastDialogFragment extends MediaRouteControllerDialogFragment {
 
-    public double getDiagonal() {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+    @Override
+    public MediaRouteControllerDialog onCreateControllerDialog(Context context, Bundle savedInstanceState) {
+        MediaRouteControllerDialog mControllerDialog = new ResourceCastDialog(context);
 
-        int widthPixels = metrics.widthPixels;
-        int heightPixels = metrics.heightPixels;
-
-        float widthDpi = metrics.xdpi;
-        float heightDpi = metrics.ydpi;
-
-        float widthInches = widthPixels / widthDpi;
-        float heightInches = heightPixels / heightDpi;
-
-        return Math.sqrt(
-                (widthInches * widthInches)
-                        + (heightInches * heightInches));
-    }
-
-    public int getWidth() {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-
-        return metrics.widthPixels;
+        mControllerDialog.setVolumeControlEnabled(false);
+        return mControllerDialog;
     }
 }

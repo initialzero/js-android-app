@@ -25,9 +25,9 @@
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
-        <shape android:shape="oval">
+        <shape android:shape="rectangle">
             <solid android:color="@color/js_light_gray"/>
             </shape>
     </item>
-    <item android:drawable="@drawable/ic_menu_close"/>
+    <item android:drawable="@drawable/ic_report" android:left="8dp" android:right="8dp" android:top="8dp" android:bottom="8dp"/>
 </layer-list>

@@ -24,27 +24,19 @@
 
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.view.View;
 import android.widget.ImageView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.ReportResource;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.imageaware.ImageAware;
-import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 
 import roboguice.RoboGuice;
 
@@ -65,41 +57,44 @@ class ReportResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
-        imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
-        imageView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+    public void setIcon(ImageView imageView, JasperResource jasperResource) {
+        imageView.setBackground(null);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        loadFromNetwork(imageView, jasperResource, getDisplayImageOptions(R.drawable.im_report));
+    }
 
+    @Override
+    public void setThumbnail(ImageView imageView, JasperResource jasperResource) {
+        imageView.setBackground(null);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        loadFromNetwork(imageView, jasperResource, getDisplayImageOptions(R.drawable.im_thumbnail_report));
+    }
+
+    private void loadFromNetwork(ImageView imageView, JasperResource jasperResource, DisplayImageOptions displayImageOptions) {
         if (jasperResource.getResourceType() == JasperResourceType.report) {
             String thumbnailUri = ((ReportResource) jasperResource).getThumbnailUri();
             thumbnail = imageView;
-            loadFromNetwork(thumbnailUri);
+            ImageLoader.getInstance().displayImage(thumbnailUri, thumbnail, displayImageOptions);
         }
     }
 
-    private void loadFromNetwork(String uri) {
-        ImageLoader.getInstance().displayImage(
-                uri, thumbnail, getDisplayImageOptions(),
-                new ThumbnailLoadingListener());
-    }
-
-    private DisplayImageOptions getDisplayImageOptions() {
+    private DisplayImageOptions getDisplayImageOptions(int placeholderResource) {
         return new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.drawable.placeholder_report)
-                .showImageForEmptyUri(R.drawable.placeholder_report)
+                .showImageOnLoading(placeholderResource)
+                .showImageForEmptyUri(placeholderResource)
                 .considerExifParams(true)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
+                .preProcessor(new BitmapProcessor() {
+                    @Override
+                    public Bitmap process(Bitmap bitmap) {
+                        int scaledWidth = (int) (bitmap.getWidth() * 0.66);
+                        int newHeight = scaledWidth < bitmap.getHeight() ? scaledWidth : bitmap.getHeight();
+                        return Bitmap.createBitmap(bitmap, 3, 3, bitmap.getWidth() - 6, newHeight - 6);
+                    }
+                })
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .build();
-    }
-
-    private static class ThumbnailLoadingListener extends SimpleImageLoadingListener {
-        @Override
-        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            if (view != null) {
-                ((TopCropImageView) view).setScaleType(TopCropImageView.ScaleType.TOP_CROP);
-            }
-        }
     }
 
 }

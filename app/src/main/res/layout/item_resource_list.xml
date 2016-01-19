@@ -5,21 +5,20 @@
     android:layout_height="@dimen/list_item_height"
     android:background="@android:color/white">
 
-    <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
-        android:id="@android:id/icon"
-        android:layout_width="@dimen/list_item_image_width"
-        android:layout_height="match_parent"
-        android:background="@android:color/white"
-        android:contentDescription="@string/img_cd_list_item"
-        android:scaleType="fitXY"
-        tools:layout_width="96dp"
-        tools:background="@drawable/bg_gradient_grey"
-        tools:src="@drawable/placeholder_report" />
-
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/bg_resource_item" />
+
+    <ImageView
+        android:id="@android:id/icon"
+        android:layout_width="@dimen/list_item_image_width"
+        android:layout_height="@dimen/list_item_image_width"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:contentDescription="@string/img_cd_list_item"
+        tools:scaleType="centerInside"
+        tools:src="@drawable/im_report"/>
 
     <LinearLayout
         android:id="@+id/metadataContainer"

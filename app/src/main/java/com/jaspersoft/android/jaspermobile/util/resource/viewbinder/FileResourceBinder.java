@@ -9,13 +9,11 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivit
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.GetFileResourceRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.SpiceRequest;
 
 import roboguice.RoboGuice;
 
@@ -36,8 +34,8 @@ public class FileResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
-        imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
+    public void setIcon(ImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
         imageView.setImageResource(R.drawable.ic_file);
 

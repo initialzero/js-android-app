@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
+import android.widget.ImageView;
 
 /**
  * @author Tom Koptel
@@ -36,7 +36,9 @@ public interface ResourceView {
 
     void setSubTitle(CharSequence subTitle);
 
-    TopCropImageView getImageView();
-
     void setSecondaryAction(int actionImage);
+
+    ImageView getImageView();
+
+    boolean isImageThumbnail();
 }

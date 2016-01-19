@@ -24,10 +24,10 @@
   -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:drawable="@drawable/ic_report"
-        android:bottom="@dimen/sample_image_padding"
-        android:left="@dimen/sample_image_padding"
-        android:right="@dimen/sample_image_padding"
-        android:top="@dimen/sample_image_padding" />
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/js_light_gray"/>
+            </shape>
+    </item>
+    <item android:drawable="@drawable/ic_report_thumbnail"/>
 </layer-list>

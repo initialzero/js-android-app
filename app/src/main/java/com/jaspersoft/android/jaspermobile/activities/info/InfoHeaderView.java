@@ -4,7 +4,6 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceView;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 
 /**
  * @author Andrew Tivodar
@@ -12,10 +11,10 @@ import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
  */
 public class InfoHeaderView implements ResourceView {
 
-    private TopCropImageView imageView;
+    private ImageView imageView;
     private CollapsingToolbarLayout toolbarLayout;
 
-    public InfoHeaderView(TopCropImageView imageView, CollapsingToolbarLayout toolbarLayout) {
+    public InfoHeaderView(ImageView imageView, CollapsingToolbarLayout toolbarLayout) {
         this.imageView = imageView;
         this.toolbarLayout = toolbarLayout;
     }
@@ -31,8 +30,13 @@ public class InfoHeaderView implements ResourceView {
     }
 
     @Override
-    public TopCropImageView getImageView() {
+    public ImageView getImageView() {
         return imageView;
+    }
+
+    @Override
+    public boolean isImageThumbnail() {
+        return true;
     }
 
     @Override

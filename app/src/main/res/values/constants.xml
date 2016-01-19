@@ -27,6 +27,9 @@
 
     <!-- General -->
     <string name="app_label" translatable="false">TIBCO JasperMobile</string>
+    <string name="app_cast_id" translatable="false">225DAEF5</string>
+    <string name="resource_cast_cancel_intent" translatable="false">com.jaspersoft.android.jaspermobile.RESOURCE_CAST_CANCEL</string>
+    <string name="resource_presentation_stop_intent" translatable="false">com.jaspersoft.android.jaspermobile.RESOURCE_PRESENTATION_STOP</string>
 
     <!-- Filter Saved Items Dialog -->
     <string name="si_fd_option_html" translatable="false">HTML</string>

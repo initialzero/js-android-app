@@ -82,6 +82,7 @@
 
     <!-- Progress Dialog -->
     <string name="r_pd_running_report_msg">Running report...</string>
+    <string name="r_pd_initializing_msg" translatable="false">Initializing...</string>
 
     <!-- Search Activity -->
     <string name="s_hint">Search resources</string>
@@ -267,6 +268,10 @@
     <string name="voice_command_btn" translatable="false">Voice command</string>
     <string name="voice_command_title" translatable="false">Say some command</string>
     <string name="voice_command_undefined" translatable="false">Can not recognize command</string>
+
+    <!-- Casting -->
+    <string name="cast_logo_presentation_message" translatable="false">Always on and easy to access</string>
+    <string name="cast_ready_message" translatable="false">Ready to cast reports</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Library</string>

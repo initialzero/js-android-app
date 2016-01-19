@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
@@ -23,19 +22,18 @@
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <item
-        android:id="@+id/showFilters"
-        android:icon="@drawable/ic_menu_filter"
-        android:title="@string/rv_ab_show_filters"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/printAction"
-        android:icon="@drawable/ic_action_print"
-        android:title="@string/r_cm_print"
-        android:showAsAction="ifRoom" />
-
-</menu>
+<head xmlns="http://www.w3.org/1999/html">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width={{width}}, minimum-scale=0.1, maximum-scale=3, user-scalable=yes">
+    <title>TIBCO Jaspersoft</title>
+    <script type="text/javascript" src="{{visualize_url}}"></script>
+    {{#optimized}}
+        <script data-main="**injection**report-android-mobilejs-sdk.js" type="text/javascript" src="**injection**require.min.js"></script>
+    {{/optimized}}
+    {{^optimized}}
+        <script type="text/javascript" src="**injection**report-android-mobilejs-sdk.js"></script>
+    {{/optimized}}
+</head>
+<body>
+<div id="container"></div>
+</body>

@@ -42,8 +42,8 @@ class DashboardResourceBinder extends ResourceBinder {
 
     @Override
     public void setIcon(ImageView imageView, JasperResource jasperResource) {
-        imageView.setScaleType(ImageView.ScaleType.CENTER);
-        imageView.setBackgroundColor(getContext().getResources().getColor(R.color.js_dark_blue));
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setBackgroundResource(R.drawable.bg_resource_icon_blue);
         imageView.setImageResource(R.drawable.ic_dashboard);
     }
 

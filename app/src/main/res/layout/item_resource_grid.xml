@@ -17,9 +17,8 @@
             android:layout_above="@+id/metadataContainer"
             android:background="@android:color/white"
             android:contentDescription="@string/img_cd_grid_item"
-            android:scaleType="fitXY"
             tools:background="@drawable/bg_gradient_grey"
-            tools:src="@drawable/ic_report_thumbnail" />
+            tools:src="@drawable/im_thumbnail_report" />
 
         <View
             android:layout_width="match_parent"

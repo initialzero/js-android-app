@@ -17,8 +17,8 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
         android:contentDescription="@string/img_cd_list_item"
-        tools:scaleType="centerInside"
-        tools:src="@drawable/im_report"/>
+        tools:background="@drawable/bg_gradient_grey"
+        tools:src="@drawable/ic_report" />
 
     <LinearLayout
         android:id="@+id/metadataContainer"

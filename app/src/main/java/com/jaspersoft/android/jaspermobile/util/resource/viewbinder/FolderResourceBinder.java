@@ -42,6 +42,13 @@ class FolderResourceBinder extends ResourceBinder {
 
     @Override
     public void setIcon(ImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setBackgroundResource(R.drawable.bg_resource_icon_blue);
+        imageView.setImageResource(R.drawable.ic_folder);
+    }
+
+    @Override
+    public void setThumbnail(ImageView imageView, JasperResource jasperResource) {
         imageView.setScaleType(ImageView.ScaleType.CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_blue);
         imageView.setImageResource(R.drawable.ic_folder);

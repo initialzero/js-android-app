@@ -58,14 +58,14 @@ class ReportResourceBinder extends ResourceBinder {
 
     @Override
     public void setIcon(ImageView imageView, JasperResource jasperResource) {
-        imageView.setBackground(null);
+        imageView.setBackgroundResource(R.drawable.bg_resource_icon_grey);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        loadFromNetwork(imageView, jasperResource, getDisplayImageOptions(R.drawable.im_report));
+        loadFromNetwork(imageView, jasperResource, getDisplayImageOptions(R.drawable.ic_report));
     }
 
     @Override
     public void setThumbnail(ImageView imageView, JasperResource jasperResource) {
-        imageView.setBackground(null);
+        imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         loadFromNetwork(imageView, jasperResource, getDisplayImageOptions(R.drawable.im_thumbnail_report));
     }

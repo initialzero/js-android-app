@@ -1,7 +1,7 @@
 {
   "packageName": "com.jaspersoft.android.jaspermobile.db",
   "providerName": "jasper_mobile_db",
-  "databaseVersion": 5,
+  "databaseVersion": 7,
   "tables": [
     {
       "name": "server_profiles",
@@ -114,6 +114,11 @@
         {
           "type": "long",
           "name": "creation_time",
+          "not_null": true
+        },
+        {
+          "type": "boolean",
+          "name": "downloaded",
           "not_null": true
         }
       ]

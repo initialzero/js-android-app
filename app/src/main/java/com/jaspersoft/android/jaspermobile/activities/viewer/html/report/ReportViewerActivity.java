@@ -38,6 +38,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,7 +50,7 @@ import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
@@ -61,6 +63,7 @@ import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -69,6 +72,7 @@ import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
@@ -97,7 +101,9 @@ import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
@@ -116,7 +122,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
@@ -127,16 +135,15 @@ import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.
  * @author Tom Koptel
  * @since 2.0
  */
-@OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu, R.menu.report_filter_manager_menu})
+@OptionsMenu({R.menu.retrofit_report_menu, R.menu.webview_menu, R.menu.report_filter_manager_menu, R.menu.print_menu})
 @EActivity(R.layout.activity_report_viewer)
-public class ReportViewerActivity extends RoboToolbarActivity
+public class ReportViewerActivity extends RoboCastActivity
         implements ReportCallback,
         AbstractPaginationView.OnPageChangeListener,
         GetInputControlsFragment.OnInputControlsListener,
         ReportView, PageDialogFragment.PageDialogClickListener,
         NumberDialogFragment.NumberDialogClickListener,
-        ErrorWebViewClientListener.OnWebViewErrorListener
-{
+        ErrorWebViewClientListener.OnWebViewErrorListener {
 
     @Bean
     protected JSWebViewClient jsWebViewClient;
@@ -153,6 +160,8 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected WebView webView;
     @ViewById(android.R.id.empty)
     protected TextView emptyView;
+    @ViewById(R.id.reload)
+    protected Button reloadReportBtn;
     @ViewById
     protected ProgressBar progressBar;
     @ViewById
@@ -161,10 +170,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Extra
     protected ResourceLookup resource;
     @Extra
-    protected ArrayList<ReportParameter> reportParameters = new ArrayList<ReportParameter>();
-
-    @InstanceState
-    protected Uri favoriteEntryUri;
+    protected ArrayList<ReportParameter> reportParameters;
 
     @OptionsMenuItem
     protected MenuItem favoriteAction;
@@ -191,7 +197,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     private WebInterface mWebInterface;
     private boolean isFlowLoaded;
 
-    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+    private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
     private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
         @Override
         public void onCancel(DialogInterface dialog) {
@@ -203,14 +209,14 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (reportParameters == null) {
+            reportParameters = (ArrayList<ReportParameter>) getReportParameters();
+        }
+
         mHasInitialParameters = !reportParameters.isEmpty();
         paramsStorage.getInputControlHolder(resource.getUri()).setReportParams(reportParameters);
 
         scrollableTitleHelper.injectTitle(resource.getLabel());
-
-        if (savedInstanceState == null) {
-            favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
-        }
 
         Account account = JasperAccountManager.get(this).getActiveAccount();
         accountServerData = AccountServerData.get(this, account);
@@ -218,23 +224,32 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @AfterViews
     final void init() {
-        showErrorView(getString(R.string.loading_msg));
+        ProgressDialogFragment
+                .builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .setOnCancelListener(cancelListener)
+                .show();
 
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(
-                new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean aBoolean) {
-                        hideErrorView();
-                        setupPaginationControl();
-                        initWebView();
-                        loadInputControls();
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        showErrorView(throwable.getMessage());
-                    }
-                });
+        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(new Subscriber<Void>() {
+            @Override
+            public void onCompleted() {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                setupPaginationControl();
+                initWebView();
+                loadInputControls();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                showErrorView(e.getMessage());
+            }
+
+            @Override
+            public void onNext(Void aVoid) {
+
+            }
+        });
         mCompositeSubscription.add(cookieSubscription);
     }
 
@@ -253,9 +268,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        boolean result = super.onCreateOptionsMenu(menu);
-        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
-        favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+        super.onCreateOptionsMenu(menu);
+        favoritesHelper.updateFavoriteIconState(favoriteAction, resource.getUri());
+
         saveReport.setVisible(mShowSaveAndPrintMenuItems);
         refreshAction.setVisible(mShowRefreshMenuItem);
         if (printAction != null) {
@@ -267,7 +282,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
             inflater.inflate(R.menu.debug, menu);
         }
 
-        return result;
+        return true;
     }
 
     @Override
@@ -275,6 +290,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
         if (mWebInterface != null) {
             mWebInterface.pause();
         }
+
         super.onPause();
     }
 
@@ -290,6 +306,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     protected void onStop() {
         super.onStop();
         mCompositeSubscription.unsubscribe();
+        mCompositeSubscription = new CompositeSubscription();
     }
 
     @Override
@@ -301,7 +318,54 @@ public class ReportViewerActivity extends RoboToolbarActivity
             webView.removeAllViews();
             webView.destroy();
         }
-        paramsStorage.clearInputControlHolder(resource.getUri());
+        if (!ResourcePresentationService.isStarted()) {
+            paramsStorage.clearInputControlHolder(resource.getUri());
+        }
+    }
+
+    @Override
+    protected void onCastStarted() {
+        ReportCastActivity_.intent(this)
+                .resource(resource)
+                .start();
+
+        finish();
+    }
+
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_rvs_v);
+    }
+
+    @Click(R.id.reload)
+    protected void rerunReport() {
+        ProgressDialogFragment
+                .builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .setOnCancelListener(cancelListener)
+                .show();
+
+        JasperAccountManager.get(this).invalidateActiveToken();
+        hideErrorView();
+        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(new Subscriber<Void>() {
+            @Override
+            public void onCompleted() {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                runReport(paramsSerializer.toJson(getReportParameters()));
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                showErrorView(e.getMessage());
+            }
+
+            @Override
+            public void onNext(Void aVoid) {
+
+            }
+        });
+        mCompositeSubscription.add(cookieSubscription);
     }
 
     //---------------------------------------------------------------------
@@ -317,8 +381,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void favoriteAction() {
-        favoriteEntryUri = favoritesHelper.
-                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
+        favoritesHelper.switchFavoriteState(resource, favoriteAction);
     }
 
     @OptionsItem
@@ -359,7 +422,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void printAction() {
-        analytics.trackPrintEvent(Analytics.PrintType.REPORT);
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRINTED.getValue(), Analytics.EventLabel.REPORT.getValue());
         ResourcePrintJob job = JasperPrintJobFactory
                 .createReportPrintJob(this, jsRestClient, resource, reportParameters);
         JasperPrinter.print(job);
@@ -481,6 +544,13 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @UiThread
     @Override
+    public void onAuthError(String error) {
+        exposeError(error);
+        reloadReportBtn.setVisibility(View.VISIBLE);
+    }
+
+    @UiThread
+    @Override
     public void onReportCompleted(String status, int pages, String errorMessage) {
         if (status.equals("ready")) {
             boolean noPages = (pages == 0);
@@ -566,6 +636,12 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Override
     public void hideErrorView() {
         emptyView.setVisibility(View.GONE);
+        reloadReportBtn.setVisibility(View.GONE);
+    }
+
+    @UiThread
+    protected void showError(Exception error) {
+        RequestExceptionHandler.handle(error, ReportViewerActivity.this);
     }
 
     //---------------------------------------------------------------------
@@ -573,11 +649,19 @@ public class ReportViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     @Override
-    public void onWebViewError(String title, String message) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-        progressBar.setVisibility(View.GONE);
-        webView.setVisibility(View.GONE);
-        showErrorView(title + "\n" + message);
+    public void onWebViewError(String title, String message, String failingUrl, int errorCode) {
+        String baseUrl = accountServerData.getServerUrl();
+        boolean isReportPage = baseUrl.equals(failingUrl);
+        boolean isTimeout = (errorCode == WebViewClient.ERROR_TIMEOUT);
+
+        if (isReportPage && isTimeout) {
+            showErrorView(getString(R.string.rv_webview_still_loading));
+        } else {
+            ProgressDialogFragment.dismiss(getSupportFragmentManager());
+            progressBar.setVisibility(View.GONE);
+            webView.setVisibility(View.GONE);
+            showErrorView(title + "\n" + message);
+        }
     }
 
     //---------------------------------------------------------------------
@@ -602,7 +686,9 @@ public class ReportViewerActivity extends RoboToolbarActivity
                 .withDelegateListener(chromeClientListener);
 
         JasperWebViewClientListener errorListener = new ErrorWebViewClientListener(this, this);
-        JasperWebViewClientListener clientListener = TimeoutWebViewClientListener.wrap(errorListener);
+        JasperWebViewClientListener clientListener = TimeoutWebViewClientListener
+                .wrap(errorListener)
+                .withTimeout(TimeUnit.SECONDS.toMillis(15));
 
         SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
                 .withInterceptor(new InjectionRequestInterceptor())

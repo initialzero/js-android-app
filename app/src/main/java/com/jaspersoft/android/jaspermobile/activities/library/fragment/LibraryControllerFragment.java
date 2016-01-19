@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.library.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -34,6 +35,8 @@ import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
+
+import java.util.ArrayList;
 
 /**
  * @author Tom Koptel
@@ -103,5 +106,11 @@ public class LibraryControllerFragment extends ControllerFragment {
         if (contentFragment != null) {
             contentFragment.loadResourcesBySortOrder(order);
         }
+    }
+
+    public void handleVoiceCommand(ArrayList<String> matches) {
+       if (contentFragment != null) {
+           contentFragment.handleVoiceCommand(matches);
+       }
     }
 }

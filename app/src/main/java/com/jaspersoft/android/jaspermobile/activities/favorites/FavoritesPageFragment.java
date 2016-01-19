@@ -28,12 +28,17 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
+import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 
@@ -47,16 +52,23 @@ import roboguice.fragment.RoboFragment;
 public class FavoritesPageFragment extends RoboFragment {
 
     private FavoritesControllerFragment favoritesController;
+    @Inject
+    protected Analytics analytics;
 
     // It is hack to force saved instance state not to be null after rotate
     @InstanceState
     protected boolean initialStart;
+
+    @Bean
+    protected SortOptions sortOptions;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState == null) {
+            sortOptions.putOrder(SortOrder.LABEL);
+
             FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 
             favoritesController = FavoritesControllerFragment_.builder()
@@ -67,6 +79,8 @@ public class FavoritesPageFragment extends RoboFragment {
             transaction.replace(R.id.search_controller, searchFragment);
 
             transaction.commit();
+
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.FAVORITES.getValue());
         } else {
             favoritesController = (FavoritesControllerFragment) getChildFragmentManager()
                     .findFragmentByTag(FavoritesControllerFragment.TAG);

@@ -30,11 +30,13 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
+import roboguice.fragment.RoboDialogFragment;
+
 /**
  * @author Andrew Tivodar
  * @since 2.0
  */
-public abstract class BaseDialogFragment extends DialogFragment {
+public abstract class BaseDialogFragment extends RoboDialogFragment {
 
     private final static String CANCELED_ON_TOUCH_OUTSIDE_ARG = "canceled_on_touch_outside";
     private final static String REQUEST_CODE_ARG = "request_code";

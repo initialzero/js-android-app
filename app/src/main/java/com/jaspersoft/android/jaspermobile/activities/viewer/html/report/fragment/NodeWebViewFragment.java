@@ -64,6 +64,7 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
+import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action1;
 
@@ -219,25 +220,28 @@ public class NodeWebViewFragment extends RoboSpiceFragment implements SimpleDial
         mIsFetching = true;
         showMessage(getString(R.string.loading_msg));
 
-        fetchReportSubscription = CookieManagerFactory.syncCookies(getActivity()).subscribe(
-                new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean aBoolean) {
-                        mIsFetching = false;
-                        hideMessage();
-                        progressBar.setVisibility(View.VISIBLE);
-                        webView.setVisibility(View.INVISIBLE);
-                        reportExportOutputLoader.loadByPage(requestExecutor, exportResultListener, page);
-                    }
-                },
-                new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        mIsFetching = false;
-                        ProgressDialogFragment.dismiss(getFragmentManager());
-                        showMessage(throwable.getMessage());
-                    }
-                });
+        fetchReportSubscription = CookieManagerFactory.syncCookies(getActivity()).subscribe(new Subscriber<Void>() {
+            @Override
+            public void onCompleted() {
+                mIsFetching = false;
+                hideMessage();
+                progressBar.setVisibility(View.VISIBLE);
+                webView.setVisibility(View.INVISIBLE);
+                reportExportOutputLoader.loadByPage(requestExecutor, exportResultListener, page);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                mIsFetching = false;
+                ProgressDialogFragment.dismiss(getFragmentManager());
+                showMessage(e.getMessage());
+            }
+
+            @Override
+            public void onNext(Void aVoid) {
+
+            }
+        });
     }
 
     private void unSubscribeFetchReport() {

@@ -27,16 +27,34 @@
 
     <!-- General -->
     <string name="app_label" translatable="false">TIBCO JasperMobile</string>
+    <string name="app_cast_id" translatable="false">225DAEF5</string>
+    <string name="resource_cast_cancel_intent" translatable="false">com.jaspersoft.android.jaspermobile.RESOURCE_CAST_CANCEL</string>
+    <string name="resource_presentation_stop_intent" translatable="false">com.jaspersoft.android.jaspermobile.RESOURCE_PRESENTATION_STOP</string>
 
     <!-- Filter Saved Items Dialog -->
     <string name="si_fd_option_html" translatable="false">HTML</string>
     <string name="si_fd_option_pdf" translatable="false">PDF</string>
     <string name="si_fd_option_xls" translatable="false">XLS</string>
 
+    <!-- Screen names for analytic -->
+    <string name="ja_ics" translatable="false">Input controls screen</string>
+    <string name="ja_ss_ic_s" translatable="false">Single select IC screen</string>
+    <string name="ja_ms_ic_s" translatable="false">Multi select IC screen</string>
+    <string name="ja_rvs_v" translatable="false">Report viewer screen (visualize)</string>
+    <string name="ja_rvs_r" translatable="false">Report viewer screen (REST)</string>
+    <string name="ja_s_hf_s" translatable="false">Saved html files screen</string>
+    <string name="ja_dvs_v" translatable="false">Dashboard viewer screen (visualize)</string>
+    <string name="ja_dvs_hn" translatable="false">Dashboard viewer screen (HTTP new)</string>
+    <string name="ja_dvs_ho" translatable="false">Dashboard viewer screen (HTTP old)</string>
+    <string name="ja_srs" translatable="false">Saving report screen</string>
+    <string name="ja_ss" translatable="false">Settings screen</string>
+    <string name="ja_aas" translatable="false">Add account screen</string>
+    <string name="ja_se_s" translatable="false">Search screen</string>
+
     <!--Constants-->
     <string name="jasper_account_type" translatable="false">com.jaspersoft</string>
     <string name="jasper_account_authority" translatable="false">com.jaspersoft.android.jaspermobile.db.provider</string>
-    <string name="jasper_app_data" translatable="false">Version code: %s</string>
+    <string name="jasper_app_data" translatable="false">App version: %s</string>
     <string name="jrs_version_data" translatable="false">JRS version: %s</string>
     <string name="jrs_edition_data" translatable="false">JRS edition: %s</string>
     <string-array name="feedback_subject_email" translatable="false">

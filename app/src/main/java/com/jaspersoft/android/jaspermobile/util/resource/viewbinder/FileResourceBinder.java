@@ -35,6 +35,17 @@ public class FileResourceBinder extends ResourceBinder {
 
     @Override
     public void setIcon(ImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setBackgroundResource(R.drawable.bg_resource_icon_grey);
+        imageView.setImageResource(R.drawable.ic_file);
+
+        if (jasperResource instanceof FileResource) {
+            loadFileType(imageView, ((FileResource) jasperResource).getFileUri());
+        }
+    }
+
+    @Override
+    public void setThumbnail(ImageView imageView, JasperResource jasperResource) {
         imageView.setScaleType(ImageView.ScaleType.CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
         imageView.setImageResource(R.drawable.ic_file);
@@ -97,6 +108,9 @@ public class FileResourceBinder extends ResourceBinder {
                     case xls:
                     case xlsx:
                         resId = R.drawable.ic_file_xls;
+                        break;
+                    case txt:
+                        resId = R.drawable.ic_file_txt;
                         break;
                     default:
                         resId = R.drawable.ic_file;

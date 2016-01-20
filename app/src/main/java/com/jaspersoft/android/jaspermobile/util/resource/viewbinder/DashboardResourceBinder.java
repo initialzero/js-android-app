@@ -29,9 +29,6 @@ import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * @author Tom Koptel
@@ -44,9 +41,16 @@ class DashboardResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
-        imageView.setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
+    public void setIcon(ImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setBackgroundResource(R.drawable.bg_resource_icon_blue);
+        imageView.setImageResource(R.drawable.ic_dashboard);
+    }
+
+    @Override
+    public void setThumbnail(ImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setBackgroundResource(R.drawable.bg_gradient_blue);
-        imageView.setImageResource(R.drawable.placeholder_dashboard);
+        imageView.setImageResource(R.drawable.im_thumbnail_dashboard);
     }
 }

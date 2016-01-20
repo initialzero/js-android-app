@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
@@ -13,7 +14,6 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinder;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinderFactory;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -33,7 +33,7 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
     protected JasperResource jasperResource;
 
     @InjectView(R.id.toolbarImageView)
-    protected TopCropImageView toolbarImage;
+    protected ImageView toolbarImage;
 
     @InjectView(R.id.info_collapsing_toolbar)
     protected CollapsingToolbarLayout toolbarLayout;

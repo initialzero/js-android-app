@@ -24,10 +24,5 @@
   -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:drawable="@drawable/ic_dashboard"
-        android:bottom="@dimen/sample_image_padding"
-        android:left="@dimen/sample_image_padding"
-        android:right="@dimen/sample_image_padding"
-        android:top="@dimen/sample_image_padding" />
+    <item android:drawable="@drawable/ic_report_thumbnail" android:left="10dp" android:right="10dp" android:top="10dp" android:bottom="5dp"/>
 </layer-list>

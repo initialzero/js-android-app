@@ -34,9 +34,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-
-import org.w3c.dom.Text;
 
 /**
  * @author Andrew Tivodar
@@ -45,7 +42,7 @@ import org.w3c.dom.Text;
 public class ResourceCastDialog extends MediaRouteControllerDialog implements ResourcePresentationService.ResourcePresentationCallback {
 
     private TextView resourceLabel;
-    private TopCropImageView resourceThumbnail;
+    private ImageView resourceThumbnail;
     private ImageButton stopCastingResource;
 
     public ResourceCastDialog(Context context) {
@@ -58,8 +55,8 @@ public class ResourceCastDialog extends MediaRouteControllerDialog implements Re
         View castView = inflater.inflate(R.layout.dialog_resource_cast, null);
 
         resourceLabel = ((TextView) castView.findViewById(R.id.resourceLabel));
-        resourceThumbnail = ((TopCropImageView) castView.findViewById(R.id.resourceThumbnail));
-        resourceThumbnail.setScaleType(TopCropImageView.ScaleType.TOP_CROP);
+        resourceThumbnail = ((ImageView) castView.findViewById(R.id.resourceThumbnail));
+        resourceThumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
         stopCastingResource = (ImageButton) castView.findViewById(R.id.stopCastResource);
         stopCastingResource.setOnClickListener(new View.OnClickListener() {
             @Override

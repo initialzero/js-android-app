@@ -1,10 +1,7 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
-
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
+import android.widget.ImageView;
 
 /**
  * @author Andrew Tivodar
@@ -27,8 +24,13 @@ public class LoadingViewHolder extends BaseResourceViewHolder{
     }
 
     @Override
-    public TopCropImageView getImageView() {
+    public ImageView getImageView() {
         return null;
+    }
+
+    @Override
+    public boolean isImageThumbnail() {
+        return false;
     }
 
     @Override

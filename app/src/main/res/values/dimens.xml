@@ -39,7 +39,7 @@
     <dimen name="grid_item_width">180dp</dimen>
     <dimen name="grid_item_metadata_height">48dp</dimen>
     <dimen name="list_item_height">72dp</dimen>
-    <dimen name="list_item_image_width">96dp</dimen>
+    <dimen name="list_item_image_width">40dp</dimen>
     
     <dimen name="sample_image_padding">5dp</dimen>
     <dimen name="ic_top_padding">32dp</dimen>

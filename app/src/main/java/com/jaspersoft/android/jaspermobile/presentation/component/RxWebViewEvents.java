@@ -23,7 +23,7 @@ public final class RxWebViewEvents implements WebViewEvents {
 
     @Override
     public Observable<Integer> progressChangedEvent() {
-        return null;
+        return Observable.create(new WebViewProgressChangeOnSubscribe(mConfiguration));
     }
 
     @Override

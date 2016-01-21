@@ -27,7 +27,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
+    <ImageView
         android:id="@+id/resourceThumbnail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

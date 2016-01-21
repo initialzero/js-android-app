@@ -198,6 +198,17 @@
         </receiver>
 
         <receiver
+            android:name=".util.cast.ResourceCastReceiver"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="com.jaspersoft.android.jaspermobile.RESOURCE_CAST_CANCEL" />
+                <action android:name="com.jaspersoft.android.jaspermobile.RESOURCE_PRESENTATION_STOP" />
+            </intent-filter>
+
+        </receiver>
+
+        <receiver
             android:name=".util.LocaleChangeReceiver"
             android:exported="false">
             <intent-filter>
@@ -222,6 +233,10 @@
         <service
         android:name=".activities.save.SaveReportService_"
         android:exported="false" />
+
+        <service
+            android:name=".util.cast.ResourcePresentationService"
+            android:exported="false" />
 
         <!-- SDK external components -->
         <service

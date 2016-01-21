@@ -83,9 +83,6 @@ public class NavigationActivity extends RoboCastActivity {
 
     private static final int NEW_ACCOUNT = 20;
 
-    @Inject
-    protected Analytics analytics;
-
     @ViewById(R.id.dl_navigation)
     protected DrawerLayout drawerLayout;
     @ViewById(R.id.npl_navigation_menu)

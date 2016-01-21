@@ -25,11 +25,11 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
+import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.octo.android.robospice.request.SpiceRequest;
 
@@ -49,15 +49,24 @@ public abstract class ResourceBinder {
         Timber.tag(ResourceBinder.LOG_TAG);
     }
 
-    public void bindView(ResourceView resourceView, JasperResource item) {
+    public final void bindView(ResourceView resourceView, JasperResource item) {
         unbindView(resourceView.getImageView());
-        setIcon(resourceView.getImageView(), item);
+
+        if (resourceView.isImageThumbnail()) {
+            setThumbnail(resourceView.getImageView(), item);
+        } else {
+            setIcon(resourceView.getImageView(), item);
+        }
         setTitle(resourceView, item);
         setSubtitle(resourceView, item);
         setActionResource(resourceView, item);
     }
 
-    public abstract void setIcon(TopCropImageView imageView, JasperResource jasperResource);
+    public abstract void setIcon(ImageView imageView, JasperResource jasperResource);
+
+    public void setThumbnail(ImageView imageView, JasperResource jasperResource) {
+        setIcon(imageView, jasperResource);
+    }
 
     protected void setTitle (ResourceView resourceView, JasperResource item) {
         resourceView.setTitle(item.getLabel());
@@ -75,7 +84,7 @@ public abstract class ResourceBinder {
         return mContext;
     }
 
-    private void unbindView(TopCropImageView imageView){
+    private void unbindView(ImageView imageView){
         Object fileTypeRequest = imageView.getTag();
         if (fileTypeRequest != null && fileTypeRequest instanceof SpiceRequest) {
             ((RoboSpiceActivity) mContext).getSpiceManager().cancel((SpiceRequest) fileTypeRequest);

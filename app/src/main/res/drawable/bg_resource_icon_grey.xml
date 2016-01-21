@@ -23,11 +23,6 @@
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:drawable="@drawable/ic_report"
-        android:bottom="@dimen/sample_image_padding"
-        android:left="@dimen/sample_image_padding"
-        android:right="@dimen/sample_image_padding"
-        android:top="@dimen/sample_image_padding" />
-</layer-list>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval" >
+    <solid android:color="@color/js_light_gray"/>
+</shape>

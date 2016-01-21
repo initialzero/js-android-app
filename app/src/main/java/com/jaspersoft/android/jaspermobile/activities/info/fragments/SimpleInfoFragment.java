@@ -6,14 +6,16 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageView;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinder;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinderFactory;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -32,8 +34,11 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
     @FragmentArg
     protected JasperResource jasperResource;
 
+    @Inject
+    protected Analytics analytics;
+
     @InjectView(R.id.toolbarImageView)
-    protected TopCropImageView toolbarImage;
+    protected ImageView toolbarImage;
 
     @InjectView(R.id.info_collapsing_toolbar)
     protected CollapsingToolbarLayout toolbarLayout;
@@ -46,6 +51,10 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
 
         setToolbar(view);
         showHeaderView();
+
+        if (savedInstanceState == null) {
+            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.INFO_VIEWED.getValue(), jasperResource.getResourceType().name());
+        }
     }
 
     final protected void updateHeaderViewLabel(String label) {

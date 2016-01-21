@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -43,6 +44,11 @@ public class FileViewerActivity extends RoboSpiceActivity {
             getFileInfo();
             showProgressDialog();
         }
+    }
+
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_fv_s);
     }
 
     private void showProgressDialog() {
@@ -125,6 +131,8 @@ public class FileViewerActivity extends RoboSpiceActivity {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.main_frame, fileFragment)
                     .commit();
+
+            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.VIEWED.getValue(), fileLookup.getFileType().name());
         }
     }
 }

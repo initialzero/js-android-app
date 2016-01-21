@@ -61,7 +61,8 @@ public interface Analytics {
         MENU("Menu"),
         ACCOUNT("Account"),
         CATALOG("Catalog"),
-        RESOURCE("Resource");
+        RESOURCE("Resource"),
+        CAST("Cast");
 
         String mName;
 
@@ -77,13 +78,20 @@ public interface Analytics {
     enum EventAction {
         OPENED("Opened"),
         CLICKED("Clicked"),
+        SAID_COMMANDS("Said command"),
         VIEWED("Viewed"),
+        PRESENTED("Presented"),
+        PRESENTATION_STOPPED("Presentation stopped"),
+        INFO_VIEWED("Info viewed"),
+        SAVED("Saved"),
+        REPORT_OPTIONS_VIEWED("Report options viewed"),
         REFRESHED("Refreshed"),
         LOADED_NEXT("Loaded next"),
         SORTED("Sorted"),
         FILTERED("Filtered"),
         CHANGED_VIEW_TYPE("Changed view type"),
         CHANGED("Changed"),
+        MARKED_AS_FAVORITE("Marked as favorite"),
         PRINTED("Printed");
 
         String mName;
@@ -110,7 +118,15 @@ public interface Analytics {
         ABOUT("About"),
         MANAGE_ACCOUNT("Manage account"),
         REPORT("Report"),
-        DASHBOARD("Dashboard");
+        DASHBOARD("Dashboard"),
+        WITH_RO("With report options"),
+        VOICE_COMMANDS("Voice commands"),
+        RUN("Run"),
+        FIND("Find"),
+        UNDEFINED("Undefined"),
+        DONE("Done"),
+        FAILED("Failed"),
+        CANCELED("Canceled");
 
         String mName;
 

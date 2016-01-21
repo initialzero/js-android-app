@@ -24,16 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
-import com.jaspersoft.android.jaspermobile.data.network.RestErrorAdapter;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.SaveProfileUseCase;
-import com.jaspersoft.android.jaspermobile.domain.network.RestErrorCodes;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.validation.AliasMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.PasswordMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.ProfileFormValidation;
@@ -69,7 +67,7 @@ public class AuthenticationPresenterTest {
     @Mock
     ProfileFormValidation profileFormValidation;
     @Mock
-    RestErrorAdapter mRestErrorAdapter;
+    RequestExceptionHandler mRequestExceptionHandler;
 
     @Mock
     AuthenticationView mAuthenticationView;
@@ -95,7 +93,7 @@ public class AuthenticationPresenterTest {
                 RuntimeEnvironment.application,
                 mSaveProfileUseCase,
                 profileFormValidation,
-                mRestErrorAdapter
+                mRequestExceptionHandler
         );
         presenterUnderTest.injectView(mAuthenticationView);
 
@@ -177,13 +175,6 @@ public class AuthenticationPresenterTest {
     public void testPresenterHandlesCompleteProfileSaveEvent() throws Exception {
         presenterUnderTest.handleProfileComplete();
         verify(mAuthenticationView).hideLoading();
-    }
-
-    @Test
-    public void testPresenterHandlesRestErrors() throws Exception {
-        when(mRestErrorAdapter.transform(any(RestStatusException.class))).thenReturn("error");
-        presenterUnderTest.handleProfileSaveFailure(new RestStatusException("message", null, RestErrorCodes.UNDEFINED_ERROR));
-        verify(mAuthenticationView).showError("error");
     }
 
     @Test

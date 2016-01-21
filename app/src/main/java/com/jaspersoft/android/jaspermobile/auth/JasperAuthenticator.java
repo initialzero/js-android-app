@@ -34,6 +34,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
@@ -51,7 +52,7 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     @Inject
     AccountManager mAccountManager;
 
-    public JasperAuthenticator(Context context) {
+    public JasperAuthenticator(@ApplicationContext Context context) {
         super(context);
         JasperMobileApplication.get(context).getComponent().inject(this);
     }

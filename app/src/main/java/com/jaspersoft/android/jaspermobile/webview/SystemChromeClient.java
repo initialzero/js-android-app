@@ -53,23 +53,18 @@ public class SystemChromeClient extends WebChromeClient {
     private final Context context;
     private JasperChromeClientListener jasperChromeClientListener;
 
-    private SystemChromeClient(Context context) {
-        this.context = context;
-        this.jasperChromeClientListener = new EmptyChromeCallbackDelegate();
-    }
-
     private SystemChromeClient(Context context, JasperChromeClientListener jasperChromeClientListener) {
         this.context = context;
         this.jasperChromeClientListener = jasperChromeClientListener;
     }
 
-    public static SystemChromeClient from(Context context) {
-        return new SystemChromeClient(context);
+    public Builder newBuilder(Context context) {
+        return new Builder(context)
+                .withDelegateListener(jasperChromeClientListener);
     }
 
-    public SystemChromeClient withDelegateListener(JasperChromeClientListener jasperChromeClientListener) {
-        this.jasperChromeClientListener = jasperChromeClientListener;
-        return this;
+    public JasperChromeClientListener getDelegate() {
+        return jasperChromeClientListener;
     }
 
     @Override
@@ -211,6 +206,27 @@ public class SystemChromeClient extends WebChromeClient {
 
         @Override
         public void onConsoleMessage(ConsoleMessage consoleMessage) {
+        }
+    }
+
+    public static class Builder {
+        private final Context mContext;
+        private JasperChromeClientListener delegateListener;
+
+        public Builder(Context context) {
+            mContext = context;
+        }
+
+        public Builder withDelegateListener(JasperChromeClientListener delegateListener) {
+            this.delegateListener = delegateListener;
+            return this;
+        }
+
+        public SystemChromeClient build() {
+            if (delegateListener == null) {
+                delegateListener = new EmptyChromeCallbackDelegate();
+            }
+            return new SystemChromeClient(mContext, delegateListener);
         }
     }
 

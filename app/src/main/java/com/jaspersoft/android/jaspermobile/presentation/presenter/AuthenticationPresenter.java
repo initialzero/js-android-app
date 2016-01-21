@@ -5,17 +5,17 @@ import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
-import com.jaspersoft.android.jaspermobile.data.network.RestErrorAdapter;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.SaveProfileUseCase;
-import com.jaspersoft.android.jaspermobile.domain.network.RestStatusException;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
+import com.jaspersoft.android.jaspermobile.internal.di.ActivityContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.validation.AliasMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.PasswordMissingException;
@@ -24,6 +24,7 @@ import com.jaspersoft.android.jaspermobile.presentation.validation.ServerUrlForm
 import com.jaspersoft.android.jaspermobile.presentation.validation.ServerUrlMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.UsernameMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
+import com.jaspersoft.android.sdk.service.exception.ServiceException;
 
 import javax.inject.Inject;
 
@@ -40,18 +41,18 @@ public final class AuthenticationPresenter implements Presenter<AuthenticationVi
 
     private final SaveProfileUseCase mSaveProfileUseCaseUseCase;
     private final ProfileFormValidation mProfileFormValidation;
-    private final RestErrorAdapter mRestErrorAdapter;
+    private final RequestExceptionHandler mRequestExceptionHandler;
 
     @Inject
     public AuthenticationPresenter(
-            Context context,
+            @ActivityContext Context context,
             SaveProfileUseCase saveProfileUseCaseUseCase,
             ProfileFormValidation profileFormValidation,
-            RestErrorAdapter restErrorAdapter) {
+            RequestExceptionHandler requestExceptionHandler) {
         mContext = context;
         mSaveProfileUseCaseUseCase = saveProfileUseCaseUseCase;
         mProfileFormValidation = profileFormValidation;
-        mRestErrorAdapter = restErrorAdapter;
+        mRequestExceptionHandler = requestExceptionHandler;
     }
 
     @Override
@@ -117,9 +118,8 @@ public final class AuthenticationPresenter implements Presenter<AuthenticationVi
             mView.showFailedToAddProfile(e.getMessage());
         } else if (e instanceof FailedToSaveCredentials) {
             mView.showFailedToAddProfile(e.getMessage());
-        } else if (e instanceof RestStatusException) {
-            RestStatusException statusEx = ((RestStatusException) e);
-            mView.showError(mRestErrorAdapter.transform(statusEx));
+        } else if (e instanceof ServiceException) {
+            mView.showError(mRequestExceptionHandler.extractMessage(e));
         } else {
             mView.showError(e.getMessage());
         }

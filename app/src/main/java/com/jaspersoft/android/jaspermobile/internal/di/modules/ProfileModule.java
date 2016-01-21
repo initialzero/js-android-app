@@ -3,10 +3,11 @@ package com.jaspersoft.android.jaspermobile.internal.di.modules;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.ServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
@@ -36,11 +37,16 @@ public final class ProfileModule {
         mProfile = profile;
     }
 
+    @Provides
+    @PerProfile
+    Profile providesProfile() {
+        return mProfile;
+    }
 
     @Provides
     @PerProfile
-    Server provideServer(Context context, ServerCache serverCache) {
-        JasperServer server = serverCache.get(mProfile);
+    Server provideServer(@ApplicationContext Context context, JasperServerCache jasperServerCache) {
+        JasperServer server = jasperServerCache.get(mProfile);
 
         DefaultPrefHelper prefHelper = DefaultPrefHelper_.getInstance_(context);
         int connectTimeout = prefHelper.getConnectTimeoutValue();
@@ -51,6 +57,12 @@ public final class ProfileModule {
                 .withConnectionTimeOut(connectTimeout, TimeUnit.MILLISECONDS)
                 .withReadTimeout(readTimeout, TimeUnit.MILLISECONDS)
                 .build();
+    }
+
+    @Provides
+    @PerProfile
+    AppCredentials providesCredentials(CredentialsCache credentialsCache) {
+        return credentialsCache.get(mProfile);
     }
 
     @Provides

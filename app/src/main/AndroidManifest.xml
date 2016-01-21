@@ -88,7 +88,7 @@
 
         <!-- Activity that performs report viewing in HTML format through visualize -->
         <activity
-            android:name=".activities.viewer.html.report.ReportViewerActivity_"
+            android:name=".presentation.view.activity.ReportVisualizeActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
             android:parentActivityName=".activities.navigation.NavigationActivity_" >
             <meta-data

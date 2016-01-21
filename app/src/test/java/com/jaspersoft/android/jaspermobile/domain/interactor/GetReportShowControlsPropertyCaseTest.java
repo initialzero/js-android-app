@@ -39,7 +39,8 @@ public class GetReportShowControlsPropertyCaseTest {
         mGetReportShowControlsPropertyCase = new GetReportShowControlsPropertyCase(
                 FakePreExecutionThread.create(),
                 FakePostExecutionThread.create(),
-                mControlsRepository
+                mControlsRepository,
+                REPORT_URI
         );
     }
 
@@ -49,7 +50,7 @@ public class GetReportShowControlsPropertyCaseTest {
                 .thenReturn(Observable.<List<InputControl>>just(Collections.<InputControl>emptyList()));
 
         TestSubscriber<Boolean> test = new TestSubscriber<>();
-        mGetReportShowControlsPropertyCase.execute(REPORT_URI, test);
+        mGetReportShowControlsPropertyCase.execute(test);
 
         verify(mControlsRepository).listControls(REPORT_URI);
     }

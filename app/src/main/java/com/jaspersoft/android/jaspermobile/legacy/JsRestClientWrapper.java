@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.legacy;
 import android.content.Context;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.network.cookie.CookieStorage;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
@@ -38,7 +39,7 @@ public class JsRestClientWrapper {
     private final JsRestClient mJsRestClient;
 
     @Inject
-    public JsRestClientWrapper(Context context, CookieStorage cookieStore) {
+    public JsRestClientWrapper(@ApplicationContext Context context, CookieStorage cookieStore) {
         mPrefHelper = DefaultPrefHelper_.getInstance_(context);
         mFactory = configureHttpFactory(cookieStore);
         mRestTemplate = configureRestTemplate();

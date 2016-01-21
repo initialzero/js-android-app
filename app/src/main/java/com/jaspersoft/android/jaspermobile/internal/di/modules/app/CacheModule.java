@@ -29,14 +29,17 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountCredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountJasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.ServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryVisualizeTemplateCache;
+import com.jaspersoft.android.jaspermobile.data.cache.report.VisualizeTemplateCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Singleton;
@@ -65,7 +68,7 @@ public final class CacheModule {
 
     @Singleton
     @Provides
-    CredentialsCache provideCredentialsCache(Context context, AccountManager accountManager, AccountDataMapper accountDataMapper) {
+    CredentialsCache provideCredentialsCache(@ApplicationContext Context context, AccountManager accountManager, AccountDataMapper accountDataMapper) {
         String secret = context.getString(R.string.password_salt_key);
         PasswordManager passwordManager = PasswordManager.init(context, secret);
         return new AccountCredentialsCache(accountManager, passwordManager, accountDataMapper);
@@ -73,7 +76,13 @@ public final class CacheModule {
 
     @Singleton
     @Provides
-    ServerCache providesJasperSeverCache(AccountServerCache cache) {
+    JasperServerCache providesJasperSeverCache(AccountJasperServerCache cache) {
+        return cache;
+    }
+
+    @Singleton
+    @Provides
+    VisualizeTemplateCache providesVisualizeTemplateCache(InMemoryVisualizeTemplateCache cache) {
         return cache;
     }
 }

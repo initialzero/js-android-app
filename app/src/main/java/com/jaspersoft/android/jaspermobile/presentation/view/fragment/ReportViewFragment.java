@@ -263,7 +263,7 @@ public class ReportViewFragment extends BaseFragment implements ReportView, Numb
     final void init() {
         progressBar.setVisibility(View.VISIBLE);
 
-        SystemChromeClient systemChromeClient = SystemChromeClient.from(getActivity())
+        SystemChromeClient systemChromeClient = new SystemChromeClient.Builder(getActivity())
                 .withDelegateListener(new JasperChromeClientListener() {
                     @Override
                     public void onProgressChanged(WebView webView, int progress) {
@@ -280,7 +280,8 @@ public class ReportViewFragment extends BaseFragment implements ReportView, Numb
                     @Override
                     public void onConsoleMessage(ConsoleMessage consoleMessage) {
                     }
-                });
+                })
+                .build();
         WebViewEnvironment.configure(webView)
                 .withDefaultSettings()
                 .withChromeClient(systemChromeClient);

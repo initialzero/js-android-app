@@ -293,12 +293,14 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
 
         UrlPolicy defaultPolicy = DefaultUrlPolicy.from(this).withSessionListener(this);
 
-        SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
-                .withDelegateListener(chromeClientListener);
-        SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
+        SystemChromeClient systemChromeClient = new SystemChromeClient.Builder(this)
+                .withDelegateListener(chromeClientListener)
+                .build();
+        SystemWebViewClient systemWebViewClient = new SystemWebViewClient.Builder()
                 .withDelegateListener(this)
-                .withInterceptor(new InjectionRequestInterceptor())
-                .withUrlPolicy(defaultPolicy);
+                .registerInterceptor(new InjectionRequestInterceptor())
+                .registerUrlPolicy(defaultPolicy)
+                .build();
 
         WebViewEnvironment.configure(webView)
                 .withDefaultSettings()

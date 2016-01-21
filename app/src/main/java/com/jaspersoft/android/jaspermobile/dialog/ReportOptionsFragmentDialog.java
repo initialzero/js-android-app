@@ -39,6 +39,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -67,6 +68,9 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
 
     @Inject
     protected JsRestClient jsRestClient;
+
+    @Inject
+    protected Analytics analytics;
 
     private String reportUri;
     private List<ReportOption> mReportOptions;
@@ -126,6 +130,7 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
         ReportOptionResponse reportOptionResponse = jsRestClient.getReportOptionsList(reportUri);
         mReportOptions.addAll(reportOptionResponse.getOptions());
         showReportOptions();
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.REPORT_OPTIONS_VIEWED.getValue(), null);
     }
 
     @UiThread

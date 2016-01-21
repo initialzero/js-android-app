@@ -278,6 +278,7 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
 
     public void handleVoiceCommand(ArrayList<String> matches) {
         VoiceRecognitionHelper.VoiceCommand voiceCommand = VoiceRecognitionHelper.parseCommand(matches);
+        String voiceCommandName;
         switch (voiceCommand.getCommand()) {
             case VoiceRecognitionHelper.VoiceCommand.FIND:
                 Intent searchIntent = LibrarySearchableActivity_
@@ -285,13 +286,18 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
                         .query(voiceCommand.getArgument())
                         .get();
                 getActivity().startActivity(searchIntent);
+                voiceCommandName = Analytics.EventLabel.FIND.getValue();
                 break;
             case VoiceRecognitionHelper.VoiceCommand.RUN:
                 requestResourceLookup(voiceCommand.getArgument());
+                voiceCommandName = Analytics.EventLabel.RUN.getValue();
                 break;
             default:
                 Toast.makeText(getActivity(), R.string.voice_command_undefined, Toast.LENGTH_SHORT).show();
+                voiceCommandName = Analytics.EventLabel.UNDEFINED.getValue();
+                break;
         }
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.SAID_COMMANDS.getValue(), voiceCommandName);
     }
 
     public void loadFirstPage() {

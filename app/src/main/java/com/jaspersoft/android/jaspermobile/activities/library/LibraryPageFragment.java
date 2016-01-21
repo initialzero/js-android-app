@@ -149,6 +149,7 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.voice_command_title));
         startActivityForResult(intent, VOICE_COMMAND);
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.CLICKED.getValue(), Analytics.EventLabel.VOICE_COMMANDS.getValue());
     }
 
     @Override

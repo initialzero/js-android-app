@@ -25,7 +25,9 @@
 package com.jaspersoft.android.jaspermobile.internal.di.components;
 
 import android.app.Activity;
+import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.internal.di.ActivityContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 
@@ -39,4 +41,6 @@ import dagger.Component;
 @Component(dependencies = AppComponent.class, modules = ActivityModule.class)
 public interface ActivityComponent {
     Activity activity();
+    @ActivityContext
+    Context context();
 }

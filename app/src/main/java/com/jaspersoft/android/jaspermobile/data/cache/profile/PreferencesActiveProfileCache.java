@@ -31,8 +31,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -55,7 +55,7 @@ public final class PreferencesActiveProfileCache implements ActiveProfileCache {
     private final SharedPreferences mPreference;
 
     @Inject
-    public PreferencesActiveProfileCache(Context context) {
+    public PreferencesActiveProfileCache(@ApplicationContext Context context) {
         mPreference = context.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
     }
 

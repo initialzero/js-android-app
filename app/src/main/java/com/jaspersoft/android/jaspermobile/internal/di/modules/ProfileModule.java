@@ -7,6 +7,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.profile.ServerCache;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
@@ -36,10 +37,15 @@ public final class ProfileModule {
         mProfile = profile;
     }
 
+    @Provides
+    @PerProfile
+    Profile providesProfile() {
+        return mProfile;
+    }
 
     @Provides
     @PerProfile
-    Server provideServer(Context context, ServerCache serverCache) {
+    Server provideServer(@ApplicationContext Context context, ServerCache serverCache) {
         JasperServer server = serverCache.get(mProfile);
 
         DefaultPrefHelper prefHelper = DefaultPrefHelper_.getInstance_(context);

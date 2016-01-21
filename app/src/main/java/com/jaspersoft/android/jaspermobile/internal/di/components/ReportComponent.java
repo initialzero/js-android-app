@@ -16,5 +16,6 @@ import dagger.Subcomponent;
 )
 public interface ReportComponent {
     ReportActivityComponent plusReportActivity(ActivityModule activityModule);
+    ReportVisualizeActivityComponent plusReportVisualizeActivity(ActivityModule activityModule);
     ControlsActivityComponent plusControlsActivity(ActivityModule activityModule);
 }

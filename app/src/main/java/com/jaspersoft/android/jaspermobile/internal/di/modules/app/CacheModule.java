@@ -39,6 +39,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryVisualizeTemplateCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.VisualizeTemplateCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Singleton;
@@ -67,7 +68,7 @@ public final class CacheModule {
 
     @Singleton
     @Provides
-    CredentialsCache provideCredentialsCache(Context context, AccountManager accountManager, AccountDataMapper accountDataMapper) {
+    CredentialsCache provideCredentialsCache(@ApplicationContext Context context, AccountManager accountManager, AccountDataMapper accountDataMapper) {
         String secret = context.getString(R.string.password_salt_key);
         PasswordManager passwordManager = PasswordManager.init(context, secret);
         return new AccountCredentialsCache(accountManager, passwordManager, accountDataMapper);

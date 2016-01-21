@@ -21,6 +21,8 @@ public interface ReportVisualizeView extends LoadDataView {
 
     void setPaginationControlVisibility(boolean visibility);
 
+    void setWebViewVisibility(boolean visibility);
+
     void resetPaginationControl();
 
     void showTotalPages(int totalPages);
@@ -32,6 +34,8 @@ public interface ReportVisualizeView extends LoadDataView {
     void showEmptyPageMessage();
 
     void loadTemplateInView(VisualizeTemplate template);
+
+    void showPageLoader();
 
     ReportPageState getState();
 

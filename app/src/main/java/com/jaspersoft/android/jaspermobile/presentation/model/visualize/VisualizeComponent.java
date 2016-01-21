@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
-import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+
+import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 
 import java.util.List;
 
@@ -11,9 +12,11 @@ import java.util.List;
 public interface VisualizeComponent {
     VisualizeEvents visualizeEvents();
 
-    void loadPage(int page);
+    VisualizeComponent run();
 
-    void update(List<ReportParameter> parameters);
+    VisualizeComponent loadPage(int page);
 
-    void refresh();
+    VisualizeComponent update(List<ReportParameter> parameters);
+
+    VisualizeComponent refresh();
 }

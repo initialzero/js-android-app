@@ -95,6 +95,11 @@ public class ReportVisualizeFragment extends BaseFragment implements ReportVisua
     }
 
     @Override
+    public void setWebViewVisibility(boolean visibility) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
     public void resetPaginationControl() {
         throw new UnsupportedOperationException("Not yet implemented");
     }
@@ -121,6 +126,11 @@ public class ReportVisualizeFragment extends BaseFragment implements ReportVisua
 
     @Override
     public void loadTemplateInView(VisualizeTemplate template) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void showPageLoader() {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

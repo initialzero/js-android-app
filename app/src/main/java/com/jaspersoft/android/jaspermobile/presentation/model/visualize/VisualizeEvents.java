@@ -7,9 +7,9 @@ import rx.Observable;
  * @since 2.3
  */
 public interface VisualizeEvents {
-    Observable<Void> scriptLoadedEvent();
-
     Observable<Void> loadStartEvent();
+
+    Observable<Void> scriptLoadedEvent();
 
     Observable<LoadCompleteEvent> loadCompleteEvent();
 

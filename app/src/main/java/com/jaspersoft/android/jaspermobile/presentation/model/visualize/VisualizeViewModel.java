@@ -2,7 +2,7 @@ package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 
 import java.util.List;
 
@@ -25,7 +25,8 @@ public class VisualizeViewModel implements VisualizeComponent, WebViewComponent 
     @NonNull
     public static VisualizeViewModel newModel(WebViewConfiguration configuration) {
         WebViewComponent webViewComponent = new SimpleWebViewComponent(configuration);
-        VisualizeComponent visualizeComponent = new SimpleVisualizeComponent(configuration);
+        VisualizeEvents visualizeEvents = null;
+        VisualizeComponent visualizeComponent = new SimpleVisualizeComponent(configuration, visualizeEvents);
         return new VisualizeViewModel(visualizeComponent, webViewComponent);
     }
 
@@ -35,18 +36,23 @@ public class VisualizeViewModel implements VisualizeComponent, WebViewComponent 
     }
 
     @Override
-    public void loadPage(int page) {
-        mVisualizeComponentDelegate.loadPage(page);
+    public VisualizeComponent run() {
+        return mVisualizeComponentDelegate.run();
     }
 
     @Override
-    public void update(List<ReportParameter> parameters) {
-        mVisualizeComponentDelegate.update(parameters);
+    public VisualizeComponent loadPage(int page) {
+        return mVisualizeComponentDelegate.loadPage(page);
     }
 
     @Override
-    public void refresh() {
-        mVisualizeComponentDelegate.refresh();
+    public VisualizeComponent update(List<ReportParameter> parameters) {
+        return mVisualizeComponentDelegate.update(parameters);
+    }
+
+    @Override
+    public VisualizeComponent refresh() {
+        return mVisualizeComponentDelegate.refresh();
     }
 
     @Override

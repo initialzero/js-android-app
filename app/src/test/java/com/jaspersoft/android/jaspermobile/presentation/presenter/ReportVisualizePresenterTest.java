@@ -5,8 +5,20 @@ import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExecutionReferenceClickEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExternalReferenceClickEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.LoadCompleteEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.MultiPageLoadEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadCompleteEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadErrorEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ReportCompleteEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeEvents;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewEvents;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
+import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +28,8 @@ import rx.Observable;
 import rx.Subscriber;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -39,6 +53,12 @@ public class ReportVisualizePresenterTest {
     RequestExceptionHandler mExceptionHandler;
     @Mock
     ReportVisualizeView mView;
+    @Mock
+    VisualizeViewModel mVisualizeViewModel;
+    @Mock
+    VisualizeEvents mVisualizeEvents;
+    @Mock
+    WebViewEvents mWebViewEvents;
 
     private ReportPageState fakeState;
 
@@ -92,12 +112,50 @@ public class ReportVisualizePresenterTest {
         verify(mView).loadTemplateInView(VIS_TEMPLATE);
     }
 
+    @Test
+    public void should_delegate_run_call_on_visualize() throws Exception {
+        mReportVisualizePresenter.runReport();
+        verify(mVisualizeViewModel).run();
+    }
+
+    @Test
+    public void should_subscribe_to_visualize_start_load_event_on_run() throws Exception {
+        when(mVisualizeEvents.loadStartEvent()).thenReturn(Observable.<Void>just(null));
+
+        mReportVisualizePresenter.runReport();
+
+        verify(mView).setWebViewVisibility(false);
+        verify(mView).showPageLoader();
+        verify(mView).resetPaginationControl();
+    }
+
     private void setUpMocks() {
         fakeState = spy(new ReportPageState());
         mGetVisualizeTemplateCase = spy(new FakeGetVisualizeTemplateCase());
         mGetReportShowControlsPropertyCase = spy(new FakeGetReportShowControlsPropertyCase());
 
         when(mView.getState()).thenReturn(fakeState);
+        when(mView.getVisualize()).thenReturn(mVisualizeViewModel);
+
+        when(mVisualizeViewModel.visualizeEvents()).thenReturn(mVisualizeEvents);
+        when(mVisualizeViewModel.webViewEvents()).thenReturn(mWebViewEvents);
+
+        when(mVisualizeViewModel.run()).thenReturn(mVisualizeViewModel);
+        when(mVisualizeViewModel.refresh()).thenReturn(mVisualizeViewModel);
+        when(mVisualizeViewModel.loadPage(anyInt())).thenReturn(mVisualizeViewModel);
+        when(mVisualizeViewModel.update(anyListOf(ReportParameter.class))).thenReturn(mVisualizeViewModel);
+
+        when(mVisualizeEvents.loadStartEvent()).thenReturn(Observable.<Void>empty());
+        when(mVisualizeEvents.scriptLoadedEvent()).thenReturn(Observable.<Void>empty());
+        when(mVisualizeEvents.loadCompleteEvent()).thenReturn(Observable.<LoadCompleteEvent>empty());
+        when(mVisualizeEvents.loadErrorEvent()).thenReturn(Observable.<ErrorEvent>empty());
+        when(mVisualizeEvents.reportCompleteEvent()).thenReturn(Observable.<ReportCompleteEvent>empty());
+        when(mVisualizeEvents.pageLoadCompleteEvent()).thenReturn(Observable.<PageLoadCompleteEvent>empty());
+        when(mVisualizeEvents.pageLoadErrorEvent()).thenReturn(Observable.<PageLoadErrorEvent>empty());
+        when(mVisualizeEvents.multiPageLoadEvent()).thenReturn(Observable.<MultiPageLoadEvent>empty());
+        when(mVisualizeEvents.externalReferenceClickEvent()).thenReturn(Observable.<ExternalReferenceClickEvent>empty());
+        when(mVisualizeEvents.executionReferenceClickEvent()).thenReturn(Observable.<ExecutionReferenceClickEvent>empty());
+        when(mVisualizeEvents.windowErrorEvent()).thenReturn(Observable.<ErrorEvent>empty());
     }
 
     private static class FakeGetVisualizeTemplateCase extends GetVisualizeTemplateCase {

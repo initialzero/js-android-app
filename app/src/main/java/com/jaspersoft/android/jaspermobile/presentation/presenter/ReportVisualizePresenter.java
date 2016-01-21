@@ -9,11 +9,15 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportSho
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 /**
@@ -21,12 +25,14 @@ import timber.log.Timber;
  * @since 2.3
  */
 @PerActivity
-public class ReportVisualizePresenter implements Presenter<ReportVisualizeView> {
+public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>, ReportActionListener {
 
     private final double mScreenDiagonal;
     private final RequestExceptionHandler mRequestExceptionHandler;
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private final GetVisualizeTemplateCase mGetVisualizeTemplateCase;
+
+    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
     private ReportVisualizeView mView;
 
@@ -66,6 +72,46 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView> 
         });
     }
 
+    @Override
+    public void runReport() {
+        VisualizeComponent visualize = mView.getVisualize().run();
+        listenForLoadStart(visualize);
+    }
+
+    private void listenForLoadStart(VisualizeComponent visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .loadStartEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
+                            @Override
+                            public void onNext(Void item) {
+                                mView.setWebViewVisibility(false);
+                                mView.showPageLoader();
+                                mView.resetPaginationControl();
+                            }
+                        }))
+        );
+    }
+
+    private void subscribeToEvent(Subscription subscription) {
+        mCompositeSubscription.add(subscription);
+    }
+
+    @Override
+    public void loadPage(String pageRange) {
+
+    }
+
+    @Override
+    public void updateReport() {
+
+    }
+
+    @Override
+    public void refresh() {
+
+    }
+
     private void resolveNeedControls(boolean needControls) {
         if (needControls) {
             mView.showInitialFiltersPage();
@@ -75,17 +121,13 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView> 
     }
 
     private void loadVisualizeTemplate() {
-        mGetVisualizeTemplateCase.execute(mScreenDiagonal, new SimpleSubscriber<VisualizeTemplate>() {
-            @Override
-            public void onError(Throwable e) {
-                handleError(e);
-            }
-
-            @Override
-            public void onNext(VisualizeTemplate template) {
-                mView.loadTemplateInView(template);
-            }
-        });
+        mGetVisualizeTemplateCase.execute(mScreenDiagonal, new ErrorSubscriber<>(
+                new SimpleSubscriber<VisualizeTemplate>() {
+                    @Override
+                    public void onNext(VisualizeTemplate template) {
+                        mView.loadTemplateInView(template);
+                    }
+                }));
     }
 
     @Override
@@ -127,5 +169,28 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView> 
 
     private void showLoading() {
         mView.showLoading();
+    }
+
+    private final class ErrorSubscriber<R> extends SimpleSubscriber<R> {
+        private final SimpleSubscriber<R> mDelegate;
+
+        private ErrorSubscriber(SimpleSubscriber<R> delegate) {
+            mDelegate = delegate;
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            handleError(e);
+        }
+
+        @Override
+        public void onCompleted() {
+            mDelegate.onCompleted();
+        }
+
+        @Override
+        public void onNext(R item) {
+            mDelegate.onNext(item);
+        }
     }
 }

@@ -24,7 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
-import com.jaspersoft.android.jaspermobile.data.cache.profile.ServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.JasperServerMapper;
 import com.jaspersoft.android.jaspermobile.data.repository.profile.JasperServerDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
@@ -54,7 +54,7 @@ public class JasperServerDataRepositoryTest {
     public static final String SERVER_URL = "http://localhost";
 
     @Mock
-    ServerCache mServerCache;
+    JasperServerCache mJasperServerCache;
     @Mock
     JasperServerMapper mJasperServerMapper;
 
@@ -77,7 +77,7 @@ public class JasperServerDataRepositoryTest {
         JasperServer.Builder serverBuilder = JasperServer.builder().setBaseUrl(SERVER_URL);
 
 
-        repoUnderTest = new JasperServerDataRepository(mServerCache, mJasperServerMapper, mRxServerInfoService);
+        repoUnderTest = new JasperServerDataRepository(mJasperServerCache, mJasperServerMapper, mRxServerInfoService);
         fakeProfile = Profile.create("name");
         fakeServer = JasperServer.builder()
                 .setBaseUrl("http://localhost")
@@ -95,12 +95,12 @@ public class JasperServerDataRepositoryTest {
 
         verify(mRxServerInfoService).requestServerInfo();
         verify(mJasperServerMapper).toDomainModel(SERVER_URL, mServerInfo);
-        verify(mServerCache).put(fakeProfile, fakeServer);
+        verify(mJasperServerCache).put(fakeProfile, fakeServer);
     }
 
     @Test
     public void testGetServer() throws Exception {
         repoUnderTest.getServer(fakeProfile).subscribe();
-        verify(mServerCache).get(fakeProfile);
+        verify(mJasperServerCache).get(fakeProfile);
     }
 }

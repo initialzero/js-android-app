@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.data.repository.report;
 import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.VisualizeTemplateCache;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -36,6 +37,8 @@ public class InMemoryVisualizeTemplateRepositoryTest {
     @Mock
     VisualizeTemplateCache mVisualizeTemplateCache;
     @Mock
+    JasperServerCache mJasperServerCache;
+    @Mock
     JasperServer mJasperServer;
 
     private final Profile fakeProfile = Profile.create("fake");
@@ -50,11 +53,12 @@ public class InMemoryVisualizeTemplateRepositoryTest {
         mInMemoryVisualizeTemplateRepository = new InMemoryVisualizeTemplateRepository(
                 RuntimeEnvironment.application,
                 mVisualizeTemplateCache,
-                mJasperServer
+                mJasperServerCache
         );
     }
 
     private void setUpMocks() {
+        when(mJasperServerCache.get(any(Profile.class))).thenReturn(mJasperServer);
         when(mJasperServer.getVersionName()).thenReturn("6.1");
         when(mJasperServer.getBaseUrl()).thenReturn("http://server.url/");
     }
@@ -66,6 +70,7 @@ public class InMemoryVisualizeTemplateRepositoryTest {
         TestSubscriber<VisualizeTemplate> test = getOperation();
         test.assertNoErrors();
 
+        verify(mJasperServerCache).get(fakeProfile);
         verify(mJasperServer).getBaseUrl();
         verify(mJasperServer).getVersionName();
         verify(mVisualizeTemplateCache).put(eq(fakeProfile), any(VisualizeTemplate.class));
@@ -78,6 +83,7 @@ public class InMemoryVisualizeTemplateRepositoryTest {
         TestSubscriber<VisualizeTemplate> test = getOperation();
         test.assertNoErrors();
 
+        verifyZeroInteractions(mJasperServerCache);
         verifyZeroInteractions(mJasperServer);
         verify(mVisualizeTemplateCache).get(eq(fakeProfile));
     }

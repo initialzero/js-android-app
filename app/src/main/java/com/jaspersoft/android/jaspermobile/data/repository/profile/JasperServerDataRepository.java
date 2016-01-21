@@ -24,8 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository.profile;
 
-import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountServerCache;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.ServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountJasperServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.JasperServerMapper;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -52,15 +52,15 @@ import rx.functions.Func1;
 public final class JasperServerDataRepository implements JasperServerRepository {
 
     /**
-     * Injected by {@link CacheModule#providesJasperSeverCache(AccountServerCache)}}
+     * Injected by {@link CacheModule#providesJasperSeverCache(AccountJasperServerCache)}}
      */
-    private final ServerCache mServerCache;
+    private final JasperServerCache mJasperServerCache;
     private final JasperServerMapper mJasperServerMapper;
     private final RxServerInfoService mRxServerInfoService;
 
     @Inject
-    public JasperServerDataRepository(ServerCache serverCache, JasperServerMapper jasperServerMapper, RxServerInfoService rxServerInfoService) {
-        mServerCache = serverCache;
+    public JasperServerDataRepository(JasperServerCache jasperServerCache, JasperServerMapper jasperServerMapper, RxServerInfoService rxServerInfoService) {
+        mJasperServerCache = jasperServerCache;
         mJasperServerMapper = jasperServerMapper;
         mRxServerInfoService = rxServerInfoService;
     }
@@ -79,7 +79,7 @@ public final class JasperServerDataRepository implements JasperServerRepository 
                 }).doOnNext(new Action1<JasperServer>() {
                     @Override
                     public void call(JasperServer server) {
-                        mServerCache.put(profile, server);
+                        mJasperServerCache.put(profile, server);
                     }
                 }).map(new Func1<JasperServer, Profile>() {
                     @Override
@@ -97,7 +97,7 @@ public final class JasperServerDataRepository implements JasperServerRepository 
         return Observable.defer(new Func0<Observable<JasperServer>>() {
             @Override
             public Observable<JasperServer> call() {
-                JasperServer server = mServerCache.get(profile);
+                JasperServer server = mJasperServerCache.get(profile);
                 return Observable.just(server);
             }
         });

@@ -29,12 +29,12 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountCredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountJasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.ServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryVisualizeTemplateCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.VisualizeTemplateCache;
@@ -76,7 +76,7 @@ public final class CacheModule {
 
     @Singleton
     @Provides
-    ServerCache providesJasperSeverCache(AccountServerCache cache) {
+    JasperServerCache providesJasperSeverCache(AccountJasperServerCache cache) {
         return cache;
     }
 

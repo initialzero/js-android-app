@@ -19,7 +19,6 @@ import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import timber.log.Timber;
 
@@ -31,7 +30,6 @@ import timber.log.Timber;
 public class ReportViewPresenter implements ReportActionListener, Presenter<ReportView> {
     private ReportView mView;
 
-    private final String mReportUri;
     private final RequestExceptionHandler mExceptionHandler;
 
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
@@ -43,8 +41,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     private final ReloadReportCase mReloadReportCase;
 
     @Inject
-    public ReportViewPresenter(@Named("report_uri") String reportUri,
-                               RequestExceptionHandler exceptionHandler,
+    public ReportViewPresenter(RequestExceptionHandler exceptionHandler,
                                GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
                                GetReportMultiPagePropertyCase getReportMultiPagePropertyCase,
                                GetReportTotalPagesPropertyCase getReportTotalPagesPropertyCase,
@@ -53,7 +50,6 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
                                UpdateReportCase updateReportCase,
                                ReloadReportCase reloadReportCase
     ) {
-        mReportUri = reportUri;
         mExceptionHandler = exceptionHandler;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
         mGetReportMultiPagePropertyCase = getReportMultiPagePropertyCase;
@@ -73,7 +69,6 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
             loadMultiPageProperty();
             loadTotalPagesProperty();
         } else {
-            showLoading();
             loadReportMetadata();
         }
     }
@@ -98,7 +93,8 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     }
 
     private void loadReportMetadata() {
-        mGetReportShowControlsPropertyCase.execute(mReportUri, new SimpleSubscriber<Boolean>() {
+        showLoading();
+        mGetReportShowControlsPropertyCase.execute(new SimpleSubscriber<Boolean>() {
             @Override
             public void onCompleted() {
                 hideLoading();

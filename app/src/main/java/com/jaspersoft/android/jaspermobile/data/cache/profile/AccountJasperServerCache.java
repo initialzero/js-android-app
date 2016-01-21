@@ -43,7 +43,7 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 @Singleton
-public final class AccountServerCache implements ServerCache {
+public final class AccountJasperServerCache implements JasperServerCache {
     public static final String SERVER_URL_KEY = "SERVER_URL_KEY";
     public static final String EDITION_KEY = "EDITION_KEY";
     public static final String VERSION_NAME_KEY = "VERSION_NAME_KEY";
@@ -53,9 +53,9 @@ public final class AccountServerCache implements ServerCache {
     private final ProfileCache mProfileAccountCache;
 
     @Inject
-    public AccountServerCache(AccountManager accountManager,
-                              AccountDataMapper accountDataMapper,
-                              ProfileCache profileAccountCache) {
+    public AccountJasperServerCache(AccountManager accountManager,
+                                    AccountDataMapper accountDataMapper,
+                                    ProfileCache profileAccountCache) {
         mAccountManager = accountManager;
         mAccountDataMapper = accountDataMapper;
         mProfileAccountCache = profileAccountCache;

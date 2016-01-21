@@ -17,7 +17,7 @@ import rx.Observable;
  * @since 2.3
  */
 @PerProfile
-public final class GetVisualizeTemplateCase extends AbstractUseCase<VisualizeTemplate, Double> {
+public class GetVisualizeTemplateCase extends AbstractUseCase<VisualizeTemplate, Double> {
 
     private final VisualizeTemplateRepository mVisualizeTemplateRepository;
     private final Profile mProfile;

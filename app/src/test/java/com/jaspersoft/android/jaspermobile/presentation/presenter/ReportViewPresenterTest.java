@@ -7,7 +7,6 @@ import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMultiPagePropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportPageContentCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportTotalPagesPropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.ReloadReportCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.RunReportCase;
@@ -48,7 +47,7 @@ public class ReportViewPresenterTest {
     ReportView mView;
 
     private ReportViewPresenter presenter;
-    private FakeGetReportNeedParamsPropertyCase mFakeGetReportNeedParamsPropertyCase;
+    private FakeGetReportShowControlsPropertyCase mFakeGetReportShowControlsPropertyCase;
     private FakeGetReportPageContentCase mFakeGetReportPageContentCase;
     private FakeGetReportMultiPagePropertyCase mFakeGetReportMultiPagePropertyCase;
     private FakeGetReportTotalPagesPropertyCase mFakeGetReportTotalPagesPropertyCase;
@@ -63,9 +62,8 @@ public class ReportViewPresenterTest {
         initMocks(this);
         setupMocks();
         presenter = new ReportViewPresenter(
-                REPORT_URI,
                 mExceptionHandler,
-                mFakeGetReportNeedParamsPropertyCase,
+                mFakeGetReportShowControlsPropertyCase,
                 mFakeGetReportMultiPagePropertyCase,
                 mFakeGetReportTotalPagesPropertyCase,
                 mFakeGetReportPageContentCase,
@@ -79,11 +77,11 @@ public class ReportViewPresenterTest {
     @Test
     @SuppressWarnings("unchecked")
     public void should_show_filters_page_if_check_for_controls_was_positive() throws Exception {
-        mFakeGetReportNeedParamsPropertyCase.setNeedParams(true);
+        mFakeGetReportShowControlsPropertyCase.setNeedParams(true);
         presenter.init();
 
         verify(mView).showLoading();
-        verify(mFakeGetReportNeedParamsPropertyCase).execute(eq(REPORT_URI), any(Subscriber.class));
+        verify(mFakeGetReportShowControlsPropertyCase).execute(any(Subscriber.class));
         verify(mView).setFilterActionVisibility(true);
         verify(mView).hideLoading();
 
@@ -93,7 +91,7 @@ public class ReportViewPresenterTest {
     @Test
     @SuppressWarnings("unchecked")
     public void should_run_report_if_check_for_controls_was_negative() throws Exception {
-        mFakeGetReportNeedParamsPropertyCase.setNeedParams(false);
+        mFakeGetReportShowControlsPropertyCase.setNeedParams(false);
         presenter.init();
         verify(mReportPageState).setControlsPageShown(true);
         verify(mView).setFilterActionVisibility(false);
@@ -174,7 +172,7 @@ public class ReportViewPresenterTest {
     @Test
     public void should_un_subscribe_from_use_cases_on_destroy_action() throws Exception {
         presenter.destroy();
-        verify(mFakeGetReportNeedParamsPropertyCase).unsubscribe();
+        verify(mFakeGetReportShowControlsPropertyCase).unsubscribe();
         verify(mFakeGetReportMultiPagePropertyCase).unsubscribe();
         verify(mFakeGetReportTotalPagesPropertyCase).unsubscribe();
         verify(mFakeGetReportPageContentCase).unsubscribe();
@@ -203,7 +201,7 @@ public class ReportViewPresenterTest {
 
     @Test
     public void should_toggle_pagination_control_if_multi_page_loaded() throws Exception {
-        mFakeGetReportMultiPagePropertyCase.setIsMuptiPage(false);
+        mFakeGetReportMultiPagePropertyCase.setIsMultiPage(false);
         presenter.loadMultiPageProperty();
         verify(mView).setPaginationControlVisibility(false);
     }
@@ -237,7 +235,7 @@ public class ReportViewPresenterTest {
         state.setCurrentPage(CURRENT_PAGE);
         mReportPageState = spy(state);
 
-        mFakeGetReportNeedParamsPropertyCase = spy(new FakeGetReportNeedParamsPropertyCase());
+        mFakeGetReportShowControlsPropertyCase = spy(new FakeGetReportShowControlsPropertyCase());
         mFakeGetReportPageContentCase = spy(new FakeGetReportPageContentCase());
         mFakeGetReportMultiPagePropertyCase = spy(new FakeGetReportMultiPagePropertyCase());
         mFakeGetReportTotalPagesPropertyCase = spy(new FakeGetReportTotalPagesPropertyCase());
@@ -305,7 +303,7 @@ public class ReportViewPresenterTest {
             super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
         }
 
-        public void setIsMuptiPage(boolean fakeResult) {
+        public void setIsMultiPage(boolean fakeResult) {
             mFakeResult = fakeResult;
         }
 
@@ -323,23 +321,6 @@ public class ReportViewPresenterTest {
         @Override
         protected Observable<ReportPage> buildUseCaseObservable(@NonNull String uri) {
             return Observable.just(PAGE);
-        }
-    }
-
-    private static class FakeGetReportNeedParamsPropertyCase extends GetReportShowControlsPropertyCase {
-        private boolean mFakeResult;
-
-        public FakeGetReportNeedParamsPropertyCase() {
-            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null);
-        }
-
-        public void setNeedParams(boolean fakeResult) {
-            mFakeResult = fakeResult;
-        }
-
-        @Override
-        protected Observable<Boolean> buildUseCaseObservable(@NonNull String uri) {
-            return Observable.just(mFakeResult);
         }
     }
 }

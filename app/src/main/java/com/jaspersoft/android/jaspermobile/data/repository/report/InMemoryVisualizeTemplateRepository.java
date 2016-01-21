@@ -2,11 +2,13 @@ package com.jaspersoft.android.jaspermobile.data.repository.report;
 
 import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.VisualizeTemplateCache;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.VisualizeTemplateRepository;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.samskivert.mustache.Mustache;
@@ -37,15 +39,15 @@ public final class InMemoryVisualizeTemplateRepository implements VisualizeTempl
 
     private final Context mContext;
     private final VisualizeTemplateCache mCache;
-    private final JasperServer mJasperServer;
+    private final JasperServerCache mJasperServerCache;
 
     @Inject
-    public InMemoryVisualizeTemplateRepository(Context context,
+    public InMemoryVisualizeTemplateRepository(@ApplicationContext Context context,
                                                VisualizeTemplateCache cache,
-                                               JasperServer jasperServer) {
+                                               JasperServerCache jasperServerCache) {
         mContext = context;
         mCache = cache;
-        mJasperServer = jasperServer;
+        mJasperServerCache = jasperServerCache;
     }
 
     @Override
@@ -63,7 +65,8 @@ public final class InMemoryVisualizeTemplateRepository implements VisualizeTempl
         Observable<VisualizeTemplate> diskSource = Observable.defer(new Func0<Observable<VisualizeTemplate>>() {
             @Override
             public Observable<VisualizeTemplate> call() {
-                String versionName = mJasperServer.getVersionName();
+                JasperServer server = mJasperServerCache.get(profile);
+                String versionName = server.getVersionName();
                 if (versionName == null) {
                     throw new IllegalStateException("Server version missing impossible to load server");
                 }
@@ -76,7 +79,7 @@ public final class InMemoryVisualizeTemplateRepository implements VisualizeTempl
                     StringWriter writer = new StringWriter();
                     IOUtils.copy(stream, writer, "UTF-8");
 
-                    String baseUrl = mJasperServer.getBaseUrl();
+                    String baseUrl = server.getBaseUrl();
                     VisualizeEndpoint visualizeEndpoint = VisualizeEndpoint.forBaseUrl(baseUrl)
                             .setOptimized(optimized)
                             .build();

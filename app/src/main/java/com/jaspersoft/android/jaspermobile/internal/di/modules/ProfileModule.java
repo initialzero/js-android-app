@@ -3,7 +3,7 @@ package com.jaspersoft.android.jaspermobile.internal.di.modules;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.ServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -45,8 +45,8 @@ public final class ProfileModule {
 
     @Provides
     @PerProfile
-    Server provideServer(@ApplicationContext Context context, ServerCache serverCache) {
-        JasperServer server = serverCache.get(mProfile);
+    Server provideServer(@ApplicationContext Context context, JasperServerCache jasperServerCache) {
+        JasperServer server = jasperServerCache.get(mProfile);
 
         DefaultPrefHelper prefHelper = DefaultPrefHelper_.getInstance_(context);
         int connectTimeout = prefHelper.getConnectTimeoutValue();

@@ -29,7 +29,7 @@ import android.accounts.AccountManager;
 
 import com.jaspersoft.android.jaspermobile.data.FakeAccount;
 import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountServerCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountJasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
@@ -55,9 +55,9 @@ import static org.powermock.api.mockito.PowerMockito.when;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class AccountServerCacheTest {
+public class AccountJasperServerCacheTest {
     AccountManager accountManager;
-    AccountServerCache cacheUnderTest;
+    AccountJasperServerCache cacheUnderTest;
     Profile fakeProfile;
     JasperServer fakeServer;
 
@@ -76,7 +76,7 @@ public class AccountServerCacheTest {
                 .setEditionIsPro(false)
                 .create();
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        cacheUnderTest = new AccountServerCache(accountManager, FakeAccountDataMapper.get(), mProfileCache);
+        cacheUnderTest = new AccountJasperServerCache(accountManager, FakeAccountDataMapper.get(), mProfileCache);
     }
 
     @Test

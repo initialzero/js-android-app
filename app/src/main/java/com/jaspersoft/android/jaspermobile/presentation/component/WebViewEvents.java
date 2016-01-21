@@ -1,5 +1,7 @@
 package com.jaspersoft.android.jaspermobile.presentation.component;
 
+import android.webkit.ConsoleMessage;
+
 import rx.Observable;
 
 /**
@@ -9,5 +11,6 @@ import rx.Observable;
 public interface WebViewEvents {
     Observable<WebViewErrorEvent> receivedErrorEvent();
     Observable<Integer> progressChangedEvent();
+    Observable<ConsoleMessage> consoleMessageEvent();
     Observable<Void> sessionExpiredEvent();
 }

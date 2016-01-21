@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.presentation.component;
 
 import android.support.annotation.NonNull;
+import android.webkit.ConsoleMessage;
 
 import rx.Observable;
 
@@ -24,6 +25,11 @@ public final class RxWebViewEvents implements WebViewEvents {
     @Override
     public Observable<Integer> progressChangedEvent() {
         return Observable.create(new WebViewProgressChangeOnSubscribe(mConfiguration));
+    }
+
+    @Override
+    public Observable<ConsoleMessage> consoleMessageEvent() {
+        return Observable.create(new WebViewConsoleMessageOnSubscribe(mConfiguration));
     }
 
     @Override

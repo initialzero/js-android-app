@@ -51,10 +51,10 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActiv
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.fragment.GetInputControlsFragment_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
 import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
@@ -179,7 +179,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @Inject
     protected ReportParamsStorage paramsStorage;
     @Inject
-    protected ReportParamsSerializer paramsSerializer;
+    protected ReportParamsMapper paramsSerializer;
     @Inject
     protected JsRestClient jsRestClient;
     @Inject
@@ -449,7 +449,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onScriptLoaded() {
-        runReport(paramsSerializer.toJson(getReportParameters()));
+        runReport(paramsSerializer.toJsonLegacyParams(getReportParameters()));
     }
 
     @UiThread
@@ -686,7 +686,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     private void applyReportParams() {
-        String reportParams = paramsSerializer.toJson(getReportParameters());
+        String reportParams = paramsSerializer.toJsonLegacyParams(getReportParameters());
         resetZoom();
         webView.loadUrl(String.format("javascript:MobileReport.applyReportParams(%s)", reportParams));
     }

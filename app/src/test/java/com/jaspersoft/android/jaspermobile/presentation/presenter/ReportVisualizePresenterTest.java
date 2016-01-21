@@ -4,6 +4,7 @@ import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.RunVisualizeReportCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExecutionReferenceClickEvent;
@@ -13,12 +14,12 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.MultiPag
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ReportCompleteEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeEvents;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewEvents;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
-import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +30,7 @@ import rx.Subscriber;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -48,6 +49,7 @@ public class ReportVisualizePresenterTest {
     private ReportVisualizePresenter mReportVisualizePresenter;
     private FakeGetVisualizeTemplateCase mGetVisualizeTemplateCase;
     private FakeGetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
+    private FakeRunVisualizeReportCase mRunVisualizeReportCase;
 
     @Mock
     RequestExceptionHandler mExceptionHandler;
@@ -70,7 +72,8 @@ public class ReportVisualizePresenterTest {
                 SCREEN_DIAGONAL,
                 mExceptionHandler,
                 mGetReportShowControlsPropertyCase,
-                mGetVisualizeTemplateCase
+                mGetVisualizeTemplateCase,
+                mRunVisualizeReportCase
         );
         mReportVisualizePresenter.injectView(mView);
     }
@@ -113,26 +116,30 @@ public class ReportVisualizePresenterTest {
     }
 
     @Test
-    public void should_delegate_run_call_on_visualize() throws Exception {
-        mReportVisualizePresenter.runReport();
-        verify(mVisualizeViewModel).run();
-    }
-
-    @Test
-    public void should_subscribe_to_visualize_start_load_event_on_run() throws Exception {
+    public void after_template_injection_should_subscribe_to_visualize_start_load_event() throws Exception {
         when(mVisualizeEvents.loadStartEvent()).thenReturn(Observable.<Void>just(null));
 
-        mReportVisualizePresenter.runReport();
+        mReportVisualizePresenter.loadVisualizeTemplate();
 
         verify(mView).setWebViewVisibility(false);
         verify(mView).showPageLoader();
         verify(mView).resetPaginationControl();
     }
 
+    @Test
+    public void after_template_injection_should_subscribe_to_visualize_script_loaded_event() throws Exception {
+        when(mVisualizeEvents.scriptLoadedEvent()).thenReturn(Observable.<Void>just(null));
+
+        mReportVisualizePresenter.loadVisualizeTemplate();
+
+        verify(mRunVisualizeReportCase).execute(any(Subscriber.class));
+    }
+
     private void setUpMocks() {
         fakeState = spy(new ReportPageState());
         mGetVisualizeTemplateCase = spy(new FakeGetVisualizeTemplateCase());
         mGetReportShowControlsPropertyCase = spy(new FakeGetReportShowControlsPropertyCase());
+        mRunVisualizeReportCase = spy(new FakeRunVisualizeReportCase());
 
         when(mView.getState()).thenReturn(fakeState);
         when(mView.getVisualize()).thenReturn(mVisualizeViewModel);
@@ -140,10 +147,10 @@ public class ReportVisualizePresenterTest {
         when(mVisualizeViewModel.visualizeEvents()).thenReturn(mVisualizeEvents);
         when(mVisualizeViewModel.webViewEvents()).thenReturn(mWebViewEvents);
 
-        when(mVisualizeViewModel.run()).thenReturn(mVisualizeViewModel);
+        when(mVisualizeViewModel.run(anyString())).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.refresh()).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.loadPage(anyInt())).thenReturn(mVisualizeViewModel);
-        when(mVisualizeViewModel.update(anyListOf(ReportParameter.class))).thenReturn(mVisualizeViewModel);
+        when(mVisualizeViewModel.update(anyString())).thenReturn(mVisualizeViewModel);
 
         when(mVisualizeEvents.loadStartEvent()).thenReturn(Observable.<Void>empty());
         when(mVisualizeEvents.scriptLoadedEvent()).thenReturn(Observable.<Void>empty());
@@ -166,6 +173,18 @@ public class ReportVisualizePresenterTest {
         @Override
         protected Observable<VisualizeTemplate> buildUseCaseObservable(Double diagonal) {
             return Observable.just(VIS_TEMPLATE);
+        }
+    }
+
+    private class FakeRunVisualizeReportCase extends RunVisualizeReportCase {
+        public FakeRunVisualizeReportCase() {
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null, null);
+        }
+
+        @Override
+        protected Observable<VisualizeComponent> buildUseCaseObservable() {
+            VisualizeComponent component = mVisualizeViewModel;
+            return Observable.just(component);
         }
     }
 }

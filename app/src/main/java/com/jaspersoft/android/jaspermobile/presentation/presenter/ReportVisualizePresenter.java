@@ -7,10 +7,12 @@ import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.RunVisualizeReportCase;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
 
 import javax.inject.Inject;
@@ -31,6 +33,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     private final RequestExceptionHandler mRequestExceptionHandler;
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private final GetVisualizeTemplateCase mGetVisualizeTemplateCase;
+    private final RunVisualizeReportCase mRunVisualizeReportCase;
 
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
@@ -40,11 +43,14 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     public ReportVisualizePresenter(@Named("screen_diagonal") Double screenDiagonal,
                                     RequestExceptionHandler requestExceptionHandler,
                                     GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
-                                    GetVisualizeTemplateCase getVisualizeTemplateCase) {
+                                    GetVisualizeTemplateCase getVisualizeTemplateCase,
+                                    RunVisualizeReportCase runVisualizeReportCase
+    ) {
         mScreenDiagonal = screenDiagonal;
         mRequestExceptionHandler = requestExceptionHandler;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
         mGetVisualizeTemplateCase = getVisualizeTemplateCase;
+        mRunVisualizeReportCase = runVisualizeReportCase;
     }
 
     public void init() {
@@ -74,23 +80,12 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     @Override
     public void runReport() {
-        VisualizeComponent visualize = mView.getVisualize().run();
-        listenForLoadStart(visualize);
-    }
+        mRunVisualizeReportCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<VisualizeComponent>() {
+            @Override
+            public void onNext(VisualizeComponent item) {
 
-    private void listenForLoadStart(VisualizeComponent visualize) {
-        subscribeToEvent(
-                visualize.visualizeEvents()
-                        .loadStartEvent()
-                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
-                            @Override
-                            public void onNext(Void item) {
-                                mView.setWebViewVisibility(false);
-                                mView.showPageLoader();
-                                mView.resetPaginationControl();
-                            }
-                        }))
-        );
+            }
+        }));
     }
 
     private void subscribeToEvent(Subscription subscription) {
@@ -120,14 +115,47 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         }
     }
 
-    private void loadVisualizeTemplate() {
+    @VisibleForTesting
+    void loadVisualizeTemplate() {
         mGetVisualizeTemplateCase.execute(mScreenDiagonal, new ErrorSubscriber<>(
                 new SimpleSubscriber<VisualizeTemplate>() {
                     @Override
                     public void onNext(VisualizeTemplate template) {
                         mView.loadTemplateInView(template);
+
+                        VisualizeViewModel visualize = mView.getVisualize();
+                        listenForLoadStartEvent(visualize);
+                        listenScriptLoadedEvent(visualize);
                     }
                 }));
+    }
+
+    private void listenForLoadStartEvent(VisualizeComponent visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .loadStartEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
+                            @Override
+                            public void onNext(Void item) {
+                                mView.setWebViewVisibility(false);
+                                mView.showPageLoader();
+                                mView.resetPaginationControl();
+                            }
+                        }))
+        );
+    }
+
+    private void listenScriptLoadedEvent(VisualizeComponent visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .scriptLoadedEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
+                            @Override
+                            public void onNext(Void item) {
+                                runReport();
+                            }
+                        }))
+        );
     }
 
     @Override
@@ -137,18 +165,17 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     @Override
     public void resume() {
-
     }
 
     @Override
     public void pause() {
-
     }
 
     @Override
     public void destroy() {
         mGetReportShowControlsPropertyCase.unsubscribe();
         mGetVisualizeTemplateCase.unsubscribe();
+        mRunVisualizeReportCase.unsubscribe();
     }
 
     @VisibleForTesting

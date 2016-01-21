@@ -2,10 +2,6 @@ package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
-
-import java.util.List;
-
 /**
  * @author Tom Koptel
  * @since 2.3
@@ -30,26 +26,31 @@ public class VisualizeViewModel implements VisualizeComponent, WebViewComponent 
         return new VisualizeViewModel(visualizeComponent, webViewComponent);
     }
 
+    @NonNull
     @Override
     public VisualizeEvents visualizeEvents() {
         return mVisualizeComponentDelegate.visualizeEvents();
     }
 
+    @NonNull
     @Override
-    public VisualizeComponent run() {
-        return mVisualizeComponentDelegate.run();
+    public VisualizeComponent run(@NonNull String jsonParams) {
+        return mVisualizeComponentDelegate.run(jsonParams);
     }
 
+    @NonNull
     @Override
     public VisualizeComponent loadPage(int page) {
         return mVisualizeComponentDelegate.loadPage(page);
     }
 
+    @NonNull
     @Override
-    public VisualizeComponent update(List<ReportParameter> parameters) {
-        return mVisualizeComponentDelegate.update(parameters);
+    public VisualizeComponent update(@NonNull String jsonParams) {
+        return mVisualizeComponentDelegate.update(jsonParams);
     }
 
+    @NonNull
     @Override
     public VisualizeComponent refresh() {
         return mVisualizeComponentDelegate.refresh();

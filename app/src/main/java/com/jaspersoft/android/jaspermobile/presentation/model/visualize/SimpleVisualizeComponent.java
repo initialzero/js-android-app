@@ -2,10 +2,6 @@ package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
-
-import java.util.List;
-
 /**
  * @author Tom Koptel
  * @since 2.3
@@ -22,26 +18,31 @@ final class SimpleVisualizeComponent implements VisualizeComponent {
         mVisualizeEvents = visualizeEvents;
     }
 
+    @NonNull
     @Override
     public VisualizeEvents visualizeEvents() {
         return mVisualizeEvents;
     }
 
+    @NonNull
     @Override
-    public VisualizeComponent run() {
+    public VisualizeComponent run(@NonNull String jsonParams) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @NonNull
     @Override
     public VisualizeComponent loadPage(int page) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @NonNull
     @Override
-    public VisualizeComponent update(List<ReportParameter> parameters) {
+    public VisualizeComponent update(@NonNull String jsonParams) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @NonNull
     @Override
     public VisualizeComponent refresh() {
         throw new UnsupportedOperationException("Not yet implemented");

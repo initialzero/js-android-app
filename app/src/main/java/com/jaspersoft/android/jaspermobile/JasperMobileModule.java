@@ -31,8 +31,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializer;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.params.ReportParamsSerializerImpl;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
@@ -77,7 +75,6 @@ public class JasperMobileModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("DEMO_ENDPOINT")).to(endpoint);
 
         bind(ReportParamsStorage.class).in(Singleton.class);
-        bind(ReportParamsSerializer.class).to(ReportParamsSerializerImpl.class);
         bind(AppConfigurator.class).to(AppConfiguratorImpl.class);
         bind(Analytics.class).to(JasperAnalytics.class).in(Singleton.class);
         bind(SecurityProviderUpdater.class).to(JasperSecurityProviderUpdater.class).in(Singleton.class);

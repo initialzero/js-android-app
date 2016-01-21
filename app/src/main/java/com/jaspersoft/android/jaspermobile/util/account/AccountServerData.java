@@ -175,7 +175,7 @@ public class AccountServerData {
     }
 
     public boolean isDemo(){
-        return serverUrl.equals(Demo.SERVER_URL) || serverUrl.equals("http://mobiledemo.jaspersoft.com/jasperserver-pro");
+        return serverUrl.equals(Demo.SERVER_URL) || serverUrl.equals("http://mobiledemo.jaspersoft.com/jasperserver-pro") || serverUrl.equals("https://mobiledemo.jaspersoft.com/jasperserver-pro");
     }
 
     @Override

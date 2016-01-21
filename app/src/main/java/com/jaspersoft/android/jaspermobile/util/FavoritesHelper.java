@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
@@ -59,6 +60,9 @@ public class FavoritesHelper {
     @Inject
     JsRestClient jsRestClient;
 
+    @Inject
+    protected Analytics analytics;
+
     @AfterInject
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(context);
@@ -80,6 +84,7 @@ public class FavoritesHelper {
 
         if (changeStateSucceed) {
             updateFavoriteIconState(favoriteIcon, newFavoriteState);
+            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.MARKED_AS_FAVORITE.getValue(), "" + newFavoriteState);
         }
     }
 

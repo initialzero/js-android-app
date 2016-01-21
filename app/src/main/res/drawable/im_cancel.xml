@@ -29,7 +29,5 @@
             <solid android:color="@color/js_light_gray"/>
             </shape>
     </item>
-     <item>
-         <bitmap android:src="@drawable/ic_menu_close"/>
-     </item>
+    <item android:drawable="@drawable/ic_menu_close"/>
 </layer-list>

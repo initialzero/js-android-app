@@ -10,16 +10,15 @@
         app:layout_aspectRatio="110%"
         app:layout_widthPercent="100%">
 
-        <com.jaspersoft.android.jaspermobile.widget.TopCropImageView
+        <ImageView
             android:id="@android:id/icon"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/metadataContainer"
             android:background="@android:color/white"
             android:contentDescription="@string/img_cd_grid_item"
-            android:scaleType="fitXY"
             tools:background="@drawable/bg_gradient_grey"
-            tools:src="@drawable/placeholder_report" />
+            tools:src="@drawable/im_thumbnail_report" />
 
         <View
             android:layout_width="match_parent"

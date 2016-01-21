@@ -163,6 +163,11 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         return super.onPrepareOptionsMenu(menu);
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_rc_s);
+    }
+
     @OptionsItem
     public boolean showFilters() {
         if (isInputControlFragmentAdded()) return false;

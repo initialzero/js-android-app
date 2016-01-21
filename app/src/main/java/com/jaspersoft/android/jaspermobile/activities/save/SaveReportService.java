@@ -11,6 +11,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.ArraySet;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment;
@@ -63,6 +64,9 @@ public class SaveReportService extends RoboIntentService {
 
     @Inject
     protected JsRestClient jsRestClient;
+
+    @Inject
+    protected Analytics analytics;
 
     @SystemService
     NotificationManager mNotificationManager;
@@ -133,8 +137,10 @@ public class SaveReportService extends RoboIntentService {
             updateSavedItemRecordToDownloaded(mRecordUrisQe.peek());
 
             notifySaveResult(savedReportName, android.R.drawable.stat_sys_download_done, getString(R.string.sr_t_report_saved));
+            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.SAVED.getValue(), Analytics.EventLabel.DONE.getValue());
         } catch (RestClientException | IllegalStateException ex) {
             notifySaveResult(savedReportName, android.R.drawable.ic_dialog_alert, getString(R.string.sdr_saving_error_msg));
+            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.SAVED.getValue(), Analytics.EventLabel.FAILED.getValue());
             savedItemHelper.deleteSavedItem(reportFile, mRecordUrisQe.peek());
         } catch (OperationCanceledException ex) {
             savedItemHelper.deleteSavedItem(reportFile, mRecordUrisQe.peek());
@@ -268,6 +274,7 @@ public class SaveReportService extends RoboIntentService {
     }
 
     private void cancelSavingReport(Bundle reportBundle) {
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.SAVED.getValue(), Analytics.EventLabel.CANCELED.getValue());
         Uri reportUri = Uri.parse(reportBundle.getString(SaveReportService_.ITEM_URI_EXTRA));
 
         if (reportUri.equals(mCurrent)) {

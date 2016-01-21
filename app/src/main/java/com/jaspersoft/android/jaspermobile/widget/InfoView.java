@@ -97,7 +97,7 @@ public class InfoView extends CardView {
         updateVisibility();
     }
 
-    public void fillWithBaseData(String type, String label, String description, String uri, String creationDate, String modifiedDate, String version, String permissions) {
+    public void fillWithBaseData(String type, String label, String description, String uri, String creationDate, String modifiedDate, String version, int permissions) {
         infoDataContainer.removeAllViews();
 
         addInfoItem(getContext().getString(R.string.ri_type_title), type);
@@ -107,7 +107,7 @@ public class InfoView extends CardView {
         addInfoItem(getContext().getString(R.string.ri_creation_title), creationDate);
         addInfoItem(getContext().getString(R.string.ri_modified_title), modifiedDate);
         addInfoItem(getContext().getString(R.string.ri_version_title), version);
-        addInfoItem(getContext().getString(R.string.ri_permissions_title), permissions);
+        addInfoItem(getContext().getString(R.string.ri_permissions_title), UserAccess.getPermission(getContext(), permissions));
     }
 
     private void addInfoItem(String title, String value) {
@@ -122,5 +122,36 @@ public class InfoView extends CardView {
 
     private void updateVisibility() {
         infoProgress.setVisibility(infoDataContainer.getChildCount() > 0 ? INVISIBLE : VISIBLE);
+    }
+
+    private static class UserAccess {
+        private static final int NO_ACCESS = 0;
+        private static final int ADMINISTER = 1;
+        private static final int READ_ONLY = 2;
+        private static final int READ_WRITE = 6;
+        private static final int READ_DELETE = 18;
+        private static final int READ_WRITE_DELETE = 30;
+        private static final int EXECUTE_ONLY = 32;
+
+        public static String getPermission(Context context, int value) {
+            switch (value) {
+                case NO_ACCESS:
+                    return context.getString(R.string.rp_no_access);
+                case ADMINISTER:
+                    return context.getString(R.string.rp_administer);
+                case READ_ONLY:
+                    return context.getString(R.string.rp_read_only);
+                case READ_WRITE:
+                    return context.getString(R.string.rp_read_write);
+                case READ_DELETE:
+                    return context.getString(R.string.rp_read_delete);
+                case READ_WRITE_DELETE:
+                    return context.getString(R.string.rp_read_write_delete);
+                case EXECUTE_ONLY:
+                    return context.getString(R.string.rp_execute_only);
+                default:
+                    return null;
+            }
+        }
     }
 }

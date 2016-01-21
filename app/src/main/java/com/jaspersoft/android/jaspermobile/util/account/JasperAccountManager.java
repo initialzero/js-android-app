@@ -72,7 +72,7 @@ public class JasperAccountManager {
     JasperAccountManager(Context context,
                          AccountManager delegateManager,
                          ActiveAccountStorage accountCache, PasswordManager passwordManager) {
-        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
+        RoboGuice.getInjector(context.getApplicationContext()).injectMembersWithoutViews(this);
         mContext = context;
         mDelegateManager = delegateManager;
         mAccountCache = accountCache;

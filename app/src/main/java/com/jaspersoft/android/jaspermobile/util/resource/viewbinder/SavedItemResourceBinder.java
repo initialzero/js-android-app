@@ -28,13 +28,9 @@ import android.content.Context;
 import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.SavedItemResource;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -58,8 +54,20 @@ class SavedItemResourceBinder extends ResourceBinder {
     }
 
     @Override
-    public void setIcon(TopCropImageView imageView, JasperResource jasperResource) {
-        imageView.setScaleType(TopCropImageView.ScaleType.CENTER);
+    public void setIcon(ImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setBackgroundResource(R.drawable.bg_resource_icon_grey);
+
+        if (jasperResource.getResourceType() == JasperResourceType.saved_item) {
+            SavedItemResource.FileType fileType = ((SavedItemResource) jasperResource).getFileType();
+            int iconRes = DRAWABLE_IDS_MAP.get(fileType);
+            imageView.setImageResource(iconRes);
+        }
+    }
+
+    @Override
+    public void setThumbnail(ImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER);
         imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
 
         if (jasperResource.getResourceType() == JasperResourceType.saved_item) {

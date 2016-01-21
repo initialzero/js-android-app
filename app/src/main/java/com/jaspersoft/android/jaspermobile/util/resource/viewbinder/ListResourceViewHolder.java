@@ -2,17 +2,17 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
 
 /**
  * @author Andrew Tivodar
  * @since 2.0
  */
 public class ListResourceViewHolder extends BaseResourceViewHolder {
-    protected TopCropImageView ivIcon;
+    protected ImageView ivIcon;
     protected TextView tvName;
     protected TextView tvDescription;
     protected ImageButton btnSecondaryAction;
@@ -20,7 +20,7 @@ public class ListResourceViewHolder extends BaseResourceViewHolder {
     public ListResourceViewHolder(View itemView) {
         super(itemView);
 
-        this.ivIcon = (TopCropImageView) itemView.findViewById(android.R.id.icon);
+        this.ivIcon = (ImageView) itemView.findViewById(android.R.id.icon);
         this.tvName = (TextView) itemView.findViewById(android.R.id.text1);
         this.tvDescription = (TextView) itemView.findViewById(android.R.id.text2);
         this.btnSecondaryAction = (ImageButton) itemView.findViewById(R.id.secondaryAction);
@@ -55,8 +55,13 @@ public class ListResourceViewHolder extends BaseResourceViewHolder {
     }
 
     @Override
-    public TopCropImageView getImageView() {
+    public ImageView getImageView() {
         return ivIcon;
+    }
+
+    @Override
+    public boolean isImageThumbnail() {
+        return false;
     }
 
     @Override

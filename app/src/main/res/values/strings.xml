@@ -149,6 +149,15 @@
     <string name="ri_version_title" translatable="false">Version:</string>
     <string name="ri_permissions_title" translatable="false">User Access:</string>
 
+    <!-- Resource permission -->
+    <string name="rp_no_access" translatable="false">No access</string>
+    <string name="rp_administer" translatable="false">Modify, Delete, Administrate</string>
+    <string name="rp_read_only" translatable="false">Read-Only</string>
+    <string name="rp_read_write" translatable="false">Modify</string>
+    <string name="rp_read_delete" translatable="false">Read-Only, Delete</string>
+    <string name="rp_read_write_delete" translatable="false">Modify, Delete</string>
+    <string name="rp_execute_only" translatable="false">Execute only</string>
+
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
     <string name="rv_ab_show_filters">Show Filters</string>

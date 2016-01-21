@@ -40,60 +40,33 @@ import java.util.List;
  * @since 2.0
  */
 public class SystemWebViewClient extends WebViewClient {
-    private JasperWebViewClientListener jasperWebViewClientListener;
-    private final List<JasperRequestInterceptor> requestInterceptors;
-    private final List<UrlPolicy> urlPolicies;
+    private final List<JasperRequestInterceptor> mRequestInterceptors;
+    private final List<UrlPolicy> mUrlPolicies;
+    private final JasperWebViewClientListener mJasperWebViewClientListener;
 
-    private SystemWebViewClient() {
-        this(new EmptyWebClientCallbackDelegate());
+    private SystemWebViewClient(JasperWebViewClientListener jasperWebViewClientListener,
+                                List<JasperRequestInterceptor> requestInterceptors,
+                                List<UrlPolicy> urlPolicies) {
+        mJasperWebViewClientListener = jasperWebViewClientListener;
+        mRequestInterceptors = requestInterceptors;
+        mUrlPolicies = urlPolicies;
     }
 
-    private SystemWebViewClient(JasperWebViewClientListener jasperWebViewClientListener) {
-        this.jasperWebViewClientListener = jasperWebViewClientListener;
-        this.requestInterceptors = new ArrayList<JasperRequestInterceptor>();
-        this.urlPolicies = new ArrayList<UrlPolicy>();
-    }
-
-    public static SystemWebViewClient newInstance() {
-        return new SystemWebViewClient();
-    }
-
-
-    public SystemWebViewClient withDelegateListener(JasperWebViewClientListener jasperWebViewClientListener) {
-        this.jasperWebViewClientListener = jasperWebViewClientListener;
-        return this;
-    }
-
-    public SystemWebViewClient withInterceptor(JasperRequestInterceptor requestInterceptor) {
-        registerInterceptor(requestInterceptor);
-        return this;
-    }
-
-    public SystemWebViewClient withUrlPolicy(UrlPolicy urlPolicy) {
-        registerUrlPolicy(urlPolicy);
-        return this;
-    }
-
-    public void registerInterceptor(JasperRequestInterceptor requestInterceptor) {
-        requestInterceptors.add(requestInterceptor);
-    }
-
-    public void unregisterInterceptor(JasperRequestInterceptor requestInterceptor) {
-        requestInterceptors.remove(requestInterceptor);
-    }
-
-    public void registerUrlPolicy(UrlPolicy urlPolicy) {
-        urlPolicies.add(urlPolicy);
-    }
-
-    public void unregisterUrlPolicy(UrlPolicy urlPolicy) {
-        urlPolicies.remove(urlPolicy);
+    public Builder newBuilder() {
+        Builder builder = new Builder().withDelegateListener(mJasperWebViewClientListener);
+        for (JasperRequestInterceptor requestInterceptor : mRequestInterceptors) {
+            builder.registerInterceptor(requestInterceptor);
+        }
+        for (UrlPolicy urlPolicy : mUrlPolicies) {
+            builder.registerUrlPolicy(urlPolicy);
+        }
+        return builder;
     }
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         boolean defaultResult = super.shouldOverrideUrlLoading(view, url);
-        for (UrlPolicy urlPolicy : urlPolicies) {
+        for (UrlPolicy urlPolicy : mUrlPolicies) {
             defaultResult |= urlPolicy.shouldOverrideUrlLoading(view, url);
         }
         return defaultResult;
@@ -102,19 +75,19 @@ public class SystemWebViewClient extends WebViewClient {
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
         super.onPageStarted(view, url, favicon);
-        jasperWebViewClientListener.onPageStarted(url);
+        mJasperWebViewClientListener.onPageStarted(url);
     }
 
     @Override
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
-        jasperWebViewClientListener.onPageFinishedLoading(url);
+        mJasperWebViewClientListener.onPageFinishedLoading(url);
     }
 
     @Override
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
-        jasperWebViewClientListener.onReceivedError(errorCode, description, failingUrl);
+        mJasperWebViewClientListener.onReceivedError(errorCode, description, failingUrl);
     }
 
     @Override
@@ -132,7 +105,7 @@ public class SystemWebViewClient extends WebViewClient {
     }
 
     private WebResourceResponse tryToInterceptRequests(WebView view, String url, WebResourceResponse response) {
-        for (JasperRequestInterceptor requestInterceptor : requestInterceptors) {
+        for (JasperRequestInterceptor requestInterceptor : mRequestInterceptors) {
             if (requestInterceptor.canIntercept(url)) {
                 WebResourceResponse interceptedResponse = requestInterceptor.interceptRequest(view, response, url);
                 if (interceptedResponse != null) {
@@ -154,6 +127,35 @@ public class SystemWebViewClient extends WebViewClient {
 
         @Override
         public void onPageFinishedLoading(String url) {
+        }
+    }
+
+    public static class Builder {
+        private final List<JasperRequestInterceptor> requestInterceptors = new ArrayList<>();
+        private final List<UrlPolicy> urlPolicies = new ArrayList<>();
+
+        private JasperWebViewClientListener jasperWebViewClientListener;
+
+        public Builder withDelegateListener(JasperWebViewClientListener jasperWebViewClientListener) {
+            this.jasperWebViewClientListener = jasperWebViewClientListener;
+            return this;
+        }
+
+        public Builder registerInterceptor(JasperRequestInterceptor requestInterceptor) {
+            requestInterceptors.add(requestInterceptor);
+            return this;
+        }
+
+        public Builder registerUrlPolicy(UrlPolicy urlPolicy) {
+            urlPolicies.add(urlPolicy);
+            return this;
+        }
+
+        public SystemWebViewClient build() {
+            if (jasperWebViewClientListener == null) {
+                jasperWebViewClientListener = new EmptyWebClientCallbackDelegate();
+            }
+            return new SystemWebViewClient(jasperWebViewClientListener, requestInterceptors, urlPolicies);
         }
     }
 }

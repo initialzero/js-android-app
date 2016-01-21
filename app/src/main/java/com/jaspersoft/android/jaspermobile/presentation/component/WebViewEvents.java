@@ -7,7 +7,7 @@ import rx.Observable;
  * @since 2.3
  */
 public interface WebViewEvents {
-    Observable<WebViewError> receivedErrorEvent();
+    Observable<WebViewErrorEvent> receivedErrorEvent();
     Observable<Integer> progressChangedEvent();
     Observable<Void> sessionExpiredEvent();
 }

@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -108,6 +109,8 @@ public class ReportInfoFragment extends ResourceInfoFragment implements ReportOp
 
         GetInputControlsRequest request = new GetInputControlsRequest(jsRestClient, reportOption.getUri());
         getSpiceManager().execute(request, new GetInputControlsListener());
+
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.OPENED.getValue(), Analytics.EventLabel.WITH_RO.getValue());
     }
 
     private void showProgressDialog() {

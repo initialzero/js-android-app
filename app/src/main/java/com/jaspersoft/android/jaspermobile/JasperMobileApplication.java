@@ -95,11 +95,11 @@ public class JasperMobileApplication extends MultiDexApplication {
         Account account = JasperAccountManager.get(this).getActiveAccount();
         if (account != null) {
             AccountServerData serverData = AccountServerData.get(this, account);
-            String serverVersion = serverData.getVersionName();
+            String serverEdition = serverData.getEdition();
             if (serverData.isDemo()) {
-                serverVersion = serverVersion + " DEMO";
+                serverEdition = "DEMO";
             }
-            analytics.setServerInfo(serverVersion, serverData.getEdition());
+            analytics.setServerInfo(serverData.getVersionName(), serverEdition);
         }
     }
 

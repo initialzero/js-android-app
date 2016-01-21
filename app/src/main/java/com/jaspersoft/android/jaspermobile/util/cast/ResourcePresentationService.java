@@ -48,6 +48,7 @@ import android.widget.RemoteViews;
 import com.google.android.gms.cast.CastPresentation;
 import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
@@ -103,6 +104,10 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
     @Inject
     private ReportParamsStorage paramsStorage;
+
+    @Inject
+    protected Analytics analytics;
+
     private ReportPresentation mPresentation;
     private String mCastDeviceName;
     private ArrayList<ResourcePresentationCallback> mReportPresentationListeners;
@@ -126,6 +131,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         } catch (WindowManager.InvalidDisplayException ex) {
             onDismissPresentation();
         }
+        analytics.sendEvent(Analytics.EventCategory.CAST.getValue(), Analytics.EventAction.PRESENTED.getValue(), null);
     }
 
     @Override
@@ -208,6 +214,8 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     public void startPresentation(ResourceLookup resourceLookup, String params) {
         mCurrentResource = resourceLookup;
         mPresentation.castReport(resourceLookup.getUri(), params);
+
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRESENTED.getValue(), resourceLookup.getResourceType().name());
     }
 
     public void closeCurrentPresentation() {
@@ -216,6 +224,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         for (ResourcePresentationCallback reportPresentationListener : mReportPresentationListeners) {
             reportPresentationListener.onCastStopped();
         }
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRESENTATION_STOPPED.getValue(), null);
     }
 
     public void applyParams(String params) {

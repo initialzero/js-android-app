@@ -142,6 +142,8 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             finish();
         }
 
+        setScreenName();
+
         // Lets update Security provider
         mSecurityProviderUpdater.update(this, new ProviderInstallListener());
 
@@ -372,6 +374,13 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     protected String getScreenName() {
         return null;
+    }
+
+    protected void setScreenName() {
+        String screenName = getScreenName();
+        if (screenName != null) {
+            analytics.setScreenName(screenName);
+        }
     }
 
     protected void trackScreenView() {

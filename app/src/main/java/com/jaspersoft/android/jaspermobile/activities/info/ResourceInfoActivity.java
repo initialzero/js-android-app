@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.FileInfoFragment_;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.ReportInfoFragment_;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.ResourceInfoFragment;
@@ -61,12 +62,16 @@ public class ResourceInfoActivity extends RoboSpiceActivity {
         commitContent(resourceInfoFragment, ResourceInfoFragment.TAG);
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_ri_s);
+    }
+
     private void commitContent(@NonNull Fragment directFragment, String fragmentTag) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction
                 .replace(android.R.id.content, directFragment, fragmentTag)
                 .commit();
     }
-
 
 }

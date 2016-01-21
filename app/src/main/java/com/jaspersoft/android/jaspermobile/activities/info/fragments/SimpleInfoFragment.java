@@ -8,6 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
@@ -32,6 +34,9 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
     @FragmentArg
     protected JasperResource jasperResource;
 
+    @Inject
+    protected Analytics analytics;
+
     @InjectView(R.id.toolbarImageView)
     protected ImageView toolbarImage;
 
@@ -46,6 +51,10 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
 
         setToolbar(view);
         showHeaderView();
+
+        if (savedInstanceState == null) {
+            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.INFO_VIEWED.getValue(), jasperResource.getResourceType().name());
+        }
     }
 
     final protected void updateHeaderViewLabel(String label) {

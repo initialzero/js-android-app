@@ -46,7 +46,7 @@ public class ResourceCastDialog extends MediaRouteControllerDialog implements Re
     private ImageButton stopCastingResource;
 
     public ResourceCastDialog(Context context) {
-        super(context);
+        super(context, R.style.Theme_JasperMobile);
     }
 
     @Override

@@ -5,12 +5,9 @@ import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ReportComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ReportVisualizeActivityComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ReportModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportVisualizeFragment;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportVisualizeFragment_;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -25,7 +22,7 @@ import org.androidannotations.annotations.Extra;
  * @since 2.3
  */
 @EActivity(R.layout.report_viewer_layout)
-public class ReportVisualizeActivity extends RoboToolbarActivity implements HasComponent<ReportVisualizeActivityComponent> {
+public class ReportVisualizeActivity extends RoboToolbarActivity {
     @Extra
     protected ResourceLookup resource;
     @Bean
@@ -58,12 +55,5 @@ public class ReportVisualizeActivity extends RoboToolbarActivity implements HasC
     public void finish() {
         super.finish();
         graphObject.releaseReportComponent();
-    }
-
-    @Override
-    public ReportVisualizeActivityComponent getComponent() {
-        return JasperMobileApplication.get(this)
-                .getReportComponent()
-                .plusReportVisualizeActivity(new ActivityModule(this));
     }
 }

@@ -10,16 +10,23 @@ import java.util.List;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class VisualizeViewModel implements VisualizeComponent, WebViewComponent {
+public class VisualizeViewModel implements VisualizeComponent, WebViewComponent {
     @NonNull
     private final VisualizeComponent mVisualizeComponentDelegate;
     @NonNull
     private final WebViewComponent mWebViewComponentDelegate;
 
-    public VisualizeViewModel(@NonNull VisualizeComponent visualizeComponentDelegate,
-                              @NonNull WebViewComponent webViewComponentDelegate) {
+    private VisualizeViewModel(@NonNull VisualizeComponent visualizeComponentDelegate,
+                               @NonNull WebViewComponent webViewComponentDelegate) {
         mVisualizeComponentDelegate = visualizeComponentDelegate;
         mWebViewComponentDelegate = webViewComponentDelegate;
+    }
+
+    @NonNull
+    public static VisualizeViewModel newModel(WebViewConfiguration configuration) {
+        WebViewComponent webViewComponent = new SimpleWebViewComponent(configuration);
+        VisualizeComponent visualizeComponent = new SimpleVisualizeComponent(configuration);
+        return new VisualizeViewModel(visualizeComponent, webViewComponent);
     }
 
     @Override

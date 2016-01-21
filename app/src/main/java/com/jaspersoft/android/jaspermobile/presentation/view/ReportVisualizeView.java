@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.presentation.view;
 
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 
 /**
@@ -33,4 +34,6 @@ public interface ReportVisualizeView extends LoadDataView {
     void loadTemplateInView(VisualizeTemplate template);
 
     ReportPageState getState();
+
+    VisualizeViewModel getVisualize();
 }

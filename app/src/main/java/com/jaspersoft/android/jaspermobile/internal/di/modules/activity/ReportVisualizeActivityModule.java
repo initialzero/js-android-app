@@ -2,8 +2,15 @@ package com.jaspersoft.android.jaspermobile.internal.di.modules.activity;
 
 import android.app.Activity;
 import android.util.DisplayMetrics;
+import android.webkit.WebView;
 
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewConfiguration;
+import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
+import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
+import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 
 import javax.inject.Named;
 
@@ -16,6 +23,12 @@ import dagger.Provides;
  */
 @Module
 public final class ReportVisualizeActivityModule {
+    private final WebView mWebView;
+
+    public ReportVisualizeActivityModule(WebView webView) {
+        mWebView = webView;
+    }
+
     @Provides
     @PerActivity
     @Named("screen_diagonal")
@@ -35,5 +48,25 @@ public final class ReportVisualizeActivityModule {
         return Math.sqrt(
                 (widthInches * widthInches)
                         + (heightInches * heightInches));
+    }
+
+    @Provides
+    @PerActivity
+    VisualizeViewModel provideVisualizeViewModel() {
+        SystemChromeClient defaultChromeClient = new SystemChromeClient.Builder(mWebView.getContext())
+                .build();
+
+        SystemWebViewClient systemWebViewClient = new SystemWebViewClient.Builder()
+                .registerInterceptor(new InjectionRequestInterceptor())
+                .build();
+
+        WebViewEnvironment.configure(mWebView)
+                .withDefaultSettings()
+                .withChromeClient(defaultChromeClient)
+                .withWebClient(systemWebViewClient);
+
+        WebViewConfiguration configuration = new WebViewConfiguration(mWebView);
+
+        return VisualizeViewModel.newModel(configuration);
     }
 }

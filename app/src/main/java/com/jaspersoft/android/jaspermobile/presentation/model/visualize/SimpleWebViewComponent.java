@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class SimpleWebViewComponent implements WebViewComponent {
+final class SimpleWebViewComponent implements WebViewComponent {
     @NonNull
     private final WebViewConfiguration mWebViewConfiguration;
 

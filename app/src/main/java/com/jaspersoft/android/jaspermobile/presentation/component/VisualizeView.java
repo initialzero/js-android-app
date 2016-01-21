@@ -1,31 +1,49 @@
 package com.jaspersoft.android.jaspermobile.presentation.component;
 
-import rx.Observable;
+import android.support.annotation.NonNull;
+
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+
+import java.util.List;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public interface VisualizeView {
-    Observable<Void> scriptLoadedEvent();
+public final class VisualizeView implements VisualizeComponent, WebViewComponent {
+    @NonNull
+    private final VisualizeComponent mVisualizeComponentDelegate;
+    @NonNull
+    private final WebViewComponent mWebViewComponentDelegate;
 
-    Observable<Void> loadStartEvent();
+    public VisualizeView(@NonNull VisualizeComponent visualizeComponentDelegate,
+                         @NonNull WebViewComponent webViewComponentDelegate) {
+        mVisualizeComponentDelegate = visualizeComponentDelegate;
+        mWebViewComponentDelegate = webViewComponentDelegate;
+    }
 
-    Observable<LoadCompleteEvent> loadCompleteEvent();
+    @Override
+    public VisualizeEvents visualizeEvents() {
+        return mVisualizeComponentDelegate.visualizeEvents();
+    }
 
-    Observable<ErrorEvent> loadErrorEvent();
+    @Override
+    public void loadPage(int page) {
+        mVisualizeComponentDelegate.loadPage(page);
+    }
 
-    Observable<ReportCompleteEvent> reportCompleteEvent();
+    @Override
+    public void update(List<ReportParameter> parameters) {
+        mVisualizeComponentDelegate.update(parameters);
+    }
 
-    Observable<PageLoadCompleteEvent> pageLoadCompleteEvent();
+    @Override
+    public void refresh() {
+        mVisualizeComponentDelegate.refresh();
+    }
 
-    Observable<PageLoadErrorEvent> pageLoadErrorEvent();
-
-    Observable<MultiPageLoadEvent> multiPageLoadEvent();
-
-    Observable<ExternalReferenceClickEvent> externalReferenceClickEvent();
-
-    Observable<ExecutionReferenceClickEvent> executionReferenceClickEvent();
-
-    Observable<ErrorEvent> windowErrorEvent();
+    @Override
+    public WebViewEvents webViewEvents() {
+        return mWebViewComponentDelegate.webViewEvents();
+    }
 }

@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.presentation.component;
+package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 

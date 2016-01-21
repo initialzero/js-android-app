@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.presentation.component;
+package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
 import com.google.gson.Gson;
 import com.jaspersoft.android.jaspermobile.visualize.ReportData;

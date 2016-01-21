@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.presentation.component;
+package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -16,36 +16,36 @@ import rx.Subscriber;
  * @author Tom Koptel
  * @since 2.3
  */
-final class WebViewProgressChangeOnSubscribe implements Observable.OnSubscribe<Integer> {
+final class WebViewConsoleMessageOnSubscribe implements Observable.OnSubscribe<ConsoleMessage> {
     @NonNull
     private final WebViewConfiguration mConfiguration;
 
-    public WebViewProgressChangeOnSubscribe(@NonNull WebViewConfiguration configuration) {
+    public WebViewConsoleMessageOnSubscribe(@NonNull WebViewConfiguration configuration) {
         mConfiguration = configuration;
     }
 
     @Override
-    public void call(final Subscriber<? super Integer> subscriber) {
+    public void call(final Subscriber<? super ConsoleMessage> subscriber) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             throw new IllegalStateException(
                     "Must be called from the main thread. Was: " + Thread.currentThread());
         }
 
-        WebView webView = mConfiguration.getWebView();
+        final WebView webView = mConfiguration.getWebView();
         final SystemChromeClient systemChromeClient = mConfiguration.getSystemChromeClient();
         SystemChromeClient client = systemChromeClient
                 .newBuilder(webView.getContext())
                 .withDelegateListener(new JasperChromeClientListener() {
                     @Override
                     public void onProgressChanged(WebView view, int progress) {
-                        if (!subscriber.isUnsubscribed()) {
-                            subscriber.onNext(progress);
-                        }
+                        systemChromeClient.getDelegate().onProgressChanged(view, progress);
                     }
 
                     @Override
                     public void onConsoleMessage(ConsoleMessage consoleMessage) {
-                        systemChromeClient.getDelegate().onConsoleMessage(consoleMessage);
+                        if (!subscriber.isUnsubscribed()) {
+                            subscriber.onNext(consoleMessage);
+                        }
                     }
                 })
                 .build();

@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.presentation.component;
+package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
 import android.support.annotation.NonNull;
 
@@ -10,14 +10,14 @@ import java.util.List;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class VisualizeView implements VisualizeComponent, WebViewComponent {
+public final class VisualizeViewModel implements VisualizeComponent, WebViewComponent {
     @NonNull
     private final VisualizeComponent mVisualizeComponentDelegate;
     @NonNull
     private final WebViewComponent mWebViewComponentDelegate;
 
-    public VisualizeView(@NonNull VisualizeComponent visualizeComponentDelegate,
-                         @NonNull WebViewComponent webViewComponentDelegate) {
+    public VisualizeViewModel(@NonNull VisualizeComponent visualizeComponentDelegate,
+                              @NonNull WebViewComponent webViewComponentDelegate) {
         mVisualizeComponentDelegate = visualizeComponentDelegate;
         mWebViewComponentDelegate = webViewComponentDelegate;
     }

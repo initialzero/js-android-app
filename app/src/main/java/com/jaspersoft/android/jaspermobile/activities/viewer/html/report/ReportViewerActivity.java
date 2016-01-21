@@ -595,16 +595,18 @@ public class ReportViewerActivity extends RoboToolbarActivity
         DefaultUrlPolicy.SessionListener sessionListener = DefaultSessionListener.from(this);
         UrlPolicy defaultPolicy = DefaultUrlPolicy.from(this).withSessionListener(sessionListener);
 
-        SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
-                .withDelegateListener(chromeClientListener);
+        SystemChromeClient systemChromeClient = new SystemChromeClient.Builder(this)
+                .withDelegateListener(chromeClientListener)
+                .build();
 
         JasperWebViewClientListener errorListener = new ErrorWebViewClientListener(this, this);
         JasperWebViewClientListener clientListener = TimeoutWebViewClientListener.wrap(errorListener);
 
-        SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
-                .withInterceptor(new InjectionRequestInterceptor())
+        SystemWebViewClient systemWebViewClient = new SystemWebViewClient.Builder()
+                .registerInterceptor(new InjectionRequestInterceptor())
+                .registerUrlPolicy(defaultPolicy)
                 .withDelegateListener(clientListener)
-                .withUrlPolicy(defaultPolicy);
+                .build();
 
         mWebInterface = ReportWebInterface.from(this);
         WebViewEnvironment.configure(webView)

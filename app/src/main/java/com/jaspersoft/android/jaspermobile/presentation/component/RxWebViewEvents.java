@@ -34,6 +34,6 @@ public final class RxWebViewEvents implements WebViewEvents {
 
     @Override
     public Observable<Void> sessionExpiredEvent() {
-        return null;
+        return Observable.create(new WebViewSessionExpiredOnSubscribe(mConfiguration));
     }
 }

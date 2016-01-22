@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 
 import android.support.annotation.VisibleForTesting;
+import android.view.View;
 
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
@@ -13,6 +14,7 @@ import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.LoadCompleteEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.MultiPageLoadEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ReportCompleteEvent;
@@ -112,6 +114,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         listenForReportCompleteEvent(visualize);
         listenForPageLoadCompleteEvent(visualize);
         listenForPageLoadErrorEvent(visualize);
+        listenForMultiPageLoadEvent(visualize);
     }
 
     private void listenForLoadStartEvent(VisualizeComponent visualize) {
@@ -129,7 +132,6 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         );
     }
 
-
     private void listenScriptLoadedEvent(VisualizeComponent visualize) {
         subscribeToEvent(
                 visualize.visualizeEvents()
@@ -142,6 +144,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         }))
         );
     }
+
 
     private void listenForLoadCompleteEvent(VisualizeViewModel visualize) {
         subscribeToEvent(
@@ -187,13 +190,13 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                                     mView.hideEmptyPageMessage();
 
                                     boolean multiPage = totalPages > 1;
-                                    mView.setPaginationControlVisibility(multiPage);
+                                    mView.setPaginationVisibility(multiPage);
 
                                     if (multiPage) {
                                         mView.setPaginationTotalPages(totalPages);
                                     }
                                 } else {
-                                    mView.setPaginationControlVisibility(false);
+                                    mView.setPaginationVisibility(false);
                                     mView.showEmptyPageMessage();
                                 }
                             }
@@ -225,6 +228,20 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                                 mView.setPaginationEnabled(true);
                                 mView.setPaginationCurrentPage(event.getPage());
                                 mView.showError(event.getErrorMessage());
+                            }
+                        }))
+        );
+    }
+
+    private void listenForMultiPageLoadEvent(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .multiPageLoadEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<MultiPageLoadEvent>() {
+                            @Override
+                            public void onNext(MultiPageLoadEvent event) {
+                                boolean needToShowPagination = event.isMultiPage() && mView.getPaginationTotalPages() != 0;
+                                mView.setPaginationVisibility(needToShowPagination);
                             }
                         }))
         );

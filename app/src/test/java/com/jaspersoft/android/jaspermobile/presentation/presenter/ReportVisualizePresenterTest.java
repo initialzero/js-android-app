@@ -164,7 +164,7 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.init();
 
         verify(mView).setSaveActionVisibility(false);
-        verify(mView).setPaginationControlVisibility(false);
+        verify(mView).setPaginationVisibility(false);
         verify(mView).showEmptyPageMessage();
     }
 
@@ -176,7 +176,7 @@ public class ReportVisualizePresenterTest {
 
         verify(mView).hideEmptyPageMessage();
         verify(mView).setSaveActionVisibility(true);
-        verify(mView).setPaginationControlVisibility(false);
+        verify(mView).setPaginationVisibility(false);
     }
 
     @Test
@@ -188,7 +188,7 @@ public class ReportVisualizePresenterTest {
         verify(mView).hideEmptyPageMessage();
         verify(mView).setSaveActionVisibility(true);
         verify(mView).setPaginationTotalPages(2);
-        verify(mView).setPaginationControlVisibility(true);
+        verify(mView).setPaginationVisibility(true);
     }
 
     @Test
@@ -212,6 +212,25 @@ public class ReportVisualizePresenterTest {
         verify(mView).showError("error");
     }
 
+   @Test
+    public void on_init_should_subscribe_to_multipage_event1() throws Exception {
+        when(mVisualizeEvents.multiPageLoadEvent()).thenReturn(Observable.just(new MultiPageLoadEvent(true)));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).setPaginationVisibility(false);
+    }
+
+   @Test
+    public void on_init_should_subscribe_to_multipage_event2() throws Exception {
+       when(mView.getPaginationTotalPages()).thenReturn(1);
+       when(mVisualizeEvents.multiPageLoadEvent()).thenReturn(Observable.just(new MultiPageLoadEvent(true)));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).setPaginationVisibility(true);
+    }
+
     @Test
     public void on_init_should_subscribe_to_webview_on_progress_event() throws Exception {
         when(mWebViewEvents.progressChangedEvent()).thenReturn(Observable.just(10));
@@ -229,6 +248,7 @@ public class ReportVisualizePresenterTest {
 
         when(mView.getState()).thenReturn(fakeState);
         when(mView.getVisualize()).thenReturn(mVisualizeViewModel);
+        when(mView.getPaginationTotalPages()).thenReturn(0);
 
         when(mVisualizeViewModel.visualizeEvents()).thenReturn(mVisualizeEvents);
         when(mVisualizeViewModel.webViewEvents()).thenReturn(mWebViewEvents);

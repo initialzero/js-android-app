@@ -22,13 +22,15 @@ public interface ReportVisualizeView extends LoadDataView {
     void showPageOutOfRangeError();
 
 
-    void setPaginationControlVisibility(boolean visibility);
+    void setPaginationVisibility(boolean visibility);
 
     void setPaginationEnabled(boolean enabled);
 
     void setPaginationCurrentPage(int page);
 
     void setPaginationTotalPages(int totalPages);
+
+    int getPaginationTotalPages();
 
     void resetPaginationControl();
 

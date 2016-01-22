@@ -90,7 +90,7 @@ public class ReportVisualizeFragment extends BaseFragment implements ReportVisua
     }
 
     @Override
-    public void setPaginationControlVisibility(boolean visibility) {
+    public void setPaginationVisibility(boolean visibility) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
@@ -102,6 +102,11 @@ public class ReportVisualizeFragment extends BaseFragment implements ReportVisua
     @Override
     public void setPaginationTotalPages(int totalPages) {
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public int getPaginationTotalPages() {
+        return 0;
     }
 
     @Override

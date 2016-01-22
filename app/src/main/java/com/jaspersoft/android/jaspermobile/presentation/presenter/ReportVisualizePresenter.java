@@ -57,7 +57,8 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         if (mView == null) {
             throw new NullPointerException("Please inject view before calling this method");
         }
-        subscribeToAllVisualizeEvents();
+        subscribeToVisualizeEvents();
+        subscribeToWebViewEvents();
         showLoading();
         mGetReportShowControlsPropertyCase.execute(new SimpleSubscriber<Boolean>() {
             @Override
@@ -79,7 +80,25 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         });
     }
 
-    private void subscribeToAllVisualizeEvents() {
+    private void subscribeToWebViewEvents() {
+        VisualizeViewModel visualize = mView.getVisualize();
+        listenForProgressChanges(visualize);
+    }
+
+    private void listenForProgressChanges(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.webViewEvents()
+                .progressChangedEvent()
+                .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Integer>() {
+                    @Override
+                    public void onNext(Integer progress) {
+                        mView.updateDeterminateProgress(10);
+                    }
+                }))
+        );
+    }
+
+    private void subscribeToVisualizeEvents() {
         VisualizeViewModel visualize = mView.getVisualize();
         listenForLoadStartEvent(visualize);
         listenScriptLoadedEvent(visualize);
@@ -124,13 +143,9 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                     @Override
                     public void onNext(VisualizeTemplate template) {
                         mView.loadTemplateInView(template);
-
-
                     }
                 }));
     }
-
-
 
     private void listenForLoadStartEvent(VisualizeComponent visualize) {
         subscribeToEvent(
@@ -139,8 +154,8 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
                             @Override
                             public void onNext(Void item) {
+                                mView.showLoading();
                                 mView.setWebViewVisibility(false);
-                                mView.showPageLoader();
                                 mView.resetPaginationControl();
                             }
                         }))

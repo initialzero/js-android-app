@@ -35,7 +35,7 @@ public interface ReportVisualizeView extends LoadDataView {
 
     void loadTemplateInView(VisualizeTemplate template);
 
-    void showPageLoader();
+    void updateDeterminateProgress(int progress);
 
     ReportPageState getState();
 

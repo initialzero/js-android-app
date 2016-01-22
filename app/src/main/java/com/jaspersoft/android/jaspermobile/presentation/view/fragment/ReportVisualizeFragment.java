@@ -130,7 +130,7 @@ public class ReportVisualizeFragment extends BaseFragment implements ReportVisua
     }
 
     @Override
-    public void showPageLoader() {
+    public void updateDeterminateProgress(int progress) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

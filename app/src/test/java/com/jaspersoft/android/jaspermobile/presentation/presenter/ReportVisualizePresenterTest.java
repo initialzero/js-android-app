@@ -122,7 +122,6 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.init();
 
         verify(mView).setWebViewVisibility(false);
-        verify(mView).showPageLoader();
         verify(mView).resetPaginationControl();
     }
 
@@ -134,6 +133,15 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.init();
 
         verify(mRunVisualizeReportCase).execute(any(Subscriber.class));
+    }
+
+    @Test
+    public void on_init_should_subscribe_to_webview_on_progress_event() throws Exception {
+        when(mWebViewEvents.progressChangedEvent()).thenReturn(Observable.just(10));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).updateDeterminateProgress(10);
     }
 
     private void setUpMocks() {
@@ -148,6 +156,8 @@ public class ReportVisualizePresenterTest {
         when(mVisualizeViewModel.visualizeEvents()).thenReturn(mVisualizeEvents);
         when(mVisualizeViewModel.webViewEvents()).thenReturn(mWebViewEvents);
 
+        when(mWebViewEvents.progressChangedEvent()).thenReturn(Observable.<Integer>empty());
+        
         when(mVisualizeViewModel.run(anyString())).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.refresh()).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.loadPage(anyInt())).thenReturn(mVisualizeViewModel);

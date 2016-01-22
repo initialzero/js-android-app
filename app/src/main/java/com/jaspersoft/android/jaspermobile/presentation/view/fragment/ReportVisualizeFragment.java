@@ -150,6 +150,11 @@ public class ReportVisualizeFragment extends BaseFragment implements ReportVisua
     }
 
     @Override
+    public void showExternalLink(String externalLink) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
     public ReportPageState getState() {
         return mState;
     }

@@ -201,7 +201,7 @@ public class ReportVisualizePresenterTest {
         verify(mView).setPaginationCurrentPage(2);
     }
 
-   @Test
+    @Test
     public void on_init_should_subscribe_to_page_load_error_event() throws Exception {
         when(mVisualizeEvents.pageLoadErrorEvent()).thenReturn(Observable.just(new PageLoadErrorEvent("error", 2)));
 
@@ -212,7 +212,7 @@ public class ReportVisualizePresenterTest {
         verify(mView).showError("error");
     }
 
-   @Test
+    @Test
     public void on_init_should_subscribe_to_multipage_event1() throws Exception {
         when(mVisualizeEvents.multiPageLoadEvent()).thenReturn(Observable.just(new MultiPageLoadEvent(true)));
 
@@ -221,14 +221,23 @@ public class ReportVisualizePresenterTest {
         verify(mView).setPaginationVisibility(false);
     }
 
-   @Test
+    @Test
     public void on_init_should_subscribe_to_multipage_event2() throws Exception {
-       when(mView.getPaginationTotalPages()).thenReturn(1);
-       when(mVisualizeEvents.multiPageLoadEvent()).thenReturn(Observable.just(new MultiPageLoadEvent(true)));
+        when(mView.getPaginationTotalPages()).thenReturn(1);
+        when(mVisualizeEvents.multiPageLoadEvent()).thenReturn(Observable.just(new MultiPageLoadEvent(true)));
 
         mReportVisualizePresenter.init();
 
         verify(mView).setPaginationVisibility(true);
+    }
+
+    @Test
+    public void on_init_should_subscribe_to_external_click_event() throws Exception {
+        when(mVisualizeEvents.externalReferenceClickEvent()).thenReturn(Observable.just(new ExternalReferenceClickEvent("link")));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).showExternalLink("link");
     }
 
     @Test
@@ -254,7 +263,7 @@ public class ReportVisualizePresenterTest {
         when(mVisualizeViewModel.webViewEvents()).thenReturn(mWebViewEvents);
 
         when(mWebViewEvents.progressChangedEvent()).thenReturn(Observable.<Integer>empty());
-        
+
         when(mVisualizeViewModel.run(anyString())).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.refresh()).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.loadPage(anyInt())).thenReturn(mVisualizeViewModel);

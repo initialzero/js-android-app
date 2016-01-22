@@ -2,17 +2,17 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 
 import android.support.annotation.VisibleForTesting;
-import android.view.View;
 
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExternalReferenceClickEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.LoadCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.MultiPageLoadEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadCompleteEvent;
@@ -115,6 +115,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         listenForPageLoadCompleteEvent(visualize);
         listenForPageLoadErrorEvent(visualize);
         listenForMultiPageLoadEvent(visualize);
+        listenForExternalPageEvent(visualize);
     }
 
     private void listenForLoadStartEvent(VisualizeComponent visualize) {
@@ -242,6 +243,19 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                             public void onNext(MultiPageLoadEvent event) {
                                 boolean needToShowPagination = event.isMultiPage() && mView.getPaginationTotalPages() != 0;
                                 mView.setPaginationVisibility(needToShowPagination);
+                            }
+                        }))
+        );
+    }
+
+    private void listenForExternalPageEvent(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .externalReferenceClickEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ExternalReferenceClickEvent>() {
+                            @Override
+                            public void onNext(ExternalReferenceClickEvent event) {
+                                mView.showExternalLink(event.getExternalReference());
                             }
                         }))
         );

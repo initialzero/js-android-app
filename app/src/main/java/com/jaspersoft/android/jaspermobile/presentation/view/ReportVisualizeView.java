@@ -47,6 +47,8 @@ public interface ReportVisualizeView extends LoadDataView {
 
     void updateDeterminateProgress(int progress);
 
+    void showExternalLink(String externalLink);
+
     ReportPageState getState();
 
     VisualizeViewModel getVisualize();

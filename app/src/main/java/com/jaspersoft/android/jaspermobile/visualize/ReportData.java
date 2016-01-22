@@ -46,4 +46,24 @@ public class ReportData {
     public Map<String, Set<String>> getParams() {
         return params;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ReportData that = (ReportData) o;
+
+        if (resource != null ? !resource.equals(that.resource) : that.resource != null)
+            return false;
+        return params != null ? params.equals(that.params) : that.params == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = resource != null ? resource.hashCode() : 0;
+        result = 31 * result + (params != null ? params.hashCode() : 0);
+        return result;
+    }
 }

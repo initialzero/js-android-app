@@ -12,6 +12,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.Visualiz
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportVisualizePresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
+import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 
 import org.androidannotations.annotations.EFragment;
@@ -151,6 +152,11 @@ public class ReportVisualizeFragment extends BaseFragment implements ReportVisua
 
     @Override
     public void showExternalLink(String externalLink) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void executeReport(ReportData reportData) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

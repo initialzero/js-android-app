@@ -12,6 +12,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExecutionReferenceClickEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExternalReferenceClickEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.LoadCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.MultiPageLoadEvent;
@@ -116,6 +117,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         listenForPageLoadErrorEvent(visualize);
         listenForMultiPageLoadEvent(visualize);
         listenForExternalPageEvent(visualize);
+        listenForExecutionEvent(visualize);
     }
 
     private void listenForLoadStartEvent(VisualizeComponent visualize) {
@@ -146,7 +148,6 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         );
     }
 
-
     private void listenForLoadCompleteEvent(VisualizeViewModel visualize) {
         subscribeToEvent(
                 visualize.visualizeEvents()
@@ -160,6 +161,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         }))
         );
     }
+
 
     private void listenForLoadErrorEvent(VisualizeViewModel visualize) {
         subscribeToEvent(
@@ -256,6 +258,19 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                             @Override
                             public void onNext(ExternalReferenceClickEvent event) {
                                 mView.showExternalLink(event.getExternalReference());
+                            }
+                        }))
+        );
+    }
+
+    private void listenForExecutionEvent(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .executionReferenceClickEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ExecutionReferenceClickEvent>() {
+                            @Override
+                            public void onNext(ExecutionReferenceClickEvent event) {
+                                mView.executeReport(event.getReportData());
                             }
                         }))
         );

@@ -19,6 +19,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.Visualiz
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewEvents;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
+import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -238,6 +239,17 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.init();
 
         verify(mView).showExternalLink("link");
+    }
+
+    @Test
+    public void on_init_should_subscribe_to_execution_event() throws Exception {
+        ReportData reportData = new ReportData();
+        ExecutionReferenceClickEvent event = new ExecutionReferenceClickEvent(reportData);
+        when(mVisualizeEvents.executionReferenceClickEvent()).thenReturn(Observable.just(event));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).executeReport(reportData);
     }
 
     @Test

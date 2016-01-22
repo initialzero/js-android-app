@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.presentation.view;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
+import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 
 /**
  * @author Tom Koptel
@@ -48,6 +49,8 @@ public interface ReportVisualizeView extends LoadDataView {
     void updateDeterminateProgress(int progress);
 
     void showExternalLink(String externalLink);
+
+    void executeReport(ReportData reportData);
 
     ReportPageState getState();
 

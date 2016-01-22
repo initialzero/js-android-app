@@ -158,6 +158,40 @@ public class ReportVisualizePresenterTest {
     }
 
     @Test
+    public void on_init_should_subscribe_to_report_complete_event_with_zero_page() throws Exception {
+        when(mVisualizeEvents.reportCompleteEvent()).thenReturn(Observable.just(new ReportCompleteEvent(0)));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).setSaveActionVisibility(false);
+        verify(mView).setPaginationControlVisibility(false);
+        verify(mView).showEmptyPageMessage();
+    }
+
+    @Test
+    public void on_init_should_subscribe_to_report_complete_event_with_single_page() throws Exception {
+        when(mVisualizeEvents.reportCompleteEvent()).thenReturn(Observable.just(new ReportCompleteEvent(1)));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).hideEmptyPageMessage();
+        verify(mView).setSaveActionVisibility(true);
+        verify(mView).setPaginationControlVisibility(false);
+    }
+
+    @Test
+    public void on_init_should_subscribe_to_report_complete_event_with_multi_page() throws Exception {
+        when(mVisualizeEvents.reportCompleteEvent()).thenReturn(Observable.just(new ReportCompleteEvent(2)));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).hideEmptyPageMessage();
+        verify(mView).setSaveActionVisibility(true);
+        verify(mView).showTotalPages(2);
+        verify(mView).setPaginationControlVisibility(true);
+    }
+
+    @Test
     public void on_init_should_subscribe_to_webview_on_progress_event() throws Exception {
         when(mWebViewEvents.progressChangedEvent()).thenReturn(Observable.just(10));
 

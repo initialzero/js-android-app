@@ -13,6 +13,7 @@ import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.LoadCompleteEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ReportCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
@@ -106,6 +107,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         listenScriptLoadedEvent(visualize);
         listenForLoadCompleteEvent(visualize);
         listenForLoadErrorEvent(visualize);
+        listenForReportCompleteEvent(visualize);
     }
 
 
@@ -160,6 +162,36 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                             public void onNext(ErrorEvent errorEvent) {
                                 mView.hideLoading();
                                 mView.showError(errorEvent.getErrorMessage());
+                            }
+                        }))
+        );
+    }
+
+    private void listenForReportCompleteEvent(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .reportCompleteEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ReportCompleteEvent>() {
+                            @Override
+                            public void onNext(ReportCompleteEvent event) {
+                                int totalPages = event.getTotalPages();
+
+                                boolean hasContent = totalPages > 0;
+                                toggleSaveAction(hasContent);
+
+                                if (hasContent) {
+                                    mView.hideEmptyPageMessage();
+
+                                    boolean multiPage = totalPages > 1;
+                                    mView.setPaginationControlVisibility(multiPage);
+
+                                    if (multiPage) {
+                                        mView.showTotalPages(totalPages);
+                                    }
+                                } else {
+                                    mView.setPaginationControlVisibility(false);
+                                    mView.showEmptyPageMessage();
+                                }
                             }
                         }))
         );
@@ -248,6 +280,11 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     private void toggleFiltersAction(boolean visibility) {
         mView.setFilterActionVisibility(visibility);
+        mView.reloadMenu();
+    }
+
+    private void toggleSaveAction(boolean visibility) {
+        mView.setSaveActionVisibility(visibility);
         mView.reloadMenu();
     }
 

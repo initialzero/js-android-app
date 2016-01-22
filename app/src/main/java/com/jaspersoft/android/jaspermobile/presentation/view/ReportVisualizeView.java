@@ -33,6 +33,8 @@ public interface ReportVisualizeView extends LoadDataView {
 
     void showEmptyPageMessage();
 
+    void hideEmptyPageMessage();
+
     void loadTemplateInView(VisualizeTemplate template);
 
     void updateDeterminateProgress(int progress);

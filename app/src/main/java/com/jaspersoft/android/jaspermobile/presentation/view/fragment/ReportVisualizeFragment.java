@@ -125,6 +125,11 @@ public class ReportVisualizeFragment extends BaseFragment implements ReportVisua
     }
 
     @Override
+    public void hideEmptyPageMessage() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
     public void loadTemplateInView(VisualizeTemplate template) {
         throw new UnsupportedOperationException("Not yet implemented");
     }

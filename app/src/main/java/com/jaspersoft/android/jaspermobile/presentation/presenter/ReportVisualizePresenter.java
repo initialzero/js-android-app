@@ -11,6 +11,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParam
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.LoadCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
@@ -104,7 +105,9 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         listenForLoadStartEvent(visualize);
         listenScriptLoadedEvent(visualize);
         listenForLoadCompleteEvent(visualize);
+        listenForLoadErrorEvent(visualize);
     }
+
 
     private void listenForLoadStartEvent(VisualizeComponent visualize) {
         subscribeToEvent(
@@ -143,6 +146,20 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                             public void onNext(LoadCompleteEvent completeEvent) {
                                 mView.hideLoading();
                                 mView.setWebViewVisibility(true);
+                            }
+                        }))
+        );
+    }
+
+    private void listenForLoadErrorEvent(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .loadErrorEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ErrorEvent>() {
+                            @Override
+                            public void onNext(ErrorEvent errorEvent) {
+                                mView.hideLoading();
+                                mView.showError(errorEvent.getErrorMessage());
                             }
                         }))
         );

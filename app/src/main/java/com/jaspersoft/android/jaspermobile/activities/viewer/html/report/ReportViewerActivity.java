@@ -478,7 +478,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
 
     @UiThread
     @Override
-    public void onReportCompleted(String status, int pages, String errorMessage) {
+            public void onReportCompleted(String status, int pages, String errorMessage) {
         if (status.equals("ready")) {
             boolean noPages = (pages == 0);
             mShowSaveAndPrintMenuItems = mShowRefreshMenuItem = !noPages;

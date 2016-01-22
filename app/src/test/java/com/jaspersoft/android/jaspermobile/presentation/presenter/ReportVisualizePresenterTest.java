@@ -32,6 +32,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -121,6 +122,7 @@ public class ReportVisualizePresenterTest {
 
         mReportVisualizePresenter.init();
 
+        verify(mView, times(2)).showLoading();
         verify(mView).setWebViewVisibility(false);
         verify(mView).resetPaginationControl();
     }
@@ -133,6 +135,16 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.init();
 
         verify(mRunVisualizeReportCase).execute(any(Subscriber.class));
+    }
+
+    @Test
+    public void on_init_should_subscribe_to_visualize_complete_load_event() throws Exception {
+        when(mVisualizeEvents.loadCompleteEvent()).thenReturn(Observable.just(new LoadCompleteEvent("")));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView, times(2)).hideLoading();
+        verify(mView).setWebViewVisibility(true);
     }
 
     @Test

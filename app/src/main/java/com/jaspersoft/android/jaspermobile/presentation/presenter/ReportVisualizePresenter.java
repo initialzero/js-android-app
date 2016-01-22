@@ -11,6 +11,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParam
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.LoadCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
@@ -102,6 +103,49 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         VisualizeViewModel visualize = mView.getVisualize();
         listenForLoadStartEvent(visualize);
         listenScriptLoadedEvent(visualize);
+        listenForLoadCompleteEvent(visualize);
+    }
+
+    private void listenForLoadStartEvent(VisualizeComponent visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .loadStartEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
+                            @Override
+                            public void onNext(Void item) {
+                                mView.showLoading();
+                                mView.setWebViewVisibility(false);
+                                mView.resetPaginationControl();
+                            }
+                        }))
+        );
+    }
+
+    private void listenScriptLoadedEvent(VisualizeComponent visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .scriptLoadedEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
+                            @Override
+                            public void onNext(Void item) {
+                                runReportOnVisualize();
+                            }
+                        }))
+        );
+    }
+
+    private void listenForLoadCompleteEvent(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .loadCompleteEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<LoadCompleteEvent>() {
+                            @Override
+                            public void onNext(LoadCompleteEvent completeEvent) {
+                                mView.hideLoading();
+                                mView.setWebViewVisibility(true);
+                            }
+                        }))
+        );
     }
 
     @Override
@@ -147,33 +191,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                 }));
     }
 
-    private void listenForLoadStartEvent(VisualizeComponent visualize) {
-        subscribeToEvent(
-                visualize.visualizeEvents()
-                        .loadStartEvent()
-                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
-                            @Override
-                            public void onNext(Void item) {
-                                mView.showLoading();
-                                mView.setWebViewVisibility(false);
-                                mView.resetPaginationControl();
-                            }
-                        }))
-        );
-    }
 
-    private void listenScriptLoadedEvent(VisualizeComponent visualize) {
-        subscribeToEvent(
-                visualize.visualizeEvents()
-                        .scriptLoadedEvent()
-                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
-                            @Override
-                            public void onNext(Void item) {
-                                runReportOnVisualize();
-                            }
-                        }))
-        );
-    }
 
     private void runReportOnVisualize() {
         mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {

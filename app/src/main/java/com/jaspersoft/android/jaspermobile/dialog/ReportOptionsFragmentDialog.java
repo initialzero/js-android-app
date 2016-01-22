@@ -125,7 +125,6 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
     @Background
     protected void requestReportOptions(){
         mReportOptions = new ArrayList<>();
-        mReportOptions.add(new ReportOption(reportUri, reportUri, getString(R.string.ro_default)));
 
         ReportOptionResponse reportOptionResponse = jsRestClient.getReportOptionsList(reportUri);
         mReportOptions.addAll(reportOptionResponse.getOptions());

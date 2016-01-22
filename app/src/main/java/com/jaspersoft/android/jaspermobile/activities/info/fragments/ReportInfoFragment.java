@@ -18,11 +18,13 @@ import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog;
 import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog_;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.async.request.GetReportOptionValuesRequest;
+import com.jaspersoft.android.sdk.client.async.request.ReportOptionsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
@@ -30,6 +32,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlStatesList;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOption;
+import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOptionResponse;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
@@ -62,7 +65,22 @@ public class ReportInfoFragment extends ResourceInfoFragment implements ReportOp
     @OptionsMenuItem(R.id.saveAction)
     protected MenuItem saveOptions;
 
-    private boolean mIsProJrs;
+    private boolean mReportOptionsExist;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        requestReportOptions();
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        reportOptions.setVisible(mReportOptionsExist && mResourceLookup != null);
+        saveOptions.setVisible(mResourceLookup != null);
+    }
 
     @OptionsItem(R.id.saveAction)
     protected void saveReport() {
@@ -84,23 +102,6 @@ public class ReportInfoFragment extends ResourceInfoFragment implements ReportOp
                 .setCancelableOnTouchOutside(true)
                 .setTargetFragment(this)
                 .show();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(getActivity(), account);
-        mIsProJrs = serverData.getEdition().equals("PRO");
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
-        reportOptions.setVisible(mIsProJrs && mResourceLookup != null);
-        saveOptions.setVisible(mResourceLookup != null);
     }
 
     @Override
@@ -133,6 +134,16 @@ public class ReportInfoFragment extends ResourceInfoFragment implements ReportOp
         return parameters;
     }
 
+    private void requestReportOptions() {
+        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
+        AccountServerData serverData = AccountServerData.get(getActivity(), account);
+        boolean isProJrs = serverData.getEdition().equals("PRO");
+        if (isProJrs) {
+            ReportOptionsRequest runReportExecutionRequest = new ReportOptionsRequest(jsRestClient, jasperResource.getId());
+            getSpiceManager().execute(runReportExecutionRequest, new GetReportOptionsListener());
+        }
+    }
+
     private class GetInputControlsListener extends SimpleRequestListener<InputControlsList> {
 
         @Override
@@ -154,6 +165,24 @@ public class ReportInfoFragment extends ResourceInfoFragment implements ReportOp
             paramsStorage.getInputControlHolder(jasperResource.getId()).setReportParams(initParametersUsingSelectedValues(inputControls));
             resourceOpener.openResource(ReportInfoFragment.this, mResourceLookup);
             hideProgressDialog();
+        }
+    }
+
+    private class GetReportOptionsListener extends SimpleRequestListener<ReportOptionResponse> {
+        @Override
+        protected Context getContext() {
+            return getActivity();
+        }
+
+        @Override
+        public void onRequestFailure(SpiceException spiceException) {
+
+        }
+
+        @Override
+        public void onRequestSuccess(ReportOptionResponse reportOptionResponse) {
+            mReportOptionsExist = !reportOptionResponse.getOptions().isEmpty();
+            getActivity().invalidateOptionsMenu();
         }
     }
 }

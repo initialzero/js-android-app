@@ -54,4 +54,6 @@ public interface ReportVisualizeView extends LoadDataView {
     ReportPageState getState();
 
     VisualizeViewModel getVisualize();
+
+    void handleSessionExpiration();
 }

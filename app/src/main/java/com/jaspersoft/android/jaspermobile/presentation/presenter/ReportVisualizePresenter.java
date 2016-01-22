@@ -24,6 +24,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ReportCo
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
 
 import javax.inject.Inject;
@@ -77,19 +78,17 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         if (mView == null) {
             throw new NullPointerException("Please inject view before calling this method");
         }
-        subscribeToVisualizeEvents();
-        subscribeToWebViewEvents();
         if (!mView.getState().isControlsPageShown()) {
             loadControls();
         }
     }
 
     private void loadControls() {
-        showLoading();
+        mView.showLoading();
         mGetReportShowControlsPropertyCase.execute(new SimpleSubscriber<Boolean>() {
             @Override
             public void onCompleted() {
-                hideLoading();
+                mView.hideLoading();
             }
 
             @Override
@@ -106,9 +105,98 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         });
     }
 
+    @Override
+    public void runReport() {
+        loadVisualizeTemplate();
+    }
+
+    @Override
+    public void loadPage(String pageRange) {
+        mView.getVisualize().loadPage(pageRange);
+    }
+
+    @Override
+    public void updateReport() {
+        mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
+            @Override
+            public void onNext(String params) {
+                mView.resetZoom();
+                mView.getVisualize().update(params);
+            }
+        }));
+    }
+
+    @Override
+    public void refresh() {
+        mView.showLoading();
+        mView.getVisualize().refresh();
+        mView.resetZoom();
+        mView.setWebViewVisibility(false);
+        mView.setPaginationVisibility(false);
+        mView.resetPaginationControl();
+    }
+
+    private void resolveNeedControls(boolean needControls) {
+        if (needControls) {
+            mView.showInitialFiltersPage();
+        } else {
+            loadVisualizeTemplate();
+        }
+    }
+
+    @VisibleForTesting
+    void loadVisualizeTemplate() {
+        mGetVisualizeTemplateCase.execute(mScreenDiagonal, new ErrorSubscriber<>(
+                new SimpleSubscriber<VisualizeTemplate>() {
+                    @Override
+                    public void onNext(VisualizeTemplate template) {
+                        mView.loadTemplateInView(template);
+                    }
+                }));
+    }
+
+    private void runReportOnVisualize() {
+        mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
+            @Override
+            public void onNext(String params) {
+                VisualizeExecOptions options = new VisualizeExecOptions(
+                        mReportUri,
+                        params,
+                        mCredentials,
+                        mScreenDiagonal);
+                mView.getVisualize().run(options);
+            }
+        }));
+    }
+
+    @Override
+    public void injectView(ReportVisualizeView visualizeReportView) {
+        mView = visualizeReportView;
+    }
+
+    @Override
+    public void resume() {
+        subscribeToVisualizeEvents();
+        subscribeToWebViewEvents();
+    }
+
+    @Override
+    public void pause() {
+        mCompositeSubscription.unsubscribe();
+    }
+
+    @Override
+    public void destroy() {
+        mGetReportShowControlsPropertyCase.unsubscribe();
+        mGetVisualizeTemplateCase.unsubscribe();
+        mGetJsonParamsCase.unsubscribe();
+    }
+
     private void subscribeToWebViewEvents() {
         VisualizeViewModel visualize = mView.getVisualize();
         listenForProgressChanges(visualize);
+        listenForReceivedError(visualize);
+        listenForSessionExpiration(visualize);
     }
 
     private void listenForProgressChanges(VisualizeViewModel visualize) {
@@ -120,6 +208,36 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                             @Override
                             public void onNext(Integer progress) {
                                 mView.updateDeterminateProgress(progress);
+                            }
+                        }))
+        );
+    }
+
+    private void listenForReceivedError(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.webViewEvents()
+                        .receivedErrorEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<WebViewErrorEvent>() {
+                            @Override
+                            public void onNext(WebViewErrorEvent event) {
+                                mView.hideLoading();
+                                mView.setWebViewVisibility(false);
+                                mView.showError("title" + "\n" + "message");
+                            }
+                        }))
+        );
+    }
+
+    private void listenForSessionExpiration(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.webViewEvents()
+                        .sessionExpiredEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
+                            @Override
+                            public void onNext(Void item) {
+                                mView.handleSessionExpiration();
                             }
                         }))
         );
@@ -320,90 +438,6 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         );
     }
 
-    @Override
-    public void runReport() {
-        loadVisualizeTemplate();
-    }
-
-    @Override
-    public void loadPage(String pageRange) {
-        mView.getVisualize().loadPage(pageRange);
-    }
-
-    @Override
-    public void updateReport() {
-        mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
-            @Override
-            public void onNext(String params) {
-                mView.resetZoom();
-                mView.getVisualize().update(params);
-            }
-        }));
-    }
-
-    @Override
-    public void refresh() {
-        mView.showLoading();
-        mView.getVisualize().refresh();
-        mView.resetZoom();
-        mView.setWebViewVisibility(false);
-        mView.setPaginationVisibility(false);
-        mView.resetPaginationControl();
-    }
-
-    private void resolveNeedControls(boolean needControls) {
-        if (needControls) {
-            mView.showInitialFiltersPage();
-        } else {
-            loadVisualizeTemplate();
-        }
-    }
-
-    @VisibleForTesting
-    void loadVisualizeTemplate() {
-        mGetVisualizeTemplateCase.execute(mScreenDiagonal, new ErrorSubscriber<>(
-                new SimpleSubscriber<VisualizeTemplate>() {
-                    @Override
-                    public void onNext(VisualizeTemplate template) {
-                        mView.loadTemplateInView(template);
-                    }
-                }));
-    }
-
-    private void runReportOnVisualize() {
-        mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
-            @Override
-            public void onNext(String params) {
-                VisualizeExecOptions options = new VisualizeExecOptions(
-                        mReportUri,
-                        params,
-                        mCredentials,
-                        mScreenDiagonal);
-                mView.getVisualize().run(options);
-            }
-        }));
-    }
-
-    @Override
-    public void injectView(ReportVisualizeView visualizeReportView) {
-        mView = visualizeReportView;
-    }
-
-    @Override
-    public void resume() {
-    }
-
-    @Override
-    public void pause() {
-    }
-
-    @Override
-    public void destroy() {
-        mGetReportShowControlsPropertyCase.unsubscribe();
-        mGetVisualizeTemplateCase.unsubscribe();
-        mGetJsonParamsCase.unsubscribe();
-    }
-
     @VisibleForTesting
     void handleError(Throwable error) {
         Timber.e(error, "Presenter received unexpected error");
@@ -419,14 +453,6 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     private void toggleSaveAction(boolean visibility) {
         mView.setSaveActionVisibility(visibility);
         mView.reloadMenu();
-    }
-
-    private void hideLoading() {
-        mView.hideLoading();
-    }
-
-    private void showLoading() {
-        mView.showLoading();
     }
 
     private void subscribeToEvent(Subscription subscription) {

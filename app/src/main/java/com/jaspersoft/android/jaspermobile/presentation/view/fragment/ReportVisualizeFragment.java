@@ -401,6 +401,12 @@ public class ReportVisualizeFragment extends BaseFragment
     }
 
     @Override
+    public void handleSessionExpiration() {
+        showNotification(getString(R.string.da_session_expired));
+        getActivity().finish();
+    }
+
+    @Override
     public void showLoading() {
         ProgressDialogFragment.builder(getFragmentManager())
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {

@@ -1,5 +1,7 @@
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
+import android.webkit.ConsoleMessage;
+
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
@@ -18,6 +20,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ReportCo
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeEvents;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewEvents;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
@@ -283,6 +286,26 @@ public class ReportVisualizePresenterTest {
     }
 
     @Test
+    public void on_init_should_subscribe_to_webview_received_error_event() throws Exception {
+        when(mWebViewEvents.receivedErrorEvent()).thenReturn(Observable.just(new WebViewErrorEvent("title", "message")));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView, times(2)).hideLoading();
+        verify(mView).setWebViewVisibility(false);
+        verify(mView).showError("title" + "\n" + "message");
+    }
+
+    @Test
+    public void on_init_should_subscribe_to_session_expired_event() throws Exception {
+        when(mWebViewEvents.sessionExpiredEvent()).thenReturn(Observable.<Void>just(null));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).handleSessionExpiration();
+    }
+
+    @Test
     public void load_report_page_should_delegate_call_visualize_component() throws Exception {
         mReportVisualizePresenter.loadPage("1");
         mView.getVisualize().loadPage("1");
@@ -323,6 +346,9 @@ public class ReportVisualizePresenterTest {
         when(mVisualizeViewModel.webViewEvents()).thenReturn(mWebViewEvents);
 
         when(mWebViewEvents.progressChangedEvent()).thenReturn(Observable.<Integer>empty());
+        when(mWebViewEvents.receivedErrorEvent()).thenReturn(Observable.<WebViewErrorEvent>empty());
+        when(mWebViewEvents.sessionExpiredEvent()).thenReturn(Observable.<Void>empty());
+        when(mWebViewEvents.consoleMessageEvent()).thenReturn(Observable.<ConsoleMessage>empty());
 
         when(mVisualizeViewModel.run(any(VisualizeExecOptions.class))).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.refresh()).thenReturn(mVisualizeViewModel);

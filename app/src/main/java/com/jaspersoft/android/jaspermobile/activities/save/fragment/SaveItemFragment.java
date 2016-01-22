@@ -52,6 +52,7 @@ import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
+import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.RunReportExecutionRequest;
@@ -63,6 +64,7 @@ import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -115,6 +117,9 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     JsRestClient jsRestClient;
     @Inject
     protected ReportParamsStorage paramsStorage;
+
+    @Bean
+    protected SavedItemHelper savedItemHelper;
 
     @OptionsMenuItem
     MenuItem saveAction;
@@ -171,51 +176,45 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     }
 
     private void performSaveAction() {
-        if (isReportNameValid()) {
-            final OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
-            String reportName = reportNameInput.getText() + "." + outputFormat;
-            File reportDir = getAccountReportDir(reportName);
+        if (!isReportNameValid()) return;
 
-            if (reportDir == null) {
-                Toast.makeText(getActivity(), R.string.sr_failed_to_create_local_repo, Toast.LENGTH_SHORT).show();
-            } else {
-                File reportFile = new File(reportDir, reportName);
+        OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
+        String reportName = reportNameInput.getText() + "." + outputFormat;
+        File reportDir = getAccountReportDir(reportName);
 
-                if (reportFile.exists() || getSharedReportDir(reportName).exists()) {
-                    // show validation message
-                    reportNameInput.setError(getString(R.string.sr_error_report_exists));
-                } else {
-                    String pageRange = calculatePages(mFromPage, mToPage);
-                    ReportExecutionRequest executionData = createReportExecutionRequest(resource, outputFormat, pageRange);
-
-                    RunReportExecutionRequest request =
-                            new RunReportExecutionRequest(jsRestClient, executionData);
-                    getSpiceManager().execute(request,
-                            new RunReportExecutionListener(outputFormat, reportFile, pageRange));
-
-                    // Hack to avoid crash on marshmallow ("Can not perform this action after onSaveInstanceState")
-                    new Handler().post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ProgressDialogFragment.builder(getFragmentManager())
-                                    .setLoadingMessage(R.string.loading_msg)
-                                    .show();
-                        }
-                    });
-                }
-            }
+        if (reportDir == null) {
+            Toast.makeText(getActivity(), R.string.sr_failed_to_create_local_repo, Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        File reportFile = new File(reportDir, reportName);
+        String pageRange = calculatePages(mFromPage, mToPage);
+        ReportExecutionRequest executionData = createReportExecutionRequest(resource, outputFormat, pageRange);
+
+        RunReportExecutionRequest request =
+                new RunReportExecutionRequest(jsRestClient, executionData);
+        getSpiceManager().execute(request,
+                new RunReportExecutionListener(outputFormat, reportFile, pageRange));
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                ProgressDialogFragment.builder(getFragmentManager())
+                        .setLoadingMessage(R.string.loading_msg)
+                        .show();
+            }
+        });
     }
 
     @AfterViews
     final void init() {
-        reportNameInput.setText(resource.getLabel());
-
         // show spinner with available output formats
         ArrayAdapter<OutputFormat> arrayAdapter = new ArrayAdapter<OutputFormat>(getActivity(),
                 android.R.layout.simple_spinner_item, OutputFormat.values());
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         formatSpinner.setAdapter(arrayAdapter);
+
+        reportNameInput.setText(resource.getLabel());
 
         // hide save parts views if report have only 1 page
         if (pageCount > 1) {
@@ -259,7 +258,6 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
     @TextChange(R.id.report_name_input)
     final void reportNameChanged() {
         boolean nameValid = isReportNameValid();
-        reportNameInput.setError(null);
         if (saveAction != null) {
             saveAction.setIcon(nameValid ? R.drawable.ic_menu_save : R.drawable.ic_menu_save_disabled);
         }
@@ -271,6 +269,7 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
 
     private boolean isReportNameValid() {
         String reportName = reportNameInput.getText().toString();
+        OutputFormat outputFormat = (OutputFormat) formatSpinner.getSelectedItem();
 
         if (reportName.trim().isEmpty()) {
             reportNameInput.setError(getString(R.string.sr_error_field_is_empty));
@@ -283,6 +282,12 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
             return false;
         }
 
+        if (savedItemHelper.itemExist(reportName, outputFormat.name())) {
+            reportNameInput.setError(getString(R.string.sr_error_report_exists));
+            return false;
+        }
+
+        reportNameInput.setError(null);
         return true;
     }
 
@@ -304,13 +309,6 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
         } else {
             return null;
         }
-    }
-
-    private File getSharedReportDir(String reportName) {
-        File appFilesDir = getActivity().getExternalFilesDir(null);
-        File savedReportsDir = new File(appFilesDir, JasperMobileApplication.SAVED_REPORTS_DIR_NAME);
-        File accountReportDir = new File(savedReportsDir, JasperMobileApplication.SHARED_DIR);
-        return new File(accountReportDir, reportName);
     }
 
     private ReportExecutionRequest createReportExecutionRequest(ResourceLookup resource, SaveItemFragment.OutputFormat outputFormat,

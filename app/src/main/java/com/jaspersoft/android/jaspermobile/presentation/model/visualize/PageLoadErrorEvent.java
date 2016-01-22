@@ -14,7 +14,7 @@ public final class PageLoadErrorEvent extends ErrorEvent {
         mTargetPage = targetPage;
     }
 
-    public int getTargetPage() {
+    public int getPage() {
         return mTargetPage;
     }
 }

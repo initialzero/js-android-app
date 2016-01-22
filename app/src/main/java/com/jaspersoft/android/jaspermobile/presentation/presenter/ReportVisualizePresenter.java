@@ -14,6 +14,7 @@ import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListe
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.LoadCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadCompleteEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ReportCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
@@ -110,6 +111,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         listenForLoadErrorEvent(visualize);
         listenForReportCompleteEvent(visualize);
         listenForPageLoadCompleteEvent(visualize);
+        listenForPageLoadErrorEvent(visualize);
     }
 
     private void listenForLoadStartEvent(VisualizeComponent visualize) {
@@ -208,6 +210,21 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                             public void onNext(PageLoadCompleteEvent event) {
                                 mView.setPaginationEnabled(true);
                                 mView.setPaginationCurrentPage(event.getPage());
+                            }
+                        }))
+        );
+    }
+
+    private void listenForPageLoadErrorEvent(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .pageLoadErrorEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<PageLoadErrorEvent>() {
+                            @Override
+                            public void onNext(PageLoadErrorEvent event) {
+                                mView.setPaginationEnabled(true);
+                                mView.setPaginationCurrentPage(event.getPage());
+                                mView.showError(event.getErrorMessage());
                             }
                         }))
         );

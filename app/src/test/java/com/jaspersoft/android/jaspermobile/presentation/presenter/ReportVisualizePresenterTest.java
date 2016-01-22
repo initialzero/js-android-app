@@ -201,6 +201,17 @@ public class ReportVisualizePresenterTest {
         verify(mView).setPaginationCurrentPage(2);
     }
 
+   @Test
+    public void on_init_should_subscribe_to_page_load_error_event() throws Exception {
+        when(mVisualizeEvents.pageLoadErrorEvent()).thenReturn(Observable.just(new PageLoadErrorEvent("error", 2)));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).setPaginationEnabled(true);
+        verify(mView).setPaginationCurrentPage(2);
+        verify(mView).showError("error");
+    }
+
     @Test
     public void on_init_should_subscribe_to_webview_on_progress_event() throws Exception {
         when(mWebViewEvents.progressChangedEvent()).thenReturn(Observable.just(10));

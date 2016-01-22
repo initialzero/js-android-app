@@ -15,6 +15,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoad
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ReportCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeEvents;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewEvents;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
@@ -46,6 +47,7 @@ public class ReportVisualizePresenterTest {
     private static final VisualizeTemplate VIS_TEMPLATE = new VisualizeTemplate("content", "url");
     private static final double SCREEN_DIAGONAL = 10.1;
     private static final String JSON_REPORT_PARAMS = "{}";
+    private static final String REPORT_URI = "/my/uri";
 
     private ReportVisualizePresenter mReportVisualizePresenter;
     private FakeGetVisualizeTemplateCase mGetVisualizeTemplateCase;
@@ -71,6 +73,7 @@ public class ReportVisualizePresenterTest {
         setUpMocks();
         mReportVisualizePresenter = new ReportVisualizePresenter(
                 SCREEN_DIAGONAL,
+                REPORT_URI,
                 mExceptionHandler,
                 mGetReportShowControlsPropertyCase,
                 mGetVisualizeTemplateCase,
@@ -312,7 +315,7 @@ public class ReportVisualizePresenterTest {
 
         when(mWebViewEvents.progressChangedEvent()).thenReturn(Observable.<Integer>empty());
 
-        when(mVisualizeViewModel.run(anyString())).thenReturn(mVisualizeViewModel);
+        when(mVisualizeViewModel.run(any(VisualizeExecOptions.class))).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.refresh()).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.loadPage(anyString())).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.update(anyString())).thenReturn(mVisualizeViewModel);

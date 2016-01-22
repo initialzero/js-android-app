@@ -20,6 +20,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoad
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ReportCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
 
@@ -38,6 +39,7 @@ import timber.log.Timber;
 public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>, ReportActionListener {
 
     private final double mScreenDiagonal;
+    private final String mReportUri;
     private final RequestExceptionHandler mRequestExceptionHandler;
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private final GetVisualizeTemplateCase mGetVisualizeTemplateCase;
@@ -49,12 +51,14 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     @Inject
     public ReportVisualizePresenter(@Named("screen_diagonal") Double screenDiagonal,
+                                    @Named("report_uri") String reportUri,
                                     RequestExceptionHandler requestExceptionHandler,
                                     GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
                                     GetVisualizeTemplateCase getVisualizeTemplateCase,
                                     GetJsonParamsCase getJsonParamsCase
     ) {
         mScreenDiagonal = screenDiagonal;
+        mReportUri = reportUri;
         mRequestExceptionHandler = requestExceptionHandler;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
         mGetVisualizeTemplateCase = getVisualizeTemplateCase;
@@ -344,7 +348,8 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
             @Override
             public void onNext(String params) {
-                mView.getVisualize().run(params);
+                VisualizeExecOptions options = new VisualizeExecOptions(mReportUri, params);
+                mView.getVisualize().run(options);
             }
         }));
     }

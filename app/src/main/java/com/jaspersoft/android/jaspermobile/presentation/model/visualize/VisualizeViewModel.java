@@ -21,8 +21,9 @@ public class VisualizeViewModel implements VisualizeComponent, WebViewComponent 
     @NonNull
     public static VisualizeViewModel newModel(WebViewConfiguration configuration) {
         WebViewComponent webViewComponent = new SimpleWebViewComponent(configuration);
-        VisualizeEvents visualizeEvents = null;
-        VisualizeComponent visualizeComponent = new SimpleVisualizeComponent(configuration, visualizeEvents);
+        VisualizeEvents visualizeEvents = new RxVisualizeEvents(configuration);
+        VisualizeComponent visualizeComponent = new SimpleVisualizeComponent(
+                configuration.getWebView(), visualizeEvents);
         return new VisualizeViewModel(visualizeComponent, webViewComponent);
     }
 
@@ -34,8 +35,8 @@ public class VisualizeViewModel implements VisualizeComponent, WebViewComponent 
 
     @NonNull
     @Override
-    public VisualizeComponent run(@NonNull String jsonParams) {
-        return mVisualizeComponentDelegate.run(jsonParams);
+    public VisualizeComponent run(@NonNull VisualizeExecOptions options) {
+        return mVisualizeComponentDelegate.run(options);
     }
 
     @NonNull

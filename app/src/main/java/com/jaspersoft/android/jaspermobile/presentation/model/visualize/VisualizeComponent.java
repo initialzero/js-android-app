@@ -12,7 +12,7 @@ public interface VisualizeComponent {
     VisualizeEvents visualizeEvents();
 
     @NonNull
-    VisualizeComponent run(@NonNull String jsonParams);
+    VisualizeComponent run(@NonNull VisualizeExecOptions options);
 
     @NonNull
     VisualizeComponent loadPage(String page);

@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
 import android.support.annotation.NonNull;
+import android.webkit.WebView;
 
 /**
  * @author Tom Koptel
@@ -8,13 +9,13 @@ import android.support.annotation.NonNull;
  */
 final class SimpleVisualizeComponent implements VisualizeComponent {
     @NonNull
-    private final WebViewConfiguration mWebViewConfiguration;
-    @NonNull
     private final VisualizeEvents mVisualizeEvents;
+    @NonNull
+    private final WebView mWebView;
 
-    public SimpleVisualizeComponent(@NonNull WebViewConfiguration webViewConfiguration,
+    public SimpleVisualizeComponent(@NonNull WebView webView,
                                     @NonNull VisualizeEvents visualizeEvents) {
-        mWebViewConfiguration = webViewConfiguration;
+        mWebView = webView;
         mVisualizeEvents = visualizeEvents;
     }
 
@@ -26,25 +27,42 @@ final class SimpleVisualizeComponent implements VisualizeComponent {
 
     @NonNull
     @Override
-    public VisualizeComponent run(@NonNull String jsonParams) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public VisualizeComponent run(@NonNull VisualizeExecOptions options) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("javascript:MobileReport.configure")
+                .append("({})")
+                .append(".run({")
+                .append("\"uri\": \"%s\",")
+                .append("\"params\": %s")
+                .append("})");
+        String executeScript = String.format(builder.toString(),
+                options.getUri(),
+                options.getParams()
+        );
+        mWebView.loadUrl(executeScript);
+        return this;
     }
 
     @NonNull
     @Override
     public VisualizeComponent loadPage(String page) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        String executeScript = String.format("javascript:MobileReport.selectPage(%s)", page);
+        mWebView.loadUrl(executeScript);
+        return this;
     }
 
     @NonNull
     @Override
     public VisualizeComponent update(@NonNull String jsonParams) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        String executeScript = String.format("javascript:MobileReport.applyReportParams(%s)", jsonParams);
+        mWebView.loadUrl(executeScript);
+        return this;
     }
 
     @NonNull
     @Override
     public VisualizeComponent refresh() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        mWebView.loadUrl("javascript:MobileReport.refresh()");
+        return this;
     }
 }

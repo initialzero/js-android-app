@@ -18,10 +18,7 @@ public interface ReportVisualizeView extends LoadDataView {
 
     void showInitialFiltersPage();
 
-    void showPage(String pageContent);
-
     void showPageOutOfRangeError();
-
 
     void setPaginationVisibility(boolean visibility);
 

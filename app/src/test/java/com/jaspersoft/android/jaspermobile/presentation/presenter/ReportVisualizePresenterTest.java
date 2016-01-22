@@ -3,8 +3,8 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.RunVisualizeReportCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExecutionReferenceClickEvent;
@@ -14,7 +14,6 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.MultiPag
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ReportCompleteEvent;
-import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeEvents;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewEvents;
@@ -43,13 +42,14 @@ import static org.mockito.MockitoAnnotations.initMocks;
  */
 public class ReportVisualizePresenterTest {
 
-    public static final VisualizeTemplate VIS_TEMPLATE = new VisualizeTemplate("content", "url");
-    public static final double SCREEN_DIAGONAL = 10.1;
+    private static final VisualizeTemplate VIS_TEMPLATE = new VisualizeTemplate("content", "url");
+    private static final double SCREEN_DIAGONAL = 10.1;
+    private static final String JSON_REPORT_PARAMS = "{}";
 
     private ReportVisualizePresenter mReportVisualizePresenter;
     private FakeGetVisualizeTemplateCase mGetVisualizeTemplateCase;
     private FakeGetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
-    private FakeRunVisualizeReportCase mRunVisualizeReportCase;
+    private FakeGetJsonParamsCase mRunVisualizeReportCase;
 
     @Mock
     RequestExceptionHandler mExceptionHandler;
@@ -116,10 +116,10 @@ public class ReportVisualizePresenterTest {
     }
 
     @Test
-    public void after_template_injection_should_subscribe_to_visualize_start_load_event() throws Exception {
+    public void on_init_should_subscribe_to_visualize_start_load_event() throws Exception {
         when(mVisualizeEvents.loadStartEvent()).thenReturn(Observable.<Void>just(null));
 
-        mReportVisualizePresenter.loadVisualizeTemplate();
+        mReportVisualizePresenter.init();
 
         verify(mView).setWebViewVisibility(false);
         verify(mView).showPageLoader();
@@ -127,10 +127,11 @@ public class ReportVisualizePresenterTest {
     }
 
     @Test
-    public void after_template_injection_should_subscribe_to_visualize_script_loaded_event() throws Exception {
+    @SuppressWarnings("unchecked")
+    public void on_init_should_subscribe_to_visualize_script_loaded_event() throws Exception {
         when(mVisualizeEvents.scriptLoadedEvent()).thenReturn(Observable.<Void>just(null));
 
-        mReportVisualizePresenter.loadVisualizeTemplate();
+        mReportVisualizePresenter.init();
 
         verify(mRunVisualizeReportCase).execute(any(Subscriber.class));
     }
@@ -139,7 +140,7 @@ public class ReportVisualizePresenterTest {
         fakeState = spy(new ReportPageState());
         mGetVisualizeTemplateCase = spy(new FakeGetVisualizeTemplateCase());
         mGetReportShowControlsPropertyCase = spy(new FakeGetReportShowControlsPropertyCase());
-        mRunVisualizeReportCase = spy(new FakeRunVisualizeReportCase());
+        mRunVisualizeReportCase = spy(new FakeGetJsonParamsCase());
 
         when(mView.getState()).thenReturn(fakeState);
         when(mView.getVisualize()).thenReturn(mVisualizeViewModel);
@@ -176,15 +177,14 @@ public class ReportVisualizePresenterTest {
         }
     }
 
-    private class FakeRunVisualizeReportCase extends RunVisualizeReportCase {
-        public FakeRunVisualizeReportCase() {
-            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null, null);
+    private class FakeGetJsonParamsCase extends GetJsonParamsCase {
+        public FakeGetJsonParamsCase() {
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
         }
 
         @Override
-        protected Observable<VisualizeComponent> buildUseCaseObservable() {
-            VisualizeComponent component = mVisualizeViewModel;
-            return Observable.just(component);
+        protected Observable<String> buildUseCaseObservable() {
+            return Observable.just(JSON_REPORT_PARAMS);
         }
     }
 }

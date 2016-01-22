@@ -4,7 +4,6 @@ import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
-import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 
 import org.junit.Before;
@@ -26,27 +25,24 @@ import static org.mockito.MockitoAnnotations.initMocks;
  * @author Tom Koptel
  * @since 2.3
  */
-public class RunVisualizeReportCaseTest {
+public class GetJsonParamsCaseTest {
     private static final String REPORT_URI = "/my/uri";
     private static final String EMPTY_JSON = "{}";
     private static final List<ReportParameter> REPORT_PARAMS = Collections.emptyList();
 
     @Mock
-    VisualizeComponent mVisualizeComponent;
-    @Mock
     ReportParamsCache mReportParamsCache;
     @Mock
     ReportParamsMapper mReportParamsMapper;
-    private RunVisualizeReportCase mRunVisualizeReportCase;
+    private GetJsonParamsCase mGetJsonParamsCase;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         setUpMocks();
-        mRunVisualizeReportCase = new RunVisualizeReportCase(
+        mGetJsonParamsCase = new GetJsonParamsCase(
                 FakePreExecutionThread.create(),
                 FakePostExecutionThread.create(),
-                mVisualizeComponent,
                 mReportParamsCache,
                 mReportParamsMapper,
                 REPORT_URI
@@ -54,18 +50,16 @@ public class RunVisualizeReportCaseTest {
     }
 
     private void setUpMocks() {
-        when(mVisualizeComponent.run(anyString())).thenReturn(mVisualizeComponent);
         when(mReportParamsCache.get(anyString())).thenReturn(REPORT_PARAMS);
         when(mReportParamsMapper.toJsonLegacyParams(anyListOf(ReportParameter.class))).thenReturn(EMPTY_JSON);
     }
 
     @Test
     public void testBuildUseCaseObservable() throws Exception {
-        TestSubscriber<VisualizeComponent> test = new TestSubscriber<>();
-        mRunVisualizeReportCase.execute(test);
+        TestSubscriber<String> test = new TestSubscriber<>();
+        mGetJsonParamsCase.execute(test);
 
         verify(mReportParamsCache).get(REPORT_URI);
         verify(mReportParamsMapper).toJsonLegacyParams(REPORT_PARAMS);
-        verify(mVisualizeComponent).run(EMPTY_JSON);
     }
 }

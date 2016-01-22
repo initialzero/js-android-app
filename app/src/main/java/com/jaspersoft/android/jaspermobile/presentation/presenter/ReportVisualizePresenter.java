@@ -7,7 +7,7 @@ import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.RunVisualizeReportCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
@@ -33,7 +33,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     private final RequestExceptionHandler mRequestExceptionHandler;
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private final GetVisualizeTemplateCase mGetVisualizeTemplateCase;
-    private final RunVisualizeReportCase mRunVisualizeReportCase;
+    private final GetJsonParamsCase mGetJsonParamsCase;
 
     private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
@@ -44,19 +44,20 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                                     RequestExceptionHandler requestExceptionHandler,
                                     GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
                                     GetVisualizeTemplateCase getVisualizeTemplateCase,
-                                    RunVisualizeReportCase runVisualizeReportCase
+                                    GetJsonParamsCase getJsonParamsCase
     ) {
         mScreenDiagonal = screenDiagonal;
         mRequestExceptionHandler = requestExceptionHandler;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
         mGetVisualizeTemplateCase = getVisualizeTemplateCase;
-        mRunVisualizeReportCase = runVisualizeReportCase;
+        mGetJsonParamsCase = getJsonParamsCase;
     }
 
     public void init() {
         if (mView == null) {
             throw new NullPointerException("Please inject view before calling this method");
         }
+        subscribeToAllVisualizeEvents();
         showLoading();
         mGetReportShowControlsPropertyCase.execute(new SimpleSubscriber<Boolean>() {
             @Override
@@ -78,14 +79,15 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         });
     }
 
+    private void subscribeToAllVisualizeEvents() {
+        VisualizeViewModel visualize = mView.getVisualize();
+        listenForLoadStartEvent(visualize);
+        listenScriptLoadedEvent(visualize);
+    }
+
     @Override
     public void runReport() {
-        mRunVisualizeReportCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<VisualizeComponent>() {
-            @Override
-            public void onNext(VisualizeComponent item) {
 
-            }
-        }));
     }
 
     private void subscribeToEvent(Subscription subscription) {
@@ -123,12 +125,12 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                     public void onNext(VisualizeTemplate template) {
                         mView.loadTemplateInView(template);
 
-                        VisualizeViewModel visualize = mView.getVisualize();
-                        listenForLoadStartEvent(visualize);
-                        listenScriptLoadedEvent(visualize);
+
                     }
                 }));
     }
+
+
 
     private void listenForLoadStartEvent(VisualizeComponent visualize) {
         subscribeToEvent(
@@ -152,10 +154,19 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
                             @Override
                             public void onNext(Void item) {
-                                runReport();
+                                runReportOnVisualize();
                             }
                         }))
         );
+    }
+
+    private void runReportOnVisualize() {
+        mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
+            @Override
+            public void onNext(String params) {
+                mView.getVisualize().run(params);
+            }
+        }));
     }
 
     @Override
@@ -175,7 +186,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     public void destroy() {
         mGetReportShowControlsPropertyCase.unsubscribe();
         mGetVisualizeTemplateCase.unsubscribe();
-        mRunVisualizeReportCase.unsubscribe();
+        mGetJsonParamsCase.unsubscribe();
     }
 
     @VisibleForTesting

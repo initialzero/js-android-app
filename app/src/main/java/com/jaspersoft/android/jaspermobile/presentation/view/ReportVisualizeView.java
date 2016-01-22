@@ -49,6 +49,8 @@ public interface ReportVisualizeView extends LoadDataView {
 
     void executeReport(ReportData reportData);
 
+    void resetZoom();
+
     ReportPageState getState();
 
     VisualizeViewModel getVisualize();

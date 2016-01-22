@@ -383,6 +383,11 @@ public class ReportVisualizeFragment extends BaseFragment
     }
 
     @Override
+    public void resetZoom() {
+        while (webView.zoomOut()) ;
+    }
+
+    @Override
     public ReportPageState getState() {
         return mState;
     }

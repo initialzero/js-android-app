@@ -292,26 +292,33 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     @Override
     public void runReport() {
-
-    }
-
-    private void subscribeToEvent(Subscription subscription) {
-        mCompositeSubscription.add(subscription);
+        loadVisualizeTemplate();
     }
 
     @Override
     public void loadPage(String pageRange) {
-
+        mView.getVisualize().loadPage(pageRange);
     }
 
     @Override
     public void updateReport() {
-
+        mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
+            @Override
+            public void onNext(String params) {
+                mView.resetZoom();
+                mView.getVisualize().update(params);
+            }
+        }));
     }
 
     @Override
     public void refresh() {
-
+        mView.showLoading();
+        mView.getVisualize().refresh();
+        mView.resetZoom();
+        mView.setWebViewVisibility(false);
+        mView.setPaginationVisibility(false);
+        mView.resetPaginationControl();
     }
 
     private void resolveNeedControls(boolean needControls) {
@@ -332,8 +339,6 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                     }
                 }));
     }
-
-
 
     private void runReportOnVisualize() {
         mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
@@ -387,6 +392,10 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     private void showLoading() {
         mView.showLoading();
+    }
+
+    private void subscribeToEvent(Subscription subscription) {
+        mCompositeSubscription.add(subscription);
     }
 
     private final class ErrorSubscriber<R> extends SimpleSubscriber<R> {

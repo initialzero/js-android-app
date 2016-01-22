@@ -40,7 +40,7 @@ public class VisualizeViewModel implements VisualizeComponent, WebViewComponent 
 
     @NonNull
     @Override
-    public VisualizeComponent loadPage(int page) {
+    public VisualizeComponent loadPage(String page) {
         return mVisualizeComponentDelegate.loadPage(page);
     }
 

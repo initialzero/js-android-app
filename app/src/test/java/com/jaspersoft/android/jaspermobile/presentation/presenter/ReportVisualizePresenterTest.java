@@ -29,7 +29,6 @@ import rx.Observable;
 import rx.Subscriber;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
@@ -51,7 +50,7 @@ public class ReportVisualizePresenterTest {
     private ReportVisualizePresenter mReportVisualizePresenter;
     private FakeGetVisualizeTemplateCase mGetVisualizeTemplateCase;
     private FakeGetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
-    private FakeGetJsonParamsCase mRunVisualizeReportCase;
+    private FakeGetJsonParamsCase mGetJsonParamsCase;
 
     @Mock
     RequestExceptionHandler mExceptionHandler;
@@ -75,7 +74,7 @@ public class ReportVisualizePresenterTest {
                 mExceptionHandler,
                 mGetReportShowControlsPropertyCase,
                 mGetVisualizeTemplateCase,
-                mRunVisualizeReportCase
+                mGetJsonParamsCase
         );
         mReportVisualizePresenter.injectView(mView);
     }
@@ -135,7 +134,7 @@ public class ReportVisualizePresenterTest {
 
         mReportVisualizePresenter.init();
 
-        verify(mRunVisualizeReportCase).execute(any(Subscriber.class));
+        verify(mGetJsonParamsCase).execute(any(Subscriber.class));
     }
 
     @Test
@@ -271,11 +270,38 @@ public class ReportVisualizePresenterTest {
         verify(mView).updateDeterminateProgress(10);
     }
 
+    @Test
+    public void load_report_page_should_delegate_call_visualize_component() throws Exception {
+        mReportVisualizePresenter.loadPage("1");
+        mView.getVisualize().loadPage("1");
+    }
+
+    @Test
+    public void update_report_page_should_delegate_receive_json_params() throws Exception {
+        mReportVisualizePresenter.updateReport();
+
+        verify(mGetJsonParamsCase).execute(any(Subscriber.class));
+        verify(mView).resetZoom();
+        verify(mView.getVisualize()).update(JSON_REPORT_PARAMS);
+    }
+
+    @Test
+    public void refresh_report_page_should_delegate_refresh_call() throws Exception {
+        mReportVisualizePresenter.refresh();
+
+        verify(mView.getVisualize()).refresh();
+        verify(mView).resetZoom();
+        verify(mView).setWebViewVisibility(false);
+        verify(mView).setPaginationVisibility(false);
+        verify(mView).resetPaginationControl();
+        verify(mView).showLoading();
+    }
+
     private void setUpMocks() {
         fakeState = spy(new ReportPageState());
         mGetVisualizeTemplateCase = spy(new FakeGetVisualizeTemplateCase());
         mGetReportShowControlsPropertyCase = spy(new FakeGetReportShowControlsPropertyCase());
-        mRunVisualizeReportCase = spy(new FakeGetJsonParamsCase());
+        mGetJsonParamsCase = spy(new FakeGetJsonParamsCase());
 
         when(mView.getState()).thenReturn(fakeState);
         when(mView.getVisualize()).thenReturn(mVisualizeViewModel);
@@ -288,7 +314,7 @@ public class ReportVisualizePresenterTest {
 
         when(mVisualizeViewModel.run(anyString())).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.refresh()).thenReturn(mVisualizeViewModel);
-        when(mVisualizeViewModel.loadPage(anyInt())).thenReturn(mVisualizeViewModel);
+        when(mVisualizeViewModel.loadPage(anyString())).thenReturn(mVisualizeViewModel);
         when(mVisualizeViewModel.update(anyString())).thenReturn(mVisualizeViewModel);
 
         when(mVisualizeEvents.loadStartEvent()).thenReturn(Observable.<Void>empty());

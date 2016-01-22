@@ -32,7 +32,7 @@ final class SimpleVisualizeComponent implements VisualizeComponent {
 
     @NonNull
     @Override
-    public VisualizeComponent loadPage(int page) {
+    public VisualizeComponent loadPage(String page) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

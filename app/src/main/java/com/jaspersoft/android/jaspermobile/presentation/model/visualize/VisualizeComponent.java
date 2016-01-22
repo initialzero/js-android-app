@@ -15,7 +15,7 @@ public interface VisualizeComponent {
     VisualizeComponent run(@NonNull String jsonParams);
 
     @NonNull
-    VisualizeComponent loadPage(int page);
+    VisualizeComponent loadPage(String page);
 
     @NonNull
     VisualizeComponent update(@NonNull String jsonParams);

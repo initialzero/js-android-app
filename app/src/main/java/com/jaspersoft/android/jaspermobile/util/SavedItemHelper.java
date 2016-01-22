@@ -25,10 +25,13 @@
 package com.jaspersoft.android.jaspermobile.util;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
+import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 
 import org.androidannotations.annotations.EBean;
@@ -53,7 +56,7 @@ public class SavedItemHelper {
      * Removes item both from file system and database
      *
      * @param reportFile saved item file. It can be PDF, HTML, XLS
-     * @param reportId id of saved item inside saved_items table
+     * @param reportId   id of saved item inside saved_items table
      */
     public void deleteSavedItem(File reportFile, long reportId) {
         File reportFolderFile = reportFile.getParentFile();
@@ -73,6 +76,16 @@ public class SavedItemHelper {
                 deleteReferenceInDb(reportUri);
             }
         }
+    }
+
+    public boolean itemExist(String name, String format) {
+        String selection = SavedItemsTable.NAME + " =? AND " + SavedItemsTable.FILE_FORMAT + " =?";
+        Cursor cursor = context.getContentResolver().query(MobileDbProvider.SAVED_ITEMS_CONTENT_URI, new String[]{"_id"}, selection, new String[]{name, format}, null);
+        boolean itemExist = cursor != null && cursor.getCount() != 0;
+        if (cursor != null) {
+            cursor.close();
+        }
+        return itemExist;
     }
 
     private boolean deleteReportFolder(File reportFolderFile) {

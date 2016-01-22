@@ -95,22 +95,27 @@ public class ReportVisualizeFragment extends BaseFragment implements ReportVisua
     }
 
     @Override
+    public void setPaginationEnabled(boolean enabled) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void setPaginationTotalPages(int totalPages) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void setPaginationCurrentPage(int page) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
     public void setWebViewVisibility(boolean visibility) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
     public void resetPaginationControl() {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Override
-    public void showTotalPages(int totalPages) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Override
-    public void showCurrentPage(int page) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

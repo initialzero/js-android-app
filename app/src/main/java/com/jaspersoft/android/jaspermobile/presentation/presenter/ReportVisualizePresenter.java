@@ -13,6 +13,7 @@ import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.LoadCompleteEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.PageLoadCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ReportCompleteEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
@@ -108,8 +109,8 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         listenForLoadCompleteEvent(visualize);
         listenForLoadErrorEvent(visualize);
         listenForReportCompleteEvent(visualize);
+        listenForPageLoadCompleteEvent(visualize);
     }
-
 
     private void listenForLoadStartEvent(VisualizeComponent visualize) {
         subscribeToEvent(
@@ -125,6 +126,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         }))
         );
     }
+
 
     private void listenScriptLoadedEvent(VisualizeComponent visualize) {
         subscribeToEvent(
@@ -186,12 +188,26 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                                     mView.setPaginationControlVisibility(multiPage);
 
                                     if (multiPage) {
-                                        mView.showTotalPages(totalPages);
+                                        mView.setPaginationTotalPages(totalPages);
                                     }
                                 } else {
                                     mView.setPaginationControlVisibility(false);
                                     mView.showEmptyPageMessage();
                                 }
+                            }
+                        }))
+        );
+    }
+
+    private void listenForPageLoadCompleteEvent(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .pageLoadCompleteEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<PageLoadCompleteEvent>() {
+                            @Override
+                            public void onNext(PageLoadCompleteEvent event) {
+                                mView.setPaginationEnabled(true);
+                                mView.setPaginationCurrentPage(event.getPage());
                             }
                         }))
         );

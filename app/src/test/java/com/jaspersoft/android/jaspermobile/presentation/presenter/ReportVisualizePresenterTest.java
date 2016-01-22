@@ -187,8 +187,18 @@ public class ReportVisualizePresenterTest {
 
         verify(mView).hideEmptyPageMessage();
         verify(mView).setSaveActionVisibility(true);
-        verify(mView).showTotalPages(2);
+        verify(mView).setPaginationTotalPages(2);
         verify(mView).setPaginationControlVisibility(true);
+    }
+
+    @Test
+    public void on_init_should_subscribe_to_page_load_complete_event() throws Exception {
+        when(mVisualizeEvents.pageLoadCompleteEvent()).thenReturn(Observable.just(new PageLoadCompleteEvent(2)));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).setPaginationEnabled(true);
+        verify(mView).setPaginationCurrentPage(2);
     }
 
     @Test

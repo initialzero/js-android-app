@@ -19,21 +19,27 @@ public interface ReportVisualizeView extends LoadDataView {
 
     void showPage(String pageContent);
 
+    void showPageOutOfRangeError();
+
+
     void setPaginationControlVisibility(boolean visibility);
 
-    void setWebViewVisibility(boolean visibility);
+    void setPaginationEnabled(boolean enabled);
+
+    void setPaginationCurrentPage(int page);
+
+    void setPaginationTotalPages(int totalPages);
 
     void resetPaginationControl();
 
-    void showTotalPages(int totalPages);
 
-    void showCurrentPage(int page);
+    void setWebViewVisibility(boolean visibility);
 
-    void showPageOutOfRangeError();
 
     void showEmptyPageMessage();
 
     void hideEmptyPageMessage();
+
 
     void loadTemplateInView(VisualizeTemplate template);
 

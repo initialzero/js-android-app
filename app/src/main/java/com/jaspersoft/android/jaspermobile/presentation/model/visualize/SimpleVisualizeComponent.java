@@ -3,6 +3,8 @@ package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 import android.support.annotation.NonNull;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
+
 /**
  * @author Tom Koptel
  * @since 2.3
@@ -30,12 +32,24 @@ final class SimpleVisualizeComponent implements VisualizeComponent {
     public VisualizeComponent run(@NonNull VisualizeExecOptions options) {
         StringBuilder builder = new StringBuilder();
         builder.append("javascript:MobileReport.configure")
-                .append("({})")
+                .append("({ \"auth\": ")
+                .append("{")
+                .append("\"username\": \"%s\",")
+                .append("\"password\": \"%s\",")
+                .append("\"organization\": \"%s\"")
+                .append("}, ")
+                .append("\"diagonal\": %s ")
+                .append("})")
                 .append(".run({")
                 .append("\"uri\": \"%s\",")
                 .append("\"params\": %s")
                 .append("})");
+        AppCredentials credentials = options.getAppCredentials();
         String executeScript = String.format(builder.toString(),
+                credentials.getUsername(),
+                credentials.getPassword(),
+                credentials.getOrganization(),
+                options.getDiagonal(),
                 options.getUri(),
                 options.getParams()
         );

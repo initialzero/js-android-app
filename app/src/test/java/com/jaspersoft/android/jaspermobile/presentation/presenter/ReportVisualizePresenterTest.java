@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
@@ -66,14 +67,22 @@ public class ReportVisualizePresenterTest {
     WebViewEvents mWebViewEvents;
 
     private ReportPageState fakeState;
+    private AppCredentials mAppCredentials = AppCredentials.builder()
+            .setOrganization("org")
+            .setPassword("1234")
+            .setUsername("user")
+            .create();
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         setUpMocks();
+
         mReportVisualizePresenter = new ReportVisualizePresenter(
                 SCREEN_DIAGONAL,
                 REPORT_URI,
+                mAppCredentials,
+                FakePostExecutionThread.create(),
                 mExceptionHandler,
                 mGetReportShowControlsPropertyCase,
                 mGetVisualizeTemplateCase,

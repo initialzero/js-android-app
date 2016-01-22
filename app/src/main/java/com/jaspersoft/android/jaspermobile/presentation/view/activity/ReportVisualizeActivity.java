@@ -44,6 +44,7 @@ public class ReportVisualizeActivity extends RoboToolbarActivity {
 
         if (savedInstanceState == null) {
             ReportVisualizeFragment viewFragment = ReportVisualizeFragment_.builder()
+                    .resource(resource)
                     .build();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.control, viewFragment, ReportVisualizeFragment.TAG)

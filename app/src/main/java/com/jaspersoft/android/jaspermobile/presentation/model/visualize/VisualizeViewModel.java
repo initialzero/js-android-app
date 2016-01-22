@@ -20,7 +20,8 @@ public class VisualizeViewModel implements VisualizeComponent, WebViewComponent 
 
     @NonNull
     public static VisualizeViewModel newModel(WebViewConfiguration configuration) {
-        WebViewComponent webViewComponent = new SimpleWebViewComponent(configuration);
+        WebViewEvents webViewEvents = new RxWebViewEvents(configuration);
+        WebViewComponent webViewComponent = new SimpleWebViewComponent(webViewEvents);
         VisualizeEvents visualizeEvents = new RxVisualizeEvents(configuration);
         VisualizeComponent visualizeComponent = new SimpleVisualizeComponent(
                 configuration.getWebView(), visualizeEvents);

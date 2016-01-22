@@ -50,6 +50,7 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
@@ -65,15 +66,13 @@ import rx.functions.Action1;
  * @since 2.3
  */
 @EFragment(R.layout.activity_report_viewer)
+@OptionsMenu({R.menu.report_filter_manager_menu, R.menu.webview_menu, R.menu.retrofit_report_menu})
 public class ReportVisualizeFragment extends BaseFragment
         implements ReportVisualizeView,
         NumberDialogFragment.NumberDialogClickListener,
         PageDialogFragment.PageDialogClickListener {
 
     public static final String TAG = "report-visualize-view";
-
-    private static final String MIME = "text/html";
-    private static final String UTF_8 = "utf-8";
 
     private static final int REQUEST_INITIAL_REPORT_PARAMETERS = 100;
     private static final int REQUEST_NEW_REPORT_PARAMETERS = 200;
@@ -161,7 +160,8 @@ public class ReportVisualizeFragment extends BaseFragment
                 .plusReportVisualizeActivity(
                         new ActivityModule(getActivity()),
                         new ReportVisualizeActivityModule(webView)
-                );
+                )
+                .inject(this);
         mPresenter.injectView(this);
     }
 
@@ -365,6 +365,9 @@ public class ReportVisualizeFragment extends BaseFragment
     public void updateDeterminateProgress(int progress) {
         int maxProgress = progressBar.getMax();
         progressBar.setProgress((maxProgress / 100) * progress);
+        if (progress == maxProgress) {
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     @Override

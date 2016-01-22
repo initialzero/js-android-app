@@ -59,17 +59,18 @@ public final class ReportVisualizeActivityModule {
         SystemChromeClient defaultChromeClient = new SystemChromeClient.Builder(mWebView.getContext())
                 .build();
 
-        SystemWebViewClient systemWebViewClient = new SystemWebViewClient.Builder()
+        SystemWebViewClient defaultWebViewClient = new SystemWebViewClient.Builder()
                 .registerInterceptor(new InjectionRequestInterceptor())
                 .build();
 
         WebViewEnvironment.configure(mWebView)
                 .withDefaultSettings()
                 .withChromeClient(defaultChromeClient)
-                .withWebClient(systemWebViewClient);
+                .withWebClient(defaultWebViewClient);
 
         WebViewConfiguration configuration = new WebViewConfiguration(mWebView);
-
+        configuration.setSystemChromeClient(defaultChromeClient);
+        configuration.setSystemWebViewClient(defaultWebViewClient);
         return VisualizeViewModel.newModel(configuration);
     }
 

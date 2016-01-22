@@ -578,7 +578,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
             };
           })(this)
         };
-        return jQuery.ajax(window.location.href + "/rest_v2/serverInfo", params);
+        return jQuery.ajax(window.location.href + "rest_v2/serverInfo", params);
       };
 
       ReportController.prototype._parseServerVersion = function(response) {

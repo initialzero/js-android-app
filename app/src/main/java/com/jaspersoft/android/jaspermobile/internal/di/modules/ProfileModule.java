@@ -61,6 +61,12 @@ public final class ProfileModule {
 
     @Provides
     @PerProfile
+    AppCredentials providesCredentials(CredentialsCache credentialsCache) {
+        return credentialsCache.get(mProfile);
+    }
+
+    @Provides
+    @PerProfile
     ReportService provideReportService(AuthorizedClient authorizedClient) {
         return ReportService.newService(authorizedClient);
     }

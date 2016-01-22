@@ -8,14 +8,14 @@ import android.support.annotation.NonNull;
  */
 final class SimpleWebViewComponent implements WebViewComponent {
     @NonNull
-    private final WebViewConfiguration mWebViewConfiguration;
+    private final WebViewEvents mWebViewEvents;
 
-    public SimpleWebViewComponent(@NonNull WebViewConfiguration webViewConfiguration) {
-        mWebViewConfiguration = webViewConfiguration;
+    public SimpleWebViewComponent(@NonNull WebViewEvents webViewEvents) {
+        mWebViewEvents = webViewEvents;
     }
 
     @Override
     public WebViewEvents webViewEvents() {
-        return new RxWebViewEvents(mWebViewConfiguration);
+        return mWebViewEvents;
     }
 }

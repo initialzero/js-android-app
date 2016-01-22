@@ -3,8 +3,10 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 import android.support.annotation.VisibleForTesting;
 
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
+import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
@@ -40,6 +42,8 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     private final double mScreenDiagonal;
     private final String mReportUri;
+    private final AppCredentials mCredentials;
+    private final PostExecutionThread mPostExecutionThread;
     private final RequestExceptionHandler mRequestExceptionHandler;
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private final GetVisualizeTemplateCase mGetVisualizeTemplateCase;
@@ -52,6 +56,8 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     @Inject
     public ReportVisualizePresenter(@Named("screen_diagonal") Double screenDiagonal,
                                     @Named("report_uri") String reportUri,
+                                    AppCredentials credentials,
+                                    PostExecutionThread postExecutionThread,
                                     RequestExceptionHandler requestExceptionHandler,
                                     GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
                                     GetVisualizeTemplateCase getVisualizeTemplateCase,
@@ -59,6 +65,8 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     ) {
         mScreenDiagonal = screenDiagonal;
         mReportUri = reportUri;
+        mCredentials = credentials;
+        mPostExecutionThread = postExecutionThread;
         mRequestExceptionHandler = requestExceptionHandler;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
         mGetVisualizeTemplateCase = getVisualizeTemplateCase;
@@ -71,6 +79,12 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         }
         subscribeToVisualizeEvents();
         subscribeToWebViewEvents();
+        if (!mView.getState().isControlsPageShown()) {
+            loadControls();
+        }
+    }
+
+    private void loadControls() {
         showLoading();
         mGetReportShowControlsPropertyCase.execute(new SimpleSubscriber<Boolean>() {
             @Override
@@ -100,13 +114,14 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     private void listenForProgressChanges(VisualizeViewModel visualize) {
         subscribeToEvent(
                 visualize.webViewEvents()
-                .progressChangedEvent()
-                .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Integer>() {
-                    @Override
-                    public void onNext(Integer progress) {
-                        mView.updateDeterminateProgress(10);
-                    }
-                }))
+                        .progressChangedEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Integer>() {
+                            @Override
+                            public void onNext(Integer progress) {
+                                mView.updateDeterminateProgress(progress);
+                            }
+                        }))
         );
     }
 
@@ -129,6 +144,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         subscribeToEvent(
                 visualize.visualizeEvents()
                         .loadStartEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
                             @Override
                             public void onNext(Void item) {
@@ -144,6 +160,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         subscribeToEvent(
                 visualize.visualizeEvents()
                         .scriptLoadedEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
                             @Override
                             public void onNext(Void item) {
@@ -157,6 +174,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         subscribeToEvent(
                 visualize.visualizeEvents()
                         .loadCompleteEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<LoadCompleteEvent>() {
                             @Override
                             public void onNext(LoadCompleteEvent completeEvent) {
@@ -171,6 +189,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         subscribeToEvent(
                 visualize.visualizeEvents()
                         .loadErrorEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ErrorEvent>() {
                             @Override
                             public void onNext(ErrorEvent errorEvent) {
@@ -186,6 +205,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         subscribeToEvent(
                 visualize.visualizeEvents()
                         .reportCompleteEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ReportCompleteEvent>() {
                             @Override
                             public void onNext(ReportCompleteEvent event) {
@@ -216,6 +236,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         subscribeToEvent(
                 visualize.visualizeEvents()
                         .pageLoadCompleteEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<PageLoadCompleteEvent>() {
                             @Override
                             public void onNext(PageLoadCompleteEvent event) {
@@ -230,6 +251,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         subscribeToEvent(
                 visualize.visualizeEvents()
                         .pageLoadErrorEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<PageLoadErrorEvent>() {
                             @Override
                             public void onNext(PageLoadErrorEvent event) {
@@ -245,10 +267,11 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         subscribeToEvent(
                 visualize.visualizeEvents()
                         .multiPageLoadEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<MultiPageLoadEvent>() {
                             @Override
                             public void onNext(MultiPageLoadEvent event) {
-                                boolean needToShowPagination = event.isMultiPage() && mView.getPaginationTotalPages() != 0;
+                                boolean needToShowPagination = event.isMultiPage() && mView.getPaginationTotalPages() > 0;
                                 mView.setPaginationVisibility(needToShowPagination);
                             }
                         }))
@@ -259,6 +282,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         subscribeToEvent(
                 visualize.visualizeEvents()
                         .externalReferenceClickEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ExternalReferenceClickEvent>() {
                             @Override
                             public void onNext(ExternalReferenceClickEvent event) {
@@ -272,6 +296,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         subscribeToEvent(
                 visualize.visualizeEvents()
                         .executionReferenceClickEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ExecutionReferenceClickEvent>() {
                             @Override
                             public void onNext(ExecutionReferenceClickEvent event) {
@@ -285,6 +310,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         subscribeToEvent(
                 visualize.visualizeEvents()
                         .windowErrorEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ErrorEvent>() {
                             @Override
                             public void onNext(ErrorEvent event) {
@@ -348,7 +374,11 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
             @Override
             public void onNext(String params) {
-                VisualizeExecOptions options = new VisualizeExecOptions(mReportUri, params);
+                VisualizeExecOptions options = new VisualizeExecOptions(
+                        mReportUri,
+                        params,
+                        mCredentials,
+                        mScreenDiagonal);
                 mView.getVisualize().run(options);
             }
         }));

@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
-import android.accounts.Account;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -37,8 +36,8 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Reposi
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportViewActivity_;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
 import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
@@ -115,7 +114,7 @@ public class ResourceOpener {
             ReportViewActivity_.intent(activity)
                     .resource(resource).start();
         } else {
-            ReportViewerActivity_.intent(activity)
+            ReportVisualizeActivity_.intent(activity)
                     .resource(resource).start();
         }
     }

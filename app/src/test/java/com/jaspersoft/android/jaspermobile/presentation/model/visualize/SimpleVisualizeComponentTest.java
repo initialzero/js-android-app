@@ -2,6 +2,8 @@ package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +25,7 @@ public class SimpleVisualizeComponentTest {
 
     @Mock
     VisualizeEvents mVisualizeEvents;
+
     private SimpleVisualizeComponent mSimpleVisualizeComponent;
     private WebView webView;
 
@@ -34,9 +37,14 @@ public class SimpleVisualizeComponentTest {
 
     @Test
     public void testRun() throws Exception {
-        VisualizeExecOptions options = new VisualizeExecOptions("/my/uri", "{}");
+        AppCredentials credentials = AppCredentials.builder()
+                .setOrganization("org")
+                .setPassword("1234")
+                .setUsername("user")
+                .create();
+        VisualizeExecOptions options = new VisualizeExecOptions("/my/uri", "{}", credentials, 10);
         mSimpleVisualizeComponent.run(options);
-        verify(webView).loadUrl("javascript:MobileReport.configure({}).run({\"uri\": \"/my/uri\",\"params\": {}})");
+        verify(webView).loadUrl("javascript:MobileReport.configure({ \"auth\": {\"username\": \"user\",\"password\": \"1234\",\"organization\": \"org\"}, \"diagonal\": 10.0 }).run({\"uri\": \"/my/uri\",\"params\": {}})");
     }
 
     @Test

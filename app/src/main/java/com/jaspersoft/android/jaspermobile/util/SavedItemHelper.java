@@ -33,6 +33,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.SavedItemResource;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
@@ -78,9 +80,26 @@ public class SavedItemHelper {
         }
     }
 
+    public void deleteUnsavedItems() {
+        String selection = SavedItemsTable.DOWNLOADED + " =?";
+        Cursor cursor = context.getContentResolver().query(MobileDbProvider.SAVED_ITEMS_CONTENT_URI, new String[]{SavedItemsTable._ID, SavedItemsTable.FILE_PATH}, selection, new String[]{"0"}, null);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    int id = cursor.getInt(cursor.getColumnIndex(SavedItemsTable._ID));
+                    File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
+                    deleteSavedItem(file, id);
+                } while (cursor.moveToNext());
+            }
+
+            cursor.close();
+        }
+    }
+
     public boolean itemExist(String name, String format) {
         String selection = SavedItemsTable.NAME + " =? AND " + SavedItemsTable.FILE_FORMAT + " =?";
-        Cursor cursor = context.getContentResolver().query(MobileDbProvider.SAVED_ITEMS_CONTENT_URI, new String[]{"_id"}, selection, new String[]{name, format}, null);
+        Cursor cursor = context.getContentResolver().query(MobileDbProvider.SAVED_ITEMS_CONTENT_URI, new String[]{SavedItemsTable._ID}, selection, new String[]{name, format}, null);
         boolean itemExist = cursor != null && cursor.getCount() != 0;
         if (cursor != null) {
             cursor.close();

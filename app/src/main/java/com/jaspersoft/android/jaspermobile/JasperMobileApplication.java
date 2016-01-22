@@ -32,6 +32,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
+import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -41,6 +42,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.utils.L;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EApplication;
 
 import roboguice.RoboGuice;
@@ -62,6 +64,8 @@ public class JasperMobileApplication extends MultiDexApplication {
     JsRestClient jsRestClient;
     @Inject
     Analytics analytics;
+    @Bean
+    SavedItemHelper savedItemHelper;
 
     @Override
     public void onCreate() {
@@ -70,6 +74,7 @@ public class JasperMobileApplication extends MultiDexApplication {
 
         initLegacyJsRestClient();
 
+        savedItemHelper.deleteUnsavedItems();
         forceDatabaseUpdate();
 
         if (BuildConfig.DEBUG) {

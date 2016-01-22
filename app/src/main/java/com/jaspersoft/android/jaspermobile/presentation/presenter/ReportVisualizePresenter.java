@@ -118,6 +118,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         listenForMultiPageLoadEvent(visualize);
         listenForExternalPageEvent(visualize);
         listenForExecutionEvent(visualize);
+        listenForWindowErrorEvent(visualize);
     }
 
     private void listenForLoadStartEvent(VisualizeComponent visualize) {
@@ -162,7 +163,6 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         );
     }
 
-
     private void listenForLoadErrorEvent(VisualizeViewModel visualize) {
         subscribeToEvent(
                 visualize.visualizeEvents()
@@ -176,6 +176,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         }))
         );
     }
+
 
     private void listenForReportCompleteEvent(VisualizeViewModel visualize) {
         subscribeToEvent(
@@ -271,6 +272,19 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                             @Override
                             public void onNext(ExecutionReferenceClickEvent event) {
                                 mView.executeReport(event.getReportData());
+                            }
+                        }))
+        );
+    }
+
+    private void listenForWindowErrorEvent(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .windowErrorEvent()
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ErrorEvent>() {
+                            @Override
+                            public void onNext(ErrorEvent event) {
+                                mView.showError(event.getErrorMessage());
                             }
                         }))
         );

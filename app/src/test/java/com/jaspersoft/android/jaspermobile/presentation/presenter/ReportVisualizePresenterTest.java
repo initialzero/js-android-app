@@ -253,6 +253,16 @@ public class ReportVisualizePresenterTest {
     }
 
     @Test
+    public void on_init_should_subscribe_to_window_error_event() throws Exception {
+        when(mVisualizeEvents.windowErrorEvent()).thenReturn(Observable.just(new ErrorEvent("error")));
+
+        mReportVisualizePresenter.init();
+
+        verify(mView).showError("error");
+        verify(mView).hideLoading();
+    }
+
+    @Test
     public void on_init_should_subscribe_to_webview_on_progress_event() throws Exception {
         when(mWebViewEvents.progressChangedEvent()).thenReturn(Observable.just(10));
 

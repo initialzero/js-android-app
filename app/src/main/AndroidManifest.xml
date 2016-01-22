@@ -96,7 +96,7 @@
                 android:value=".activities.navigation.NavigationActivity_" />
         </activity>
 
-        <activity android:name=".activities.viewer.html.report.ReportCastActivity_"></activity>
+        <activity android:name=".activities.viewer.html.report.ReportCastActivity_"/>
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity

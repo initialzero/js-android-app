@@ -55,7 +55,7 @@
             android:layout_alignParentRight="true"
             android:background="@null"
             android:padding="12dp"
-            android:src="@drawable/ic_menu_close" />
+            android:src="@drawable/ic_menu_stop" />
 
     </RelativeLayout>
 

@@ -295,7 +295,6 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         NotificationCompat.Builder castNotificationBuilder = new NotificationCompat.Builder(this);
 
         Intent intent = NavigationActivity_.intent(this).get();
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         String title;
 
@@ -308,6 +307,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                 break;
             case LOADING:
                 title = getString(R.string.r_pd_running_report_msg);
+                intent = ReportCastActivity_.intent(this).resource(mCurrentResource).get();
                 break;
             case PRESENTING:
                 title = getCurrentResourceLabel();
@@ -323,11 +323,13 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                 title = getString(R.string.r_pd_initializing_msg);
         }
 
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
         castNotificationBuilder.setSmallIcon(R.drawable.im_logo_single)
                 .setWhen(0)
                 .setContentTitle(title)
                 .setContentText(mCastDeviceName)
-                .setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                .setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
 
         castNotificationBuilder.addAction(R.drawable.ic_menu_close, "", PendingIntent.getBroadcast(this, 0, new Intent(getString(R.string.resource_presentation_stop_intent)), 0));
 

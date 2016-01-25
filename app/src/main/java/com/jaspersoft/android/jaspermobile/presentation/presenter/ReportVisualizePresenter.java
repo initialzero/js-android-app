@@ -50,8 +50,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     private final GetVisualizeTemplateCase mGetVisualizeTemplateCase;
     private final GetJsonParamsCase mGetJsonParamsCase;
 
-    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-
+    private CompositeSubscription mCompositeSubscription;
     private ReportVisualizeView mView;
 
     @Inject
@@ -176,6 +175,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     @Override
     public void resume() {
+        mCompositeSubscription = new CompositeSubscription();
         subscribeToVisualizeEvents();
         subscribeToWebViewEvents();
     }

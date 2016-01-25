@@ -25,9 +25,11 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:id="@+id/saveAction"
-        android:title="@string/sp_save_btn"
-        android:icon="@drawable/ic_menu_save"
-        app:showAsAction="ifRoom"/>
+        android:id="@+id/newSchedule"
+        android:icon="@drawable/ic_menu_schedule"
+        android:title="@string/ri_schedule"
+        app:showAsAction="ifRoom" />
+
 </menu>

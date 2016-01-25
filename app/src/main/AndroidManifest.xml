@@ -141,6 +141,9 @@
             android:windowSoftInputMode="stateHidden" />
 
         <activity
+            android:name=".activities.schedule.ScheduleActivity_"/>
+
+        <activity
             android:name=".activities.file.FileViewerActivity_"/>
 
         <activity

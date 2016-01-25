@@ -51,4 +51,9 @@ public class SettingsActivity extends RoboToolbarActivity {
         }
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_ss);
+    }
+
 }

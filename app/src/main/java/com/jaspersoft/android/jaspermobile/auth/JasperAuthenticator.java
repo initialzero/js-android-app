@@ -40,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.network.DefaultUrlConnectionClient;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager_;
 import com.jaspersoft.android.retrofit.sdk.rest.JsRestClient2;
 import com.jaspersoft.android.retrofit.sdk.rest.response.LoginResponse;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
@@ -47,6 +48,7 @@ import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
 import com.jaspersoft.android.sdk.client.oxm.server.ServerInfo;
 
 import retrofit.RetrofitError;
+import rx.Observable;
 import timber.log.Timber;
 
 /**
@@ -61,10 +63,7 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
     public JasperAuthenticator(Context context) {
         super(context);
         mContext = context;
-
-        String secret = mContext.getString(R.string.password_salt_key);
-        mPasswordManager = PasswordManager.init(mContext, secret);
-
+        mPasswordManager = PasswordManager_.getInstance_(mContext);
         Timber.tag(JasperAuthenticator.class.getSimpleName());
     }
 
@@ -97,14 +96,8 @@ public class JasperAuthenticator extends AbstractAccountAuthenticator {
             return result;
         }
 
-        String encrypted = accountManager.getPassword(account);
-        Timber.d(String.format("Encrypted Password for account[%s] : %s", account.name, encrypted));
-
-        String password = null;
-        if (!TextUtils.isEmpty(encrypted)) {
-            password = mPasswordManager.decrypt(encrypted);
-            Timber.d(String.format("Password for account[%s] : %s", account.name, password));
-        }
+        Observable<String> getPasswordOperation = mPasswordManager.get(account);
+        String password = getPasswordOperation.toBlocking().firstOrDefault(null);
 
         if (TextUtils.isEmpty(password)) {
             return createErrorBundle(JasperAccountManager.TokenException.NO_PASSWORD_ERROR, mContext.getString(R.string.r_error_incorrect_credentials));

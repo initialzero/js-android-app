@@ -44,14 +44,14 @@ public class TimeoutWebViewClientListener implements JasperWebViewClientListener
         mDelegate = webViewClientListener;
     }
 
-    public static JasperWebViewClientListener wrap(JasperWebViewClientListener webViewClientListener) {
+    public static TimeoutWebViewClientListener wrap(JasperWebViewClientListener webViewClientListener) {
         if (webViewClientListener == null) {
             throw new IllegalArgumentException("Delegate listener should not be null");
         }
         return new TimeoutWebViewClientListener(webViewClientListener);
     }
 
-    public TimeoutWebViewClientListener withTimeout(int timeout) {
+    public TimeoutWebViewClientListener withTimeout(long timeout) {
         mTimeout = timeout;
         return this;
     }

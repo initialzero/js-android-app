@@ -40,7 +40,7 @@ public class CookieManagerFactory {
      *
      * @param context required for initialization of {@link android.webkit.CookieSyncManager} instamce
      */
-    public static Observable<Boolean> syncCookies(Context context) {
+    public static Observable<Void> syncCookies(Context context) {
         if (context == null) {
             throw new IllegalArgumentException("Context is null");
         }

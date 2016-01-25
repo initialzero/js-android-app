@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.util.server;
 
 import android.accounts.Account;
+import android.provider.Settings;
 
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
@@ -44,13 +45,18 @@ import static org.junit.Assert.assertThat;
  * @since 2.1
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, sdk = 21)
 public class ServerInfoTest {
 
     AccountServerData fakeServerData;
 
     @Before
     public void setup() {
+        Settings.Secure.putString(
+                RuntimeEnvironment.application.getContentResolver(),
+                Settings.Secure.ANDROID_ID,
+                "ROBOLECTRICYOUAREBAD"
+        );
         fakeServerData = new AccountServerData()
                 .setAlias("alias")
                 .setServerUrl("")

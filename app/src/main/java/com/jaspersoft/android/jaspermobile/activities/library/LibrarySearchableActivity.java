@@ -59,4 +59,9 @@ public class LibrarySearchableActivity extends RoboSpiceActivity {
                     .commit();
         }
     }
+
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_se_s);
+    }
 }

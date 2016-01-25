@@ -41,6 +41,7 @@ apply from: 'resources.gradle'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://jitpack.io" }
 }
 
 android {
@@ -53,19 +54,13 @@ android {
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
 
-        versionCode 2_02_01_000
-        versionName "2.2.1"
+        versionCode 2_02_02_000
+        versionName "2.2.2"
 
         if (project.hasProperty('GOOGLE_ANALYTICS_TRACKING_ID')) {
             resValue "string", "google_analytics_tracking_id", GOOGLE_ANALYTICS_TRACKING_ID
         } else {
             resValue "string", "google_analytics_tracking_id", "SET_YOUR_ANALYTIC_TRACKING_ID"
-        }
-
-        if (project.hasProperty('PASSWORD_SALT_KEY')) {
-            resValue "string", "password_salt_key", PASSWORD_SALT_KEY
-        } else {
-            resValue "string", "password_salt_key", "salt"
         }
     }
     if (project.hasProperty('JMA_STORE_FILE')) {
@@ -158,6 +153,10 @@ android {
     dependencies {
         provided project(':database-generator')
         compile project(':sdk')
+
+        compile("com.github.orhanobut:hawk:1.20") {
+            transitive = false
+        }
 
         compile 'org.roboguice:roboguice:3.0.1'
         provided 'org.roboguice:roboblender:3.0.1'

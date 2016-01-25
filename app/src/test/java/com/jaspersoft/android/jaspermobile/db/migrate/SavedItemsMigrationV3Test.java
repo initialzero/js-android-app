@@ -22,13 +22,12 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate.v3;
+package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
 import com.jaspersoft.android.jaspermobile.test.support.db.ResourceDatabase;
@@ -60,7 +59,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
         constants = BuildConfig.class,
         sdk = 21
 )
-public class SavedItemsMigrationTest {
+public class SavedItemsMigrationV3Test {
     private static final String SHARED_DIR = "com.jaspersoft.account.none";
 
     private ResourceDatabase resourceDatabase;

@@ -101,6 +101,17 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
 
     @JavascriptInterface
     @Override
+    public void onAuthError(final String error) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedCallback.onAuthError(error);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @Override
     public void onReportCompleted(final String status, final int pages, final String errorMessage) {
         handleCallback(new Runnable() {
             @Override

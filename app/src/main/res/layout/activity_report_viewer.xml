@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -23,8 +22,7 @@
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -39,29 +37,42 @@
 
     <com.jaspersoft.android.jaspermobile.widget.JSWebView
         android:id="@+id/webView"
-        android:visibility="invisible"
-        android:layout_below="@id/progressBar"
-        android:layout_above="@+id/paginationControl"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_above="@+id/paginationControl"
+        android:layout_below="@id/progressBar"
+        android:visibility="invisible" />
 
-    <TextView
-        android:id="@android:id/empty"
-        tools:text="@string/rv_error_empty_report"
-        android:padding="8dp"
-        android:textColor="@android:color/black"
-        android:visibility="gone"
-        android:layout_centerInParent="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:id="@android:id/empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:textColor="@android:color/black"
+            tools:text="@string/rv_error_empty_report"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/reload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rv_dialog_reload"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView_
         android:id="@+id/paginationControl"
-        android:visibility="gone"
-        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentBottom="true"
         android:background="#454850"
         android:padding="4dp"
-        />
+        android:visibility="gone" />
+
 </RelativeLayout>

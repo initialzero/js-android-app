@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate.v4;
+package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -30,9 +30,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.Settings;
 import android.util.Base64;
-
-import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 import java.io.UnsupportedEncodingException;
 import java.security.spec.AlgorithmParameterSpec;
@@ -49,21 +46,17 @@ import javax.crypto.spec.PBEParameterSpec;
  * @author Tom Koptel
  * @since 2.1.2
  */
-public final class MigrationV4 implements Migration {
+final class MigrationV4 implements Migration {
+    private static final String SECRET = "9f8a789dd74aa260a583ab75fa33ef94c";
+    private static final String UTF8 = "utf-8";
+    private static int ITERATION_COUNT = 1000;
+
     private final Context mContext;
     private final AccountManager accountManager;
-
-    private static int ITERATION_COUNT = 1000;
-    private  static final String UTF8 = "utf-8";
-    private final char[] mSecret;
-
 
     public MigrationV4(Context context) {
         mContext = context;
         accountManager = AccountManager.get(context);
-
-        String salt = mContext.getResources().getString(R.string.password_salt_key);
-        mSecret = salt.toCharArray();
     }
 
     @Override
@@ -85,7 +78,7 @@ public final class MigrationV4 implements Migration {
             final byte[] bytes = value != null ? value.getBytes(UTF8) : new byte[0];
 
             SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
-            KeySpec keySpec = new PBEKeySpec(mSecret);
+            KeySpec keySpec = new PBEKeySpec(SECRET.toCharArray());
             SecretKey key = keyFactory.generateSecret(keySpec);
 
             Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES");

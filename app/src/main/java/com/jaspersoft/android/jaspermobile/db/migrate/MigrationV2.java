@@ -22,17 +22,15 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.db.migrate.v2;
+package com.jaspersoft.android.jaspermobile.db.migrate;
 
 import android.database.sqlite.SQLiteDatabase;
-
-import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
-public class MigrationV2 implements Migration {
+final class MigrationV2 implements Migration {
     @Override
     public void migrate(SQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS report_options;");

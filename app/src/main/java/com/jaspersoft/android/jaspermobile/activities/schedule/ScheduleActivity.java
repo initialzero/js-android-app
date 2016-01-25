@@ -37,16 +37,25 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OutputFormatDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.ValueInputDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
 import com.jaspersoft.android.jaspermobile.widget.DateTimeView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
+import com.jaspersoft.android.sdk.client.oxm.report.schedul.JobSource;
 import com.jaspersoft.android.sdk.network.AuthorizedClient;
 import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.network.SpringCredentials;
+import com.jaspersoft.android.sdk.service.data.schedule.DeferredStartType;
+import com.jaspersoft.android.sdk.service.data.schedule.ImmediateStartType;
 import com.jaspersoft.android.sdk.service.data.schedule.JobData;
+import com.jaspersoft.android.sdk.service.data.schedule.JobForm;
+import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
+import com.jaspersoft.android.sdk.service.data.schedule.JobSimpleTrigger;
+import com.jaspersoft.android.sdk.service.data.schedule.JobStartType;
+import com.jaspersoft.android.sdk.service.data.schedule.JobTrigger;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 
 import org.androidannotations.annotations.AfterViews;
@@ -60,8 +69,11 @@ import org.androidannotations.annotations.ViewById;
 
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.TimeZone;
 
 import rx.Subscriber;
 import rx.Subscription;
@@ -73,7 +85,11 @@ import rx.subscriptions.CompositeSubscription;
  */
 @OptionsMenu(R.menu.report_schedule)
 @EActivity(R.layout.activity_schedule)
-public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFragment.DateDialogClickListener, OutputFormatDialogFragment.OutputFormatClickListener {
+public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFragment.DateDialogClickListener,
+        OutputFormatDialogFragment.OutputFormatClickListener, ValueInputDialogFragment.ValueDialogCallback {
+
+    private final static int JOB_NAME_CODE = 563;
+    private final static int FILE_NAME_CODE = 251;
 
     @Extra
     protected JasperResource jasperResource;
@@ -82,9 +98,9 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     protected JsRestClient jsRestClient;
 
     @ViewById(R.id.scheduleName)
-    EditText jobName;
+    TextView jobName;
     @ViewById(R.id.fileName)
-    EditText fileName;
+    TextView fileName;
     @ViewById(R.id.ic_boolean_title)
     TextView runImmediatelyTitle;
     @ViewById(R.id.ic_boolean)
@@ -95,6 +111,7 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     TextView outputFormat;
 
     private Calendar mDate;
+    private ArrayList<JobOutputFormat> mFormats;
     private RxReportScheduleService mService;
     private CompositeSubscription mCompositeSubscription;
 
@@ -102,6 +119,9 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initRestClient();
+
+        mFormats = new ArrayList<>();
+        mFormats.add(JobOutputFormat.PDF);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -130,6 +150,7 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
 
     @AfterViews
     protected void init() {
+        jobName.setText(R.string.sch_new);
         fileName.setText(jasperResource.getLabel());
         runImmediatelyTitle.setText(getString(R.string.sch_run_immediately));
 
@@ -138,7 +159,7 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
         scheduleDate.setLabel(getString(R.string.sch_start_date));
         scheduleDate.setDateTimeClickListener(new ScheduleDateClickListener());
 
-        outputFormat.setText("PDF");
+        outputFormat.setText(getSupportedFormatsTitles());
     }
 
     @Override
@@ -151,7 +172,7 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     @OptionsItem(R.id.newSchedule)
     protected void schedule() {
         subscribe(
-                mService.createJob(null)
+                mService.createJob(createJobForm())
                         .compose(RxTransformers.<JobData>applySchedulers())
                         .subscribe(new Subscriber<JobData>() {
                             @Override
@@ -177,9 +198,30 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
         runImmediately.performClick();
     }
 
-    @Click(R.id.outputFormat)
+    @Click(R.id.scheduleNameContainer)
+    protected void scheduleNameClick() {
+        ValueInputDialogFragment.createBuilder(getSupportFragmentManager())
+                .setLabel(getString(R.string.sch_job_name))
+                .setValue(jobName.getText().toString())
+                .setCancelableOnTouchOutside(true)
+                .setRequestCode(JOB_NAME_CODE)
+                .show();
+    }
+
+    @Click(R.id.fileNameContainer)
+    protected void fileNameClick() {
+        ValueInputDialogFragment.createBuilder(getSupportFragmentManager())
+                .setLabel(getString(R.string.sch_file_name))
+                .setValue(fileName.getText().toString())
+                .setCancelableOnTouchOutside(true)
+                .setRequestCode(FILE_NAME_CODE)
+                .show();
+    }
+
+    @Click(R.id.outputFormatContainer)
     protected void selectOutputFormat() {
         OutputFormatDialogFragment.createBuilder(getSupportFragmentManager())
+                .setSelectedFormats(mFormats)
                 .show();
     }
 
@@ -196,12 +238,50 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     }
 
     @Override
-    public void onOutputFormatSelected(String outputFormatTitles) {
-        outputFormat.setText(outputFormatTitles);
+    public void onTextValueEntered(int requestCode, String name) {
+        if (requestCode == JOB_NAME_CODE) {
+            jobName.setText(name);
+        } else {
+            fileName.setText(name);
+        }
+    }
+
+    @Override
+    public void onOutputFormatSelected(ArrayList<JobOutputFormat> outputFormats) {
+        mFormats = outputFormats;
+        outputFormat.setText(getSupportedFormatsTitles());
     }
 
     private void subscribe(Subscription subscription) {
         mCompositeSubscription.add(subscription);
+    }
+
+    private String getSupportedFormatsTitles() {
+        return mFormats.isEmpty() ? InputControlWrapper.NOTHING_SUBSTITUTE_LABEL : TextUtils.join(", ", mFormats);
+    }
+
+    private JobForm createJobForm() {
+        JobStartType jobStartType;
+        if (runImmediately.isChecked()) {
+            jobStartType = new ImmediateStartType();
+        } else {
+            jobStartType = new DeferredStartType(mDate.getTime());
+        }
+
+        JobTrigger jobTrigger = new JobSimpleTrigger.Builder()
+                .withOccurrenceCount(1)
+                .withTimeZone(TimeZone.getDefault())
+                .withStartType(jobStartType)
+                .build();
+
+        return new JobForm.Builder()
+                .withBaseOutputFilename(fileName.getText().toString())
+                .withLabel(jobName.getText().toString())
+                .withTrigger(jobTrigger)
+                .withSource(jasperResource.getId())
+                .withRepositoryDestination("/public/Samples/Reports")
+                .addOutputFormats(mFormats)
+                .build();
     }
 
     private class ScheduleDateClickListener implements DateTimeView.DateTimeClickListener {

@@ -35,6 +35,7 @@ import android.text.TextUtils;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
+import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +46,10 @@ import java.util.List;
  */
 public class OutputFormatDialogFragment extends BaseDialogFragment implements DialogInterface.OnMultiChoiceClickListener {
 
-    private List<String> mSelected;
-    private CharSequence[] options;
+    private final static String FORMATS_ARG = "formats";
+
+    private List<JobOutputFormat> supportedFormats;
+    private ArrayList<JobOutputFormat> selectedFormats;
 
     @NonNull
     @Override
@@ -55,16 +58,14 @@ public class OutputFormatDialogFragment extends BaseDialogFragment implements Di
 
         builder.setTitle(R.string.s_ab_sort_by);
 
-        options = getContext().getResources().getStringArray(R.array.sch_output_formats);
-        mSelected = new ArrayList<>();
+        createSupportedJobOutputFormatsList();
 
-        builder.setMultiChoiceItems(options, null, this);
+        builder.setMultiChoiceItems(getFormatsTitles(), getSelected(), this);
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (mDialogListener != null) {
-                    String outputFormatTitles = mSelected.isEmpty() ? InputControlWrapper.NOTHING_SUBSTITUTE_LABEL : TextUtils.join(", ", mSelected);
-                    ((OutputFormatClickListener) mDialogListener).onOutputFormatSelected(outputFormatTitles);
+                    ((OutputFormatClickListener) mDialogListener).onOutputFormatSelected(selectedFormats);
                 }
             }
         });
@@ -74,6 +75,18 @@ public class OutputFormatDialogFragment extends BaseDialogFragment implements Di
         Dialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(true);
         return dialog;
+    }
+
+    @Override
+    protected void initDialogParams() {
+        super.initDialogParams();
+
+        Bundle args = getArguments();
+        if (args != null) {
+            if (args.containsKey(FORMATS_ARG)) {
+                selectedFormats = (ArrayList<JobOutputFormat>) args.getSerializable(FORMATS_ARG);
+            }
+        }
     }
 
     @Override
@@ -87,14 +100,44 @@ public class OutputFormatDialogFragment extends BaseDialogFragment implements Di
 
     @Override
     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-        if (which >= options.length) return;
+        if (which >= supportedFormats.size()) return;
 
-        String item = options[which].toString();
+        JobOutputFormat item = supportedFormats.get(which);
         if (isChecked) {
-            mSelected.add(item);
+            selectedFormats.add(item);
         } else {
-            mSelected.remove(item);
+            selectedFormats.remove(item);
         }
+    }
+
+    private void createSupportedJobOutputFormatsList() {
+        supportedFormats = new ArrayList<>();
+        supportedFormats.add(JobOutputFormat.CSV);
+        supportedFormats.add(JobOutputFormat.DOCX);
+        supportedFormats.add(JobOutputFormat.HTML);
+        supportedFormats.add(JobOutputFormat.ODS);
+        supportedFormats.add(JobOutputFormat.ODT);
+        supportedFormats.add(JobOutputFormat.PDF);
+        supportedFormats.add(JobOutputFormat.RTF);
+        supportedFormats.add(JobOutputFormat.XLS);
+        supportedFormats.add(JobOutputFormat.XLSX);
+    }
+
+    private boolean[] getSelected() {
+        boolean[] selected = new boolean[supportedFormats.size()];
+        for (JobOutputFormat selectedFormat : selectedFormats) {
+            int index = supportedFormats.indexOf(selectedFormat);
+            selected[index] = true;
+        }
+        return selected;
+    }
+
+    private CharSequence[] getFormatsTitles() {
+        CharSequence[] titles = new CharSequence[supportedFormats.size()];
+        for (int i = 0; i < supportedFormats.size(); i++) {
+            titles[i] = supportedFormats.get(i).name();
+        }
+        return titles;
     }
 
     //---------------------------------------------------------------------
@@ -105,6 +148,11 @@ public class OutputFormatDialogFragment extends BaseDialogFragment implements Di
 
         public OutputFormatFragmentBuilder(FragmentManager fragmentManager) {
             super(fragmentManager);
+        }
+
+        public OutputFormatFragmentBuilder setSelectedFormats(ArrayList<JobOutputFormat> formats) {
+            args.putSerializable(FORMATS_ARG, formats);
+            return this;
         }
 
         @Override
@@ -118,6 +166,6 @@ public class OutputFormatDialogFragment extends BaseDialogFragment implements Di
     //---------------------------------------------------------------------
 
     public interface OutputFormatClickListener extends DialogClickListener {
-        void onOutputFormatSelected(String outputFormatTitles);
+        void onOutputFormatSelected(ArrayList<JobOutputFormat> outputFormatList);
     }
 }

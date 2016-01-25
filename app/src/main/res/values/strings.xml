@@ -165,20 +165,6 @@
     <string name="sch_file_name" translatable="false">Output file name</string>
     <string name="sch_run_immediately" translatable="false">Run immediately</string>
     <string name="sch_start_date" translatable="false">Schedule start date</string>
-    <string-array name="sch_output_formats">
-        <item>CSV</item>
-        <item>DOCX</item>
-        <item>Excel</item>
-        <item>Excel (Paginated)</item>
-        <item>HTML</item>
-        <item>ODS</item>
-        <item>ODT</item>
-        <item>PDF</item>
-        <item>PPTX</item>
-        <item>RTF</item>
-        <item>XLSX</item>
-        <item>XLSX (Paginated)</item>
-    </string-array>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

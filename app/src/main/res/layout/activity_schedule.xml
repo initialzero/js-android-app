@@ -29,41 +29,47 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/scheduleNameContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
         android:orientation="vertical"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
         <TextView
-            style="@style/saveReport.reportName.label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/inputControl.label"
             android:text="@string/sch_job_name" />
 
-        <EditText
+        <TextView
             android:id="@+id/scheduleName"
-            style="@style/saveReport.reportName.input" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true" />
+
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/fileNameContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="16dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
         android:orientation="vertical"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
         <TextView
-            style="@style/saveReport.reportName.label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/inputControl.label"
             android:text="@string/sch_file_name" />
 
-        <EditText
+        <TextView
             android:id="@+id/fileName"
-            style="@style/saveReport.reportName.input" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true" />
+
     </LinearLayout>
 
     <include
@@ -71,7 +77,7 @@
         layout="@layout/item_input_control_boolean"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="8dp" />
 
     <com.jaspersoft.android.jaspermobile.widget.DateTimeView
         android:id="@+id/scheduleDate"
@@ -81,9 +87,11 @@
         android:visibility="gone" />
 
     <LinearLayout
+        android:id="@+id/outputFormatContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="16dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
         android:orientation="vertical"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
@@ -96,7 +104,6 @@
 
         <TextView
             android:id="@+id/outputFormat"
-            style="@style/Widget.JasperMobile.Spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>

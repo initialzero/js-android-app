@@ -36,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
@@ -113,6 +114,8 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     protected JasperResource jasperResource;
 
     @Inject
+    protected Analytics analytics;
+    @Inject
     protected JsRestClient jsRestClient;
 
     @Bean
@@ -177,6 +180,11 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
         mCompositeSubscription.unsubscribe();
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_sch);
+    }
+
     @OptionsItem(R.id.newSchedule)
     protected void schedule() {
         ProgressDialogFragment.builder(getSupportFragmentManager())
@@ -201,7 +209,7 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
                         .subscribe(new Subscriber<JobData>() {
                             @Override
                             public void onCompleted() {
-
+                                analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.SCHEDULED.getValue(), null);
                             }
 
                             @Override
@@ -346,8 +354,12 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
                 .withBaseOutputFilename(fileName.getText().toString())
                 .withLabel(jobName.getText().toString())
                 .withTrigger(jobTrigger)
-                .withSource(jasperResource.getId())
-                .withRepositoryDestination(outputPath.getText().toString())
+                .addSource()
+                .withUri(jasperResource.getId())
+                .done()
+                .addRepositoryDestination()
+                .withFolderUri(outputPath.getText().toString())
+                .done()
                 .addOutputFormats(mFormats)
                 .build();
     }

@@ -167,6 +167,7 @@
     <string name="sch_start_date" translatable="false">Schedule start date</string>
     <string name="sch_destination" translatable="false">Output destination path</string>
     <string name="sch_created" translatable="false">Job scheduled</string>
+    <string name="sch_jobs" translatable="false">Jobs</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

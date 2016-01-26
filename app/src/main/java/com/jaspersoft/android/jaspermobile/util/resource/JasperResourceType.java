@@ -10,5 +10,6 @@ public enum JasperResourceType {
     folder,
     saved_item,
     file,
+    job,
     undefined
 }

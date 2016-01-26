@@ -22,39 +22,21 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
-
-import android.content.Context;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
+package com.jaspersoft.android.jaspermobile.util.resource;
 
 /**
- * @author Tom Koptel
- * @since 1.9
+ * @author Andrew Tivodar
+ * @since 2.0
  */
-public class ResourceBinderFactory {
+public class JobResource extends JasperResource {
 
-    private Context mContext;
-
-    public ResourceBinderFactory(Context mContext) {
-        this.mContext = mContext;
+    public JobResource(String id, String label, String description) {
+        super(id, label, description);
     }
 
-    public ResourceBinder create(JasperResourceType type) {
-        switch (type) {
-            case folder:
-                return new FolderResourceBinder(mContext);
-            case dashboard:
-                return new DashboardResourceBinder(mContext);
-            case report:
-                return new ReportResourceBinder(mContext);
-            case saved_item:
-                return new SavedItemResourceBinder(mContext);
-            case file:
-                return new FileResourceBinder(mContext);
-            case job:
-                return new JobResourceBinder(mContext);
-            default:
-                return new UnknownResourceBinder(mContext);
-        }
+    @Override
+    public JasperResourceType getResourceType() {
+        return JasperResourceType.job;
     }
+
 }

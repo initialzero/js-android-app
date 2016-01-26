@@ -227,6 +227,12 @@ public class NavigationPanelLayout extends RelativeLayout {
         trackNavigateEvent(Analytics.EventLabel.RECENTLY_VIEWED.getValue());
     }
 
+    @Click(R.id.vg_jobs)
+    final void navigateToJobs(View newSelectItem) {
+        selectItem(newSelectItem);
+        trackNavigateEvent(Analytics.EventLabel.JOBS.getValue());
+    }
+
     @ItemClick(R.id.lv_accounts_menu)
     public void onAccountSelect(AccountServerData accountsData) {
         analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.CLICKED.getValue(), Analytics.EventLabel.SWITCH_ACCOUNT.getValue());

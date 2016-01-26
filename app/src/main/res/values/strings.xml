@@ -165,6 +165,8 @@
     <string name="sch_file_name" translatable="false">Output file name</string>
     <string name="sch_run_immediately" translatable="false">Run immediately</string>
     <string name="sch_start_date" translatable="false">Schedule start date</string>
+    <string name="sch_destination" translatable="false">Output destination path</string>
+    <string name="sch_created" translatable="false">Job scheduled</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

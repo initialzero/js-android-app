@@ -72,6 +72,28 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/outputPathContainer"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <TextView
+            style="@style/inputControl.label"
+            android:text="@string/sch_destination" />
+
+        <TextView
+            android:id="@+id/outputPath"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true" />
+
+    </LinearLayout>
+
     <include
         android:id="@+id/runImmediately"
         layout="@layout/item_input_control_boolean"

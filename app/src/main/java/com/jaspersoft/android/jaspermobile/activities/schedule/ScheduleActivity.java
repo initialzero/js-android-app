@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.activities.schedule;
 
+import android.accounts.Account;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
@@ -31,15 +33,21 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OutputFormatDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ValueInputDialogFragment;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
+import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
+import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.jaspermobile.widget.DateTimeView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
@@ -48,6 +56,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.schedul.JobSource;
 import com.jaspersoft.android.sdk.network.AuthorizedClient;
 import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.network.SpringCredentials;
+import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.data.schedule.DeferredStartType;
 import com.jaspersoft.android.sdk.service.data.schedule.ImmediateStartType;
 import com.jaspersoft.android.sdk.service.data.schedule.JobData;
@@ -56,12 +65,16 @@ import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
 import com.jaspersoft.android.sdk.service.data.schedule.JobSimpleTrigger;
 import com.jaspersoft.android.sdk.service.data.schedule.JobStartType;
 import com.jaspersoft.android.sdk.service.data.schedule.JobTrigger;
+import com.jaspersoft.android.sdk.service.data.schedule.RecurrenceIntervalUnit;
+import com.jaspersoft.android.sdk.service.rx.report.RxFiltersService;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
@@ -71,12 +84,15 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TimeZone;
 
+import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -90,12 +106,17 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
 
     private final static int JOB_NAME_CODE = 563;
     private final static int FILE_NAME_CODE = 251;
+    private final static int OUTPUT_PATH_CODE = 515;
+    private final static String DEFAULT_OUTPUT_PATH = "/public/Samples/Reports";
 
     @Extra
     protected JasperResource jasperResource;
 
     @Inject
     protected JsRestClient jsRestClient;
+
+    @Bean
+    protected PasswordManager mPasswordManager;
 
     @ViewById(R.id.scheduleName)
     TextView jobName;
@@ -109,15 +130,18 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     DateTimeView scheduleDate;
     @ViewById(R.id.outputFormat)
     TextView outputFormat;
+    @ViewById(R.id.outputPath)
+    TextView outputPath;
 
     private Calendar mDate;
     private ArrayList<JobOutputFormat> mFormats;
-    private RxReportScheduleService mService;
     private CompositeSubscription mCompositeSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mCompositeSubscription = new CompositeSubscription();
+
         initRestClient();
 
         mFormats = new ArrayList<>();
@@ -129,29 +153,12 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
         }
     }
 
-    private void initRestClient() {
-        JsServerProfile serverProfile = jsRestClient.getServerProfile();
-        Server server = Server.builder()
-                .withBaseUrl(serverProfile.getServerUrl())
-                .build();
-        SpringCredentials credentials = SpringCredentials.builder()
-                .withOrganization(serverProfile.getOrganization())
-                .withUsername(serverProfile.getUsername())
-                .withPassword(serverProfile.getPassword())
-                .build();
-
-        AuthorizedClient client = server.newClient(credentials)
-                .withCookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER))
-                .create();
-        mService = RxReportScheduleService.newService(client);
-
-        mCompositeSubscription = new CompositeSubscription();
-    }
-
     @AfterViews
     protected void init() {
         jobName.setText(R.string.sch_new);
-        fileName.setText(jasperResource.getLabel());
+
+        String outputFileName = jasperResource.getLabel().replace(" ", "_");
+        fileName.setText(outputFileName);
         runImmediatelyTitle.setText(getString(R.string.sch_run_immediately));
 
         runImmediately.setChecked(true);
@@ -160,6 +167,7 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
         scheduleDate.setDateTimeClickListener(new ScheduleDateClickListener());
 
         outputFormat.setText(getSupportedFormatsTitles());
+        outputPath.setText(DEFAULT_OUTPUT_PATH);
     }
 
     @Override
@@ -171,8 +179,24 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
 
     @OptionsItem(R.id.newSchedule)
     protected void schedule() {
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        mCompositeSubscription.unsubscribe();
+                        mCompositeSubscription = new CompositeSubscription();
+                    }
+                })
+                .show();
         subscribe(
-                mService.createJob(createJobForm())
+                initRestClient()
+                        .flatMap(new Func1<RxReportScheduleService, Observable<JobData>>() {
+                            @Override
+                            public Observable<JobData> call(RxReportScheduleService rxReportScheduleService) {
+                                return rxReportScheduleService.createJob(createJobForm());
+                            }
+                        })
                         .compose(RxTransformers.<JobData>applySchedulers())
                         .subscribe(new Subscriber<JobData>() {
                             @Override
@@ -182,12 +206,15 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
 
                             @Override
                             public void onError(Throwable e) {
-
+                                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                                // TODO: handle error
                             }
 
                             @Override
                             public void onNext(JobData data) {
-
+                                ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                                Toast.makeText(ScheduleActivity.this, R.string.sch_created, Toast.LENGTH_SHORT).show();
+                                finish();
                             }
                         })
         );
@@ -225,6 +252,16 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
                 .show();
     }
 
+    @Click(R.id.outputPathContainer)
+    protected void outputPathClick() {
+        ValueInputDialogFragment.createBuilder(getSupportFragmentManager())
+                .setLabel(getString(R.string.sch_destination))
+                .setValue(outputPath.getText().toString())
+                .setCancelableOnTouchOutside(true)
+                .setRequestCode(OUTPUT_PATH_CODE)
+                .show();
+    }
+
     @CheckedChange(R.id.ic_boolean)
     protected void checkBoxCheckedChange(boolean checked) {
         runImmediately.setChecked(checked);
@@ -239,10 +276,16 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
 
     @Override
     public void onTextValueEntered(int requestCode, String name) {
-        if (requestCode == JOB_NAME_CODE) {
-            jobName.setText(name);
-        } else {
-            fileName.setText(name);
+        switch (requestCode) {
+            case JOB_NAME_CODE:
+                jobName.setText(name);
+                break;
+            case FILE_NAME_CODE:
+                fileName.setText(name);
+                break;
+            case OUTPUT_PATH_CODE:
+                outputPath.setText(name);
+                break;
         }
     }
 
@@ -260,6 +303,29 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
         return mFormats.isEmpty() ? InputControlWrapper.NOTHING_SUBSTITUTE_LABEL : TextUtils.join(", ", mFormats);
     }
 
+    private Observable<RxReportScheduleService> initRestClient() {
+        Account account = JasperAccountManager.get(this).getActiveAccount();
+        return mPasswordManager.get(account).map(new Func1<String, RxReportScheduleService>() {
+            @Override
+            public RxReportScheduleService call(String password) {
+                JsServerProfile serverProfile = jsRestClient.getServerProfile();
+                Server server = Server.builder()
+                        .withBaseUrl(serverProfile.getServerUrl() + "/")
+                        .build();
+                SpringCredentials credentials = SpringCredentials.builder()
+                        .withOrganization(serverProfile.getOrganization())
+                        .withUsername(serverProfile.getUsername())
+                        .withPassword(password)
+                        .build();
+
+                AuthorizedClient client = server.newClient(credentials)
+                        .withCookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER))
+                        .create();
+                return RxReportScheduleService.newService(client);
+            }
+        });
+    }
+
     private JobForm createJobForm() {
         JobStartType jobStartType;
         if (runImmediately.isChecked()) {
@@ -270,6 +336,8 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
 
         JobTrigger jobTrigger = new JobSimpleTrigger.Builder()
                 .withOccurrenceCount(1)
+                .withRecurrenceIntervalUnit(RecurrenceIntervalUnit.WEEK)
+                .withRecurrenceInterval(0)
                 .withTimeZone(TimeZone.getDefault())
                 .withStartType(jobStartType)
                 .build();
@@ -279,7 +347,7 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
                 .withLabel(jobName.getText().toString())
                 .withTrigger(jobTrigger)
                 .withSource(jasperResource.getId())
-                .withRepositoryDestination("/public/Samples/Reports")
+                .withRepositoryDestination(outputPath.getText().toString())
                 .addOutputFormats(mFormats)
                 .build();
     }

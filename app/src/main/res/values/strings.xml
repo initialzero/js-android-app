@@ -137,6 +137,7 @@
     <string name="ro_show" translatable="false">Saved values</string>
 
     <!-- Resource Info Activity -->
+    <string name="ri_schedule" translatable="false">Schedule</string>
     <string name="ri_report_option_title" translatable="false">Report options:</string>
     <string name="ri_type_title" translatable="false">Type:</string>
     <string name="ri_label_title" translatable="false">Label:</string>
@@ -157,6 +158,15 @@
     <string name="rp_read_delete" translatable="false">Read-Only, Delete</string>
     <string name="rp_read_write_delete" translatable="false">Modify, Delete</string>
     <string name="rp_execute_only" translatable="false">Execute only</string>
+
+    <!-- Schedule -->
+    <string name="sch_new" translatable="false">New schedule</string>
+    <string name="sch_job_name" translatable="false">Scheduled Job Name</string>
+    <string name="sch_file_name" translatable="false">Output file name</string>
+    <string name="sch_run_immediately" translatable="false">Run immediately</string>
+    <string name="sch_start_date" translatable="false">Schedule start date</string>
+    <string name="sch_destination" translatable="false">Output destination path</string>
+    <string name="sch_created" translatable="false">Job scheduled</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

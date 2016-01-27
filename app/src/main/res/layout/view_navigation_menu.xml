@@ -182,7 +182,7 @@
                 android:id="@+id/iv_jobs"
                 android:layout_width="24dp"
                 android:layout_height="wrap_content"
-                android:src="@drawable/bg_navigation_icon_recently" />
+                android:src="@drawable/bg_navigation_icon_jobs" />
 
             <TextView
                 android:id="@+id/tv_jobs"

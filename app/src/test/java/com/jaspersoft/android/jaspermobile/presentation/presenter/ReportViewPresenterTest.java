@@ -57,6 +57,7 @@ public class ReportViewPresenterTest {
     private FakeRunReportCase mFakeRunReportCase;
     private FakeUpdateReportCase mFakeUpdateReportCase;
     private FakeReloadReportCase mFakeReloadReportCase;
+    private FakeFlushReportCachesCase mFakeFlushReportCachesCase;
 
     private ReportPageState mReportPageState;
 
@@ -73,7 +74,8 @@ public class ReportViewPresenterTest {
                 mFakeGetReportPageContentCase,
                 mFakeRunReportCase,
                 mFakeUpdateReportCase,
-                mFakeReloadReportCase
+                mFakeReloadReportCase,
+                mFakeFlushReportCachesCase
         );
         presenter.injectView(mView);
     }
@@ -183,6 +185,7 @@ public class ReportViewPresenterTest {
         verify(mFakeRunReportCase).unsubscribe();
         verify(mFakeUpdateReportCase).unsubscribe();
         verify(mFakeReloadReportCase).unsubscribe();
+        verify(mFakeFlushReportCachesCase).execute(REPORT_URI);
     }
 
     @Test
@@ -246,6 +249,7 @@ public class ReportViewPresenterTest {
         mFakeRunReportCase = spy(new FakeRunReportCase());
         mFakeUpdateReportCase = spy(new FakeUpdateReportCase());
         mFakeReloadReportCase = spy(new FakeReloadReportCase());
+        mFakeFlushReportCachesCase = spy(new FakeFlushReportCachesCase());
 
         when(mView.getState()).thenReturn(mReportPageState);
     }

@@ -36,4 +36,9 @@ public final class InMemoryControlsCache implements ControlsCache {
     public List<InputControl> get(@NonNull String uri) {
         return mParamsStorage.getInputControlHolder(uri).getInputControls();
     }
+
+    @Override
+    public void evict(String reportUri) {
+        mParamsStorage.clearInputControlHolder(reportUri);
+    }
 }

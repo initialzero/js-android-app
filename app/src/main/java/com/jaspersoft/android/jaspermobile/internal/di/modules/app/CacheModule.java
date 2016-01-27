@@ -35,7 +35,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache
 import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryVisualizeTemplateCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.VisualizeTemplateCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;

@@ -75,6 +75,12 @@ public class InMemoryControlsRepositoryTest {
         verify(mControlsCache, times(2)).get(REPORT_URI);
     }
 
+    @Test
+    public void should_evict_caches() throws Exception {
+        inMemoryControlsRepository.flushControls(REPORT_URI);
+        verify(mControlsCache).evict(REPORT_URI);
+    }
+
     private void requestControls() {
         TestSubscriber<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> test = new TestSubscriber<>();
         inMemoryControlsRepository.listControls(REPORT_URI).subscribe(test);

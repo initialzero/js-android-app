@@ -28,7 +28,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;

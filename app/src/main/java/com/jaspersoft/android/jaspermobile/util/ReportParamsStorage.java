@@ -53,6 +53,7 @@ public class ReportParamsStorage {
 
     @NonNull
     public void clearInputControlHolder(@NonNull String resourceUri) {
+        mInputControlHolderCache.remove(resourceUri);
         mInputControlHolderCache.put(resourceUri, new InputControlHolder());
     }
 

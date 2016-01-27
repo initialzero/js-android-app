@@ -30,4 +30,9 @@ public final class InMemoryReportParamsCache implements ReportParamsCache {
     public List<ReportParameter> get(String uri) {
         return mParamsStorage.getInputControlHolder(uri).getReportParams();
     }
+
+    @Override
+    public void evict(String reportUri) {
+        mParamsStorage.clearInputControlHolder(reportUri);
+    }
 }

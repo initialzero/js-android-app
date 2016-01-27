@@ -11,5 +11,8 @@ import java.util.List;
  */
 public interface ReportParamsCache {
     void put(String uri, List<ReportParameter> parameters);
+
     List<ReportParameter> get(String uri);
+
+    void evict(String reportUri);
 }

@@ -5,6 +5,7 @@ import android.support.annotation.VisibleForTesting;
 import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushReportCachesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMultiPagePropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportPageContentCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
@@ -41,6 +42,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     private final RunReportCase mRunReportCase;
     private final UpdateReportCase mUpdateReportCase;
     private final ReloadReportCase mReloadReportCase;
+    private final FlushReportCachesCase mFlushReportCachesCase;
 
     @Inject
     public ReportViewPresenter(
@@ -52,8 +54,8 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
             GetReportPageContentCase getReportPageContentCase,
             RunReportCase runReportCase,
             UpdateReportCase updateReportCase,
-            ReloadReportCase reloadReportCase
-    ) {
+            ReloadReportCase reloadReportCase,
+            FlushReportCachesCase flushReportCachesCase) {
         mReportUri = reportUri;
         mExceptionHandler = exceptionHandler;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
@@ -63,6 +65,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
         mRunReportCase = runReportCase;
         mUpdateReportCase = updateReportCase;
         mReloadReportCase = reloadReportCase;
+        mFlushReportCachesCase = flushReportCachesCase;
     }
 
     public void init() {
@@ -150,6 +153,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
         mRunReportCase.unsubscribe();
         mUpdateReportCase.unsubscribe();
         mReloadReportCase.unsubscribe();
+        mFlushReportCachesCase.execute(mReportUri);
     }
 
     @Override

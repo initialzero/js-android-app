@@ -26,13 +26,13 @@ package com.jaspersoft.android.jaspermobile.domain.interactor.report;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.domain.Report;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPropertyRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
+import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 
 import javax.inject.Inject;
 
@@ -62,10 +62,10 @@ public class GetReportTotalPagesPropertyCase extends AbstractUseCase<Integer, St
     @Override
     protected Observable<Integer> buildUseCaseObservable(@NonNull final String reportUri) {
         return mReportRepository.getReport(reportUri)
-                .flatMap(new Func1<Report, Observable<Integer>>() {
+                .flatMap(new Func1<RxReportExecution, Observable<Integer>>() {
                     @Override
-                    public Observable<Integer> call(Report report) {
-                        return mReportPropertyRepository.getTotalPagesProperty(report);
+                    public Observable<Integer> call(RxReportExecution execution) {
+                        return mReportPropertyRepository.getTotalPagesProperty(execution, reportUri);
                     }
                 });
     }

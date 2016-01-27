@@ -5,7 +5,6 @@ import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportRepository;
-import com.jaspersoft.android.jaspermobile.domain.Report;
 import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.report.ReportExecutionOptions;
 import com.jaspersoft.android.sdk.service.report.ReportFormat;
@@ -43,8 +42,6 @@ public class InMemoryReportRepositoryTest {
     private static final List<ReportParameter> REPORT_PARAMS = Collections.singletonList(null);
 
     @Mock
-    ReportCache mReportCache;
-    @Mock
     ReportPageCache mReportPageCache;
     @Mock
     RxReportService mRxReportService;
@@ -52,6 +49,8 @@ public class InMemoryReportRepositoryTest {
     RxReportExecution mRxReportExecution;
     @Mock
     ReportParamsMapper mReportParamsMapper;
+    @Mock
+    ReportCache mReportCache;
 
     @Mock
     ReportParamsCache mReportParamsCache;
@@ -70,10 +69,10 @@ public class InMemoryReportRepositoryTest {
         setupMocks();
         inMemoryReportRepository = new InMemoryReportRepository(
                 mRxReportService,
-                mReportCache,
                 mReportPageCache,
                 mReportParamsCache,
-                mReportParamsMapper
+                mReportParamsMapper,
+                mReportCache
         );
     }
 
@@ -83,12 +82,12 @@ public class InMemoryReportRepositoryTest {
 
         verify(mRxReportService).run(REPORT_URI, EXECUTION_OPTIONS);
         verify(mReportCache).get(REPORT_URI);
-        verify(mReportCache).put(eq(REPORT_URI), any(Report.class));
+        verify(mReportCache).put(eq(REPORT_URI), any(RxReportExecution.class));
     }
 
     @Test
     public void repository_fetches_from_cache_if_not_empty() throws Exception {
-        when(mReportCache.get(anyString())).thenReturn(new Report(null, null));
+        when(mReportCache.get(anyString())).thenReturn(mRxReportExecution);
 
         inMemoryReportRepository.getReport(REPORT_URI).subscribe();
 
@@ -99,25 +98,32 @@ public class InMemoryReportRepositoryTest {
 
     @Test
     public void should_evict_caches_while_reload_and_get_new_report() throws Exception {
-        TestSubscriber<Report> test = new TestSubscriber<>();
+        TestSubscriber<RxReportExecution> test = new TestSubscriber<>();
 
         inMemoryReportRepository.reloadReport(REPORT_URI).subscribe(test);
 
-        verify(mReportPageCache).removePages(REPORT_URI);
-        verify(mReportCache).remove(REPORT_URI);
+        verify(mReportPageCache).evict(REPORT_URI);
+        verify(mReportCache).evict(REPORT_URI);
         verify(mRxReportService).run(REPORT_URI, EXECUTION_OPTIONS);
-        verify(mReportCache).put(eq(REPORT_URI), any(Report.class));
+        verify(mReportCache).put(eq(REPORT_URI), any(RxReportExecution.class));
     }
 
     @Test
     public void should_update_report_object_and_evict_caches() throws Exception {
-        TestSubscriber<Report> test = new TestSubscriber<>();
+        TestSubscriber<RxReportExecution> test = new TestSubscriber<>();
         inMemoryReportRepository.updateReport(REPORT_URI).subscribe(test);
 
-        verify(mReportPageCache).removePages(REPORT_URI);
-        verify(mReportCache).remove(REPORT_URI);
+        verify(mReportPageCache).evict(REPORT_URI);
+        verify(mReportCache).evict(REPORT_URI);
         verify(mRxReportExecution).updateExecution(REPORT_PARAMS);
-        verify(mReportCache).put(eq(REPORT_URI), any(Report.class));
+        verify(mReportCache).put(eq(REPORT_URI), any(RxReportExecution.class));
+    }
+
+    @Test
+    public void should_evict_caches() throws Exception {
+        inMemoryReportRepository.flushReport(REPORT_URI);
+        verify(mReportPageCache).evict(REPORT_URI);
+        verify(mReportParamsCache).evict(REPORT_URI);
     }
 
     private void setupMocks() {

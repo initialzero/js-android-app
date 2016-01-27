@@ -32,7 +32,10 @@ public final class InMemoryControlsRepository implements ControlsRepository {
     private Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> mGetInputControlsCommand;
 
     @Inject
-    public InMemoryControlsRepository(RxFiltersService filtersService, ControlsCache controlsCache, InputControlsMapper controlsMapper) {
+    public InMemoryControlsRepository(RxFiltersService filtersService,
+                                      ControlsCache controlsCache,
+                                      InputControlsMapper controlsMapper
+    ) {
         mFiltersService = filtersService;
         mControlsCache = controlsCache;
         mControlsMapper = controlsMapper;
@@ -75,7 +78,7 @@ public final class InMemoryControlsRepository implements ControlsRepository {
             mGetInputControlsCommand = Observable.concat(memorySource, networkSource)
                     .first()
                     .cache()
-                    .doOnCompleted(new Action0() {
+                    .doOnTerminate(new Action0() {
                         @Override
                         public void call() {
                             mGetInputControlsCommand = null;
@@ -84,5 +87,10 @@ public final class InMemoryControlsRepository implements ControlsRepository {
         }
 
         return mGetInputControlsCommand;
+    }
+
+    @Override
+    public void flushControls(@NonNull String reportUri) {
+        mControlsCache.evict(reportUri);
     }
 }

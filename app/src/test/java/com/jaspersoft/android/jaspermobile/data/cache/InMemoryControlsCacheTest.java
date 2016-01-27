@@ -54,6 +54,12 @@ public class InMemoryControlsCacheTest {
         verify(mInputControlHolder).getInputControls();
     }
 
+    @Test
+    public void should_evict_collection_from_holder() throws Exception {
+        mCache.evict(REPORT_URI);
+        verify(mParamsStorage).clearInputControlHolder(REPORT_URI);
+    }
+
     private void setupMocks() {
         when(mParamsStorage.getInputControlHolder(anyString())).thenReturn(mInputControlHolder);
     }

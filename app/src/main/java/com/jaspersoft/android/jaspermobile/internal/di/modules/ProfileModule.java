@@ -4,14 +4,16 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
-import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryControlsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryReportCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryReportParamsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryReportPropertyCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPropertyCache;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryControlsRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPageRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPropertyRepository;
@@ -148,6 +150,12 @@ public final class ProfileModule {
     @PerProfile
     ReportCache providesReportCache(InMemoryReportCache reportCache) {
         return reportCache;
+    }
+
+    @Provides
+    @PerProfile
+    ReportPropertyCache providesReportPropertyCache(InMemoryReportPropertyCache cache) {
+        return cache;
     }
 
     @Provides

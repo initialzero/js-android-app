@@ -1,13 +1,15 @@
 package com.jaspersoft.android.jaspermobile.data.cache.report;
 
-import com.jaspersoft.android.jaspermobile.domain.Report;
+import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 public interface ReportCache {
-    Report get(String uri);
-    Report put(String uri, Report report);
-    Report remove(String uri);
+    RxReportExecution put(String reportUri, RxReportExecution execution);
+
+    RxReportExecution get(String reportUri);
+
+    RxReportExecution evict(String uri);
 }

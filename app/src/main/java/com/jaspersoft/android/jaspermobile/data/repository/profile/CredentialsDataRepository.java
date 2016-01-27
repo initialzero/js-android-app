@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.data.repository.profile;
 import android.accounts.AccountManager;
 import android.content.Context;
 
-import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;

@@ -1,10 +1,9 @@
 package com.jaspersoft.android.jaspermobile.data.repository.report;
 
 import android.support.annotation.NonNull;
-import android.support.v4.util.LruCache;
 
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
-import com.jaspersoft.android.jaspermobile.domain.Report;
+import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
@@ -38,7 +37,7 @@ import rx.functions.Func1;
 public final class InMemoryReportPageRepository implements ReportPageRepository {
     private final ReportPageCache mReportPageCache;
 
-    private LruCache<String, Observable<ReportPage>> mOperationCache = new LruCache<>(10);
+    private Observable<ReportPage> mGetReportPageAction;
 
     @Inject
     public InMemoryReportPageRepository(ReportPageCache reportPageCache) {
@@ -47,14 +46,12 @@ public final class InMemoryReportPageRepository implements ReportPageRepository 
 
     @NonNull
     @Override
-    public Observable<ReportPage> get(@NonNull final Report report,
-                                      @NonNull final String pagePosition) {
-        Observable<ReportPage> reportPageObservable = mOperationCache.get(pagePosition);
-        if (reportPageObservable == null) {
+    public Observable<ReportPage> get(@NonNull final RxReportExecution execution, @NonNull final PageRequest pageRequest) {
+        if (mGetReportPageAction == null) {
             Observable<ReportPage> memorySource = Observable.defer(new Func0<Observable<ReportPage>>() {
                 @Override
                 public Observable<ReportPage> call() {
-                    ReportPage reportPage = mReportPageCache.get(report.getReportUri(), pagePosition);
+                    ReportPage reportPage = mReportPageCache.get(pageRequest);
                     if (reportPage == null) {
                         return Observable.empty();
                     }
@@ -65,10 +62,9 @@ public final class InMemoryReportPageRepository implements ReportPageRepository 
             Observable<ReportPage> networkSource = Observable.defer(new Func0<Observable<RxReportExport>>() {
                 @Override
                 public Observable<RxReportExport> call() {
-                    RxReportExecution execution = report.getExecution();
                     ReportExportOptions options = ReportExportOptions.builder()
                             .withFormat(ReportFormat.HTML)
-                            .withPageRange(PageRange.parse(pagePosition))
+                            .withPageRange(PageRange.parse(pageRequest.getRange()))
                             .build();
                     return execution.export(options);
                 }
@@ -107,24 +103,26 @@ public final class InMemoryReportPageRepository implements ReportPageRepository 
             }).doOnNext(new Action1<ReportPage>() {
                 @Override
                 public void call(ReportPage page) {
-                    mReportPageCache.put(report.getReportUri(), pagePosition, page);
+                    mReportPageCache.put(pageRequest, page);
                 }
             });
 
-            Observable<ReportPage> getPageCommand = Observable.concat(memorySource, networkSource)
+            mGetReportPageAction = Observable.concat(memorySource, networkSource)
                     .first()
                     .cache()
-                    .doOnCompleted(new Action0() {
+                    .doOnTerminate(new Action0() {
                         @Override
                         public void call() {
-                            mOperationCache.remove(pagePosition);
+                            mGetReportPageAction = null;
                         }
                     });
-
-            reportPageObservable = getPageCommand;
-            mOperationCache.put(pagePosition, getPageCommand);
         }
 
-        return reportPageObservable;
+        return mGetReportPageAction;
+    }
+
+    @Override
+    public void flushReportPages(@NonNull String reportUri) {
+        mReportPageCache.evict(reportUri);
     }
 }

@@ -2,7 +2,7 @@ package com.jaspersoft.android.jaspermobile.data.repository;
 
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPageRepository;
-import com.jaspersoft.android.jaspermobile.domain.Report;
+import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.sdk.service.data.report.PageRange;
 import com.jaspersoft.android.sdk.service.data.report.ReportExportOutput;
@@ -24,7 +24,6 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -39,12 +38,11 @@ public class InMemoryReportPageRepositoryTest {
 
     private static final String REPORT_URI = "/my/uri";
     private static final String PAGE_POSITION = "100";
+    private static final PageRequest PAGE_REQUEST = new PageRequest(REPORT_URI, PAGE_POSITION);
     private static final ReportPage ANY_PAGE = new ReportPage("page", true);
 
     @Mock
     ReportPageCache mReportPageCache;
-    @Mock
-    Report mReport;
     @Mock
     RxReportExecution mReportExecution;
     @Mock
@@ -63,7 +61,7 @@ public class InMemoryReportPageRepositoryTest {
 
     @Test
     public void should_get_page_from_network_if_cache_empty() throws Exception {
-        when(mReportPageCache.get(anyString(), anyString())).thenReturn(null);
+        when(mReportPageCache.get(any(PageRequest.class))).thenReturn(null);
 
         getReport();
 
@@ -72,21 +70,21 @@ public class InMemoryReportPageRepositoryTest {
                 .withPageRange(PageRange.parse("100"))
                 .build();
 
-        verify(mReportPageCache).get(REPORT_URI, PAGE_POSITION);
+        verify(mReportPageCache).get(PAGE_REQUEST);
         verify(mReportExecution).export(options);
         verify(mReportExport).download();
         verify(mReportExportOutput).getStream();
         verify(mReportExportOutput).isFinal();
-        verify(mReportPageCache).put(REPORT_URI, PAGE_POSITION, ANY_PAGE);
+        verify(mReportPageCache).put(PAGE_REQUEST, ANY_PAGE);
     }
 
     @Test
     public void should_get_page_from_cache_if_one_not_empty() throws Exception {
-        when(mReportPageCache.get(anyString(), anyString())).thenReturn(ANY_PAGE);
+        when(mReportPageCache.get(any(PageRequest.class))).thenReturn(ANY_PAGE);
 
         getReport();
 
-        verify(mReportPageCache).get(REPORT_URI, PAGE_POSITION);
+        verify(mReportPageCache).get(PAGE_REQUEST);
         verifyNoMoreInteractions(mReportPageCache);
         verifyZeroInteractions(mReportExecution);
     }
@@ -99,12 +97,18 @@ public class InMemoryReportPageRepositoryTest {
         TestSubscriber<ReportPage> test = getReport();
         test.assertNoErrors();
 
-        verify(mReportPageCache).put(REPORT_URI, PAGE_POSITION, ReportPage.EMPTY);
+        verify(mReportPageCache).put(PAGE_REQUEST, ReportPage.EMPTY);
+    }
+
+    @Test
+    public void should_evict_caches() throws Exception {
+        mInMemoryReportPageRepository.flushReportPages(REPORT_URI);
+        verify(mReportPageCache).evict(REPORT_URI);
     }
 
     private TestSubscriber<ReportPage> getReport() {
         TestSubscriber<ReportPage> test = new TestSubscriber<>();
-        mInMemoryReportPageRepository.get(mReport, PAGE_POSITION).subscribe(test);
+        mInMemoryReportPageRepository.get(mReportExecution, PAGE_REQUEST).subscribe(test);
         return test;
     }
 
@@ -113,7 +117,5 @@ public class InMemoryReportPageRepositoryTest {
         when(mReportExportOutput.getStream()).thenReturn(new ByteArrayInputStream("page".getBytes()));
         when(mReportExport.download()).thenReturn(Observable.just(mReportExportOutput));
         when(mReportExecution.export(any(ReportExportOptions.class))).thenReturn(Observable.just(mReportExport));
-        when(mReport.getExecution()).thenReturn(mReportExecution);
-        when(mReport.getReportUri()).thenReturn(REPORT_URI);
     }
 }

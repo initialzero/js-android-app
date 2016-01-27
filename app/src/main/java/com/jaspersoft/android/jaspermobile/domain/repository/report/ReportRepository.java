@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.domain.repository.report;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.domain.Report;
+import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 
 import rx.Observable;
 
@@ -37,9 +37,11 @@ import rx.Observable;
  */
 public interface ReportRepository {
     @NonNull
-    Observable<Report> getReport(@NonNull String uri);
+    Observable<RxReportExecution> getReport(@NonNull String uri);
     @NonNull
-    Observable<Report> reloadReport(@NonNull String uri);
+    Observable<RxReportExecution> reloadReport(@NonNull String uri);
     @NonNull
-    Observable<Report> updateReport(@NonNull String uri);
+    Observable<RxReportExecution> updateReport(@NonNull String uri);
+
+    void flushReport(String reportUri);
 }

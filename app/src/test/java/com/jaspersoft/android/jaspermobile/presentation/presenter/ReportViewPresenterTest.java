@@ -42,7 +42,9 @@ public class ReportViewPresenterTest {
     private static final String PAGE_CONTENT = "page content";
     private static final ReportPage PAGE = new ReportPage(PAGE_CONTENT, true);
     private static final String CURRENT_PAGE = "10";
-    private static final PageRequest PAGE_REQUEST = new PageRequest(REPORT_URI, CURRENT_PAGE);
+    private static final String REQUESTED_PAGE = "11";
+    private static final PageRequest CURRENT_PAGE_REQUEST = new PageRequest(REPORT_URI, CURRENT_PAGE);
+    private static final PageRequest NEW_PAGE_REQUEST = new PageRequest(REPORT_URI, REQUESTED_PAGE);
 
     @Mock
     RequestExceptionHandler mExceptionHandler;
@@ -58,6 +60,7 @@ public class ReportViewPresenterTest {
     private FakeUpdateReportCase mFakeUpdateReportCase;
     private FakeReloadReportCase mFakeReloadReportCase;
     private FakeFlushReportCachesCase mFakeFlushReportCachesCase;
+    private FakeFlushInputControlsCase mFakeFlushInputControlsCase;
 
     private ReportPageState mReportPageState;
 
@@ -75,7 +78,8 @@ public class ReportViewPresenterTest {
                 mFakeRunReportCase,
                 mFakeUpdateReportCase,
                 mFakeReloadReportCase,
-                mFakeFlushReportCachesCase
+                mFakeFlushReportCachesCase,
+                mFakeFlushInputControlsCase
         );
         presenter.injectView(mView);
     }
@@ -111,7 +115,7 @@ public class ReportViewPresenterTest {
 
         presenter.init();
 
-        verify(mFakeGetReportPageContentCase).execute(eq(PAGE_REQUEST), any(Subscriber.class));
+        verify(mFakeGetReportPageContentCase).execute(eq(CURRENT_PAGE_REQUEST), any(Subscriber.class));
         verify(mReportPageState).setCurrentPage(CURRENT_PAGE);
         verify(mView).showPage(PAGE_CONTENT);
 
@@ -127,6 +131,7 @@ public class ReportViewPresenterTest {
         verify(mView).showPageLoader();
         verify(mFakeGetReportPageContentCase).execute(eq(new PageRequest(REPORT_URI, "10")), any(Subscriber.class));
 
+        verify(mReportPageState).setRequestedPage("10");
         verify(mReportPageState).setCurrentPage("10");
         verify(mView).showCurrentPage(10);
         verify(mView).showPage(PAGE_CONTENT);
@@ -166,7 +171,7 @@ public class ReportViewPresenterTest {
         presenter.refresh();
 
         verify(mView).showLoading();
-        verify(mFakeReloadReportCase).execute(eq(REPORT_URI), any(Subscriber.class));
+        verify(mFakeReloadReportCase).execute(eq(new PageRequest(REPORT_URI, "1")), any(Subscriber.class));
         verify(mView).hideLoading();
 
         verify(mView).resetPaginationControl();
@@ -186,6 +191,7 @@ public class ReportViewPresenterTest {
         verify(mFakeUpdateReportCase).unsubscribe();
         verify(mFakeReloadReportCase).unsubscribe();
         verify(mFakeFlushReportCachesCase).execute(REPORT_URI);
+        verify(mFakeFlushInputControlsCase).execute(REPORT_URI);
     }
 
     @Test
@@ -195,6 +201,7 @@ public class ReportViewPresenterTest {
         verify(mView).showTotalPages(10);
         verify(mView).setSaveActionVisibility(true);
         verify(mView).reloadMenu();
+        verify(mFakeGetReportPageContentCase).execute(eq(CURRENT_PAGE_REQUEST), any(Subscriber.class));
     }
 
     @Test
@@ -226,7 +233,7 @@ public class ReportViewPresenterTest {
     public void should_handle_report_execution_invalidation_case() throws Exception {
         ServiceException serviceException = new ServiceException("message", null, StatusCodes.REPORT_EXECUTION_INVALID);
         presenter.handleError(serviceException);
-        verify(mFakeReloadReportCase).execute(eq(REPORT_URI), any(Subscriber.class));
+        verify(mFakeReloadReportCase).execute(eq(NEW_PAGE_REQUEST), any(Subscriber.class));
     }
 
     @Test
@@ -234,12 +241,13 @@ public class ReportViewPresenterTest {
         ServiceException serviceException = new ServiceException("message", null, StatusCodes.EXPORT_PAGE_OUT_OF_RANGE);
         presenter.handleError(serviceException);
         verify(mView).showPageOutOfRangeError();
-        verify(mFakeGetReportPageContentCase).execute(eq(PAGE_REQUEST), any(Subscriber.class));
+        verify(mFakeGetReportPageContentCase).execute(eq(CURRENT_PAGE_REQUEST), any(Subscriber.class));
     }
 
     private void setupMocks() {
         ReportPageState state = new ReportPageState();
         state.setCurrentPage(CURRENT_PAGE);
+        state.setRequestedPage(REQUESTED_PAGE);
         mReportPageState = spy(state);
 
         mFakeGetReportShowControlsPropertyCase = spy(new FakeGetReportShowControlsPropertyCase());
@@ -250,6 +258,7 @@ public class ReportViewPresenterTest {
         mFakeUpdateReportCase = spy(new FakeUpdateReportCase());
         mFakeReloadReportCase = spy(new FakeReloadReportCase());
         mFakeFlushReportCachesCase = spy(new FakeFlushReportCachesCase());
+        mFakeFlushInputControlsCase = spy(new FakeFlushInputControlsCase());
 
         when(mView.getState()).thenReturn(mReportPageState);
     }
@@ -299,7 +308,7 @@ public class ReportViewPresenterTest {
         }
 
         @Override
-        protected Observable<ReportPage> buildUseCaseObservable(String reportUri) {
+        protected Observable<ReportPage> buildUseCaseObservable(PageRequest request) {
             return Observable.just(PAGE);
         }
     }

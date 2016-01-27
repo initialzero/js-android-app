@@ -120,9 +120,4 @@ public final class InMemoryReportPageRepository implements ReportPageRepository 
 
         return mGetReportPageAction;
     }
-
-    @Override
-    public void flushReportPages(@NonNull String reportUri) {
-        mReportPageCache.evict(reportUri);
-    }
 }

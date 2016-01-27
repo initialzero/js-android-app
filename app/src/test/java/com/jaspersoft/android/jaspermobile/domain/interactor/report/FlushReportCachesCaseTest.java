@@ -33,9 +33,6 @@ public class FlushReportCachesCaseTest {
     public void setUp() throws Exception {
         initMocks(this);
         mFlushReportCachesCase = new FlushReportCachesCase(
-                controlsRepository,
-                reportPageRepository,
-                reportPropertyRepository,
                 reportRepository
         );
     }
@@ -44,8 +41,6 @@ public class FlushReportCachesCaseTest {
     public void should_delegate_calls_to_repos() throws Exception {
         mFlushReportCachesCase.execute(REPORT_URI);
         verify(controlsRepository).flushControls(REPORT_URI);
-        verify(reportPageRepository).flushReportPages(REPORT_URI);
-        verify(reportPropertyRepository).flushReportProperties(REPORT_URI);
         verify(reportRepository).flushReport(REPORT_URI);
     }
 }

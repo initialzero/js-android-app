@@ -5,7 +5,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.InputControlsMapper;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryControlsRepository;
 import com.jaspersoft.android.sdk.network.entity.control.InputControl;
-import com.jaspersoft.android.sdk.service.rx.report.RxFiltersService;
+import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class InMemoryControlsRepositoryTest {
     @Test
     public void controls_listing_fetches_network() throws Exception {
         requestControls();
-        verify(mFiltersService).listControls(REPORT_URI);
+        verify(mFiltersService).listReportControls(REPORT_URI);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class InMemoryControlsRepositoryTest {
     @Test
     public void returns_cached_item_on_second_run() throws Exception {
         requestControls();
-        verify(mFiltersService).listControls(REPORT_URI);
+        verify(mFiltersService).listReportControls(REPORT_URI);
 
         requestControls();
         verifyNoMoreInteractions(mFiltersService);
@@ -89,7 +89,7 @@ public class InMemoryControlsRepositoryTest {
     }
 
     private void setupMocks() {
-        when(mFiltersService.listControls(anyString()))
+        when(mFiltersService.listReportControls(anyString()))
                 .thenReturn(Observable.just(CONTROLS));
         when(mInputControlsMapper.transform(CONTROLS)).thenReturn(LEGACY_CONTROLS);
 

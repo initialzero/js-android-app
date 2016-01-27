@@ -13,6 +13,4 @@ import rx.Observable;
 public interface ReportPropertyRepository {
     @NonNull
     Observable<Integer> getTotalPagesProperty(@NonNull final RxReportExecution reportExecution, @NonNull final String reportUri);
-
-    void flushReportProperties(String reportUri);
 }

@@ -27,8 +27,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
  */
 public class ReloadReportCaseTest {
     private static final String REPORT_URI = "/my/uri";
-    private static final String PAGE_POSITION = "1";
-    private static final PageRequest FIRST_PAGE_REQUEST = new PageRequest(REPORT_URI, PAGE_POSITION);
+    private static final String PAGE_POSITION = "100";
+    private static final PageRequest PAGE_REQUEST = new PageRequest(REPORT_URI, PAGE_POSITION);
     private static final ReportPage ANY_PAGE = new ReportPage("page", true);
 
     @Mock
@@ -57,9 +57,9 @@ public class ReloadReportCaseTest {
         when(mReportPageRepository.get(any(RxReportExecution.class), any(PageRequest.class))).thenReturn(Observable.just(ANY_PAGE));
 
         TestSubscriber<ReportPage> test = new TestSubscriber<>();
-        mReloadReportCase.execute(REPORT_URI, test);
+        mReloadReportCase.execute(PAGE_REQUEST, test);
 
         verify(mReportRepository).reloadReport(REPORT_URI);
-        verify(mReportPageRepository).get(mRxReportExecution, FIRST_PAGE_REQUEST);
+        verify(mReportPageRepository).get(mRxReportExecution, PAGE_REQUEST);
     }
 }

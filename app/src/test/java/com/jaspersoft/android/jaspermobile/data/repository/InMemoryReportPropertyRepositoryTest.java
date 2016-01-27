@@ -2,11 +2,10 @@ package com.jaspersoft.android.jaspermobile.data.repository;
 
 import android.support.annotation.NonNull;
 
+import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPropertyCache;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPropertyRepository;
-import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
-import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
 import com.jaspersoft.android.sdk.service.data.report.ReportMetadata;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 
@@ -38,6 +37,8 @@ public class InMemoryReportPropertyRepositoryTest {
     RxReportExecution mReportExecution;
     @Mock
     ReportPropertyCache mReportPropertyCache;
+    @Mock
+    ReportPageCache mReportPageCache;
 
     @Mock
     ReportPageRepository mReportPageRepository;
@@ -65,6 +66,7 @@ public class InMemoryReportPropertyRepositoryTest {
 
         verify(mReportExecution).waitForReportCompletion();
         verify(mReportPropertyCache).putTotalPages(REPORT_URI, 100);
+        verify(mReportPageCache).evict(REPORT_URI);
     }
 
     @Test
@@ -77,13 +79,6 @@ public class InMemoryReportPropertyRepositoryTest {
         assertThat(test.getOnNextEvents(), hasItem(200));
 
         verifyZeroInteractions(mReportExecution);
-    }
-
-
-    @Test
-    public void should_evict_caches() throws Exception {
-        mInMemoryReportPropertyRepository.flushReportProperties(REPORT_URI);
-        verify(mReportPropertyCache).evict(REPORT_URI);
     }
 
     @NonNull

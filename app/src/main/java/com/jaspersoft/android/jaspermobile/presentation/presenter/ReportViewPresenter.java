@@ -5,6 +5,7 @@ import android.support.annotation.VisibleForTesting;
 import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushReportCachesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMultiPagePropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportPageContentCase;
@@ -43,6 +44,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     private final UpdateReportCase mUpdateReportCase;
     private final ReloadReportCase mReloadReportCase;
     private final FlushReportCachesCase mFlushReportCachesCase;
+    private final FlushInputControlsCase mFlushInputControlsCase;
 
     @Inject
     public ReportViewPresenter(
@@ -55,7 +57,9 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
             RunReportCase runReportCase,
             UpdateReportCase updateReportCase,
             ReloadReportCase reloadReportCase,
-            FlushReportCachesCase flushReportCachesCase) {
+            FlushReportCachesCase flushReportCachesCase,
+            FlushInputControlsCase flushInputControlsCase
+    ) {
         mReportUri = reportUri;
         mExceptionHandler = exceptionHandler;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
@@ -66,6 +70,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
         mUpdateReportCase = updateReportCase;
         mReloadReportCase = reloadReportCase;
         mFlushReportCachesCase = flushReportCachesCase;
+        mFlushInputControlsCase = flushInputControlsCase;
     }
 
     public void init() {
@@ -154,10 +159,12 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
         mUpdateReportCase.unsubscribe();
         mReloadReportCase.unsubscribe();
         mFlushReportCachesCase.execute(mReportUri);
+        mFlushInputControlsCase.execute(mReportUri);
     }
 
     @Override
     public void loadPage(String pageRange) {
+        mView.getState().setRequestedPage(pageRange);
         loadPageByPosition(pageRange);
     }
 
@@ -216,6 +223,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
                     showEmptyPage();
                 } else {
                     updateTotalPagesLabel(totalPages);
+                    loadLastSavedPage();
                 }
             }
         });
@@ -253,7 +261,8 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     private void reloadByPosition(final String position) {
         showLoading();
         resetTotalPagesLabel();
-        mReloadReportCase.execute(mReportUri, new SimpleSubscriber<ReportPage>() {
+        PageRequest request = new PageRequest(mReportUri, position);
+        mReloadReportCase.execute(request, new SimpleSubscriber<ReportPage>() {
             @Override
             public void onCompleted() {
                 hideLoading();
@@ -342,7 +351,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
                 loadLastSavedPage();
                 break;
             case StatusCodes.REPORT_EXECUTION_INVALID:
-                reloadByPosition(mView.getState().getCurrentPage());
+                reloadByPosition(mView.getState().getRequestedPage());
                 break;
             default:
                 Timber.e(serviceException, "Page request operation crashed with SDK exception");

@@ -8,7 +8,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushReportC
  */
 public class FakeFlushReportCachesCase extends FlushReportCachesCase {
     public FakeFlushReportCachesCase() {
-        super(null, null, null, null);
+        super(null);
     }
 
     @Override

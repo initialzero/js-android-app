@@ -76,9 +76,4 @@ public final class InMemoryReportPropertyRepository implements ReportPropertyRep
         }
         return mGetTotalPagesCommand;
     }
-
-    @Override
-    public void flushReportProperties(String reportUri) {
-        mReportPropertyCache.evict(reportUri);
-    }
 }

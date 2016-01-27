@@ -2,9 +2,9 @@ package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
 import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryControlsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryReportCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryReportPageCache;
@@ -34,7 +34,7 @@ import com.jaspersoft.android.sdk.network.Credentials;
 import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.network.SpringCredentials;
 import com.jaspersoft.android.sdk.service.report.ReportService;
-import com.jaspersoft.android.sdk.service.rx.report.RxFiltersService;
+import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
 
 import java.net.CookieManager;

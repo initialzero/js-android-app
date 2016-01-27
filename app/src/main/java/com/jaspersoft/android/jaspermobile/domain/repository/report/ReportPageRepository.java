@@ -15,6 +15,4 @@ import rx.Observable;
 public interface ReportPageRepository {
     @NonNull
     Observable<ReportPage> get(@NonNull final RxReportExecution execution, @NonNull final PageRequest pageRequest);
-
-    void flushReportPages(@NonNull String reportUri);
 }

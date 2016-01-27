@@ -39,4 +39,12 @@ public final class PageRequest {
         result = 31 * result + (mRange != null ? mRange.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "PageRequest{" +
+                "mRange='" + mRange + '\'' +
+                ", mUri='" + mUri + '\'' +
+                '}';
+    }
 }

@@ -7,7 +7,7 @@ import com.jaspersoft.android.jaspermobile.data.entity.mapper.InputControlsMappe
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ControlsRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.network.entity.control.InputControl;
-import com.jaspersoft.android.sdk.service.rx.report.RxFiltersService;
+import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 
 import java.util.List;
 
@@ -60,7 +60,7 @@ public final class InMemoryControlsRepository implements ControlsRepository {
                     new Func0<Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>>>() {
                         @Override
                         public Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> call() {
-                            return mFiltersService.listControls(reportUri)
+                            return mFiltersService.listReportControls(reportUri)
                                     .map(new Func1<List<InputControl>, List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>>() {
                                         @Override
                                         public List<com.jaspersoft.android.sdk.client.oxm.control.InputControl> call(List<InputControl> inputControls) {

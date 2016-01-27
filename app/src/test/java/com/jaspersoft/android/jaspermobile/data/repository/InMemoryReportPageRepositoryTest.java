@@ -100,12 +100,6 @@ public class InMemoryReportPageRepositoryTest {
         verify(mReportPageCache).put(PAGE_REQUEST, ReportPage.EMPTY);
     }
 
-    @Test
-    public void should_evict_caches() throws Exception {
-        mInMemoryReportPageRepository.flushReportPages(REPORT_URI);
-        verify(mReportPageCache).evict(REPORT_URI);
-    }
-
     private TestSubscriber<ReportPage> getReport() {
         TestSubscriber<ReportPage> test = new TestSubscriber<>();
         mInMemoryReportPageRepository.get(mReportExecution, PAGE_REQUEST).subscribe(test);

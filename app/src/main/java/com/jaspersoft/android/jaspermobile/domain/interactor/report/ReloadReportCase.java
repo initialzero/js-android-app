@@ -22,7 +22,7 @@ import rx.functions.Func1;
  * @since 2.3
  */
 @PerProfile
-public class ReloadReportCase extends AbstractUseCase<ReportPage, String> {
+public class ReloadReportCase extends AbstractUseCase<ReportPage, PageRequest> {
     private final ReportRepository mReportRepository;
     private final ReportPageRepository mReportPageRepository;
 
@@ -38,12 +38,12 @@ public class ReloadReportCase extends AbstractUseCase<ReportPage, String> {
     }
 
     @Override
-    protected Observable<ReportPage> buildUseCaseObservable(@NonNull final String reportUri) {
-        return mReportRepository.reloadReport(reportUri)
+    protected Observable<ReportPage> buildUseCaseObservable(@NonNull final PageRequest pageRequest) {
+        return mReportRepository.reloadReport(pageRequest.getUri())
                 .flatMap(new Func1<RxReportExecution, Observable<ReportPage>>() {
                     @Override
                     public Observable<ReportPage> call(RxReportExecution execution) {
-                        return mReportPageRepository.get(execution, new PageRequest(reportUri, "1"));
+                        return mReportPageRepository.get(execution, pageRequest);
                     }
                 });
     }

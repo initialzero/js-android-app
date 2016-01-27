@@ -7,7 +7,7 @@ import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushReportCachesCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
@@ -50,7 +50,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private final GetVisualizeTemplateCase mGetVisualizeTemplateCase;
     private final GetJsonParamsCase mGetJsonParamsCase;
-    private final FlushReportCachesCase mFlushReportCachesCase;
+    private final FlushInputControlsCase mFlushInputControlsCase;
 
     private CompositeSubscription mCompositeSubscription;
     private ReportVisualizeView mView;
@@ -64,7 +64,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                                     GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
                                     GetVisualizeTemplateCase getVisualizeTemplateCase,
                                     GetJsonParamsCase getJsonParamsCase,
-                                    FlushReportCachesCase flushReportCachesCase
+                                    FlushInputControlsCase flushInputControlsCase
     ) {
         mScreenDiagonal = screenDiagonal;
         mReportUri = reportUri;
@@ -74,7 +74,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
         mGetVisualizeTemplateCase = getVisualizeTemplateCase;
         mGetJsonParamsCase = getJsonParamsCase;
-        mFlushReportCachesCase = flushReportCachesCase;
+        mFlushInputControlsCase = flushInputControlsCase;
     }
 
     public void init() {
@@ -194,7 +194,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         mGetReportShowControlsPropertyCase.unsubscribe();
         mGetVisualizeTemplateCase.unsubscribe();
         mGetJsonParamsCase.unsubscribe();
-        mFlushReportCachesCase.execute(mReportUri);
+        mFlushInputControlsCase.execute(mReportUri);
     }
 
     private void subscribeToWebViewEvents() {

@@ -6,7 +6,7 @@ import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ControlsRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public class GetReportShowControlsPropertyCase extends AbstractUseCase<Boolean, String> {
     private final ControlsRepository mControlsRepository;
 

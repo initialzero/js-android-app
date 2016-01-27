@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.InputControlsMapper;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ControlsRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.network.entity.control.InputControl;
 import com.jaspersoft.android.sdk.service.rx.report.RxFiltersService;
 
@@ -23,7 +23,7 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public final class InMemoryControlsRepository implements ControlsRepository {
     private final RxFiltersService mFiltersService;
     private final ControlsCache mControlsCache;

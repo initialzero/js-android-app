@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.octo.android.robospice.persistence.memory.LruCache;
 
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public final class InMemoryReportPageCache implements ReportPageCache {
     private final Map<String, LruCache<String, ReportPage>> mStorage = new HashMap<>();
 

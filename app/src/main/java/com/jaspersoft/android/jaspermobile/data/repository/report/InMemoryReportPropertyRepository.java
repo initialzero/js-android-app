@@ -6,7 +6,7 @@ import com.jaspersoft.android.jaspermobile.domain.Report;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPropertyRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.service.data.report.ReportMetadata;
 
 import javax.inject.Inject;
@@ -21,7 +21,7 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public final class InMemoryReportPropertyRepository implements ReportPropertyRepository {
     private final ReportPageRepository mReportPageRepository;
     private Observable<Boolean> mGetMultiPageCommand;

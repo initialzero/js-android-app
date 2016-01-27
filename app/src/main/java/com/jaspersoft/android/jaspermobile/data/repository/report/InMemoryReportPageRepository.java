@@ -7,7 +7,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.domain.Report;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.service.data.report.PageRange;
 import com.jaspersoft.android.sdk.service.data.report.ReportExportOutput;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
@@ -34,7 +34,7 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public final class InMemoryReportPageRepository implements ReportPageRepository {
     private final ReportPageCache mReportPageCache;
 

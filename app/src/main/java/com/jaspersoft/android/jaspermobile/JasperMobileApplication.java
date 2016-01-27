@@ -32,7 +32,6 @@ import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.DaggerAppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ReportComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
@@ -57,9 +56,8 @@ public class JasperMobileApplication extends Application implements GraphObject 
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
     public static final String SHARED_DIR = "com.jaspersoft.account.none";
 
-    private AppComponent mAppComponent;
     private ProfileComponent mProfileComponent;
-    private ReportComponent mReportComponent;
+    private AppComponent mAppComponent;
 
     @Inject
     AppConfigurator appConfigurator;
@@ -137,22 +135,7 @@ public class JasperMobileApplication extends Application implements GraphObject 
     }
 
     @Override
-    public void setReportComponent(ReportComponent reportComponent) {
-        mReportComponent = reportComponent;
-    }
-
-    @Override
     public ProfileComponent getProfileComponent() {
         return mProfileComponent;
-    }
-
-    @Override
-    public ReportComponent getReportComponent() {
-        return mReportComponent;
-    }
-
-    @Override
-    public void releaseReportComponent() {
-        mReportComponent = null;
     }
 }

@@ -27,7 +27,7 @@ import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
@@ -156,10 +156,10 @@ public class ReportVisualizeFragment extends BaseFragment
 
     private void injectComponents() {
         JasperMobileApplication.get(getContext())
-                .getReportComponent()
-                .plusReportVisualizeActivity(
+                .getProfileComponent()
+                .plusReportVisualizeViewer(
                         new ActivityModule(getActivity()),
-                        new ReportVisualizeActivityModule(webView)
+                        new ReportVisualizeViewerModule(resource.getUri(), webView)
                 )
                 .inject(this);
         mPresenter.injectView(this);

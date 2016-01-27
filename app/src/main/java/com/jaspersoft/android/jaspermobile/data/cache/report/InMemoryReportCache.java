@@ -1,7 +1,7 @@
 package com.jaspersoft.android.jaspermobile.data.cache.report;
 
 import com.jaspersoft.android.jaspermobile.domain.Report;
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +12,7 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public final class InMemoryReportCache implements ReportCache {
     private final Map<String, Report> mStorage = new HashMap<>();
 

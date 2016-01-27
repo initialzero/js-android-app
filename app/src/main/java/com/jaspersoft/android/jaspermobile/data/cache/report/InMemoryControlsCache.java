@@ -3,7 +3,7 @@ package com.jaspersoft.android.jaspermobile.data.cache.report;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 
@@ -15,7 +15,7 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public final class InMemoryControlsCache implements ControlsCache {
     private final ReportParamsStorage mParamsStorage;
 

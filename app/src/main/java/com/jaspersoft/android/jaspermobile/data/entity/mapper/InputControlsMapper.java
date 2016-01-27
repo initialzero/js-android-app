@@ -1,7 +1,7 @@
 package com.jaspersoft.android.jaspermobile.data.entity.mapper;
 
 
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule;
 import com.jaspersoft.android.sdk.client.oxm.control.validation.MandatoryValidationRule;
 import com.jaspersoft.android.sdk.network.entity.control.InputControl;
@@ -19,7 +19,7 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public class InputControlsMapper {
     @Inject
     public InputControlsMapper() {

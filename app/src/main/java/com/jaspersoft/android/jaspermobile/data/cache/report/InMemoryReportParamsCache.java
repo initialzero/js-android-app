@@ -1,6 +1,6 @@
 package com.jaspersoft.android.jaspermobile.data.cache.report;
 
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 
@@ -12,7 +12,7 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public final class InMemoryReportParamsCache implements ReportParamsCache {
     private final ReportParamsStorage mParamsStorage;
 

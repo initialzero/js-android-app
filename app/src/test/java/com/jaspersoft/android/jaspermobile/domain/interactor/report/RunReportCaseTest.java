@@ -44,8 +44,8 @@ public class RunReportCaseTest {
                 FakePreExecutionThread.create(),
                 FakePostExecutionThread.create(),
                 mReportRepository,
-                mReportPageRepository,
-                REPORT_URI);
+                mReportPageRepository
+        );
     }
 
     @Test
@@ -53,7 +53,7 @@ public class RunReportCaseTest {
         when(mReportRepository.getReport(anyString())).thenReturn(Observable.just(mReport));
 
         TestSubscriber<ReportPage> test = new TestSubscriber<>();
-        mRunReportCase.execute(test);
+        mRunReportCase.execute(REPORT_URI, test);
 
         verify(mReportRepository).getReport(REPORT_URI);
         verify(mReportPageRepository).get(mReport, PAGE_POSITION);

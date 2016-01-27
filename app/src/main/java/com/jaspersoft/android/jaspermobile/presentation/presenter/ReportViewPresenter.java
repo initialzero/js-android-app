@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 import android.support.annotation.VisibleForTesting;
 
+import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMultiPagePropertyCase;
@@ -19,6 +20,7 @@ import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import timber.log.Timber;
 
@@ -30,8 +32,8 @@ import timber.log.Timber;
 public class ReportViewPresenter implements ReportActionListener, Presenter<ReportView> {
     private ReportView mView;
 
+    private final String mReportUri;
     private final RequestExceptionHandler mExceptionHandler;
-
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private final GetReportMultiPagePropertyCase mGetReportMultiPagePropertyCase;
     private final GetReportTotalPagesPropertyCase mGetReportTotalPagesPropertyCase;
@@ -41,15 +43,18 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     private final ReloadReportCase mReloadReportCase;
 
     @Inject
-    public ReportViewPresenter(RequestExceptionHandler exceptionHandler,
-                               GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
-                               GetReportMultiPagePropertyCase getReportMultiPagePropertyCase,
-                               GetReportTotalPagesPropertyCase getReportTotalPagesPropertyCase,
-                               GetReportPageContentCase getReportPageContentCase,
-                               RunReportCase runReportCase,
-                               UpdateReportCase updateReportCase,
-                               ReloadReportCase reloadReportCase
+    public ReportViewPresenter(
+            @Named("report_uri") String reportUri,
+            RequestExceptionHandler exceptionHandler,
+            GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
+            GetReportMultiPagePropertyCase getReportMultiPagePropertyCase,
+            GetReportTotalPagesPropertyCase getReportTotalPagesPropertyCase,
+            GetReportPageContentCase getReportPageContentCase,
+            RunReportCase runReportCase,
+            UpdateReportCase updateReportCase,
+            ReloadReportCase reloadReportCase
     ) {
+        mReportUri = reportUri;
         mExceptionHandler = exceptionHandler;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
         mGetReportMultiPagePropertyCase = getReportMultiPagePropertyCase;
@@ -79,7 +84,8 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
 
     private void loadPageByPosition(final String position) {
         showPageLoader();
-        mGetReportPageContentCase.execute(position, new SimpleSubscriber<ReportPage>() {
+        PageRequest request = new PageRequest(mReportUri, position);
+        mGetReportPageContentCase.execute(request, new SimpleSubscriber<ReportPage>() {
             @Override
             public void onError(Throwable e) {
                 handleError(e);
@@ -94,7 +100,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
 
     private void loadReportMetadata() {
         showLoading();
-        mGetReportShowControlsPropertyCase.execute(new SimpleSubscriber<Boolean>() {
+        mGetReportShowControlsPropertyCase.execute(mReportUri, new SimpleSubscriber<Boolean>() {
             @Override
             public void onCompleted() {
                 hideLoading();
@@ -154,7 +160,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     @Override
     public void runReport() {
         showLoading();
-        mRunReportCase.execute(new SimpleSubscriber<ReportPage>() {
+        mRunReportCase.execute(mReportUri, new SimpleSubscriber<ReportPage>() {
             @Override
             public void onCompleted() {
                 hideLoading();
@@ -176,7 +182,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
 
     @VisibleForTesting
     void loadMultiPageProperty() {
-        mGetReportMultiPagePropertyCase.execute(new SimpleSubscriber<Boolean>() {
+        mGetReportMultiPagePropertyCase.execute(mReportUri, new SimpleSubscriber<Boolean>() {
             @Override
             public void onError(Throwable e) {
                 handleError(e);
@@ -191,7 +197,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
 
     @VisibleForTesting
     void loadTotalPagesProperty() {
-        mGetReportTotalPagesPropertyCase.execute(new SimpleSubscriber<Integer>() {
+        mGetReportTotalPagesPropertyCase.execute(mReportUri, new SimpleSubscriber<Integer>() {
             @Override
             public void onError(Throwable e) {
                 handleError(e);
@@ -215,7 +221,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     public void updateReport() {
         showLoading();
         resetTotalPagesLabel();
-        mUpdateReportCase.execute(new SimpleSubscriber<ReportPage>() {
+        mUpdateReportCase.execute(mReportUri, new SimpleSubscriber<ReportPage>() {
             @Override
             public void onCompleted() {
                 hideLoading();
@@ -243,7 +249,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     private void reloadByPosition(final String position) {
         showLoading();
         resetTotalPagesLabel();
-        mReloadReportCase.execute(new SimpleSubscriber<ReportPage>() {
+        mReloadReportCase.execute(mReportUri, new SimpleSubscriber<ReportPage>() {
             @Override
             public void onCompleted() {
                 hideLoading();

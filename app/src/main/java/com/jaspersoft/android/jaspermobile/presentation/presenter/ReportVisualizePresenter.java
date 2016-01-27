@@ -84,7 +84,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     private void loadControls() {
         mView.showLoading();
-        mGetReportShowControlsPropertyCase.execute(new SimpleSubscriber<Boolean>() {
+        mGetReportShowControlsPropertyCase.execute(mReportUri, new SimpleSubscriber<Boolean>() {
             @Override
             public void onCompleted() {
                 mView.hideLoading();
@@ -116,7 +116,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     @Override
     public void updateReport() {
-        mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
+        mGetJsonParamsCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<String>() {
             @Override
             public void onNext(String params) {
                 mView.resetZoom();
@@ -155,7 +155,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     }
 
     private void runReportOnVisualize() {
-        mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
+        mGetJsonParamsCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<String>() {
             @Override
             public void onNext(String params) {
                 VisualizeExecOptions options = new VisualizeExecOptions(

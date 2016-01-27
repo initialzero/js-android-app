@@ -37,7 +37,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -101,7 +100,7 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.init();
 
         verify(mView).showLoading();
-        verify(mGetReportShowControlsPropertyCase).execute(any(Subscriber.class));
+        verify(mGetReportShowControlsPropertyCase).execute(eq(REPORT_URI), any(Subscriber.class));
         verify(mView).hideLoading();
     }
 
@@ -132,51 +131,51 @@ public class ReportVisualizePresenterTest {
     }
 
     @Test
-    public void on_init_should_subscribe_to_visualize_start_load_event() throws Exception {
+    public void on_resume_should_subscribe_to_visualize_start_load_event() throws Exception {
         when(mVisualizeEvents.loadStartEvent()).thenReturn(Observable.<Void>just(null));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
-        verify(mView, times(2)).showLoading();
+        verify(mView).showLoading();
         verify(mView).setWebViewVisibility(false);
         verify(mView).resetPaginationControl();
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void on_init_should_subscribe_to_visualize_script_loaded_event() throws Exception {
+    public void on_resume_should_subscribe_to_visualize_script_loaded_event() throws Exception {
         when(mVisualizeEvents.scriptLoadedEvent()).thenReturn(Observable.<Void>just(null));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
-        verify(mGetJsonParamsCase).execute(any(Subscriber.class));
+        verify(mGetJsonParamsCase).execute(eq(REPORT_URI), any(Subscriber.class));
     }
 
     @Test
-    public void on_init_should_subscribe_to_visualize_complete_load_event() throws Exception {
+    public void on_resume_should_subscribe_to_visualize_complete_load_event() throws Exception {
         when(mVisualizeEvents.loadCompleteEvent()).thenReturn(Observable.just(new LoadCompleteEvent("")));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
-        verify(mView, times(2)).hideLoading();
+        verify(mView).hideLoading();
         verify(mView).setWebViewVisibility(true);
     }
 
     @Test
-    public void on_init_should_subscribe_to_visualize_error_load_event() throws Exception {
+    public void on_resume_should_subscribe_to_visualize_error_load_event() throws Exception {
         when(mVisualizeEvents.loadErrorEvent()).thenReturn(Observable.just(new ErrorEvent("error")));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
-        verify(mView, times(2)).hideLoading();
+        verify(mView).hideLoading();
         verify(mView).showError("error");
     }
 
     @Test
-    public void on_init_should_subscribe_to_report_complete_event_with_zero_page() throws Exception {
+    public void on_resume_should_subscribe_to_report_complete_event_with_zero_page() throws Exception {
         when(mVisualizeEvents.reportCompleteEvent()).thenReturn(Observable.just(new ReportCompleteEvent(0)));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).setSaveActionVisibility(false);
         verify(mView).setPaginationVisibility(false);
@@ -184,10 +183,10 @@ public class ReportVisualizePresenterTest {
     }
 
     @Test
-    public void on_init_should_subscribe_to_report_complete_event_with_single_page() throws Exception {
+    public void on_resume_should_subscribe_to_report_complete_event_with_single_page() throws Exception {
         when(mVisualizeEvents.reportCompleteEvent()).thenReturn(Observable.just(new ReportCompleteEvent(1)));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).hideEmptyPageMessage();
         verify(mView).setSaveActionVisibility(true);
@@ -195,10 +194,10 @@ public class ReportVisualizePresenterTest {
     }
 
     @Test
-    public void on_init_should_subscribe_to_report_complete_event_with_multi_page() throws Exception {
+    public void on_resume_should_subscribe_to_report_complete_event_with_multi_page() throws Exception {
         when(mVisualizeEvents.reportCompleteEvent()).thenReturn(Observable.just(new ReportCompleteEvent(2)));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).hideEmptyPageMessage();
         verify(mView).setSaveActionVisibility(true);
@@ -207,20 +206,20 @@ public class ReportVisualizePresenterTest {
     }
 
     @Test
-    public void on_init_should_subscribe_to_page_load_complete_event() throws Exception {
+    public void on_resume_should_subscribe_to_page_load_complete_event() throws Exception {
         when(mVisualizeEvents.pageLoadCompleteEvent()).thenReturn(Observable.just(new PageLoadCompleteEvent(2)));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).setPaginationEnabled(true);
         verify(mView).setPaginationCurrentPage(2);
     }
 
     @Test
-    public void on_init_should_subscribe_to_page_load_error_event() throws Exception {
+    public void on_resume_should_subscribe_to_page_load_error_event() throws Exception {
         when(mVisualizeEvents.pageLoadErrorEvent()).thenReturn(Observable.just(new PageLoadErrorEvent("error", 2)));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).setPaginationEnabled(true);
         verify(mView).setPaginationCurrentPage(2);
@@ -228,79 +227,78 @@ public class ReportVisualizePresenterTest {
     }
 
     @Test
-    public void on_init_should_subscribe_to_multipage_event1() throws Exception {
+    public void on_resume_should_subscribe_to_multipage_event1() throws Exception {
         when(mVisualizeEvents.multiPageLoadEvent()).thenReturn(Observable.just(new MultiPageLoadEvent(true)));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).setPaginationVisibility(false);
     }
 
     @Test
-    public void on_init_should_subscribe_to_multipage_event2() throws Exception {
+    public void on_resume_should_subscribe_to_multipage_event2() throws Exception {
         when(mView.getPaginationTotalPages()).thenReturn(1);
         when(mVisualizeEvents.multiPageLoadEvent()).thenReturn(Observable.just(new MultiPageLoadEvent(true)));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).setPaginationVisibility(true);
     }
 
     @Test
-    public void on_init_should_subscribe_to_external_click_event() throws Exception {
+    public void on_resume_should_subscribe_to_external_click_event() throws Exception {
         when(mVisualizeEvents.externalReferenceClickEvent()).thenReturn(Observable.just(new ExternalReferenceClickEvent("link")));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).showExternalLink("link");
     }
 
     @Test
-    public void on_init_should_subscribe_to_execution_event() throws Exception {
+    public void on_resume_should_subscribe_to_execution_event() throws Exception {
         ReportData reportData = new ReportData();
         ExecutionReferenceClickEvent event = new ExecutionReferenceClickEvent(reportData);
         when(mVisualizeEvents.executionReferenceClickEvent()).thenReturn(Observable.just(event));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).executeReport(reportData);
     }
 
     @Test
-    public void on_init_should_subscribe_to_window_error_event() throws Exception {
+    public void on_resume_should_subscribe_to_window_error_event() throws Exception {
         when(mVisualizeEvents.windowErrorEvent()).thenReturn(Observable.just(new ErrorEvent("error")));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).showError("error");
-        verify(mView).hideLoading();
     }
 
     @Test
-    public void on_init_should_subscribe_to_webview_on_progress_event() throws Exception {
+    public void on_resume_should_subscribe_to_webview_on_progress_event() throws Exception {
         when(mWebViewEvents.progressChangedEvent()).thenReturn(Observable.just(10));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).updateDeterminateProgress(10);
     }
 
     @Test
-    public void on_init_should_subscribe_to_webview_received_error_event() throws Exception {
+    public void on_resume_should_subscribe_to_webview_received_error_event() throws Exception {
         when(mWebViewEvents.receivedErrorEvent()).thenReturn(Observable.just(new WebViewErrorEvent("title", "message")));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
-        verify(mView, times(2)).hideLoading();
+        verify(mView).hideLoading();
         verify(mView).setWebViewVisibility(false);
         verify(mView).showError("title" + "\n" + "message");
     }
 
     @Test
-    public void on_init_should_subscribe_to_session_expired_event() throws Exception {
+    public void on_resume_should_subscribe_to_session_expired_event() throws Exception {
         when(mWebViewEvents.sessionExpiredEvent()).thenReturn(Observable.<Void>just(null));
 
-        mReportVisualizePresenter.init();
+        mReportVisualizePresenter.resume();
 
         verify(mView).handleSessionExpiration();
     }
@@ -315,7 +313,7 @@ public class ReportVisualizePresenterTest {
     public void update_report_page_should_delegate_receive_json_params() throws Exception {
         mReportVisualizePresenter.updateReport();
 
-        verify(mGetJsonParamsCase).execute(any(Subscriber.class));
+        verify(mGetJsonParamsCase).execute(eq(REPORT_URI), any(Subscriber.class));
         verify(mView).resetZoom();
         verify(mView.getVisualize()).update(JSON_REPORT_PARAMS);
     }
@@ -338,6 +336,7 @@ public class ReportVisualizePresenterTest {
         mGetReportShowControlsPropertyCase = spy(new FakeGetReportShowControlsPropertyCase());
         mGetJsonParamsCase = spy(new FakeGetJsonParamsCase());
 
+        fakeState.setControlsPageShown(false);
         when(mView.getState()).thenReturn(fakeState);
         when(mView.getVisualize()).thenReturn(mVisualizeViewModel);
         when(mView.getPaginationTotalPages()).thenReturn(0);
@@ -381,11 +380,11 @@ public class ReportVisualizePresenterTest {
 
     private class FakeGetJsonParamsCase extends GetJsonParamsCase {
         public FakeGetJsonParamsCase() {
-            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null);
         }
 
         @Override
-        protected Observable<String> buildUseCaseObservable() {
+        protected Observable<String> buildUseCaseObservable(String reportUri) {
             return Observable.just(JSON_REPORT_PARAMS);
         }
     }

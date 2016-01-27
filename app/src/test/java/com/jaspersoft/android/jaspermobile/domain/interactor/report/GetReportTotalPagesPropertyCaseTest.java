@@ -39,8 +39,8 @@ public class GetReportTotalPagesPropertyCaseTest {
         mTotalPagesPropertyCase = new GetReportTotalPagesPropertyCase(FakePreExecutionThread.create(),
                 FakePostExecutionThread.create(),
                 mReportRepository,
-                mReportPropertyRepository,
-                REPORT_URI);
+                mReportPropertyRepository
+        );
     }
 
     @Test
@@ -48,7 +48,7 @@ public class GetReportTotalPagesPropertyCaseTest {
         when(mReportRepository.getReport(anyString())).thenReturn(Observable.just(mReport));
 
         TestSubscriber<Integer> test = new TestSubscriber<>();
-        mTotalPagesPropertyCase.execute(test);
+        mTotalPagesPropertyCase.execute(REPORT_URI, test);
 
         verify(mReportRepository).getReport(REPORT_URI);
         verify(mReportPropertyRepository).getTotalPagesProperty(mReport);

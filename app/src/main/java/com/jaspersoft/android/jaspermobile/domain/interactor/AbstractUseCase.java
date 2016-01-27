@@ -1,5 +1,7 @@
 package com.jaspersoft.android.jaspermobile.domain.interactor;
 
+import android.support.annotation.NonNull;
+
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 
@@ -34,7 +36,7 @@ public abstract class AbstractUseCase<Result, Argument> implements UseCase<Resul
      * @param useCaseSubscriber The guy who will be listen to the observable build with {@link #buildUseCaseObservable(Argument)}.
      */
     @Override
-    public void execute(Argument argument, Subscriber<? super Result> useCaseSubscriber) {
+    public void execute(@NonNull Argument argument, @NonNull Subscriber<? super Result> useCaseSubscriber) {
         Observable<Result> command = this.buildUseCaseObservable(argument);
         this.subscription = command
                 .subscribeOn(mPreExecutionThread.getScheduler())

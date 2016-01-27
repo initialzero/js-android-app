@@ -40,8 +40,8 @@ public class GetReportMultiPagePropertyCaseTest {
         mMultiPagePropertyCase = new GetReportMultiPagePropertyCase(FakePreExecutionThread.create(),
                 FakePostExecutionThread.create(),
                 mReportRepository,
-                mReportPropertyRepository,
-                REPORT_URI);
+                mReportPropertyRepository
+        );
     }
 
     @Test
@@ -49,7 +49,7 @@ public class GetReportMultiPagePropertyCaseTest {
         when(mReportRepository.getReport(anyString())).thenReturn(Observable.just(mReport));
 
         TestSubscriber<Boolean> test = new TestSubscriber<>();
-        mMultiPagePropertyCase.execute(test);
+        mMultiPagePropertyCase.execute(REPORT_URI, test);
 
         verify(mReportRepository).getReport(REPORT_URI);
         verify(mReportPropertyRepository).getMultiPageProperty(mReport);

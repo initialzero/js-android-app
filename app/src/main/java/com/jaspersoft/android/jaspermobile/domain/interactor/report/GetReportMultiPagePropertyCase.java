@@ -27,13 +27,14 @@ package com.jaspersoft.android.jaspermobile.domain.interactor.report;
 import com.jaspersoft.android.jaspermobile.domain.Report;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
-import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractSimpleUseCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPropertyRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import rx.Observable;
 import rx.functions.Func1;
@@ -43,27 +44,24 @@ import rx.functions.Func1;
  * @since 2.3
  */
 @PerReport
-public class GetReportMultiPagePropertyCase extends AbstractSimpleUseCase<Boolean> {
+public class GetReportMultiPagePropertyCase extends AbstractUseCase<Boolean, String> {
     private final ReportRepository mReportRepository;
     private final ReportPropertyRepository mReportPropertyRepository;
-    private final String mReportUri;
 
     @Inject
     public GetReportMultiPagePropertyCase(PreExecutionThread preExecutionThread,
                                           PostExecutionThread postExecutionThread,
                                           ReportRepository reportRepository,
-                                          ReportPropertyRepository reportPropertyRepository,
-                                          @Named("report_uri") String reportUri
+                                          ReportPropertyRepository reportPropertyRepository
     ) {
         super(preExecutionThread, postExecutionThread);
         mReportRepository = reportRepository;
         mReportPropertyRepository = reportPropertyRepository;
-        mReportUri = reportUri;
     }
 
     @Override
-    protected Observable<Boolean> buildUseCaseObservable() {
-        return mReportRepository.getReport(mReportUri).flatMap(new Func1<Report, Observable<Boolean>>() {
+    protected Observable<Boolean> buildUseCaseObservable(@NotNull String reportUri) {
+        return mReportRepository.getReport(reportUri).flatMap(new Func1<Report, Observable<Boolean>>() {
             @Override
             public Observable<Boolean> call(Report report) {
                 return mReportPropertyRepository.getMultiPageProperty(report);

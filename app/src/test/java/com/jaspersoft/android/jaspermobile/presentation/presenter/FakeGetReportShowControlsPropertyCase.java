@@ -14,7 +14,7 @@ public class FakeGetReportShowControlsPropertyCase extends GetReportShowControls
     private boolean mFakeResult;
 
     public FakeGetReportShowControlsPropertyCase() {
-        super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null);
+        super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null);
     }
 
     public void setNeedParams(boolean fakeResult) {
@@ -22,7 +22,7 @@ public class FakeGetReportShowControlsPropertyCase extends GetReportShowControls
     }
 
     @Override
-    protected Observable<Boolean> buildUseCaseObservable() {
+    protected Observable<Boolean> buildUseCaseObservable(String reportUri) {
         return Observable.just(mFakeResult);
     }
 }

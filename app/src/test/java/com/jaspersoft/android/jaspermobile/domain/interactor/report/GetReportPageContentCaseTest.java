@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.domain.interactor.report;
 
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.Report;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
@@ -42,17 +43,17 @@ public class GetReportPageContentCaseTest {
                 FakePreExecutionThread.create(),
                 FakePostExecutionThread.create(),
                 mReportRepository,
-                mReportPageRepository,
-                REPORT_URI
+                mReportPageRepository
         );
     }
 
     @Test
     public void testBuildUseCaseObservable() throws Exception {
+        PageRequest pageRequest = new PageRequest(REPORT_URI, "10");
         when(mReportRepository.getReport(anyString())).thenReturn(Observable.just(mReport));
 
         TestSubscriber<ReportPage> test = new TestSubscriber<>();
-        mPageContentCase.execute("10", test);
+        mPageContentCase.execute(pageRequest, test);
 
         verify(mReportRepository).getReport(REPORT_URI);
         verify(mReportPageRepository).get(mReport, "10");

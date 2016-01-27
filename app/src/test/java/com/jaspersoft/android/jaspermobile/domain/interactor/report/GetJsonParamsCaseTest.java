@@ -44,8 +44,7 @@ public class GetJsonParamsCaseTest {
                 FakePreExecutionThread.create(),
                 FakePostExecutionThread.create(),
                 mReportParamsCache,
-                mReportParamsMapper,
-                REPORT_URI
+                mReportParamsMapper
         );
     }
 
@@ -57,7 +56,7 @@ public class GetJsonParamsCaseTest {
     @Test
     public void testBuildUseCaseObservable() throws Exception {
         TestSubscriber<String> test = new TestSubscriber<>();
-        mGetJsonParamsCase.execute(test);
+        mGetJsonParamsCase.execute(REPORT_URI, test);
 
         verify(mReportParamsCache).get(REPORT_URI);
         verify(mReportParamsMapper).toJsonLegacyParams(REPORT_PARAMS);

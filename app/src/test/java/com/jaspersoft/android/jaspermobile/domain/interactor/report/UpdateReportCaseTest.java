@@ -43,8 +43,7 @@ public class UpdateReportCaseTest {
                 FakePreExecutionThread.create(),
                 FakePostExecutionThread.create(),
                 mReportRepository,
-                mReportPageRepository,
-                REPORT_URI
+                mReportPageRepository
         );
     }
 
@@ -53,7 +52,7 @@ public class UpdateReportCaseTest {
         when(mReportRepository.updateReport(anyString())).thenReturn(Observable.just(mReport));
 
         TestSubscriber<ReportPage> test = new TestSubscriber<>();
-        mUpdateReportCase.execute(test);
+        mUpdateReportCase.execute(REPORT_URI, test);
 
         verify(mReportRepository).updateReport(REPORT_URI);
         verify(mReportPageRepository).get(mReport, "1");

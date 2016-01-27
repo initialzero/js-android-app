@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMultiPagePropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportPageContentCase;
@@ -25,6 +26,7 @@ import rx.Observable;
 import rx.Subscriber;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -40,6 +42,7 @@ public class ReportViewPresenterTest {
     private static final String PAGE_CONTENT = "page content";
     private static final ReportPage PAGE = new ReportPage(PAGE_CONTENT, true);
     private static final String CURRENT_PAGE = "10";
+    private static final PageRequest PAGE_REQUEST = new PageRequest(REPORT_URI, CURRENT_PAGE);
 
     @Mock
     RequestExceptionHandler mExceptionHandler;
@@ -62,6 +65,7 @@ public class ReportViewPresenterTest {
         initMocks(this);
         setupMocks();
         presenter = new ReportViewPresenter(
+                REPORT_URI,
                 mExceptionHandler,
                 mFakeGetReportShowControlsPropertyCase,
                 mFakeGetReportMultiPagePropertyCase,
@@ -81,7 +85,7 @@ public class ReportViewPresenterTest {
         presenter.init();
 
         verify(mView).showLoading();
-        verify(mFakeGetReportShowControlsPropertyCase).execute(any(Subscriber.class));
+        verify(mFakeGetReportShowControlsPropertyCase).execute(eq(REPORT_URI), any(Subscriber.class));
         verify(mView).setFilterActionVisibility(true);
         verify(mView).hideLoading();
 
@@ -95,7 +99,7 @@ public class ReportViewPresenterTest {
         presenter.init();
         verify(mReportPageState).setControlsPageShown(true);
         verify(mView).setFilterActionVisibility(false);
-        verify(mFakeRunReportCase).execute(any(Subscriber.class));
+        verify(mFakeRunReportCase).execute(eq(REPORT_URI), any(Subscriber.class));
     }
 
     @Test
@@ -105,12 +109,12 @@ public class ReportViewPresenterTest {
 
         presenter.init();
 
-        verify(mFakeGetReportPageContentCase).execute(eq(CURRENT_PAGE), any(Subscriber.class));
+        verify(mFakeGetReportPageContentCase).execute(eq(PAGE_REQUEST), any(Subscriber.class));
         verify(mReportPageState).setCurrentPage(CURRENT_PAGE);
         verify(mView).showPage(PAGE_CONTENT);
 
-        verify(mFakeGetReportMultiPagePropertyCase).execute(any(Subscriber.class));
-        verify(mFakeGetReportTotalPagesPropertyCase).execute(any(Subscriber.class));
+        verify(mFakeGetReportMultiPagePropertyCase).execute(anyString(), any(Subscriber.class));
+        verify(mFakeGetReportTotalPagesPropertyCase).execute(eq(REPORT_URI), any(Subscriber.class));
     }
 
     @Test
@@ -119,7 +123,7 @@ public class ReportViewPresenterTest {
         presenter.loadPage("10");
 
         verify(mView).showPageLoader();
-        verify(mFakeGetReportPageContentCase).execute(eq("10"), any(Subscriber.class));
+        verify(mFakeGetReportPageContentCase).execute(eq(new PageRequest(REPORT_URI, "10")), any(Subscriber.class));
 
         verify(mReportPageState).setCurrentPage("10");
         verify(mView).showCurrentPage(10);
@@ -131,7 +135,7 @@ public class ReportViewPresenterTest {
     public void should_perform_run_report_action() throws Exception {
         presenter.runReport();
 
-        verify(mFakeGetReportTotalPagesPropertyCase).execute(any(Subscriber.class));
+        verify(mFakeGetReportTotalPagesPropertyCase).execute(eq(REPORT_URI), any(Subscriber.class));
 
         verify(mView).showLoading();
         verify(mReportPageState).setCurrentPage("1");
@@ -139,7 +143,7 @@ public class ReportViewPresenterTest {
         verify(mView).showPage(PAGE_CONTENT);
         verify(mView).hideLoading();
 
-        verify(mFakeGetReportMultiPagePropertyCase).execute(any(Subscriber.class));
+        verify(mFakeGetReportMultiPagePropertyCase).execute(anyString(), any(Subscriber.class));
     }
 
     @Test
@@ -147,7 +151,7 @@ public class ReportViewPresenterTest {
     public void should_perform_update_report_action() throws Exception {
         presenter.updateReport();
 
-        verify(mFakeUpdateReportCase).execute(any(Subscriber.class));
+        verify(mFakeUpdateReportCase).execute(eq(REPORT_URI), any(Subscriber.class));
         verify(mView).resetPaginationControl();
         verify(mReportPageState).setCurrentPage("1");
         verify(mView).showCurrentPage(1);
@@ -160,7 +164,7 @@ public class ReportViewPresenterTest {
         presenter.refresh();
 
         verify(mView).showLoading();
-        verify(mFakeReloadReportCase).execute(any(Subscriber.class));
+        verify(mFakeReloadReportCase).execute(eq(REPORT_URI), any(Subscriber.class));
         verify(mView).hideLoading();
 
         verify(mView).resetPaginationControl();
@@ -219,7 +223,7 @@ public class ReportViewPresenterTest {
     public void should_handle_report_execution_invalidation_case() throws Exception {
         ServiceException serviceException = new ServiceException("message", null, StatusCodes.REPORT_EXECUTION_INVALID);
         presenter.handleError(serviceException);
-        verify(mFakeReloadReportCase).execute(any(Subscriber.class));
+        verify(mFakeReloadReportCase).execute(eq(REPORT_URI), any(Subscriber.class));
     }
 
     @Test
@@ -227,7 +231,7 @@ public class ReportViewPresenterTest {
         ServiceException serviceException = new ServiceException("message", null, StatusCodes.EXPORT_PAGE_OUT_OF_RANGE);
         presenter.handleError(serviceException);
         verify(mView).showPageOutOfRangeError();
-        verify(mFakeGetReportPageContentCase).execute(eq(CURRENT_PAGE), any(Subscriber.class));
+        verify(mFakeGetReportPageContentCase).execute(eq(PAGE_REQUEST), any(Subscriber.class));
     }
 
     private void setupMocks() {
@@ -250,7 +254,7 @@ public class ReportViewPresenterTest {
         private int mPages;
 
         public FakeGetReportTotalPagesPropertyCase() {
-            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null);
         }
 
         public void setPages(int pages) {
@@ -258,40 +262,40 @@ public class ReportViewPresenterTest {
         }
 
         @Override
-        protected Observable<Integer> buildUseCaseObservable() {
+        protected Observable<Integer> buildUseCaseObservable(String reportUri) {
             return Observable.just(mPages);
         }
     }
 
     private static class FakeUpdateReportCase extends UpdateReportCase {
         public FakeUpdateReportCase() {
-            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null);
         }
 
         @Override
-        protected Observable<ReportPage> buildUseCaseObservable() {
+        protected Observable<ReportPage> buildUseCaseObservable(String reportUri) {
             return Observable.just(PAGE);
         }
     }
 
     private static class FakeRunReportCase extends RunReportCase {
         public FakeRunReportCase() {
-            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null);
         }
 
         @Override
-        protected Observable<ReportPage> buildUseCaseObservable() {
+        protected Observable<ReportPage> buildUseCaseObservable(String reportUri) {
             return Observable.just(PAGE);
         }
     }
 
     private static class FakeReloadReportCase extends ReloadReportCase {
         public FakeReloadReportCase() {
-            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null);
         }
 
         @Override
-        protected Observable<ReportPage> buildUseCaseObservable() {
+        protected Observable<ReportPage> buildUseCaseObservable(String reportUri) {
             return Observable.just(PAGE);
         }
     }
@@ -300,7 +304,7 @@ public class ReportViewPresenterTest {
         private boolean mFakeResult;
 
         public FakeGetReportMultiPagePropertyCase() {
-            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null);
         }
 
         public void setIsMultiPage(boolean fakeResult) {
@@ -308,18 +312,18 @@ public class ReportViewPresenterTest {
         }
 
         @Override
-        protected Observable<Boolean> buildUseCaseObservable() {
+        protected Observable<Boolean> buildUseCaseObservable(String reportUri) {
             return Observable.just(mFakeResult);
         }
     }
 
     private static class FakeGetReportPageContentCase extends GetReportPageContentCase {
         public FakeGetReportPageContentCase() {
-            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null);
         }
 
         @Override
-        protected Observable<ReportPage> buildUseCaseObservable(@NonNull String uri) {
+        protected Observable<ReportPage> buildUseCaseObservable(@NonNull PageRequest request) {
             return Observable.just(PAGE);
         }
     }

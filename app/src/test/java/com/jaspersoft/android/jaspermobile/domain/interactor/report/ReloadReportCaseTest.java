@@ -42,8 +42,7 @@ public class ReloadReportCaseTest {
                 FakePreExecutionThread.create(),
                 FakePostExecutionThread.create(),
                 mReportRepository,
-                mReportPageRepository,
-                REPORT_URI
+                mReportPageRepository
         );
     }
 
@@ -52,7 +51,7 @@ public class ReloadReportCaseTest {
         when(mReportRepository.reloadReport(anyString())).thenReturn(Observable.just(mReport));
 
         TestSubscriber<ReportPage> test = new TestSubscriber<>();
-        mReloadReportCase.execute(test);
+        mReloadReportCase.execute(REPORT_URI, test);
 
         verify(mReportRepository).reloadReport(REPORT_URI);
         verify(mReportPageRepository).get(mReport, "1");

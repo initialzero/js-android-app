@@ -25,36 +25,29 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
+import android.view.View;
+import android.widget.ImageView;
+
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-public class ResourceBinderFactory {
+class JobResourceBinder extends ResourceBinder {
 
-    private Context mContext;
-
-    public ResourceBinderFactory(Context mContext) {
-        this.mContext = mContext;
+    public JobResourceBinder(Context context) {
+        super(context);
     }
 
-    public ResourceBinder create(JasperResourceType type) {
-        switch (type) {
-            case folder:
-                return new FolderResourceBinder(mContext);
-            case dashboard:
-                return new DashboardResourceBinder(mContext);
-            case report:
-                return new ReportResourceBinder(mContext);
-            case saved_item:
-                return new SavedItemResourceBinder(mContext);
-            case file:
-                return new FileResourceBinder(mContext);
-            case job:
-                return new JobResourceBinder(mContext);
-            default:
-                return new UnknownResourceBinder(mContext);
-        }
+    @Override
+    public void setIcon(ImageView imageView, JasperResource jasperResource) {
+        imageView.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void setActionResource(ResourceView resourceView, JasperResource jasperResource) {
+        resourceView.setSecondaryAction(R.drawable.im_cancel);
     }
 }

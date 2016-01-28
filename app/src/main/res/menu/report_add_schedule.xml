@@ -23,11 +23,13 @@
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="oval">
-            <solid android:color="@color/js_lightest_gray"/>
-            </shape>
-    </item>
-    <item android:drawable="@drawable/ic_menu_close"/>
-</layer-list>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/addSchedule"
+        android:icon="@drawable/ic_menu_add"
+        android:title="@string/ri_schedule"
+        app:showAsAction="ifRoom" />
+
+</menu>

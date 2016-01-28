@@ -55,6 +55,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivit
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.schedule.JobsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
@@ -280,6 +281,10 @@ public class NavigationActivity extends RoboCastActivity {
             case R.id.vg_favorites:
                 currentSelection = R.id.vg_favorites;
                 commitContent(FavoritesPageFragment_.builder().build());
+                break;
+            case R.id.vg_jobs:
+                currentSelection = R.id.vg_jobs;
+                commitContent(JobsFragment_.builder().build());
                 break;
             case R.id.vg_add_account:
                 startActivityForResult(new Intent(this, AuthenticatorActivity.class), NEW_ACCOUNT);

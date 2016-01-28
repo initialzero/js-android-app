@@ -97,7 +97,15 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
 
     public void hideLoading() {
         mNextPageIsLoading = false;
-        notifyItemInserted(jasperResources.size());
+        notifyItemRemoved(jasperResources.size());
+    }
+
+    public void remove(JasperResource jasperResource) {
+        int index = jasperResources.indexOf(jasperResource);
+        boolean removed = jasperResources.remove(jasperResource);
+        if (removed) {
+            notifyItemRemoved(index);
+        }
     }
 
     //---------------------------------------------------------------------

@@ -36,37 +36,32 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OutputFormatDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ValueInputDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.jaspermobile.widget.DateTimeView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
-import com.jaspersoft.android.sdk.client.oxm.report.schedul.JobSource;
 import com.jaspersoft.android.sdk.network.AuthorizedClient;
 import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.network.SpringCredentials;
-import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
-import com.jaspersoft.android.sdk.service.data.schedule.DeferredStartType;
-import com.jaspersoft.android.sdk.service.data.schedule.ImmediateStartType;
 import com.jaspersoft.android.sdk.service.data.schedule.JobData;
 import com.jaspersoft.android.sdk.service.data.schedule.JobForm;
 import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
 import com.jaspersoft.android.sdk.service.data.schedule.JobSimpleTrigger;
-import com.jaspersoft.android.sdk.service.data.schedule.JobStartType;
+import com.jaspersoft.android.sdk.service.data.schedule.JobSource;
 import com.jaspersoft.android.sdk.service.data.schedule.JobTrigger;
 import com.jaspersoft.android.sdk.service.data.schedule.RecurrenceIntervalUnit;
-import com.jaspersoft.android.sdk.service.rx.report.RxFiltersService;
+import com.jaspersoft.android.sdk.service.data.schedule.RepositoryDestination;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 
 import org.androidannotations.annotations.AfterViews;
@@ -74,7 +69,6 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
@@ -84,9 +78,6 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.List;
 import java.util.TimeZone;
 
 import rx.Observable;
@@ -99,7 +90,7 @@ import rx.subscriptions.CompositeSubscription;
  * @author Andrew Tivodar
  * @since 2.3
  */
-@OptionsMenu(R.menu.report_schedule)
+@OptionsMenu(R.menu.report_add_schedule)
 @EActivity(R.layout.activity_schedule)
 public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFragment.DateDialogClickListener,
         OutputFormatDialogFragment.OutputFormatClickListener, ValueInputDialogFragment.ValueDialogCallback {
@@ -112,6 +103,8 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     @Extra
     protected JasperResource jasperResource;
 
+    @Inject
+    protected Analytics analytics;
     @Inject
     protected JsRestClient jsRestClient;
 
@@ -177,7 +170,12 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
         mCompositeSubscription.unsubscribe();
     }
 
-    @OptionsItem(R.id.newSchedule)
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_sch);
+    }
+
+    @OptionsItem(R.id.addSchedule)
     protected void schedule() {
         ProgressDialogFragment.builder(getSupportFragmentManager())
                 .setLoadingMessage(R.string.loading_msg)
@@ -201,7 +199,7 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
                         .subscribe(new Subscriber<JobData>() {
                             @Override
                             public void onCompleted() {
-
+                                analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.SCHEDULED.getValue(), null);
                             }
 
                             @Override
@@ -327,27 +325,20 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     }
 
     private JobForm createJobForm() {
-        JobStartType jobStartType;
-        if (runImmediately.isChecked()) {
-            jobStartType = new ImmediateStartType();
-        } else {
-            jobStartType = new DeferredStartType(mDate.getTime());
-        }
-
-        JobTrigger jobTrigger = new JobSimpleTrigger.Builder()
+        JobSimpleTrigger jobTrigger = new JobSimpleTrigger.Builder()
                 .withOccurrenceCount(1)
                 .withRecurrenceIntervalUnit(RecurrenceIntervalUnit.WEEK)
                 .withRecurrenceInterval(0)
                 .withTimeZone(TimeZone.getDefault())
-                .withStartType(jobStartType)
+                .withStartDate(mDate == null ? null : mDate.getTime())
                 .build();
 
         return new JobForm.Builder()
                 .withBaseOutputFilename(fileName.getText().toString())
                 .withLabel(jobName.getText().toString())
-                .withTrigger(jobTrigger)
-                .withSource(jasperResource.getId())
-                .withRepositoryDestination(outputPath.getText().toString())
+                .withSimpleTrigger(jobTrigger)
+                .withJobSource(new JobSource.Builder().withUri(jasperResource.getId()).build())
+                .withRepositoryDestination(new RepositoryDestination.Builder().withFolderUri(outputPath.getText().toString()).build())
                 .addOutputFormats(mFormats)
                 .build();
     }

@@ -35,7 +35,7 @@ public class ReportParamsMapperTest {
         ReportParameter parameter =
                 new ReportParameter("name", Collections.singleton("value"));
 
-        com.jaspersoft.android.sdk.network.entity.report.ReportParameter result = mReportParamsMapper.toRetrofittedParam(parameter);
+        com.jaspersoft.android.sdk.network.entity.report.ReportParameter result = mReportParamsMapper.legacyParamToRetrofitted(parameter);
         assertThat("Should map report parameter name", result.getName(), is("name"));
         assertThat("Should map report parameter values", result.getValue(), hasItem("value"));
     }

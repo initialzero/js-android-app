@@ -3,12 +3,16 @@ package com.jaspersoft.android.jaspermobile.data.entity.mapper;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
+import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,18 +30,18 @@ public class ReportParamsMapper {
     public ReportParamsMapper() {
     }
 
-    public List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> toRetrofittedParams(List<ReportParameter> legacyParameters) {
+    public List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> legacyParamsToRetrofitted(List<ReportParameter> legacyParameters) {
         List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> list = new ArrayList<>(legacyParameters.size());
         for (ReportParameter legacyParameter : legacyParameters) {
             if (legacyParameter != null) {
-                com.jaspersoft.android.sdk.network.entity.report.ReportParameter parameter = toRetrofittedParam(legacyParameter);
+                com.jaspersoft.android.sdk.network.entity.report.ReportParameter parameter = legacyParamToRetrofitted(legacyParameter);
                 list.add(parameter);
             }
         }
         return list;
     }
 
-    public com.jaspersoft.android.sdk.network.entity.report.ReportParameter toRetrofittedParam(ReportParameter legacyParameter) {
+    public com.jaspersoft.android.sdk.network.entity.report.ReportParameter legacyParamToRetrofitted(ReportParameter legacyParameter) {
         return new com.jaspersoft.android.sdk.network.entity.report.ReportParameter(legacyParameter.getName(), legacyParameter.getValues());
     }
 
@@ -71,6 +75,30 @@ public class ReportParamsMapper {
         List<ReportParameter> parameters = new ArrayList<>(params.size());
         for (Map.Entry<String, Set<String>> entry : params.entrySet()) {
             parameters.add(new ReportParameter(entry.getKey(), entry.getValue()));
+        }
+        return parameters;
+    }
+
+    public List<ReportParameter> legacyControlsToParams(List<InputControl> inputControls) {
+        List<ReportParameter> parameters = new ArrayList<>();
+        for (InputControl inputControl : inputControls) {
+            ReportParameter reportParameter = new ReportParameter();
+            InputControlState state = inputControl.getState();
+            if (state != null) {
+                Set<String> values = new HashSet<>();
+                String value = state.getValue();
+                if (value == null) {
+                    List<InputControlOption> options = state.getOptions();
+                    for (InputControlOption option : options) {
+                        values.add(option.getValue());
+                    }
+                } else {
+                    values.add(value);
+                }
+                reportParameter.setName(state.getId());
+                reportParameter.setValues(values);
+                parameters.add(reportParameter);
+            }
         }
         return parameters;
     }

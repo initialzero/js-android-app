@@ -25,18 +25,18 @@ public class InputControlsMapper {
     public InputControlsMapper() {
     }
 
-    public List<com.jaspersoft.android.sdk.client.oxm.control.InputControl> transform(List<InputControl> controls) {
+    public List<com.jaspersoft.android.sdk.client.oxm.control.InputControl> retrofittedControlsToLegacy(List<InputControl> controls) {
         List<com.jaspersoft.android.sdk.client.oxm.control.InputControl> list = new ArrayList<>(controls.size());
         for (InputControl control : controls) {
             if (control != null) {
-                com.jaspersoft.android.sdk.client.oxm.control.InputControl item = transform(control);
+                com.jaspersoft.android.sdk.client.oxm.control.InputControl item = retrofittedControlToLegacy(control);
                 list.add(item);
             }
         }
         return list;
     }
 
-    public com.jaspersoft.android.sdk.client.oxm.control.InputControl transform(InputControl control) {
+    public com.jaspersoft.android.sdk.client.oxm.control.InputControl retrofittedControlToLegacy(InputControl control) {
         com.jaspersoft.android.sdk.client.oxm.control.InputControl legacyControl = new com.jaspersoft.android.sdk.client.oxm.control.InputControl();
         legacyControl.setId(control.getId());
         legacyControl.setLabel(control.getLabel());
@@ -68,26 +68,42 @@ public class InputControlsMapper {
 
         InputControlState state = control.getState();
         if (state != null) {
-            com.jaspersoft.android.sdk.client.oxm.control.InputControlState legacyState = new com.jaspersoft.android.sdk.client.oxm.control.InputControlState();
-            legacyState.setId(state.getId());
-            legacyState.setUri(state.getUri());
-            legacyState.setValue(state.getValue());
-
-            Set<InputControlOption> options = state.getOptions();
-            List<com.jaspersoft.android.sdk.client.oxm.control.InputControlOption> legacyOptions = new ArrayList<>(options.size());
-            for (InputControlOption option : options) {
-                if (option != null) {
-                    com.jaspersoft.android.sdk.client.oxm.control.InputControlOption legacyOption = new com.jaspersoft.android.sdk.client.oxm.control.InputControlOption();
-                    legacyOption.setValue(option.getValue());
-                    legacyOption.setLabel(option.getLabel());
-                    legacyOption.setSelected(option.isSelected());
-                    legacyOptions.add(legacyOption);
-                }
-            }
-            legacyState.setOptions(legacyOptions);
+            com.jaspersoft.android.sdk.client.oxm.control.InputControlState legacyState = retrofittedStateToLegacy(state);
             legacyControl.setState(legacyState);
         }
 
         return legacyControl;
+    }
+
+    public List<com.jaspersoft.android.sdk.client.oxm.control.InputControlState> retrofittedStatesToLegacy(List<InputControlState> states) {
+        List<com.jaspersoft.android.sdk.client.oxm.control.InputControlState> list = new ArrayList<>(states.size());
+        for (InputControlState state : states) {
+            if (state != null) {
+                com.jaspersoft.android.sdk.client.oxm.control.InputControlState item = retrofittedStateToLegacy(state);
+                list.add(item);
+            }
+        }
+        return list;
+    }
+
+    public com.jaspersoft.android.sdk.client.oxm.control.InputControlState retrofittedStateToLegacy(InputControlState state) {
+        com.jaspersoft.android.sdk.client.oxm.control.InputControlState legacyState = new com.jaspersoft.android.sdk.client.oxm.control.InputControlState();
+        legacyState.setId(state.getId());
+        legacyState.setUri(state.getUri());
+        legacyState.setValue(state.getValue());
+
+        Set<InputControlOption> options = state.getOptions();
+        List<com.jaspersoft.android.sdk.client.oxm.control.InputControlOption> legacyOptions = new ArrayList<>(options.size());
+        for (InputControlOption option : options) {
+            if (option != null) {
+                com.jaspersoft.android.sdk.client.oxm.control.InputControlOption legacyOption = new com.jaspersoft.android.sdk.client.oxm.control.InputControlOption();
+                legacyOption.setValue(option.getValue());
+                legacyOption.setLabel(option.getLabel());
+                legacyOption.setSelected(option.isSelected());
+                legacyOptions.add(legacyOption);
+            }
+        }
+        legacyState.setOptions(legacyOptions);
+        return legacyState;
     }
 }

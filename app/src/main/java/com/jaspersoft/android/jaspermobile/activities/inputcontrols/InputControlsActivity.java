@@ -47,6 +47,7 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.InputControlsAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.ItemSpaceDecoration;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -54,10 +55,12 @@ import com.jaspersoft.android.jaspermobile.dialog.SaveReportOptionDialogFragment
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.TextInputControlDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.TextInputControlDialogFragment_;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateInputControlsCase;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.IcDateHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
@@ -69,7 +72,6 @@ import com.jaspersoft.android.sdk.client.async.request.DeleteReportOptionRequest
 import com.jaspersoft.android.sdk.client.async.request.GetReportOptionValuesRequest;
 import com.jaspersoft.android.sdk.client.async.request.ReportOptionsRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.ValidateInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
@@ -100,6 +102,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import rx.Subscriber;
 import timber.log.Timber;
 
 /**
@@ -125,6 +128,9 @@ public class InputControlsActivity extends RoboSpiceActivity
     protected JsRestClientWrapper jsRestClientWrapper;
     @Inject
     protected ReportParamsStorage paramsStorage;
+    @Inject
+    @Nullable
+    protected ValidateInputControlsCase mValidateInputControlsCase;
 
     @ViewById(R.id.btnApplyParams)
     protected FloatingActionButton applyParams;
@@ -191,6 +197,12 @@ public class InputControlsActivity extends RoboSpiceActivity
         showReportOptions();
     }
 
+    @Override
+    protected void onStop() {
+        mValidateInputControlsCase.unsubscribe();
+        super.onStop();
+    }
+
     @OptionsItem(R.id.deleteReportOption)
     protected void deleteReportOptionAction() {
         ReportOption currentReportOption = mReportOptions.get(getSelectedReportOptionPosition()).getReportOption();
@@ -206,8 +218,7 @@ public class InputControlsActivity extends RoboSpiceActivity
     @OptionsItem(R.id.saveReportOption)
     protected void saveReportOptionAction() {
         setProgressDialogState(true);
-        ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClientWrapper.getClient(), reportUri, mInputControls);
-        getSpiceManager().execute(request, new ValidateReportOptionsValuesListener());
+        mValidateInputControlsCase.execute(reportUri, new ValidateReportOptionsValuesListener());
     }
 
     @OptionsItem(R.id.resetReportOption)
@@ -218,8 +229,7 @@ public class InputControlsActivity extends RoboSpiceActivity
     @Click(R.id.btnApplyParams)
     protected void applyParamsClick() {
         setProgressDialogState(true);
-        ValidateInputControlsValuesRequest request = new ValidateInputControlsValuesRequest(jsRestClientWrapper.getClient(), reportUri, mInputControls);
-        getSpiceManager().execute(request, new ValidateInputControlsValuesListener());
+        mValidateInputControlsCase.execute(reportUri, new ValidateInputControlsValuesListener());
     }
 
     @OnActivityResult(SELECT_IC_REQUEST_CODE)
@@ -646,32 +656,28 @@ public class InputControlsActivity extends RoboSpiceActivity
         }
     }
 
-    private class ValidateInputControlsValuesListener extends SimpleRequestListener<InputControlStatesList> {
-
-        @Override
-        protected Context getContext() {
-            return InputControlsActivity.this;
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            super.onRequestFailure(exception);
-            setProgressDialogState(false);
-        }
-
-        @Override
-        public void onRequestSuccess(InputControlStatesList stateList) {
-            List<InputControlState> invalidStateList = stateList.getInputControlStates();
-            if (invalidStateList.isEmpty()) {
-                onValidationPassed();
-            } else {
-                updateInputControls(invalidStateList);
-            }
-            setProgressDialogState(false);
-        }
-
+    private class ValidateInputControlsValuesListener extends Subscriber<List<InputControlState>> {
         protected void onValidationPassed(){
             runReport();
+        }
+
+        @Override
+        public void onCompleted() {
+            setProgressDialogState(false);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            RequestExceptionHandler.handle(e, InputControlsActivity.this);
+        }
+
+        @Override
+        public void onNext(List<InputControlState> stateList) {
+            if (stateList.isEmpty()) {
+                onValidationPassed();
+            } else {
+                updateInputControls(stateList);
+            }
         }
     }
 

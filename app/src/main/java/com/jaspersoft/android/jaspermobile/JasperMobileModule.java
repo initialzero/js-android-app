@@ -30,7 +30,10 @@ import android.content.Context;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
+import com.google.inject.util.Providers;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateInputControlsCase;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
@@ -74,10 +77,14 @@ public class JasperMobileModule extends AbstractModule {
         String endpoint = AccountServerData.Demo.SERVER_URL;
         bindConstant().annotatedWith(Names.named("DEMO_ENDPOINT")).to(endpoint);
 
+        bind(Context.class).annotatedWith(ApplicationContext.class).toInstance(mContext);
         bind(ReportParamsStorage.class).in(Singleton.class);
         bind(AppConfigurator.class).to(AppConfiguratorImpl.class);
         bind(Analytics.class).to(JasperAnalytics.class).in(Singleton.class);
         bind(SecurityProviderUpdater.class).to(JasperSecurityProviderUpdater.class).in(Singleton.class);
+
+        bind(ValidateInputControlsCase.class)
+                .toProvider(Providers.<ValidateInputControlsCase>of(null));
     }
 
 }

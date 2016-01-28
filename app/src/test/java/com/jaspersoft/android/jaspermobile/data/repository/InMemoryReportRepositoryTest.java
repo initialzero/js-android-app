@@ -129,7 +129,7 @@ public class InMemoryReportRepositoryTest {
     private void setupMocks() {
         when(mRxReportService.run(anyString(), any(ReportExecutionOptions.class)))
                 .thenReturn(Observable.just(mRxReportExecution));
-        when(mReportParamsMapper.toRetrofittedParams(anyList())).thenReturn(REPORT_PARAMS);
+        when(mReportParamsMapper.legacyParamsToRetrofitted(anyList())).thenReturn(REPORT_PARAMS);
         when(mReportCache.get(anyString())).thenReturn(null);
         when(mReportParamsCache.get(anyString())).thenReturn(LEGACY_REPORT_PARAMS);
     }

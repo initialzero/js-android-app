@@ -58,7 +58,7 @@ public class InputControlsMapperTest {
 
     @Test
     public void should_transform_mandatory_control() throws Exception {
-        com.jaspersoft.android.sdk.client.oxm.control.InputControl legacyControl = controlsMapper.transform(mInputControl);
+        com.jaspersoft.android.sdk.client.oxm.control.InputControl legacyControl = controlsMapper.retrofittedControlToLegacy(mInputControl);
         assertThat("Should map control id", legacyControl.getId(), is("id of input control"));
         assertThat("Should map control label", legacyControl.getLabel(), is("label of input control"));
         assertThat("Should map control type", legacyControl.getType(), is(com.jaspersoft.android.sdk.client.oxm.control.InputControl.Type.singleValueText));
@@ -87,7 +87,7 @@ public class InputControlsMapperTest {
     @Test
     public void should_transform_datetime_control() throws Exception {
         when(mValidationRule.getType()).thenReturn("dateTimeFormatValidationRule");
-        com.jaspersoft.android.sdk.client.oxm.control.InputControl legacyControl = controlsMapper.transform(mInputControl);
+        com.jaspersoft.android.sdk.client.oxm.control.InputControl legacyControl = controlsMapper.retrofittedControlToLegacy(mInputControl);
         com.jaspersoft.android.sdk.client.oxm.control.validation.DateTimeFormatValidationRule legacyValidationRule = (DateTimeFormatValidationRule) legacyControl.getValidationRules().get(0);
         assertThat("Should map validation rule error message", legacyValidationRule.getErrorMessage(), is("validation error message"));
         assertThat("Should map validation rule format", legacyValidationRule.getFormat(), is("value of validation rule"));

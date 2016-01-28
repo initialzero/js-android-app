@@ -98,7 +98,7 @@ public final class InMemoryReportRepository implements ReportRepository {
                 @Override
                 public Observable<RxReportExecution> call() {
                     List<com.jaspersoft.android.sdk.client.oxm.report.ReportParameter> legacyParams = mReportParamsCache.get(uri);
-                    List<ReportParameter> params = mReportParamsMapper.toRetrofittedParams(legacyParams);
+                    List<ReportParameter> params = mReportParamsMapper.legacyParamsToRetrofitted(legacyParams);
 
                     ReportExecutionOptions options = ReportExecutionOptions.builder()
                             .withFormat(ReportFormat.HTML)
@@ -165,7 +165,7 @@ public final class InMemoryReportRepository implements ReportRepository {
                         @Override
                         public Observable<RxReportExecution> call(RxReportExecution oldExecution) {
                             List<com.jaspersoft.android.sdk.client.oxm.report.ReportParameter> legacyParams = mReportParamsCache.get(uri);
-                            List<ReportParameter> params = mReportParamsMapper.toRetrofittedParams(legacyParams);
+                            List<ReportParameter> params = mReportParamsMapper.legacyParamsToRetrofitted(legacyParams);
 
                             return oldExecution.updateExecution(params);
                         }

@@ -2,9 +2,13 @@ package com.jaspersoft.android.jaspermobile.data.repository;
 
 import com.jaspersoft.android.jaspermobile.Chain;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.InputControlsMapper;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryControlsRepository;
 import com.jaspersoft.android.sdk.network.entity.control.InputControl;
+import com.jaspersoft.android.sdk.network.entity.control.InputControlState;
+import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 
 import org.junit.Before;
@@ -17,6 +21,8 @@ import java.util.List;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,16 +37,23 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class InMemoryControlsRepositoryTest {
 
     private static final String REPORT_URI = "my/uri";
-    public static final List<InputControl> CONTROLS = Collections.emptyList();
-    public static final List<com.jaspersoft.android.sdk.client.oxm.control.InputControl> LEGACY_CONTROLS = Collections.emptyList();
+    private static final List<InputControl> CONTROLS = Collections.emptyList();
+    private static final List<InputControlState> STATES = Collections.emptyList();
+    private static final List<com.jaspersoft.android.sdk.client.oxm.control.InputControlState> LEGACY_STATES = Collections.emptyList();
+    private static final List<com.jaspersoft.android.sdk.client.oxm.control.InputControl> LEGACY_CONTROLS = Collections.emptyList();
+    private static final List<com.jaspersoft.android.sdk.client.oxm.report.ReportParameter> LEGACY_REPORT_PARAMETERS = Collections.emptyList();
+    private static final List<ReportParameter> REPORT_PARAMETERS = Collections.emptyList();
 
     @Mock
     RxFiltersService mFiltersService;
     @Mock
     ControlsCache mControlsCache;
     @Mock
+    ReportParamsCache mReportParamsCache;
+    @Mock
     InputControlsMapper mInputControlsMapper;
-
+    @Mock
+    ReportParamsMapper mReportParamsMapper;
 
     private InMemoryControlsRepository inMemoryControlsRepository;
 
@@ -48,8 +61,13 @@ public class InMemoryControlsRepositoryTest {
     public void setUp() throws Exception {
         initMocks(this);
         setupMocks();
-        inMemoryControlsRepository =
-                new InMemoryControlsRepository(mFiltersService, mControlsCache, mInputControlsMapper);
+        inMemoryControlsRepository = new InMemoryControlsRepository(
+                mFiltersService,
+                mControlsCache,
+                mReportParamsCache,
+                mInputControlsMapper,
+                mReportParamsMapper
+        );
     }
 
     @Test
@@ -81,6 +99,18 @@ public class InMemoryControlsRepositoryTest {
         verify(mControlsCache).evict(REPORT_URI);
     }
 
+    @Test
+    public void should_request_input_control_states() throws Exception {
+        TestSubscriber<List<com.jaspersoft.android.sdk.client.oxm.control.InputControlState>> test = new TestSubscriber<>();
+
+        inMemoryControlsRepository.validateControls(REPORT_URI).subscribe(test);
+
+        verify(mReportParamsCache).get(REPORT_URI);
+        verify(mReportParamsMapper).legacyParamsToRetrofitted(LEGACY_REPORT_PARAMETERS);
+        verify(mFiltersService).validateControls(REPORT_URI, REPORT_PARAMETERS);
+        verify(mInputControlsMapper).retrofittedStatesToLegacy(STATES);
+    }
+
     private void requestControls() {
         TestSubscriber<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> test = new TestSubscriber<>();
         inMemoryControlsRepository.listControls(REPORT_URI).subscribe(test);
@@ -91,9 +121,16 @@ public class InMemoryControlsRepositoryTest {
     private void setupMocks() {
         when(mFiltersService.listReportControls(anyString()))
                 .thenReturn(Observable.just(CONTROLS));
-        when(mInputControlsMapper.transform(CONTROLS)).thenReturn(LEGACY_CONTROLS);
+        when(mFiltersService.validateControls(anyString(), anyListOf(ReportParameter.class)))
+                .thenReturn(Observable.just(STATES));
+
+        when(mInputControlsMapper.retrofittedControlsToLegacy(CONTROLS)).thenReturn(LEGACY_CONTROLS);
+        when(mInputControlsMapper.retrofittedStatesToLegacy(STATES)).thenReturn(LEGACY_STATES);
 
         Chain<List<InputControl>> answer = Chain.of(null, CONTROLS);
         when(mControlsCache.get(anyString())).then(answer);
+
+        when(mReportParamsCache.get(anyString())).thenReturn(LEGACY_REPORT_PARAMETERS);
+        when(mReportParamsMapper.legacyParamsToRetrofitted(LEGACY_REPORT_PARAMETERS)).thenReturn(REPORT_PARAMETERS);
     }
 }

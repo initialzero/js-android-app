@@ -130,6 +130,8 @@ public class FilterManagerFragment extends RoboSpiceFragment {
                 }
             });
         } else {
+            mShowFilterOption = true;
+            getActivity().supportInvalidateOptionsMenu();
             getReportExecutionFragment().executeReport(getReportParameters());
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -123,8 +123,9 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
     }
 
     @Background
-    protected void requestReportOptions(){
+    protected void requestReportOptions() {
         mReportOptions = new ArrayList<>();
+        mReportOptions.add(new ReportOption(reportUri, reportUri, getString(R.string.ro_default)));
 
         ReportOptionResponse reportOptionResponse = jsRestClient.getReportOptionsList(reportUri);
         mReportOptions.addAll(reportOptionResponse.getOptions());
@@ -153,7 +154,7 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
         }
     }
 
-    private List<String > convertToStringList(){
+    private List<String> convertToStringList() {
         if (mReportOptions == null) return new ArrayList<>();
 
         List<String> reportOptionsTitles = new ArrayList<>();
@@ -163,7 +164,7 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
         return reportOptionsTitles;
     }
 
-    private List<ReportOptionHolder> convertToHolder(int seelctedIndex){
+    private List<ReportOptionHolder> convertToHolder(int seelctedIndex) {
         List<ReportOptionHolder> reportOptionHolders = new ArrayList<>();
         for (int i = 0; i < mReportOptions.size(); i++) {
             ReportOptionHolder reportOptionHolder = new ReportOptionHolder(mReportOptions.get(i), null);

@@ -5,10 +5,13 @@ import android.webkit.ConsoleMessage;
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
+import com.jaspersoft.android.jaspermobile.domain.AppResource;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
+import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ResourceModelMapper;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExecutionReferenceClickEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExternalReferenceClickEvent;
@@ -57,9 +60,11 @@ public class ReportVisualizePresenterTest {
     private FakeGetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private FakeGetJsonParamsCase mGetJsonParamsCase;
     private FakeFlushInputControlsCase mFakeFlushInputControlsCase;
+    private FakeGetReportMetadataCase mFakeGetReportMetadataCase;
 
     @Mock
     RequestExceptionHandler mExceptionHandler;
+
     @Mock
     ReportVisualizeView mView;
     @Mock
@@ -68,6 +73,13 @@ public class ReportVisualizePresenterTest {
     VisualizeEvents mVisualizeEvents;
     @Mock
     WebViewEvents mWebViewEvents;
+
+    @Mock
+    ResourceModelMapper mResourceModelMapper;
+    @Mock
+    ReportResourceModel mReportResourceModel;
+    @Mock
+    AppResource mAppResource;
 
     private ReportPageState fakeState;
     private AppCredentials mAppCredentials = AppCredentials.builder()
@@ -87,10 +99,12 @@ public class ReportVisualizePresenterTest {
                 mAppCredentials,
                 FakePostExecutionThread.create(),
                 mExceptionHandler,
+                mResourceModelMapper,
                 mGetReportShowControlsPropertyCase,
                 mGetVisualizeTemplateCase,
                 mGetJsonParamsCase,
-                mFakeFlushInputControlsCase
+                mFakeFlushInputControlsCase,
+                mFakeGetReportMetadataCase
         );
         mReportVisualizePresenter.injectView(mView);
     }
@@ -258,13 +272,19 @@ public class ReportVisualizePresenterTest {
 
     @Test
     public void on_resume_should_subscribe_to_execution_event() throws Exception {
+        mFakeGetReportMetadataCase.setResource(mAppResource);
+
         ReportData reportData = new ReportData();
         ExecutionReferenceClickEvent event = new ExecutionReferenceClickEvent(reportData);
         when(mVisualizeEvents.executionReferenceClickEvent()).thenReturn(Observable.just(event));
 
         mReportVisualizePresenter.resume();
 
-        verify(mView).executeReport(reportData);
+        verify(mView).showLoading();
+        verify(mResourceModelMapper).mapReportModel(mAppResource);
+        verify(mFakeGetReportMetadataCase).execute(eq(reportData), any(Subscriber.class));
+        verify(mView).hideLoading();
+        verify(mView).executeReport(mReportResourceModel);
     }
 
     @Test
@@ -347,6 +367,10 @@ public class ReportVisualizePresenterTest {
         mGetReportShowControlsPropertyCase = spy(new FakeGetReportShowControlsPropertyCase());
         mGetJsonParamsCase = spy(new FakeGetJsonParamsCase());
         mFakeFlushInputControlsCase = spy(new FakeFlushInputControlsCase());
+        mFakeGetReportMetadataCase = spy(new FakeGetReportMetadataCase());
+
+        when(mResourceModelMapper.mapReportModel(any(AppResource.class)))
+                .thenReturn(mReportResourceModel);
 
         fakeState.setControlsPageShown(false);
         when(mView.getState()).thenReturn(fakeState);

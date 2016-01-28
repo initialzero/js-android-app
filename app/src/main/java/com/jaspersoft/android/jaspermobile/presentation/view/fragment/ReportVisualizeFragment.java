@@ -30,6 +30,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.Activity
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportVisualizePresenter;
@@ -39,7 +40,6 @@ import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
-import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.network.Server;
@@ -381,7 +381,7 @@ public class ReportVisualizeFragment extends BaseFragment
     }
 
     @Override
-    public void executeReport(ReportData reportData) {
+    public void executeReport(ReportResourceModel report) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

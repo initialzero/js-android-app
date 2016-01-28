@@ -3,8 +3,9 @@ package com.jaspersoft.android.jaspermobile.data.cache.report;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.octo.android.robospice.persistence.memory.LruCache;
 
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public final class InMemoryReportPageCache implements ReportPageCache {
     private final Map<String, LruCache<String, ReportPage>> mStorage = new HashMap<>();
 
@@ -26,16 +27,16 @@ public final class InMemoryReportPageCache implements ReportPageCache {
 
     @Nullable
     @Override
-    public ReportPage get(@NonNull String uri, @NonNull String position) {
-        LruCache<String, ReportPage> cache = getInternalCache(uri);
-        return cache.get(position);
+    public ReportPage get(@NonNull PageRequest pageRequest) {
+        LruCache<String, ReportPage> cache = getInternalCache(pageRequest.getUri());
+        return cache.get(pageRequest.getRange());
     }
 
     @Override
     @NonNull
-    public ReportPage put(@NonNull String uri, @NonNull String position, @NonNull ReportPage content) {
-        LruCache<String, ReportPage> cache = getInternalCache(uri);
-        cache.put(position, content);
+    public ReportPage put(@NonNull PageRequest pageRequest, @NonNull ReportPage content) {
+        LruCache<String, ReportPage> cache = getInternalCache(pageRequest.getUri());
+        cache.put(pageRequest.getRange(), content);
         return content;
     }
 
@@ -50,7 +51,7 @@ public final class InMemoryReportPageCache implements ReportPageCache {
     }
 
     @Override
-    public void removePages(String uri) {
+    public void evict(String uri) {
         mStorage.remove(uri);
     }
 }

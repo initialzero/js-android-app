@@ -12,7 +12,11 @@ import dagger.Provides;
  * @since 2.3
  */
 @Module
-public final class ReportActivityModule {
+public final class ReportRestViewerModule extends ReportModule {
+    public ReportRestViewerModule(String uri) {
+        super(uri);
+    }
+
     @Provides
     @PerActivity
     ReportActionListener provideReportActionListener(ReportViewPresenter presenter) {

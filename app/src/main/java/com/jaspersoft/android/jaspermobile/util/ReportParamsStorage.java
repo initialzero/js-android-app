@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.util;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +38,7 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 2.0
  */
-@PerReport
+@PerProfile
 public class ReportParamsStorage {
     private final Map<String, InputControlHolder> mInputControlHolderCache = new HashMap<>();
 
@@ -53,6 +53,7 @@ public class ReportParamsStorage {
 
     @NonNull
     public void clearInputControlHolder(@NonNull String resourceUri) {
+        mInputControlHolderCache.remove(resourceUri);
         mInputControlHolderCache.put(resourceUri, new InputControlHolder());
     }
 

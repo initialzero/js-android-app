@@ -449,7 +449,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     @UiThread
     @Override
     public void onScriptLoaded() {
-        runReport(paramsSerializer.toJsonLegacyParams(getReportParameters()));
+        runReport(paramsSerializer.legacyParamsToJson(getReportParameters()));
     }
 
     @UiThread
@@ -686,7 +686,7 @@ public class ReportViewerActivity extends RoboToolbarActivity
     }
 
     private void applyReportParams() {
-        String reportParams = paramsSerializer.toJsonLegacyParams(getReportParameters());
+        String reportParams = paramsSerializer.legacyParamsToJson(getReportParameters());
         resetZoom();
         webView.loadUrl(String.format("javascript:MobileReport.applyReportParams(%s)", reportParams));
     }

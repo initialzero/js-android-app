@@ -17,4 +17,6 @@ public interface ControlsCache {
 
     @Nullable
     List<InputControl> get(@NonNull String uri);
+
+    void evict(String reportUri);
 }

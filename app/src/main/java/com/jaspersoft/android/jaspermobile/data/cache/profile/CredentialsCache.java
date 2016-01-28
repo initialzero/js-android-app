@@ -22,11 +22,10 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.cache.report;
+package com.jaspersoft.android.jaspermobile.data.cache.profile;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountCredentialsCache;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 

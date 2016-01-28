@@ -39,8 +39,9 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.FilterableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.SingleSelectIcAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ReportComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
@@ -97,14 +98,17 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
 
     @AfterViews
     protected void init() {
-        ReportComponent reportComponent = JasperMobileApplication.get(this).getReportComponent();
-        if (reportComponent == null) {
+        ProfileComponent profileComponent = JasperMobileApplication.get(this).getProfileComponent();
+        if (profileComponent == null) {
             Timber.w("Report component was garbage collected");
             finish();
             return;
         }
-        reportComponent
-                .plusControlsActivity(new ActivityModule(this))
+        profileComponent
+                .plusControlsPage(
+                        new ActivityModule(this),
+                        new ReportModule(reportUri)
+                )
                 .inject(this);
 
         initInputControlOptions();

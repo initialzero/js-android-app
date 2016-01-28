@@ -2,12 +2,11 @@ package com.jaspersoft.android.jaspermobile.data.repository.report;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.domain.Report;
-import com.jaspersoft.android.jaspermobile.domain.ReportPage;
-import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
+import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPropertyCache;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPropertyRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.service.data.report.ReportMetadata;
+import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 
 import javax.inject.Inject;
 
@@ -21,69 +20,25 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public final class InMemoryReportPropertyRepository implements ReportPropertyRepository {
-    private final ReportPageRepository mReportPageRepository;
-    private Observable<Boolean> mGetMultiPageCommand;
+    private final ReportPropertyCache mReportPropertyCache;
     private Observable<Integer> mGetTotalPagesCommand;
 
     @Inject
-    public InMemoryReportPropertyRepository(ReportPageRepository reportPageRepository) {
-        mReportPageRepository = reportPageRepository;
+    public InMemoryReportPropertyRepository(
+            ReportPropertyCache reportPropertyCache) {
+        mReportPropertyCache = reportPropertyCache;
     }
 
     @NonNull
     @Override
-    public Observable<Boolean> getMultiPageProperty(@NonNull final Report report) {
-        if (mGetMultiPageCommand == null) {
-            Observable<Boolean> memorySource = Observable.defer(new Func0<Observable<Boolean>>() {
-                @Override
-                public Observable<Boolean> call() {
-                    Boolean multiPage = report.getMultiPage();
-                    if (multiPage == null) {
-                        return Observable.empty();
-                    }
-                    return Observable.just(multiPage);
-                }
-            });
-            Observable<Boolean> networkSource = Observable.defer(new Func0<Observable<Boolean>>() {
-                @Override
-                public Observable<Boolean> call() {
-                    return mReportPageRepository.get(report, "2")
-                            .map(new Func1<ReportPage, Boolean>() {
-                                @Override
-                                public Boolean call(ReportPage page) {
-                                    return !ReportPage.EMPTY.equals(page);
-                                }
-                            });
-                }
-            }).doOnNext(new Action1<Boolean>() {
-                @Override
-                public void call(Boolean multiPage) {
-                    report.setMultiPage(multiPage);
-                }
-            });
-            mGetMultiPageCommand = Observable.concat(memorySource, networkSource)
-                    .first()
-                    .cache()
-                    .doOnCompleted(new Action0() {
-                        @Override
-                        public void call() {
-                            mGetMultiPageCommand = null;
-                        }
-                    });
-        }
-        return mGetMultiPageCommand;
-    }
-
-    @NonNull
-    @Override
-    public Observable<Integer> getTotalPagesProperty(@NonNull final Report report) {
+    public Observable<Integer> getTotalPagesProperty(@NonNull final RxReportExecution reportExecution, @NonNull final String reportUri) {
         if (mGetTotalPagesCommand == null) {
             Observable<Integer> memorySource = Observable.defer(new Func0<Observable<Integer>>() {
                 @Override
                 public Observable<Integer> call() {
-                    Integer totalPages = report.getTotalPages();
+                    Integer totalPages = mReportPropertyCache.getTotalPages(reportUri);
                     if (totalPages == null) {
                         return Observable.empty();
                     }
@@ -93,7 +48,7 @@ public final class InMemoryReportPropertyRepository implements ReportPropertyRep
             Observable<Integer> networkSource = Observable.defer(new Func0<Observable<Integer>>() {
                 @Override
                 public Observable<Integer> call() {
-                    return report.getExecution()
+                    return reportExecution
                             .waitForReportCompletion()
                             .map(new Func1<ReportMetadata, Integer>() {
                                 @Override
@@ -105,14 +60,14 @@ public final class InMemoryReportPropertyRepository implements ReportPropertyRep
             }).doOnNext(new Action1<Integer>() {
                 @Override
                 public void call(Integer pages) {
-                    report.setTotalPages(pages);
+                    mReportPropertyCache.putTotalPages(reportUri, pages);
                 }
             });
 
             mGetTotalPagesCommand = Observable.concat(memorySource, networkSource)
                     .first()
                     .cache()
-                    .doOnCompleted(new Action0() {
+                    .doOnTerminate(new Action0() {
                         @Override
                         public void call() {
                             mGetTotalPagesCommand = null;

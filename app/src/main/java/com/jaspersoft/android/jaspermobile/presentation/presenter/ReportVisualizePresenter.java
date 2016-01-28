@@ -7,12 +7,16 @@ import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMetadataCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
+import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ResourceModelMapper;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExecutionReferenceClickEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExternalReferenceClickEvent;
@@ -26,6 +30,8 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.Visualiz
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
+import com.jaspersoft.android.jaspermobile.visualize.ReportData;
+import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -46,31 +52,42 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     private final AppCredentials mCredentials;
     private final PostExecutionThread mPostExecutionThread;
     private final RequestExceptionHandler mRequestExceptionHandler;
+    private final ResourceModelMapper mResourceModelMapper;
+
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private final GetVisualizeTemplateCase mGetVisualizeTemplateCase;
     private final GetJsonParamsCase mGetJsonParamsCase;
+    private final FlushInputControlsCase mFlushInputControlsCase;
+    private final GetReportMetadataCase mGetReportMetadataCase;
 
     private CompositeSubscription mCompositeSubscription;
     private ReportVisualizeView mView;
 
     @Inject
-    public ReportVisualizePresenter(@Named("screen_diagonal") Double screenDiagonal,
-                                    @Named("report_uri") String reportUri,
-                                    AppCredentials credentials,
-                                    PostExecutionThread postExecutionThread,
-                                    RequestExceptionHandler requestExceptionHandler,
-                                    GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
-                                    GetVisualizeTemplateCase getVisualizeTemplateCase,
-                                    GetJsonParamsCase getJsonParamsCase
+    public ReportVisualizePresenter(
+            @Named("screen_diagonal") Double screenDiagonal,
+            @Named("report_uri") String reportUri,
+            AppCredentials credentials,
+            PostExecutionThread postExecutionThread,
+            RequestExceptionHandler requestExceptionHandler,
+            ResourceModelMapper resourceModelMapper,
+            GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
+            GetVisualizeTemplateCase getVisualizeTemplateCase,
+            GetJsonParamsCase getJsonParamsCase,
+            FlushInputControlsCase flushInputControlsCase,
+            GetReportMetadataCase getReportMetadataCase
     ) {
         mScreenDiagonal = screenDiagonal;
         mReportUri = reportUri;
         mCredentials = credentials;
         mPostExecutionThread = postExecutionThread;
         mRequestExceptionHandler = requestExceptionHandler;
+        mResourceModelMapper = resourceModelMapper;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
         mGetVisualizeTemplateCase = getVisualizeTemplateCase;
         mGetJsonParamsCase = getJsonParamsCase;
+        mFlushInputControlsCase = flushInputControlsCase;
+        mGetReportMetadataCase = getReportMetadataCase;
     }
 
     public void init() {
@@ -84,7 +101,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     private void loadControls() {
         mView.showLoading();
-        mGetReportShowControlsPropertyCase.execute(new SimpleSubscriber<Boolean>() {
+        mGetReportShowControlsPropertyCase.execute(mReportUri, new SimpleSubscriber<Boolean>() {
             @Override
             public void onCompleted() {
                 mView.hideLoading();
@@ -116,7 +133,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     @Override
     public void updateReport() {
-        mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
+        mGetJsonParamsCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<String>() {
             @Override
             public void onNext(String params) {
                 mView.resetZoom();
@@ -155,7 +172,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     }
 
     private void runReportOnVisualize() {
-        mGetJsonParamsCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<String>() {
+        mGetJsonParamsCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<String>() {
             @Override
             public void onNext(String params) {
                 VisualizeExecOptions options = new VisualizeExecOptions(
@@ -190,6 +207,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         mGetReportShowControlsPropertyCase.unsubscribe();
         mGetVisualizeTemplateCase.unsubscribe();
         mGetJsonParamsCase.unsubscribe();
+        mFlushInputControlsCase.execute(mReportUri);
     }
 
     private void subscribeToWebViewEvents() {
@@ -418,10 +436,26 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ExecutionReferenceClickEvent>() {
                             @Override
                             public void onNext(ExecutionReferenceClickEvent event) {
-                                mView.executeReport(event.getReportData());
+                                loadReportMetadata(event.getReportData());
                             }
                         }))
         );
+    }
+
+    private void loadReportMetadata(ReportData reportData) {
+        mView.showLoading();
+        mGetReportMetadataCase.execute(reportData, new ErrorSubscriber<>(new SimpleSubscriber<ReportResource>() {
+            @Override
+            public void onCompleted() {
+                mView.hideLoading();
+            }
+
+            @Override
+            public void onNext(ReportResource item) {
+                ReportResourceModel model = mResourceModelMapper.mapReportModel(item);
+                mView.executeReport(model);
+            }
+        }));
     }
 
     private void listenForWindowErrorEvent(VisualizeViewModel visualize) {

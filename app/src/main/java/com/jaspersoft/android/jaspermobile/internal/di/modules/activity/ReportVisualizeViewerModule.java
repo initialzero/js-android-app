@@ -25,10 +25,11 @@ import dagger.Provides;
  * @since 2.3
  */
 @Module
-public final class ReportVisualizeActivityModule {
+public final class ReportVisualizeViewerModule extends ReportModule {
     private final WebView mWebView;
 
-    public ReportVisualizeActivityModule(WebView webView) {
+    public ReportVisualizeViewerModule(String reportUri, WebView webView) {
+        super(reportUri);
         mWebView = webView;
     }
 

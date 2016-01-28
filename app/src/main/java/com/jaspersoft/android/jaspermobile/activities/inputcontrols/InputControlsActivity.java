@@ -54,7 +54,8 @@ import com.jaspersoft.android.jaspermobile.dialog.SaveReportOptionDialogFragment
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.TextInputControlDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.TextInputControlDialogFragment_;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ReportComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
@@ -150,14 +151,17 @@ public class InputControlsActivity extends RoboSpiceActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ReportComponent reportComponent = JasperMobileApplication.get(this).getReportComponent();
-        if (reportComponent == null) {
-            Timber.w("Report component was garbage collected");
+        ProfileComponent profileComponent = JasperMobileApplication.get(this).getProfileComponent();
+        if (profileComponent == null) {
+            Timber.w("Profile component was garbage collected");
             finish();
             return;
         }
-        reportComponent
-                .plusControlsActivity(new ActivityModule(this))
+        profileComponent
+                .plusControlsPage(
+                        new ActivityModule(this),
+                        new ReportModule(reportUri)
+                )
                 .inject(this);
 
         Account account = JasperAccountManager.get(this).getActiveAccount();

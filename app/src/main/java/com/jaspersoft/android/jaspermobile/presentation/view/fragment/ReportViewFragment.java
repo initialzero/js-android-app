@@ -51,7 +51,7 @@ import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ReportActivityComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ReportRestViewerComponent;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
@@ -214,7 +214,7 @@ public class ReportViewFragment extends BaseFragment implements ReportView, Numb
     }
 
     private void injectComponents() {
-        getComponent(ReportActivityComponent.class).inject(this);
+        getComponent(ReportRestViewerComponent.class).inject(this);
         mPresenter.injectView(this);
     }
 

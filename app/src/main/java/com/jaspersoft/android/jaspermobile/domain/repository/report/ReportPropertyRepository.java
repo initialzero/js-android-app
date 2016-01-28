@@ -2,7 +2,7 @@ package com.jaspersoft.android.jaspermobile.domain.repository.report;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.domain.Report;
+import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 
 import rx.Observable;
 
@@ -12,7 +12,5 @@ import rx.Observable;
  */
 public interface ReportPropertyRepository {
     @NonNull
-    Observable<Boolean> getMultiPageProperty(@NonNull Report report);
-    @NonNull
-    Observable<Integer> getTotalPagesProperty(@NonNull Report report);
+    Observable<Integer> getTotalPagesProperty(@NonNull final RxReportExecution reportExecution, @NonNull final String reportUri);
 }

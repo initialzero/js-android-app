@@ -27,19 +27,20 @@ import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportVisualizePresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
-import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.network.Server;
@@ -150,16 +151,15 @@ public class ReportVisualizeFragment extends BaseFragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         injectComponents();
-        setupPaginationControl();
         runReport();
     }
 
     private void injectComponents() {
         JasperMobileApplication.get(getContext())
-                .getReportComponent()
-                .plusReportVisualizeActivity(
+                .getProfileComponent()
+                .plusReportVisualizeViewer(
                         new ActivityModule(getActivity()),
-                        new ReportVisualizeActivityModule(webView)
+                        new ReportVisualizeViewerModule(resource.getUri(), webView)
                 )
                 .inject(this);
         mPresenter.injectView(this);
@@ -199,6 +199,7 @@ public class ReportVisualizeFragment extends BaseFragment
     @Override
     public void onResume() {
         super.onResume();
+        setupPaginationControl();
         mPresenter.resume();
     }
 
@@ -381,8 +382,17 @@ public class ReportVisualizeFragment extends BaseFragment
     }
 
     @Override
-    public void executeReport(ReportData reportData) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public void executeReport(ReportResourceModel report) {
+        // TODO replace with view model counterpart after old rest client will be dropped
+        ResourceLookup lookup = new ResourceLookup();
+        lookup.setLabel(report.getLabel());
+        lookup.setDescription(report.getDescription());
+        lookup.setUri(report.getUri());
+        lookup.setResourceType(ResourceLookup.ResourceType.reportUnit);
+        lookup.setCreationDate(report.getCreationDateAsString());
+        ReportVisualizeActivity_.intent(getActivity())
+                .resource(lookup)
+                .start();
     }
 
     @Override

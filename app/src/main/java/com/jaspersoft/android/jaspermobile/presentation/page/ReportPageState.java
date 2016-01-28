@@ -12,6 +12,7 @@ public class ReportPageState implements Parcelable {
 
     private boolean mControlsPageShown;
     private String mCurrentPage;
+    private String mRequestedPage;
 
     public void setControlsPageShown(boolean loaded) {
         mControlsPageShown = loaded;
@@ -29,6 +30,14 @@ public class ReportPageState implements Parcelable {
         mCurrentPage = currentPage;
     }
 
+    public String getRequestedPage() {
+        return mRequestedPage;
+    }
+
+    public void setRequestedPage(String requestedPage) {
+        mRequestedPage = requestedPage;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -38,16 +47,18 @@ public class ReportPageState implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte(mControlsPageShown ? (byte) 1 : (byte) 0);
         dest.writeString(this.mCurrentPage);
+        dest.writeString(this.mRequestedPage);
     }
 
     public ReportPageState() {
-        mCurrentPage = DEFAULT_PAGE;
+        mCurrentPage = mRequestedPage = DEFAULT_PAGE;
         mControlsPageShown = false;
     }
 
-    private ReportPageState(Parcel in) {
+    protected ReportPageState(Parcel in) {
         this.mControlsPageShown = in.readByte() != 0;
         this.mCurrentPage = in.readString();
+        this.mRequestedPage = in.readString();
     }
 
     public static final Creator<ReportPageState> CREATOR = new Creator<ReportPageState>() {

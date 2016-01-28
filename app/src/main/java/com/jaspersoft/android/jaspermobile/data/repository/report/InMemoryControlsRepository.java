@@ -5,9 +5,9 @@ import android.support.annotation.NonNull;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.InputControlsMapper;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ControlsRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.network.entity.control.InputControl;
-import com.jaspersoft.android.sdk.service.rx.report.RxFiltersService;
+import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
+@PerProfile
 public final class InMemoryControlsRepository implements ControlsRepository {
     private final RxFiltersService mFiltersService;
     private final ControlsCache mControlsCache;
@@ -32,7 +32,10 @@ public final class InMemoryControlsRepository implements ControlsRepository {
     private Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> mGetInputControlsCommand;
 
     @Inject
-    public InMemoryControlsRepository(RxFiltersService filtersService, ControlsCache controlsCache, InputControlsMapper controlsMapper) {
+    public InMemoryControlsRepository(RxFiltersService filtersService,
+                                      ControlsCache controlsCache,
+                                      InputControlsMapper controlsMapper
+    ) {
         mFiltersService = filtersService;
         mControlsCache = controlsCache;
         mControlsMapper = controlsMapper;
@@ -57,7 +60,7 @@ public final class InMemoryControlsRepository implements ControlsRepository {
                     new Func0<Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>>>() {
                         @Override
                         public Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> call() {
-                            return mFiltersService.listControls(reportUri)
+                            return mFiltersService.listReportControls(reportUri)
                                     .map(new Func1<List<InputControl>, List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>>() {
                                         @Override
                                         public List<com.jaspersoft.android.sdk.client.oxm.control.InputControl> call(List<InputControl> inputControls) {
@@ -75,7 +78,7 @@ public final class InMemoryControlsRepository implements ControlsRepository {
             mGetInputControlsCommand = Observable.concat(memorySource, networkSource)
                     .first()
                     .cache()
-                    .doOnCompleted(new Action0() {
+                    .doOnTerminate(new Action0() {
                         @Override
                         public void call() {
                             mGetInputControlsCommand = null;
@@ -84,5 +87,10 @@ public final class InMemoryControlsRepository implements ControlsRepository {
         }
 
         return mGetInputControlsCommand;
+    }
+
+    @Override
+    public void flushControls(@NonNull String reportUri) {
+        mControlsCache.evict(reportUri);
     }
 }

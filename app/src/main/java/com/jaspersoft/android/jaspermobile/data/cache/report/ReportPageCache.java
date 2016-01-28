@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.data.cache.report;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 
 /**
@@ -11,10 +12,10 @@ import com.jaspersoft.android.jaspermobile.domain.ReportPage;
  */
 public interface ReportPageCache {
     @Nullable
-    ReportPage get(@NonNull String uri, @NonNull String position);
+    ReportPage get(@NonNull PageRequest pageRequest);
 
     @NonNull
-    ReportPage put(@NonNull String uri, @NonNull String position, @NonNull ReportPage content);
+    ReportPage put(@NonNull PageRequest pageRequest, @NonNull ReportPage content);
 
-    void removePages(String uri);
+    void evict(String uri);
 }

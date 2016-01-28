@@ -27,13 +27,13 @@ package com.jaspersoft.android.jaspermobile.data.repository.profile;
 import android.accounts.AccountManager;
 import android.content.Context;
 
-import com.jaspersoft.android.jaspermobile.data.cache.report.CredentialsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.profile.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
+import com.jaspersoft.android.jaspermobile.domain.repository.profile.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.CacheModule;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 

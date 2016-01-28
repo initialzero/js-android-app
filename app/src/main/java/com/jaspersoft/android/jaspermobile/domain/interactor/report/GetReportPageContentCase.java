@@ -26,17 +26,17 @@ package com.jaspersoft.android.jaspermobile.domain.interactor.report;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.domain.Report;
+import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerReport;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
+import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import rx.Observable;
 import rx.functions.Func1;
@@ -45,32 +45,29 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerReport
-public class GetReportPageContentCase extends AbstractUseCase<ReportPage, String> {
+@PerProfile
+public class GetReportPageContentCase extends AbstractUseCase<ReportPage, PageRequest> {
     private final ReportRepository mReportRepository;
     private final ReportPageRepository mReportPageRepository;
-    private final String mReportUri;
 
     @Inject
     public GetReportPageContentCase(PreExecutionThread preExecutionThread,
                                     PostExecutionThread postExecutionThread,
                                     ReportRepository reportRepository,
-                                    ReportPageRepository reportPageRepository,
-                                    @Named("report_uri") String reportUri
+                                    ReportPageRepository reportPageRepository
     ) {
         super(preExecutionThread, postExecutionThread);
         mReportRepository = reportRepository;
         mReportPageRepository = reportPageRepository;
-        mReportUri = reportUri;
     }
 
     @Override
-    protected Observable<ReportPage> buildUseCaseObservable(@NonNull final String pageRange) {
-        return mReportRepository.getReport(mReportUri)
-                .flatMap(new Func1<Report, Observable<ReportPage>>() {
+    protected Observable<ReportPage> buildUseCaseObservable(@NonNull final PageRequest request) {
+        return mReportRepository.getReport(request.getUri())
+                .flatMap(new Func1<RxReportExecution, Observable<ReportPage>>() {
                     @Override
-                    public Observable<ReportPage> call(Report report) {
-                        return mReportPageRepository.get(report, pageRange);
+                    public Observable<ReportPage> call(RxReportExecution execution) {
+                        return mReportPageRepository.get(execution, request);
                     }
                 });
     }

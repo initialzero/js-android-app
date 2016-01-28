@@ -1,0 +1,43 @@
+package com.jaspersoft.android.jaspermobile.data.repository.report;
+
+import android.support.annotation.NonNull;
+
+import com.jaspersoft.android.jaspermobile.domain.repository.report.ResourceRepository;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
+import com.jaspersoft.android.sdk.service.data.report.ReportResource;
+import com.jaspersoft.android.sdk.service.rx.repository.RxRepositoryService;
+
+import javax.inject.Inject;
+
+import rx.Observable;
+import rx.functions.Action0;
+
+/**
+ * @author Tom Koptel
+ * @since 2.3
+ */
+@PerProfile
+public final class InMemoryResourceRepository implements ResourceRepository {
+    private final RxRepositoryService mRepositoryService;
+    private Observable<ReportResource> mGetReportDetailsAction;
+
+    @Inject
+    public InMemoryResourceRepository(RxRepositoryService repositoryService) {
+        mRepositoryService = repositoryService;
+    }
+
+    @Override
+    public Observable<ReportResource> getReportResource(@NonNull String reportUri) {
+        if (mGetReportDetailsAction == null) {
+            mGetReportDetailsAction = mRepositoryService.fetchReportDetails(reportUri)
+                    .doOnTerminate(new Action0() {
+                        @Override
+                        public void call() {
+                            mGetReportDetailsAction = null;
+                        }
+                    }).cache();
+        }
+
+        return mGetReportDetailsAction;
+    }
+}

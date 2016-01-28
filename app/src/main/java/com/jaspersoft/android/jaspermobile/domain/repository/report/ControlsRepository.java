@@ -15,4 +15,6 @@ import rx.Observable;
 public interface ControlsRepository {
     @NonNull
     Observable<List<InputControl>> listControls(@NonNull String reportUri);
+
+    void flushControls(@NonNull String reportUri);
 }

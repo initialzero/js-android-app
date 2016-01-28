@@ -41,8 +41,8 @@ public class ReportParamsMapper {
         return new com.jaspersoft.android.sdk.network.entity.report.ReportParameter(legacyParameter.getName(), legacyParameter.getValues());
     }
 
-    public String toJsonLegacyParams(List<ReportParameter> reportParameters) {
-        Map<String, Set<String>> params = toMapLegacy(reportParameters);
+    public String legacyParamsToJson(List<ReportParameter> reportParameters) {
+        Map<String, Set<String>> params = legacyToMap(reportParameters);
         if (params.isEmpty()) {
             return EMPTY_JSON;
         }
@@ -53,7 +53,7 @@ public class ReportParamsMapper {
         return gson.toJson(params, mapType);
     }
 
-    public Map<String, Set<String>> toMapLegacy(List<ReportParameter> parameters) {
+    public Map<String, Set<String>> legacyToMap(List<ReportParameter> parameters) {
         if (parameters.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -62,5 +62,16 @@ public class ReportParamsMapper {
             params.put(parameter.getName(), parameter.getValues());
         }
         return params;
+    }
+
+    public List<ReportParameter> mapToLegacyParams(Map<String, Set<String>> params) {
+        if (params != null && params.isEmpty() || params == null) {
+            return Collections.emptyList();
+        }
+        List<ReportParameter> parameters = new ArrayList<>(params.size());
+        for (Map.Entry<String, Set<String>> entry : params.entrySet()) {
+            parameters.add(new ReportParameter(entry.getKey(), entry.getValue()));
+        }
+        return parameters;
     }
 }

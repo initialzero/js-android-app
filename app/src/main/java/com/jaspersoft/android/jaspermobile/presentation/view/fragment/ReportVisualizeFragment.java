@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.Visualiz
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportVisualizePresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
@@ -150,7 +151,6 @@ public class ReportVisualizeFragment extends BaseFragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         injectComponents();
-        setupPaginationControl();
         runReport();
     }
 
@@ -199,6 +199,7 @@ public class ReportVisualizeFragment extends BaseFragment
     @Override
     public void onResume() {
         super.onResume();
+        setupPaginationControl();
         mPresenter.resume();
     }
 
@@ -382,7 +383,16 @@ public class ReportVisualizeFragment extends BaseFragment
 
     @Override
     public void executeReport(ReportResourceModel report) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        // TODO replace with view model counterpart after old rest client will be dropped
+        ResourceLookup lookup = new ResourceLookup();
+        lookup.setLabel(report.getLabel());
+        lookup.setDescription(report.getDescription());
+        lookup.setUri(report.getUri());
+        lookup.setResourceType(ResourceLookup.ResourceType.reportUnit);
+        lookup.setCreationDate(report.getCreationDateAsString());
+        ReportVisualizeActivity_.intent(getActivity())
+                .resource(lookup)
+                .start();
     }
 
     @Override

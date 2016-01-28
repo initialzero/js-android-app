@@ -2,7 +2,6 @@ package com.jaspersoft.android.jaspermobile.domain.interactor.report;
 
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
-import com.jaspersoft.android.jaspermobile.domain.AppResource;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractUseCase;
@@ -10,6 +9,7 @@ import com.jaspersoft.android.jaspermobile.domain.repository.report.ResourceRepo
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import rx.functions.Func0;
  * @since 2.3
  */
 @PerProfile
-public class GetReportMetadataCase extends AbstractUseCase<AppResource, ReportData> {
+public class GetReportMetadataCase extends AbstractUseCase<ReportResource, ReportData> {
 
     private final ResourceRepository mResourceRepository;
     private final ReportParamsCache mReportParamsCache;
@@ -45,10 +45,10 @@ public class GetReportMetadataCase extends AbstractUseCase<AppResource, ReportDa
     }
 
     @Override
-    protected Observable<AppResource> buildUseCaseObservable(final ReportData reportData) {
-        return Observable.defer(new Func0<Observable<AppResource>>() {
+    protected Observable<ReportResource> buildUseCaseObservable(final ReportData reportData) {
+        return Observable.defer(new Func0<Observable<ReportResource>>() {
             @Override
-            public Observable<AppResource> call() {
+            public Observable<ReportResource> call() {
                 List<ReportParameter> reportParameters =
                         mReportParamsMapper.mapToLegacyParams(reportData.getParams());
                 String uri = reportData.getResource();

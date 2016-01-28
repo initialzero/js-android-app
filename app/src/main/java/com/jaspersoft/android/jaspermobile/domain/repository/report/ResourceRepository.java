@@ -2,7 +2,7 @@ package com.jaspersoft.android.jaspermobile.domain.repository.report;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.domain.AppResource;
+import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 
 import rx.Observable;
 
@@ -11,5 +11,5 @@ import rx.Observable;
  * @since 2.3
  */
 public interface ResourceRepository {
-    Observable<AppResource> getReportResource(@NonNull String reportUri);
+    Observable<ReportResource> getReportResource(@NonNull String reportUri);
 }

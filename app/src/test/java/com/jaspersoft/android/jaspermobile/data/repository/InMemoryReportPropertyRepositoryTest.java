@@ -66,7 +66,6 @@ public class InMemoryReportPropertyRepositoryTest {
 
         verify(mReportExecution).waitForReportCompletion();
         verify(mReportPropertyCache).putTotalPages(REPORT_URI, 100);
-        verify(mReportPageCache).evict(REPORT_URI);
     }
 
     @Test

@@ -71,10 +71,10 @@ public class ReportParamsMapperTest {
         Map<String, Set<String>> params = new HashMap<>();
         params.put("name", Collections.singleton("value"));
 
-        ReportParameter parameter1 =
-                new ReportParameter("name", Collections.singleton("value"));
-
         List<ReportParameter> result = mReportParamsMapper.mapToLegacyParams(params);
-        assertThat(result, hasItem(parameter1));
+        ReportParameter expected = result.get(0);
+
+        assertThat(expected.getName(), is("name"));
+        assertThat(expected.getValues(), hasItem("value"));
     }
 }

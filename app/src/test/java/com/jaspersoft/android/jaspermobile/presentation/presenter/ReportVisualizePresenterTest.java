@@ -5,7 +5,6 @@ import android.webkit.ConsoleMessage;
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
-import com.jaspersoft.android.jaspermobile.domain.AppResource;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
@@ -28,6 +27,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewE
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
 import com.jaspersoft.android.jaspermobile.visualize.ReportData;
+import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +79,7 @@ public class ReportVisualizePresenterTest {
     @Mock
     ReportResourceModel mReportResourceModel;
     @Mock
-    AppResource mAppResource;
+    ReportResource mReportResource;
 
     private ReportPageState fakeState;
     private AppCredentials mAppCredentials = AppCredentials.builder()
@@ -272,7 +272,7 @@ public class ReportVisualizePresenterTest {
 
     @Test
     public void on_resume_should_subscribe_to_execution_event() throws Exception {
-        mFakeGetReportMetadataCase.setResource(mAppResource);
+        mFakeGetReportMetadataCase.setResource(mReportResource);
 
         ReportData reportData = new ReportData();
         ExecutionReferenceClickEvent event = new ExecutionReferenceClickEvent(reportData);
@@ -281,7 +281,7 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.resume();
 
         verify(mView).showLoading();
-        verify(mResourceModelMapper).mapReportModel(mAppResource);
+        verify(mResourceModelMapper).mapReportModel(mReportResource);
         verify(mFakeGetReportMetadataCase).execute(eq(reportData), any(Subscriber.class));
         verify(mView).hideLoading();
         verify(mView).executeReport(mReportResourceModel);
@@ -369,7 +369,7 @@ public class ReportVisualizePresenterTest {
         mFakeFlushInputControlsCase = spy(new FakeFlushInputControlsCase());
         mFakeGetReportMetadataCase = spy(new FakeGetReportMetadataCase());
 
-        when(mResourceModelMapper.mapReportModel(any(AppResource.class)))
+        when(mResourceModelMapper.mapReportModel(any(ReportResource.class)))
                 .thenReturn(mReportResourceModel);
 
         fakeState.setControlsPageShown(false);

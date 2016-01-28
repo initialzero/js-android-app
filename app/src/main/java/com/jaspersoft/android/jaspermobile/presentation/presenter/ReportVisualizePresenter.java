@@ -4,7 +4,6 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 import android.support.annotation.VisibleForTesting;
 
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
-import com.jaspersoft.android.jaspermobile.domain.AppResource;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
@@ -32,6 +31,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.Visualiz
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
 import com.jaspersoft.android.jaspermobile.visualize.ReportData;
+import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -444,14 +444,14 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     private void loadReportMetadata(ReportData reportData) {
         mView.showLoading();
-        mGetReportMetadataCase.execute(reportData, new ErrorSubscriber<>(new SimpleSubscriber<AppResource>() {
+        mGetReportMetadataCase.execute(reportData, new ErrorSubscriber<>(new SimpleSubscriber<ReportResource>() {
             @Override
             public void onCompleted() {
                 mView.hideLoading();
             }
 
             @Override
-            public void onNext(AppResource item) {
+            public void onNext(ReportResource item) {
                 ReportResourceModel model = mResourceModelMapper.mapReportModel(item);
                 mView.executeReport(model);
             }

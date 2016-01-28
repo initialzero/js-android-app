@@ -2,9 +2,9 @@ package com.jaspersoft.android.jaspermobile.presentation.model.mapper;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.domain.AppResource;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
+import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 
 import javax.inject.Inject;
 
@@ -20,7 +20,12 @@ public class ResourceModelMapper {
     }
 
     @NonNull
-    public ReportResourceModel mapReportModel(AppResource resource) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public ReportResourceModel mapReportModel(ReportResource resource) {
+        return new ReportResourceModel.Builder()
+                .setLabel(resource.getLabel())
+                .setDescription(resource.getDescription())
+                .setUri(resource.getUri())
+                .setCreationDate(resource.getCreationDate())
+                .build();
     }
 }

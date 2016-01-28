@@ -4,12 +4,12 @@ import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
-import com.jaspersoft.android.jaspermobile.domain.AppResource;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ResourceRepository;
 import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 
 import org.junit.Before;
@@ -57,7 +57,7 @@ public class GetReportMetadataCaseTest {
     @Mock
     ReportData mReportData;
     @Mock
-    AppResource mAppResource;
+    ReportResource mReportResource;
 
     private GetReportMetadataCase mGetReportMetadataCase;
 
@@ -77,9 +77,7 @@ public class GetReportMetadataCaseTest {
 
     @Test
     public void should_save_in_cache() throws Exception {
-        TestSubscriber<AppResource> test = new TestSubscriber<>();
-        mGetReportMetadataCase.execute(mReportData, test);
-        test.assertNoErrors();
+        performExecute();
 
         verify(mReportParamsMapper).mapToLegacyParams(REPORT_PARAMS);
         verify(mReportParamsCache).put(REPORT_URI, LEGACY_REPORT_PARAMS);
@@ -87,16 +85,20 @@ public class GetReportMetadataCaseTest {
 
     @Test
     public void should_request_report_Details() throws Exception {
-        TestSubscriber<AppResource> test = new TestSubscriber<>();
-        mGetReportMetadataCase.execute(mReportData, test);
-        test.assertNoErrors();
+        performExecute();
 
         verify(mResourceRepository).getReportResource(REPORT_URI);
     }
 
+    private void performExecute() {
+        TestSubscriber<ReportResource> test = new TestSubscriber<>();
+        mGetReportMetadataCase.execute(mReportData, test);
+        test.assertNoErrors();
+    }
+
     private void setupMocks() {
         when(mResourceRepository.getReportResource(anyString()))
-                .thenReturn(Observable.just(mAppResource));
+                .thenReturn(Observable.just(mReportResource));
         when(mReportData.getResource()).thenReturn(REPORT_URI);
         when(mReportData.getParams()).thenReturn(REPORT_PARAMS);
         when(mReportParamsMapper.mapToLegacyParams(anyMap()))

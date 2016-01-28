@@ -311,6 +311,7 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
                                         if (mJobs.isEmpty()) {
                                             showMessage(getString(R.string.sch_not_found));
                                         }
+                                        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.REMOVED.getValue(), Analytics.EventLabel.JOB.getValue());
                                     }
 
                                     @Override

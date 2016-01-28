@@ -94,7 +94,8 @@ public interface Analytics {
         CHANGED("Changed"),
         MARKED_AS_FAVORITE("Marked as favorite"),
         PRINTED("Printed"),
-        SCHEDULED("Scheduled");
+        SCHEDULED("Scheduled"),
+        REMOVED("Removed");
 
         String mName;
 
@@ -122,6 +123,7 @@ public interface Analytics {
         MANAGE_ACCOUNT("Manage account"),
         REPORT("Report"),
         DASHBOARD("Dashboard"),
+        JOB("Job"),
         WITH_RO("With report options"),
         VOICE_COMMANDS("Voice commands"),
         RUN("Run"),

@@ -18,6 +18,7 @@ import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryContro
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPageRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPropertyRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportRepository;
+import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryResourceRepository;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -25,6 +26,7 @@ import com.jaspersoft.android.jaspermobile.domain.repository.report.ControlsRepo
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPropertyRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
+import com.jaspersoft.android.jaspermobile.domain.repository.report.ResourceRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
@@ -36,6 +38,7 @@ import com.jaspersoft.android.sdk.network.SpringCredentials;
 import com.jaspersoft.android.sdk.service.report.ReportService;
 import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
+import com.jaspersoft.android.sdk.service.rx.repository.RxRepositoryService;
 
 import java.net.CookieManager;
 import java.util.concurrent.TimeUnit;
@@ -97,6 +100,12 @@ public final class ProfileModule {
 
     @Provides
     @PerProfile
+    RxRepositoryService provideRxRepositoryService(AuthorizedClient authorizedClient) {
+        return RxRepositoryService.newService(authorizedClient);
+    }
+
+    @Provides
+    @PerProfile
     RxFiltersService provideRxFiltersService(AuthorizedClient authorizedClient) {
         return RxFiltersService.newService(authorizedClient);
     }
@@ -114,6 +123,12 @@ public final class ProfileModule {
         return server.newClient(credentials)
                 .withCookieHandler(CookieManager.getDefault())
                 .create();
+    }
+
+    @Provides
+    @PerProfile
+    ResourceRepository providesResourceRepository(InMemoryResourceRepository repository) {
+        return repository;
     }
 
     @Provides

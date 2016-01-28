@@ -50,7 +50,7 @@ public class GetJsonParamsCaseTest {
 
     private void setUpMocks() {
         when(mReportParamsCache.get(anyString())).thenReturn(REPORT_PARAMS);
-        when(mReportParamsMapper.toJsonLegacyParams(anyListOf(ReportParameter.class))).thenReturn(EMPTY_JSON);
+        when(mReportParamsMapper.legacyParamsToJson(anyListOf(ReportParameter.class))).thenReturn(EMPTY_JSON);
     }
 
     @Test
@@ -59,6 +59,6 @@ public class GetJsonParamsCaseTest {
         mGetJsonParamsCase.execute(REPORT_URI, test);
 
         verify(mReportParamsCache).get(REPORT_URI);
-        verify(mReportParamsMapper).toJsonLegacyParams(REPORT_PARAMS);
+        verify(mReportParamsMapper).legacyParamsToJson(REPORT_PARAMS);
     }
 }

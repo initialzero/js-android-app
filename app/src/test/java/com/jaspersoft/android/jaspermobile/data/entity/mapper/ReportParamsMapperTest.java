@@ -8,7 +8,9 @@ import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,7 +22,7 @@ import static org.hamcrest.core.Is.is;
  * @author Tom Koptel
  * @since 2.3
  */
-public class ReportParameterMapperTest {
+public class ReportParamsMapperTest {
     private ReportParamsMapper mReportParamsMapper;
 
     @Before
@@ -42,7 +44,7 @@ public class ReportParameterMapperTest {
     public void testToMapLegacy() throws Exception {
         ReportParameter parameter1 =
                 new ReportParameter("name", Collections.singleton("value"));
-        Map<String, Set<String>> result = mReportParamsMapper.toMapLegacy(Collections.singletonList(parameter1));
+        Map<String, Set<String>> result = mReportParamsMapper.legacyToMap(Collections.singletonList(parameter1));
 
         Set<String> actual = result.keySet();
         assertThat("Should map report parameter name", actual, hasItem("name"));
@@ -60,7 +62,19 @@ public class ReportParameterMapperTest {
         ReportParameter parameter1 =
                 new ReportParameter("name", Collections.singleton("value"));
 
-        String result = mReportParamsMapper.toJsonLegacyParams(Collections.singletonList(parameter1));
+        String result = mReportParamsMapper.legacyParamsToJson(Collections.singletonList(parameter1));
         assertThat(result, is("{\"name\":[\"value\"]}"));
+    }
+
+    @Test
+    public void should_map_to_legacy_params() throws Exception {
+        Map<String, Set<String>> params = new HashMap<>();
+        params.put("name", Collections.singleton("value"));
+
+        ReportParameter parameter1 =
+                new ReportParameter("name", Collections.singleton("value"));
+
+        List<ReportParameter> result = mReportParamsMapper.mapToLegacyParams(params);
+        assertThat(result, hasItem(parameter1));
     }
 }

@@ -40,7 +40,7 @@ public class GetJsonParamsCase extends AbstractUseCase<String, String> {
     @Override
     protected Observable<String> buildUseCaseObservable(@NotNull String reportUri) {
         List<ReportParameter> reportParameters = mReportParamsCache.get(reportUri);
-        String jsonParams = mReportParamsMapper.toJsonLegacyParams(reportParameters);
+        String jsonParams = mReportParamsMapper.legacyParamsToJson(reportParameters);
         return Observable.just(jsonParams);
     }
 }

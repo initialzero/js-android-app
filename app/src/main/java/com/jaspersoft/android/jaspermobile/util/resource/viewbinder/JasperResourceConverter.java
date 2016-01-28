@@ -21,7 +21,7 @@ import com.jaspersoft.android.jaspermobile.util.resource.UndefinedResource;
 import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.network.entity.schedule.JobUnit;
+import com.jaspersoft.android.sdk.service.data.schedule.JobUnit;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

@@ -25,19 +25,22 @@
 package com.jaspersoft.android.jaspermobile.activities.schedule;
 
 import android.accounts.Account;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
@@ -51,7 +54,7 @@ import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.network.AuthorizedClient;
 import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.network.SpringCredentials;
-import com.jaspersoft.android.sdk.network.entity.schedule.JobUnit;
+import com.jaspersoft.android.sdk.service.data.schedule.JobUnit;
 import com.jaspersoft.android.sdk.service.report.schedule.JobSearchCriteria;
 import com.jaspersoft.android.sdk.service.report.schedule.JobSortType;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxJobSearchTask;
@@ -63,7 +66,10 @@ import org.androidannotations.annotations.EFragment;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 import roboguice.inject.InjectView;
 import rx.Observable;
@@ -95,8 +101,10 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
     protected PasswordManager mPasswordManager;
 
     private JasperResourceAdapter mAdapter;
+    private RxReportScheduleService mScheduleService;
     private RxJobSearchTask mJobSearchTask;
     private CompositeSubscription mCompositeSubscription;
+    private LinkedHashMap<Integer, JobUnit> mJobs;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -166,12 +174,13 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
                 .subscribe(new Subscriber<RxReportScheduleService>() {
                     @Override
                     public void onStart() {
+                        mJobs = new LinkedHashMap<>();
                         showMessage(getString(R.string.loading_msg));
                     }
 
                     @Override
                     public void onCompleted() {
-                        loadNextJobs();
+                        loadJobs();
                     }
 
                     @Override
@@ -184,14 +193,14 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
                     public void onNext(RxReportScheduleService service) {
                         JobSearchCriteria jobSearchCriteria = JobSearchCriteria.builder()
                                 .withSortType(JobSortType.SORTBY_JOBNAME)
-                                .withLimit(5)
                                 .build();
+                        mScheduleService = service;
                         mJobSearchTask = service.search(jobSearchCriteria);
                     }
                 });
     }
 
-    private void loadNextJobs() {
+    private void loadJobs() {
         Subscription subscription = mJobSearchTask.nextLookup()
                 .compose(RxTransformers.<List<JobUnit>>applySchedulers())
                 .subscribe(new Subscriber<List<JobUnit>>() {
@@ -202,7 +211,7 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
 
                     @Override
                     public void onCompleted() {
-                        showMessage(null);
+                        showMessage(mJobs.isEmpty() ? getString(R.string.sch_not_found) : null);
                         setRefreshState(false);
                     }
 
@@ -216,8 +225,12 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
                     @Override
                     public void onNext(List<JobUnit> jobUnits) {
                         JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
+
                         mAdapter.addAll(jasperResourceConverter.convertToJasperResources(jobUnits));
-                        mAdapter.notifyDataSetChanged();
+
+                        for (JobUnit job : jobUnits) {
+                            mJobs.put(job.getId(), job);
+                        }
                     }
                 });
         mCompositeSubscription.add(subscription);
@@ -251,12 +264,71 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
             public void onResourceItemClicked(String id) {
+                try {
+                    int jobId = Integer.parseInt(id);
+                    JobUnit job = mJobs.get(jobId);
 
+                    SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                            .setTitle(job.getLabel())
+                            .setMessage(createJobInfo(job))
+                            .setPositiveButtonText(R.string.ok)
+                            .show();
+                } catch (NumberFormatException ex) {
+                    Toast.makeText(getActivity(), R.string.wrong_action, Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
-            public void onSecondaryActionClicked(JasperResource jasperResource) {
+            public void onSecondaryActionClicked(final JasperResource jasperResource) {
+                if (mScheduleService != null) {
+                    try {
+                        final int jobId = Integer.parseInt(jasperResource.getId());
+                        Set<Integer> idToDel = new HashSet<>();
+                        idToDel.add(jobId);
 
+                        ProgressDialogFragment.builder(getFragmentManager())
+                                .setLoadingMessage(R.string.loading_msg)
+                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        mCompositeSubscription.unsubscribe();
+                                        mCompositeSubscription = new CompositeSubscription();
+                                    }
+                                })
+                                .show();
+
+                        mCompositeSubscription.add(mScheduleService.deleteJobs(idToDel)
+                                .compose(RxTransformers.<Set<Integer>>applySchedulers())
+                                .subscribe(new Subscriber<Set<Integer>>() {
+                                    @Override
+                                    public void onCompleted() {
+                                        ProgressDialogFragment.dismiss(getFragmentManager());
+                                        Toast.makeText(getActivity(), R.string.sch_deleted, Toast.LENGTH_SHORT).show();
+
+                                        mJobs.remove(jobId);
+                                        mAdapter.remove(jasperResource);
+
+                                        if (mJobs.isEmpty()) {
+                                            showMessage(getString(R.string.sch_not_found));
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        // TODO: Handle error
+                                        ProgressDialogFragment.dismiss(getFragmentManager());
+                                    }
+
+                                    @Override
+                                    public void onNext(Set<Integer> integers) {
+
+                                    }
+                                }));
+                    } catch (NumberFormatException ex) {
+                        Toast.makeText(getActivity(), R.string.wrong_action, Toast.LENGTH_SHORT).show();
+                    }
+
+                }
             }
         });
 
@@ -274,9 +346,13 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
     private void setRefreshState(boolean refreshing) {
         if (!refreshing) {
             swipeRefreshLayout.setRefreshing(false);
-            mAdapter.hideLoading();
-        } else {
-            mAdapter.showLoading();
         }
+    }
+
+    private String createJobInfo(JobUnit jobUnit) {
+        String prevDate = jobUnit.getPreviousFireTime() != null ? "" + jobUnit.getPreviousFireTime() : "-";
+        String nextDate = jobUnit.getNextFireTime() != null ? "" + jobUnit.getNextFireTime() : "-";
+        return getString(R.string.sch_info, jobUnit.getDescription(), jobUnit.getReportUri(), prevDate,
+                nextDate, jobUnit.getOwner().getUsername(), jobUnit.getOwner().getOrganization());
     }
 }

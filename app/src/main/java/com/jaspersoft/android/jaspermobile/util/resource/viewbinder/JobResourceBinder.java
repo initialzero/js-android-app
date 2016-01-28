@@ -48,6 +48,6 @@ class JobResourceBinder extends ResourceBinder {
 
     @Override
     protected void setActionResource(ResourceView resourceView, JasperResource jasperResource) {
-        resourceView.setSecondaryAction(0);
+        resourceView.setSecondaryAction(R.drawable.im_cancel);
     }
 }

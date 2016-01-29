@@ -15,6 +15,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPropertyCache;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryControlsRepository;
+import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportOptionsRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPageRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPropertyRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportRepository;
@@ -23,6 +24,7 @@ import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ControlsRepository;
+import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportOptionsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPropertyRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
@@ -66,15 +68,13 @@ public final class ProfileModule {
 
     @Provides
     @PerProfile
-    Server provideServer(@ApplicationContext Context context, JasperServerCache jasperServerCache) {
-        JasperServer server = jasperServerCache.get(mProfile);
-
+    Server provideServer(@ApplicationContext Context context, JasperServer jasperServer) {
         DefaultPrefHelper prefHelper = DefaultPrefHelper_.getInstance_(context);
         int connectTimeout = prefHelper.getConnectTimeoutValue();
         int readTimeout = prefHelper.getReadTimeoutValue();
 
         return Server.builder()
-                .withBaseUrl(server.getBaseUrl() + "/")
+                .withBaseUrl(jasperServer.getBaseUrl() + "/")
                 .withConnectionTimeOut(connectTimeout, TimeUnit.MILLISECONDS)
                 .withReadTimeout(readTimeout, TimeUnit.MILLISECONDS)
                 .build();
@@ -84,6 +84,12 @@ public final class ProfileModule {
     @PerProfile
     AppCredentials providesCredentials(CredentialsCache credentialsCache) {
         return credentialsCache.get(mProfile);
+    }
+
+    @Provides
+    @PerProfile
+    JasperServer providesJasperServer( JasperServerCache jasperServerCache) {
+        return jasperServerCache.get(mProfile);
     }
 
     @Provides
@@ -123,6 +129,12 @@ public final class ProfileModule {
         return server.newClient(credentials)
                 .withCookieHandler(CookieManager.getDefault())
                 .create();
+    }
+
+    @Provides
+    @PerProfile
+    ReportOptionsRepository providesReportOptionsRepository(InMemoryReportOptionsRepository repository) {
+        return repository;
     }
 
     @Provides

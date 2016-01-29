@@ -24,9 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.inputcontrols;
 
-import android.accounts.Account;
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -55,32 +53,29 @@ import com.jaspersoft.android.jaspermobile.dialog.SaveReportOptionDialogFragment
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.TextInputControlDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.TextInputControlDialogFragment_;
+import com.jaspersoft.android.jaspermobile.domain.DeleteOptionRequest;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.SaveOptionRequest;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetInputControlsValuesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateInputControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.DeleteReportOptionCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionValuesCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.SaveReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
-import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.IcDateHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.client.async.request.CreateReportOptionsRequest;
-import com.jaspersoft.android.sdk.client.async.request.DeleteReportOptionRequest;
-import com.jaspersoft.android.sdk.client.async.request.GetReportOptionValuesRequest;
-import com.jaspersoft.android.sdk.client.async.request.ReportOptionsRequest;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsValuesRequest;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlStatesList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOption;
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOptionResponse;
-import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.jaspersoft.android.sdk.service.data.report.option.ReportOption;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -118,19 +113,34 @@ public class InputControlsActivity extends RoboSpiceActivity
         DateDialogFragment.DateDialogClickListener,
         SimpleDialogFragment.SimpleDialogClickListener,
         SaveReportOptionDialogFragment.SaveReportOptionDialogCallback,
-        TextInputControlDialogFragment.InputControlValueDialogCallback
-{
+        TextInputControlDialogFragment.InputControlValueDialogCallback {
     // Extras
     public static final int SELECT_IC_REQUEST_CODE = 521;
     public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
 
     @Inject
-    protected JsRestClientWrapper jsRestClientWrapper;
-    @Inject
     protected ReportParamsStorage paramsStorage;
     @Inject
     @Nullable
+    protected JasperServer mJasperServer;
+    @Inject
+    @Nullable
+    protected GetInputControlsValuesCase mGetInputControlsValuesCase;
+    @Inject
+    @Nullable
     protected ValidateInputControlsCase mValidateInputControlsCase;
+    @Inject
+    @Nullable
+    protected GetReportOptionsCase mGetReportOptionsCase;
+    @Inject
+    @Nullable
+    protected SaveReportOptionsCase mSaveReportOptionsCase;
+    @Inject
+    @Nullable
+    protected GetReportOptionValuesCase mGetReportOptionValuesCase;
+    @Inject
+    @Nullable
+    protected DeleteReportOptionCase mDeleteReportOptionCase;
 
     @ViewById(R.id.btnApplyParams)
     protected FloatingActionButton applyParams;
@@ -170,9 +180,10 @@ public class InputControlsActivity extends RoboSpiceActivity
                 )
                 .inject(this);
 
-        Account account = JasperAccountManager.get(this).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(this, account);
-        mIsProJrs = serverData.getEdition().equals("PRO");
+        Boolean proEdition = mJasperServer.isProEdition();
+        if (proEdition != null) {
+            mIsProJrs = proEdition;
+        }
 
         mInputControls = paramsStorage.getInputControlHolder(reportUri).getInputControls();
         if (mInputControls == null) {
@@ -200,6 +211,7 @@ public class InputControlsActivity extends RoboSpiceActivity
     @Override
     protected void onStop() {
         mValidateInputControlsCase.unsubscribe();
+        mGetReportOptionsCase.unsubscribe();
         super.onStop();
     }
 
@@ -229,7 +241,7 @@ public class InputControlsActivity extends RoboSpiceActivity
     @Click(R.id.btnApplyParams)
     protected void applyParamsClick() {
         setProgressDialogState(true);
-        mValidateInputControlsCase.execute(reportUri, new ValidateInputControlsValuesListener());
+        mValidateInputControlsCase.execute(reportUri, new GenericSubscriber<>(new ValidateInputControlsValuesListener()));
     }
 
     @OnActivityResult(SELECT_IC_REQUEST_CODE)
@@ -353,15 +365,18 @@ public class InputControlsActivity extends RoboSpiceActivity
 
     private void loadReportOptions() {
         mReportOptions = new ArrayList<>();
-        ReportOption defaultReportOption = new ReportOption(reportUri, reportUri, getString(R.string.ro_default));
+        ReportOption defaultReportOption = new ReportOption.Builder()
+                .withId(reportUri)
+                .withUri(reportUri)
+                .withLabel(getString(R.string.ro_default))
+                .build();
         ReportOptionHolder reportOptionHolder = new ReportOptionHolder(defaultReportOption, mInputControls.hashCode());
         reportOptionHolder.setSelected(true);
         mReportOptions.add(reportOptionHolder);
 
         if (mIsProJrs) {
-            ReportOptionsRequest runReportExecutionRequest = new ReportOptionsRequest(jsRestClientWrapper.getClient(), reportUri);
-            getSpiceManager().execute(runReportExecutionRequest, new GetReportOptionsListener());
             setProgressDialogState(true);
+            mGetReportOptionsCase.execute(reportUri, new GenericSubscriber<>(new GetReportOptionsListener()));
         }
     }
 
@@ -402,19 +417,16 @@ public class InputControlsActivity extends RoboSpiceActivity
 
     private void onReportOptionSelected(int position) {
         ReportOption reportOption = mReportOptions.get(position).getReportOption();
-
         setProgressDialogState(true);
-
-        GetReportOptionValuesRequest request = new GetReportOptionValuesRequest(jsRestClientWrapper.getClient(), reportOption.getUri());
-        getSpiceManager().execute(request, new GetReportOptionValuesListener());
+        mGetReportOptionValuesCase.execute(reportOption.getUri(), new GenericSubscriber<>(new GetReportOptionValuesListener()));
     }
 
     private void deleteReportOption() {
         setProgressDialogState(true);
 
         ReportOption currentReportOption = mReportOptions.get(getSelectedReportOptionPosition()).getReportOption();
-        DeleteReportOptionRequest request = new DeleteReportOptionRequest(jsRestClientWrapper.getClient(), reportUri, currentReportOption.getId());
-        getSpiceManager().execute(request, new DeleteReportOptionListener());
+        DeleteOptionRequest request = new DeleteOptionRequest(reportUri, currentReportOption.getId());
+        mDeleteReportOptionCase.execute(request, new GenericSubscriber<>(new DeleteReportOptionListener()));
     }
 
     private void showSaveDialog() {
@@ -434,13 +446,9 @@ public class InputControlsActivity extends RoboSpiceActivity
         setProgressDialogState(true);
 
         ArrayList<ReportParameter> parameters = initParametersUsingSelectedValues();
-        Map<String, Set<String>> hashMap = new HashMap<>(parameters.size());
-        for (ReportParameter reportParameter : parameters) {
-            hashMap.put(reportParameter.getName(), reportParameter.getValues());
-        }
 
-        CreateReportOptionsRequest request = new CreateReportOptionsRequest(jsRestClientWrapper.getClient(), reportUri, reportOptionName, hashMap);
-        getSpiceManager().execute(request, new SaveReportOptionListener());
+        SaveOptionRequest request = new SaveOptionRequest(reportUri, reportOptionName, parameters);
+        mSaveReportOptionsCase.execute(request, new GenericSubscriber<>(new SaveReportOptionListener()));
     }
 
     private void setProgressDialogState(boolean loading) {
@@ -492,8 +500,7 @@ public class InputControlsActivity extends RoboSpiceActivity
     private void updateDependentControls(InputControl inputControl) {
         if (!inputControl.getSlaveDependencies().isEmpty()) {
             setProgressDialogState(true);
-            GetInputControlsValuesRequest request = new GetInputControlsValuesRequest(jsRestClientWrapper.getClient(), reportUri, mInputControls);
-            getSpiceManager().execute(request, new GetInputControlsValuesListener());
+            mGetInputControlsValuesCase.execute(reportUri, new GenericSubscriber<>(new GetInputControlsValuesListener()));
         }
         updateReportOptionsTitlesList();
         mReportOptionsAdapter.notifyDataSetChanged();
@@ -636,41 +643,14 @@ public class InputControlsActivity extends RoboSpiceActivity
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private class GetInputControlsValuesListener extends SimpleRequestListener<InputControlStatesList> {
-
+    private class GetInputControlsValuesListener extends SimpleSubscriber<List<InputControlState>> {
         @Override
-        protected Context getContext() {
-            return InputControlsActivity.this;
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            super.onRequestFailure(exception);
-            setProgressDialogState(false);
-        }
-
-        @Override
-        public void onRequestSuccess(InputControlStatesList stateList) {
-            updateInputControls(stateList.getInputControlStates());
-            setProgressDialogState(false);
+        public void onNext(List<InputControlState> stateList) {
+            updateInputControls(stateList);
         }
     }
 
-    private class ValidateInputControlsValuesListener extends Subscriber<List<InputControlState>> {
-        protected void onValidationPassed(){
-            runReport();
-        }
-
-        @Override
-        public void onCompleted() {
-            setProgressDialogState(false);
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            RequestExceptionHandler.handle(e, InputControlsActivity.this);
-        }
-
+    private class ValidateInputControlsValuesListener extends SimpleSubscriber<List<InputControlState>> {
         @Override
         public void onNext(List<InputControlState> stateList) {
             if (stateList.isEmpty()) {
@@ -678,6 +658,10 @@ public class InputControlsActivity extends RoboSpiceActivity
             } else {
                 updateInputControls(stateList);
             }
+        }
+
+        protected void onValidationPassed() {
+            runReport();
         }
     }
 
@@ -688,34 +672,22 @@ public class InputControlsActivity extends RoboSpiceActivity
         }
     }
 
-    private class GetReportOptionsListener extends SimpleRequestListener<ReportOptionResponse> {
+    private class GetReportOptionsListener extends SimpleSubscriber<Set<ReportOption>> {
         @Override
-        protected Context getContext() {
-            return InputControlsActivity.this;
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            super.onRequestFailure(exception);
-            setProgressDialogState(false);
-        }
-
-        @Override
-        public void onRequestSuccess(ReportOptionResponse reportOptionResponse) {
-            for (ReportOption reportOption : reportOptionResponse.getOptions()) {
+        public void onNext(Set<ReportOption> options) {
+            for (ReportOption reportOption : options) {
                 mReportOptions.add(new ReportOptionHolder(reportOption, null));
             }
             paramsStorage.getInputControlHolder(reportUri).setReportOptions(mReportOptions);
 
             showReportOptions();
-            setProgressDialogState(false);
         }
     }
 
     private class GetReportOptionValuesListener extends GetInputControlsValuesListener {
         @Override
-        public void onRequestSuccess(InputControlStatesList stateList) {
-            super.onRequestSuccess(stateList);
+        public void onNext(List<InputControlState> stateList) {
+            super.onNext(stateList);
 
             mReportOptions.get(getSelectedReportOptionPosition()).setSelected(false);
             mReportOptions.get(reportOptionsList.getSelectedItemPosition()).setSelected(true);
@@ -728,16 +700,9 @@ public class InputControlsActivity extends RoboSpiceActivity
         }
     }
 
-    private class DeleteReportOptionListener extends SimpleRequestListener<Void> {
+    private class DeleteReportOptionListener extends SimpleSubscriber<Void> {
         @Override
-        protected Context getContext() {
-            return InputControlsActivity.this;
-        }
-
-        @Override
-        public void onRequestSuccess(Void result) {
-            setProgressDialogState(false);
-
+        public void onNext(Void result) {
             int removalIndex = getSelectedReportOptionPosition();
             int currentIndex = removalIndex - 1;
             mReportOptions.remove(removalIndex);
@@ -746,41 +711,20 @@ public class InputControlsActivity extends RoboSpiceActivity
             reportOptionsList.setSelection(currentIndex);
             onReportOptionSelected(currentIndex);
         }
-
-        @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            super.onRequestFailure(spiceException);
-            setProgressDialogState(false);
-        }
     }
 
-    private class SaveReportOptionListener extends SimpleRequestListener<ReportOption> {
-
+    private class SaveReportOptionListener extends SimpleSubscriber<ReportOption> {
         @Override
-        protected Context getContext() {
-            return InputControlsActivity.this;
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            super.onRequestFailure(exception);
-            setProgressDialogState(false);
-        }
-
-        @Override
-        public void onRequestSuccess(ReportOption reportOption) {
+        public void onNext(ReportOption reportOption) {
             mReportOptions.get(getSelectedReportOptionPosition()).setSelected(false);
 
             addReportOption(reportOption);
             updateReportOptionsTitlesList();
             mReportOptionsAdapter.notifyDataSetChanged();
-
-            setProgressDialogState(false);
         }
     }
 
     private class OnReportOptionSelectListener implements AdapterView.OnItemSelectedListener {
-
         boolean initialSelectPassed;
 
         @Override
@@ -793,7 +737,32 @@ public class InputControlsActivity extends RoboSpiceActivity
 
         @Override
         public void onNothingSelected(AdapterView<?> parent) {
+        }
+    }
 
+    private class GenericSubscriber<T> extends Subscriber<T> {
+        private final Subscriber<T> mDelegate;
+
+        private GenericSubscriber(Subscriber<T> delegate) {
+            mDelegate = delegate;
+        }
+
+        @Override
+        public void onCompleted() {
+            mDelegate.onCompleted();
+            setProgressDialogState(false);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            mDelegate.onError(e);
+            Timber.e(e, "Subscriber crashed with error");
+            RequestExceptionHandler.handle(e, InputControlsActivity.this);
+        }
+
+        @Override
+        public void onNext(T t) {
+            mDelegate.onNext(t);
         }
     }
 }

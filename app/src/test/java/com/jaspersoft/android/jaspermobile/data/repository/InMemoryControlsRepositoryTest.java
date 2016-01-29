@@ -102,14 +102,15 @@ public class InMemoryControlsRepositoryTest {
     @Test
     public void should_request_input_control_states() throws Exception {
         TestSubscriber<List<com.jaspersoft.android.sdk.client.oxm.control.InputControlState>> test = new TestSubscriber<>();
-
         inMemoryControlsRepository.validateControls(REPORT_URI).subscribe(test);
 
         verify(mReportParamsCache).get(REPORT_URI);
         verify(mReportParamsMapper).legacyParamsToRetrofitted(LEGACY_REPORT_PARAMETERS);
-        verify(mFiltersService).validateControls(REPORT_URI, REPORT_PARAMETERS);
+        verify(mFiltersService).validateControls(REPORT_URI, REPORT_PARAMETERS, true);
         verify(mInputControlsMapper).retrofittedStatesToLegacy(STATES);
     }
+
+
 
     private void requestControls() {
         TestSubscriber<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> test = new TestSubscriber<>();
@@ -121,11 +122,10 @@ public class InMemoryControlsRepositoryTest {
     private void setupMocks() {
         when(mFiltersService.listReportControls(anyString()))
                 .thenReturn(Observable.just(CONTROLS));
-        when(mFiltersService.validateControls(anyString(), anyListOf(ReportParameter.class)))
+        when(mFiltersService.validateControls(anyString(), anyListOf(ReportParameter.class), anyBoolean()))
                 .thenReturn(Observable.just(STATES));
 
         when(mInputControlsMapper.retrofittedControlsToLegacy(CONTROLS)).thenReturn(LEGACY_CONTROLS);
-        when(mInputControlsMapper.retrofittedStatesToLegacy(STATES)).thenReturn(LEGACY_STATES);
 
         Chain<List<InputControl>> answer = Chain.of(null, CONTROLS);
         when(mControlsCache.get(anyString())).then(answer);

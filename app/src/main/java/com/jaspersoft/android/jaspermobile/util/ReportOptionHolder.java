@@ -24,14 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOption;
+
+import com.jaspersoft.android.sdk.service.data.report.option.ReportOption;
 
 /**
  * @author Andrew Tivodar
  * @since 2.2
  */
 public class ReportOptionHolder {
-    private ReportOption mReportOption;
+    private final ReportOption mReportOption;
     private Integer mHashCode;
     private boolean mSelected;
 

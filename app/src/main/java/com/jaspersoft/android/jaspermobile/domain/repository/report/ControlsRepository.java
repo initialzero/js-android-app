@@ -20,5 +20,8 @@ public interface ControlsRepository {
     @NonNull
     Observable<List<InputControlState>> validateControls(@NonNull String reportUri);
 
+    @NonNull
+    Observable<List<InputControlState>> listControlValues(@NonNull String reportUri);
+
     void flushControls(@NonNull String reportUri);
 }

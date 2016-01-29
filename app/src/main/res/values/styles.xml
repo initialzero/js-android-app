@@ -179,44 +179,6 @@
         <item name="android:singleLine">true</item>
     </style>
 
-    <!-- Date -->
-    <style name="inputControl.date" />
-
-    <style name="inputControl.date.inputContainer" />
-
-    <style name="inputControl.date.inputContainer.layout">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">match_parent</item>
-    </style>
-
-    <style name="inputControl.date.inputContainer.editText">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="inputControl.date.inputContainer.picker">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">wrap_content</item>
-    </style>
-
-    <style name="inputControl.date.inputContainer.picker.date">
-        <item name="android:src">@drawable/ic_date_picker</item>
-    </style>
-
-    <style name="inputControl.date.inputContainer.picker.time">
-        <item name="android:src">@drawable/ic_time_picker</item>
-    </style>
-
-    <!-- Single/Multi Select -->
-    <style name="inputControl.select" />
-
-    <style name="inputControl.select.spinner">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
     <!-- Report Options Layout -->
     <style name="reportOptions" />
 

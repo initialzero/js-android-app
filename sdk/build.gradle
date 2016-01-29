@@ -59,7 +59,7 @@ android {
 }
 
 dependencies {
-    compile('com.squareup.retrofit:retrofit:1.8.0') {
+    compile('com.squareup.retrofit:retrofit:1.9.0') {
         exclude group: 'com.google.code.gson'
     }
     compile 'com.jakewharton.timber:timber:2.5.0'
@@ -71,6 +71,10 @@ dependencies {
     }
     compile('com.octo.android.robospice:robospice-spring-android:1.4.14') {
         exclude group: 'org.apache.commons', module: 'commons-io'
+    }
+
+    compile("com.jaspersoft.android.sdk:js-android-sdk-rx:2.0-SNAPSHOT") {
+        exclude group: 'com.google.code.gson'
     }
     compile("com.jaspersoft.android.sdk:js-android-sdk-client:${jasperSdkVersion}") {
         transitive = false

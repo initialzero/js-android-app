@@ -66,9 +66,10 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
 
+        favoriteAction.setVisible(mResourceLookup != null);
         favoriteHelper.updateFavoriteIconState(favoriteAction, jasperResource.getId());
     }
 

@@ -51,6 +51,8 @@ public class ResourceBinderFactory {
                 return new SavedItemResourceBinder(mContext);
             case file:
                 return new FileResourceBinder(mContext);
+            case job:
+                return new JobResourceBinder(mContext);
             default:
                 return new UnknownResourceBinder(mContext);
         }

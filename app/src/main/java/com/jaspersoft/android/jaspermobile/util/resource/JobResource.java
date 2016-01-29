@@ -22,34 +22,21 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders;
-
-import android.view.View;
-
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
-
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+package com.jaspersoft.android.jaspermobile.util.resource;
 
 /**
  * @author Andrew Tivodar
- * @since 2.2
+ * @since 2.0
  */
-public class TimeInputControlViewHolder extends DateTimeInputControlViewHolder {
+public class JobResource extends JasperResource {
 
-    private static final String DEFAULT_DATE_TIME_FORMAT = "HH:mm:ss";
-
-    public TimeInputControlViewHolder(View itemView) {
-        super(itemView);
-
-        mUserDateFormat = new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT, Locale.getDefault());
+    public JobResource(String id, String label, String description) {
+        super(id, label, description);
     }
 
     @Override
-    public void populateView(InputControl inputControl) {
-        super.populateView(inputControl);
-
-        btnDate.setVisibility(View.GONE);
-        dateTimeDivider.setVisibility(View.GONE);
+    public JasperResourceType getResourceType() {
+        return JasperResourceType.job;
     }
+
 }

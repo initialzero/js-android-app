@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
+import com.jaspersoft.android.jaspermobile.activities.schedule.ScheduleActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog;
 import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog_;
@@ -49,7 +50,7 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.2
  */
-@OptionsMenu({R.menu.save_item_menu, R.menu.report_options_menu})
+@OptionsMenu({R.menu.report_schedule, R.menu.save_item_menu, R.menu.report_options_menu})
 @EFragment(R.layout.fragment_resource_info)
 public class ReportInfoFragment extends ResourceInfoFragment implements ReportOptionsFragmentDialog.ReportOptionsDialogClickListener {
 
@@ -102,6 +103,13 @@ public class ReportInfoFragment extends ResourceInfoFragment implements ReportOp
                 .setCancelableOnTouchOutside(true)
                 .setTargetFragment(this)
                 .show();
+    }
+
+    @OptionsItem(R.id.newSchedule)
+    protected void schedule() {
+        ScheduleActivity_.intent(getActivity())
+                .jasperResource(jasperResource)
+                .start();
     }
 
     @Override

@@ -22,34 +22,32 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders;
+package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
+import android.content.Context;
 import android.view.View;
+import android.widget.ImageView;
 
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
-
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 
 /**
- * @author Andrew Tivodar
- * @since 2.2
+ * @author Tom Koptel
+ * @since 1.9
  */
-public class DateInputControlViewHolder extends DateTimeInputControlViewHolder {
+class JobResourceBinder extends ResourceBinder {
 
-    private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd";
-
-    public DateInputControlViewHolder(View itemView) {
-        super(itemView);
-
-        mUserDateFormat = new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT, Locale.getDefault());
+    public JobResourceBinder(Context context) {
+        super(context);
     }
 
     @Override
-    public void populateView(InputControl inputControl) {
-        super.populateView(inputControl);
+    public void setIcon(ImageView imageView, JasperResource jasperResource) {
+        imageView.setVisibility(View.GONE);
+    }
 
-        btnTime.setVisibility(View.GONE);
-        dateTimeDivider.setVisibility(View.GONE);
+    @Override
+    protected void setActionResource(ResourceView resourceView, JasperResource jasperResource) {
+        resourceView.setSecondaryAction(R.drawable.im_cancel);
     }
 }

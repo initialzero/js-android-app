@@ -44,7 +44,8 @@ public interface Analytics {
         REPOSITORY("Repository screen"),
         RECENTLY_VIEWED("Recently viewed screen"),
         FAVORITES("Favorites screen"),
-        SAVED_ITEMS("Saved items screen");
+        SAVED_ITEMS("Saved items screen"),
+        JOBS("Jobs");
 
         String mName;
 
@@ -92,7 +93,9 @@ public interface Analytics {
         CHANGED_VIEW_TYPE("Changed view type"),
         CHANGED("Changed"),
         MARKED_AS_FAVORITE("Marked as favorite"),
-        PRINTED("Printed");
+        PRINTED("Printed"),
+        SCHEDULED("Scheduled"),
+        REMOVED("Removed");
 
         String mName;
 
@@ -111,6 +114,7 @@ public interface Analytics {
         RECENTLY_VIEWED("Recently viewed"),
         FAVORITES("Favorites"),
         SAVED_ITEMS("Saved items"),
+        JOBS("Jobs"),
         ADD_ACCOUNT("Add account"),
         SWITCH_ACCOUNT("Switch account"),
         SETTINGS("Settings"),
@@ -119,6 +123,7 @@ public interface Analytics {
         MANAGE_ACCOUNT("Manage account"),
         REPORT("Report"),
         DASHBOARD("Dashboard"),
+        JOB("Job"),
         WITH_RO("With report options"),
         VOICE_COMMANDS("Voice commands"),
         RUN("Run"),

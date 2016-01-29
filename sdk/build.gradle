@@ -59,7 +59,7 @@ android {
 }
 
 dependencies {
-    compile('com.squareup.retrofit:retrofit:1.8.0') {
+    compile('com.squareup.retrofit:retrofit:1.9.0') {
         exclude group: 'com.google.code.gson'
     }
     compile 'com.jakewharton.timber:timber:2.5.0'

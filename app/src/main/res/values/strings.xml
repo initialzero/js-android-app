@@ -295,6 +295,7 @@
     <!-- Casting -->
     <string name="cast_logo_presentation_message" translatable="false">Always on and easy to access</string>
     <string name="cast_ready_message" translatable="false">Ready to cast reports</string>
+    <string name="cast_scroll_message" translatable="false">Report is presenting. Hold arrow buttons to scroll up or down.</string>
 
     <!-- Navigation panel -->
     <string name="library_card_label">Library</string>

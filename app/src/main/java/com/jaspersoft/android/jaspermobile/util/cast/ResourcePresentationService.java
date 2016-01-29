@@ -251,16 +251,12 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         mPresentation.selectPage(pageNumber);
     }
 
-    public float getScrollScale() {
-        return mPresentation.getContentScale();
+    public void scrollUp() {
+        mPresentation.scrollTo(-8);
     }
 
-    public float getScrollPosition() {
-        return mPresentation.calculateScrollPercent();
-    }
-
-    public void scrollTo(float scrollPercent) {
-        mPresentation.scrollTo(scrollPercent);
+    public void scrollDown() {
+        mPresentation.scrollTo(8);
     }
 
     //---------------------------------------------------------------------
@@ -447,8 +443,10 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             webView.loadUrl(String.format("javascript:MobileReport.selectPage(%d)", pageNumber));
         }
 
-        private void scrollTo(float scrollPercent) {
-            webView.setScrollY((int) ((webView.computeVerticalScrollRange() - webView.getHeight()) * scrollPercent));
+        private void scrollTo(int scrollValue) {
+            if (webView.canScrollVertically(scrollValue)) {
+                webView.scrollBy(0, scrollValue);
+            }
         }
 
         private void showReport() {
@@ -465,16 +463,6 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
         private void hideLoading() {
             progressState.setVisibility(View.GONE);
-        }
-
-        private float getContentScale() {
-            return webView.computeVerticalScrollRange() / (float) webView.getHeight();
-        }
-
-        private float calculateScrollPercent() {
-            int maxScroll = webView.computeVerticalScrollRange() - webView.getHeight();
-            if (maxScroll > 0) return webView.getScrollY() / (float) maxScroll;
-            return 0;
         }
 
         private int getPageCount() {

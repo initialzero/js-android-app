@@ -28,12 +28,16 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.report;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -58,15 +62,19 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.Touch;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity.REQUEST_REPORT_PARAMETERS;
 
@@ -83,17 +91,14 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     @Extra
     protected ResourceLookup resource;
 
-    @ViewById(R.id.reportScroll)
-    protected ScrollView reportScroll;
-
-    @ViewById(R.id.reportScrollPosition)
-    protected View reportScrollPosition;
-
     @ViewById(R.id.progressLoading)
     protected ProgressBar reportProgress;
 
     @ViewById(R.id.reportMessage)
     protected TextView reportMessage;
+
+    @ViewById(R.id.scrollContainer)
+    protected LinearLayout scrollContainer;
 
     @ViewById(R.id.paginationControl)
     protected PaginationBarView paginationBar;
@@ -110,12 +115,14 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     protected ReportParamsSerializer paramsSerializer;
 
     private ResourcePresentationService mResourcePresentationService;
+    private Timer mTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mResourcePresentationService = (ResourcePresentationService) ResourcePresentationService.getInstance();
+        mTimer = new Timer();
     }
 
     @AfterViews
@@ -124,14 +131,6 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         if (actionBar != null) {
             actionBar.setTitle(resource.getLabel());
         }
-
-        reportScroll.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-
-            @Override
-            public void onScrollChanged() {
-                mResourcePresentationService.scrollTo(calculateScrollPercent());
-            }
-        });
         paginationBar.setOnPageChangeListener(this);
     }
 
@@ -152,6 +151,7 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         super.onStop();
 
         mResourcePresentationService.removeResourcePresentationCallback(this);
+        cancelScrolling();
     }
 
     @Override
@@ -200,6 +200,28 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         }
     }
 
+    @Touch(R.id.btnScrollUp)
+    protected boolean scrollUpAction(MotionEvent event) {
+        scrollTo(event, new TimerTask() {
+            @Override
+            public void run() {
+                mResourcePresentationService.scrollUp();
+            }
+        });
+        return false;
+    }
+
+    @Touch(R.id.btnScrollDown)
+    protected boolean scrollDownAction(MotionEvent event) {
+        scrollTo(event, new TimerTask() {
+            @Override
+            public void run() {
+                mResourcePresentationService.scrollDown();
+            }
+        });
+        return false;
+    }
+
     //---------------------------------------------------------------------
     // Callbacks
     //---------------------------------------------------------------------
@@ -244,7 +266,6 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     @Override
     public void onPageSelected(int currentPage) {
         paginationBar.setEnabled(false);
-        updateReportScroll(1, 0);
         mResourcePresentationService.selectPage(currentPage);
     }
 
@@ -252,6 +273,8 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     public void showEmptyView() {
         reportMessage.setVisibility(View.VISIBLE);
         reportMessage.setText(getString(R.string.rv_error_empty_report));
+
+        hideScrollControls();
     }
 
     @Override
@@ -263,6 +286,8 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     public void showErrorView(CharSequence error) {
         reportMessage.setVisibility(View.VISIBLE);
         reportMessage.setText(error);
+
+        hideScrollControls();
     }
 
     @Override
@@ -275,11 +300,21 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
 
         reportMessage.setVisibility(View.VISIBLE);
         reportMessage.setText(message);
+
+        hideScrollControls();
     }
 
     public void hideProgress() {
         reportProgress.setVisibility(View.GONE);
         reportMessage.setVisibility(View.GONE);
+    }
+
+    public void showScrollControls() {
+        scrollContainer.setVisibility(View.VISIBLE);
+    }
+
+    public void hideScrollControls() {
+        scrollContainer.setVisibility(View.GONE);
     }
 
     @Override
@@ -299,7 +334,6 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     public void onLoadingStarted() {
         invalidateOptionsMenu();
         showProgress(getString(R.string.r_pd_running_report_msg));
-        updateReportScroll(1, 0);
         paginationBar.setVisibility(View.GONE);
         paginationBar.reset();
     }
@@ -309,7 +343,7 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         invalidateOptionsMenu();
         hideProgress();
 
-        updateReportScroll();
+        showScrollControls();
     }
 
     @Override
@@ -330,7 +364,6 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
     public void onPageChanged(int pageNumb, String errorMessage) {
         paginationBar.updateCurrentPage(pageNumb);
         paginationBar.setEnabled(true);
-        updateReportScroll();
         if (errorMessage != null) {
             Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
         }
@@ -341,7 +374,6 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         invalidateOptionsMenu();
         hideProgress();
         showErrorView(error);
-        updateReportScroll(1, 0);
 
         paginationBar.reset();
         paginationBar.setVisibility(View.GONE);
@@ -378,10 +410,6 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         }
     }
 
-    private float calculateScrollPercent() {
-        return reportScroll.getScrollY() / (float) (reportScrollPosition.getHeight() - reportScroll.getHeight());
-    }
-
     private void requestReportCasting() {
         mResourcePresentationService.startPresentation(resource, paramsSerializer.toJson(getReportParameters()));
     }
@@ -398,33 +426,18 @@ public class ReportCastActivity extends RoboCastActivity implements ReportView, 
         return paramsStorage.getInputControlHolder(resource.getUri()).getReportParams();
     }
 
-    private void updateReportScroll() {
-        float scrollScale = mResourcePresentationService.getScrollScale();
-        float scrollPosition = mResourcePresentationService.getScrollPosition();
-        updateReportScroll(scrollScale, scrollPosition);
+    private void scrollTo(MotionEvent event, TimerTask task) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            cancelScrolling();
+            mTimer.scheduleAtFixedRate(task, 0, 10);
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            cancelScrolling();
+        }
     }
 
-    private void updateReportScroll(final float scale, final float scrollPercent) {
-        reportScroll.setVisibility(scale == 1 ? View.GONE : View.VISIBLE);
-        reportScrollPosition.post(new Runnable() {
-            @Override
-            public void run() {
-                int height = FrameLayout.LayoutParams.WRAP_CONTENT;
-                if (scale != 1) {
-                    height = (int) (reportScrollPosition.getHeight() * scale);
-                }
-                reportScrollPosition.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, height));
-                scrollTo(scrollPercent);
-            }
-        });
-    }
-
-    private void scrollTo(final float scrollPercent) {
-        reportScroll.post(new Runnable() {
-            @Override
-            public void run() {
-                reportScroll.setScrollY((int) ((reportScrollPosition.getHeight() - reportScroll.getHeight()) * scrollPercent));
-            }
-        });
+    private void cancelScrolling() {
+        mTimer.cancel();
+        mTimer.purge();
+        mTimer = new Timer();
     }
 }

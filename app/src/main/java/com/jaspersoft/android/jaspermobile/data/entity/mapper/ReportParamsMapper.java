@@ -90,7 +90,9 @@ public class ReportParamsMapper {
                 if (value == null) {
                     List<InputControlOption> options = state.getOptions();
                     for (InputControlOption option : options) {
-                        values.add(option.getValue());
+                        if (option.isSelected()) {
+                            values.add(option.getValue());
+                        }
                     }
                 } else {
                     values.add(value);

@@ -141,7 +141,8 @@ public final class InMemoryControlsRepository implements ControlsRepository {
             mListControlsValuesAction = Observable.defer(new Func0<Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>>>() {
                 @Override
                 public Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>> call() {
-                    List<ReportParameter> parameters = mReportParamsCache.get(reportUri);
+                    List<com.jaspersoft.android.sdk.client.oxm.control.InputControl> inputControls = mControlsCache.get(reportUri);
+                    List<ReportParameter> parameters = mReportParamsMapper.legacyControlsToParams(inputControls);
                     if (parameters == null) {
                         return Observable.just(Collections.<com.jaspersoft.android.sdk.network.entity.control.InputControlState>emptyList());
                     }

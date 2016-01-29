@@ -84,6 +84,9 @@ public class InMemoryControlsRepositoryTest {
 
     @Test
     public void returns_cached_item_on_second_run() throws Exception {
+        Chain<List<InputControl>> answer = Chain.of(null, CONTROLS);
+        when(mControlsCache.get(anyString())).then(answer);
+
         requestControls();
         verify(mFiltersService).listReportControls(REPORT_URI);
 
@@ -100,7 +103,7 @@ public class InMemoryControlsRepositoryTest {
     }
 
     @Test
-    public void should_request_input_control_states() throws Exception {
+    public void should_validate_input_control_states() throws Exception {
         TestSubscriber<List<com.jaspersoft.android.sdk.client.oxm.control.InputControlState>> test = new TestSubscriber<>();
         inMemoryControlsRepository.validateControls(REPORT_URI).subscribe(test);
 
@@ -110,7 +113,19 @@ public class InMemoryControlsRepositoryTest {
         verify(mInputControlsMapper).retrofittedStatesToLegacy(STATES);
     }
 
+    @Test
+    public void should_request_input_control_states() throws Exception {
+        when(mControlsCache.get(anyString())).thenReturn(LEGACY_CONTROLS);
 
+        TestSubscriber<List<com.jaspersoft.android.sdk.client.oxm.control.InputControlState>> test = new TestSubscriber<>();
+        inMemoryControlsRepository.listControlValues(REPORT_URI).subscribe(test);
+
+        verify(mControlsCache).get(REPORT_URI);
+        verify(mReportParamsMapper).legacyControlsToParams(LEGACY_CONTROLS);
+        verify(mReportParamsMapper).legacyParamsToRetrofitted(LEGACY_REPORT_PARAMETERS);
+        verify(mFiltersService).listControlsStates(REPORT_URI, REPORT_PARAMETERS, true);
+        verify(mInputControlsMapper).retrofittedStatesToLegacy(STATES);
+    }
 
     private void requestControls() {
         TestSubscriber<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> test = new TestSubscriber<>();
@@ -124,11 +139,11 @@ public class InMemoryControlsRepositoryTest {
                 .thenReturn(Observable.just(CONTROLS));
         when(mFiltersService.validateControls(anyString(), anyListOf(ReportParameter.class), anyBoolean()))
                 .thenReturn(Observable.just(STATES));
+       when(mFiltersService.listControlsStates(anyString(), anyListOf(ReportParameter.class), anyBoolean()))
+                .thenReturn(Observable.just(STATES));
 
         when(mInputControlsMapper.retrofittedControlsToLegacy(CONTROLS)).thenReturn(LEGACY_CONTROLS);
-
-        Chain<List<InputControl>> answer = Chain.of(null, CONTROLS);
-        when(mControlsCache.get(anyString())).then(answer);
+        when(mControlsCache.get(anyString())).thenReturn(null);
 
         when(mReportParamsCache.get(anyString())).thenReturn(LEGACY_REPORT_PARAMETERS);
         when(mReportParamsMapper.legacyParamsToRetrofitted(LEGACY_REPORT_PARAMETERS)).thenReturn(REPORT_PARAMETERS);

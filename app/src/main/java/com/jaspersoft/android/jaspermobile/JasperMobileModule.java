@@ -33,6 +33,7 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetInputControlsValuesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.DeleteReportOptionCase;
@@ -41,6 +42,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetRe
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.SaveReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.sdk.client.JsRestClient;
@@ -97,5 +99,7 @@ public class  JasperMobileModule extends AbstractModule {
         bind(GetReportOptionValuesCase.class).toProvider(Providers.<GetReportOptionValuesCase>of(null));
         bind(DeleteReportOptionCase.class).toProvider(Providers.<DeleteReportOptionCase>of(null));
         bind(JasperServer.class).toProvider(Providers.<JasperServer>of(null));
+        bind(GetDashboardControlsCase.class).toProvider(Providers.<GetDashboardControlsCase>of(null));
+        bind(RequestExceptionHandler.class).toProvider(Providers.<RequestExceptionHandler>of(null));
     }
 }

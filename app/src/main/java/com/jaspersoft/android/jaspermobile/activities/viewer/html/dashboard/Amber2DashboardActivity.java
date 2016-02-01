@@ -33,8 +33,13 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
@@ -53,6 +58,8 @@ import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.UiThread;
 
+import javax.inject.Inject;
+
 /**
  * @author Tom Koptel
  * @since 2.0
@@ -68,6 +75,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @InstanceState
     protected boolean mMaximized;
+
+    @Inject
+    @Nullable
+    GetDashboardControlsCase mGetDashboardControlsCase;
+    @Inject
+    @Nullable
+    RequestExceptionHandler mExceptionHandler;
 
     private boolean mFavoriteItemVisible, mInfoItemVisible;
     private MenuItem favoriteAction, aboutAction;
@@ -86,6 +100,21 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GraphObject.Factory.from(this)
+                .getProfileComponent()
+                .inject(this);
+        mGetDashboardControlsCase.execute(resource.getUri(), new SimpleSubscriber<Boolean>() {
+            @Override
+            public void onError(Throwable e) {
+                String message = mExceptionHandler.extractMessage(e);
+                showMessage(message);
+            }
+
+            @Override
+            public void onNext(Boolean hasControls) {
+                // show save items page
+            }
+        });
         scrollableTitleHelper.injectTitle(resource.getLabel());
         showMenuItems();
     }

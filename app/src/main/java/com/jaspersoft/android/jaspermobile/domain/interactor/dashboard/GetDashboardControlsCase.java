@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.domain.interactor.report;
+package com.jaspersoft.android.jaspermobile.domain.interactor.dashboard;
 
 import android.support.annotation.NonNull;
 
@@ -21,11 +21,11 @@ import rx.functions.Func1;
  * @since 2.3
  */
 @PerProfile
-public class GetReportShowControlsPropertyCase extends AbstractUseCase<Boolean, String> {
+public class GetDashboardControlsCase extends AbstractUseCase<Boolean, String> {
     private final ControlsRepository mControlsRepository;
 
     @Inject
-    public GetReportShowControlsPropertyCase(PreExecutionThread preExecutionThread,
+    public GetDashboardControlsCase(PreExecutionThread preExecutionThread,
                                              PostExecutionThread postExecutionThread,
                                              ControlsRepository controlsRepository) {
         super(preExecutionThread, postExecutionThread);
@@ -34,7 +34,7 @@ public class GetReportShowControlsPropertyCase extends AbstractUseCase<Boolean, 
 
     @Override
     protected Observable<Boolean> buildUseCaseObservable(@NonNull final String reportUri) {
-        return mControlsRepository.listReportControls(reportUri)
+        return mControlsRepository.listDashboardControls(reportUri)
                 .map(new Func1<List<InputControl>, Boolean>() {
                     @Override
                     public Boolean call(List<InputControl> inputControls) {

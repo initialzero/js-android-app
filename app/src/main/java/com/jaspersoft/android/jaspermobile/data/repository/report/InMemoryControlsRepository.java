@@ -54,7 +54,18 @@ public final class InMemoryControlsRepository implements ControlsRepository {
 
     @NonNull
     @Override
-    public Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> listControls(@NonNull final String reportUri) {
+    public Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> listReportControls(@NonNull final String reportUri) {
+        return createListControls(reportUri, mFiltersService.listReportControls(reportUri));
+    }
+
+    @NonNull
+    @Override
+    public Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> listDashboardControls(@NonNull String dashboardUri) {
+        return createListControls(dashboardUri, mFiltersService.listDashboardControls(dashboardUri));
+    }
+
+    @NonNull
+    private Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> createListControls(final String reportUri, final Observable<List<InputControl>> networkCall) {
         if (mListInputControlsAction == null) {
             Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> memorySource = Observable.defer(
                     new Func0<Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>>>() {
@@ -71,7 +82,7 @@ public final class InMemoryControlsRepository implements ControlsRepository {
                     new Func0<Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>>>() {
                         @Override
                         public Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> call() {
-                            return mFiltersService.listReportControls(reportUri)
+                            return networkCall
                                     .map(new Func1<List<InputControl>, List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>>() {
                                         @Override
                                         public List<com.jaspersoft.android.sdk.client.oxm.control.InputControl> call(List<InputControl> inputControls) {

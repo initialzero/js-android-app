@@ -24,8 +24,8 @@ import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControl
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOption;
 import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOptionResponse;
+import com.jaspersoft.android.sdk.service.data.report.option.ReportOption;
 import com.jaspersoft.android.sdk.util.FileUtils;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
@@ -44,7 +44,8 @@ import java.util.List;
  */
 @OptionsMenu({R.menu.report_schedule, R.menu.save_item_menu, R.menu.report_options_menu})
 @EFragment(R.layout.fragment_resource_info)
-public class ReportInfoFragment extends ResourceInfoFragment implements ReportOptionsFragmentDialog.ReportOptionsDialogClickListener {
+public class ReportInfoFragment extends ResourceInfoFragment
+        implements ReportOptionsFragmentDialog.ReportOptionsDialogClickListener {
 
     @Bean
     protected ResourceOpener resourceOpener;

@@ -45,12 +45,12 @@ public class GetReportShowControlsPropertyCaseTest {
 
     @Test
     public void execute_fetches_controls() throws Exception {
-        when(mControlsRepository.listControls(anyString()))
+        when(mControlsRepository.listReportControls(anyString()))
                 .thenReturn(Observable.<List<InputControl>>just(Collections.<InputControl>emptyList()));
 
         TestSubscriber<Boolean> test = new TestSubscriber<>();
         mGetReportShowControlsPropertyCase.execute(REPORT_URI, test);
 
-        verify(mControlsRepository).listControls(REPORT_URI);
+        verify(mControlsRepository).listReportControls(REPORT_URI);
     }
 }

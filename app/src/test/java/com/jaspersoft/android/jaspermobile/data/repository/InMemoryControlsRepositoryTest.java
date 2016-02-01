@@ -129,7 +129,7 @@ public class InMemoryControlsRepositoryTest {
 
     private void requestControls() {
         TestSubscriber<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> test = new TestSubscriber<>();
-        inMemoryControlsRepository.listControls(REPORT_URI).subscribe(test);
+        inMemoryControlsRepository.listReportControls(REPORT_URI).subscribe(test);
         test.assertNoErrors();
         test.assertCompleted();
     }

@@ -43,8 +43,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOption;
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOptionResponse;
+import com.jaspersoft.android.sdk.service.data.report.option.ReportOption;
 
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EFragment;
@@ -124,12 +123,14 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
     @Background
     protected void requestReportOptions() {
         mReportOptions = new ArrayList<>();
-        mReportOptions.add(new ReportOption(reportUri, reportUri, getString(R.string.ro_default)));
+        // TODO fix report options listing within dialog
+        throw new UnsupportedOperationException("Not yet implemented");
+//        mReportOptions.add(new ReportOp/tion(reportUri, reportUri, getString(R.string.ro_default)));
 
-        ReportOptionResponse reportOptionResponse = jsRestClient.getReportOptionsList(reportUri);
-        mReportOptions.addAll(reportOptionResponse.getOptions());
-        showReportOptions();
-        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.REPORT_OPTIONS_VIEWED.getValue(), null);
+//        ReportOptionResponse reportOptionResponse = jsRestClient.getReportOptionsList(reportUri);
+//        mReportOptions.addAll(reportOptionResponse.getOptions());
+//        showReportOptions();
+//        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.REPORT_OPTIONS_VIEWED.getValue(), null);
     }
 
     @UiThread

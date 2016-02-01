@@ -32,10 +32,9 @@ import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
@@ -48,17 +47,20 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.net.UnknownHostException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 
 /**
  * @author Ivan Gadzhega
  * @since 1.6
  */
-@PerActivity
+@Singleton
 public class RequestExceptionHandler {
     private final Context mContext;
 
     @Inject
-    public RequestExceptionHandler(Context context) {
+    public RequestExceptionHandler(@ApplicationContext Context context) {
         mContext = context;
     }
 
@@ -99,7 +101,7 @@ public class RequestExceptionHandler {
 
     @Nullable
     public static String extractMessage(@NonNull Context context, @Nullable Throwable exception) {
-        RequestExceptionHandler handler= new RequestExceptionHandler(context);
+        RequestExceptionHandler handler = new RequestExceptionHandler(context);
         return handler.extractMessage(exception);
     }
 
@@ -140,9 +142,9 @@ public class RequestExceptionHandler {
                 return ((HttpStatusCodeException) cause).getStatusCode().value();
             }
             Throwable tokenCause = cause.getCause();
-            if (tokenCause instanceof JasperAccountManager.TokenException){
+            if (tokenCause instanceof JasperAccountManager.TokenException) {
                 return ((JasperAccountManager.TokenException) tokenCause).getErrorCode();
-            }else if (tokenCause instanceof UnknownHostException) {
+            } else if (tokenCause instanceof UnknownHostException) {
                 return JasperAccountManager.TokenException.SERVER_NOT_FOUND;
             }
         } else if (exception instanceof JasperAccountManager.TokenException) {

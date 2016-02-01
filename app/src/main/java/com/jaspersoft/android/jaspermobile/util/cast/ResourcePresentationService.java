@@ -48,7 +48,6 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
-import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
 import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
@@ -83,7 +82,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import roboguice.RoboGuice;
-import rx.Subscriber;
 
 /**
  * @author Andrew Tivodar
@@ -473,24 +471,8 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
         private void prepareReportCasting() {
             mPresentation.showLoading();
-
-            CookieManagerFactory.syncCookies(getContext()).subscribe(new Subscriber<Void>() {
-                @Override
-                public void onCompleted() {
-                    initWebView();
-                    loadVisualize();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    handleError(e.getMessage());
-                }
-
-                @Override
-                public void onNext(Void aVoid) {
-
-                }
-            });
+            initWebView();
+            loadVisualize();
         }
 
         private void initWebView() {

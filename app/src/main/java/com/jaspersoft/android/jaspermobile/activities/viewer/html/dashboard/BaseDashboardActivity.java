@@ -40,12 +40,10 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
@@ -58,10 +56,6 @@ import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-
-import rx.Subscriber;
-import rx.Subscription;
-import rx.subscriptions.CompositeSubscription;
 
 /**
  * Activity that performs dashboard viewing in HTML format through native component.
@@ -82,8 +76,6 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
 
     private FavoritesHelper_ favoritesHelper;
     private JasperChromeClientListenerImpl chromeClientListener;
-
-    private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
     @Inject
     protected Analytics analytics;
@@ -109,25 +101,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         emptyView = (TextView) findViewById(android.R.id.empty);
 
         showProgressDialog(R.string.loading_msg);
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(new Subscriber<Void>() {
-            @Override
-            public void onCompleted() {
-                hideProgressDialog();
-                initWebView();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                hideProgressDialog();
-                showMessage(e.getMessage());
-            }
-
-            @Override
-            public void onNext(Void aVoid) {
-
-            }
-        });
-        mCompositeSubscription.add(cookieSubscription);
+        initWebView();
     }
 
     @Override
@@ -172,13 +146,6 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         }
 
         return true;
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mCompositeSubscription.unsubscribe();
-        mCompositeSubscription = new CompositeSubscription();
     }
 
     @Override
@@ -239,28 +206,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
 
     @Override
     public void onSessionExpired() {
-        showProgressDialog(R.string.loading_msg);
-        JasperAccountManager.get(BaseDashboardActivity.this).invalidateActiveToken();
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this)
-                .subscribe(new Subscriber<Void>() {
-                    @Override
-                    public void onCompleted() {
-                        onSessionRefreshed();
-                        hideProgressDialog();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        hideProgressDialog();
-                        showMessage(e.getMessage());
-                    }
-
-                    @Override
-                    public void onNext(Void aVoid) {
-
-                    }
-                });
-        mCompositeSubscription.add(cookieSubscription);
+        finish();
     }
 
     //---------------------------------------------------------------------

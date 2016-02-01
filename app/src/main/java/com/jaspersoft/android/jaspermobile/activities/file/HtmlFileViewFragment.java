@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
@@ -31,8 +30,6 @@ import java.io.InputStream;
 import javax.security.auth.login.LoginException;
 
 import roboguice.inject.InjectView;
-import rx.Subscriber;
-import rx.Subscription;
 
 /**
  * @author Andrew Tivodar
@@ -48,8 +45,6 @@ public class HtmlFileViewFragment extends FileLoadFragment {
 
     @Inject
     protected JsRestClient jsRestClient;
-
-    private Subscription mCookieSubscription;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,29 +64,7 @@ public class HtmlFileViewFragment extends FileLoadFragment {
                         getActivity().finish();
                     }
                 }).show();
-
-        mCookieSubscription = CookieManagerFactory.syncCookies(getActivity()).subscribe(new Subscriber<Void>() {
-            @Override
-            public void onCompleted() {
-                loadFile();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                showErrorMessage();
-            }
-
-            @Override
-            public void onNext(Void aVoid) {
-
-            }
-        });
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mCookieSubscription.unsubscribe();
+        loadFile();
     }
 
     @Override

@@ -73,8 +73,7 @@ public class AccountProfileCacheTest {
                 accountManager.getAccountsByType(FakeAccount.TYPE).length == 0
         );
 
-        TestSubscriber<Profile> test = new TestSubscriber<>();
-        cacheUnderTest.put(fakeProfile).subscribe(test);
+        cacheUnderTest.put(fakeProfile);
 
         Account account = new Account("name", JasperSettings.JASPER_ACCOUNT_TYPE);
         String alias = accountManager.getUserData(account, "ALIAS_KEY");

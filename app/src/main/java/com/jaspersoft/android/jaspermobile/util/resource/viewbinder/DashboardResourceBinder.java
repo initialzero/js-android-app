@@ -28,29 +28,29 @@ import android.content.Context;
 import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.widget.TopCropImageView;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 class DashboardResourceBinder extends ResourceBinder {
+
     public DashboardResourceBinder(Context context) {
         super(context);
     }
 
     @Override
-    public void setIcon(ImageView imageView, String uri) {
-        ((TopCropImageView) imageView).setScaleType(TopCropImageView.ScaleType.FIT_CENTER);
-        imageView.setBackgroundResource(R.drawable.bg_gradient_blue);
-        ImageLoader.getInstance().displayImage("", imageView, getDisplayImageOptions());
+    public void setIcon(ImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setBackgroundResource(R.drawable.bg_resource_icon_blue);
+        imageView.setImageResource(R.drawable.ic_dashboard);
     }
 
-    private DisplayImageOptions getDisplayImageOptions() {
-        return new DisplayImageOptions.Builder()
-                .showImageForEmptyUri(R.drawable.placeholder_dashboard)
-                .build();
+    @Override
+    public void setThumbnail(ImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setBackgroundResource(R.drawable.bg_gradient_blue);
+        imageView.setImageResource(R.drawable.im_thumbnail_dashboard);
     }
 }

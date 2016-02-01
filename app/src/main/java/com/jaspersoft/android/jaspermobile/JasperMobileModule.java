@@ -52,7 +52,7 @@ import javax.inject.Inject;
  * @version $Id$
  * @since 1.0
  */
-public class JasperMobileModule extends AbstractModule {
+public class  JasperMobileModule extends AbstractModule {
     private final Context mContext;
 
     @Inject
@@ -61,7 +61,7 @@ public class JasperMobileModule extends AbstractModule {
     public JasperMobileModule(Application application) {
         super();
         mContext = application;
-        JasperMobileApplication.get(mContext)
+        GraphObject.Factory.from(mContext)
                 .getComponent()
                 .inject(this);
     }
@@ -86,7 +86,7 @@ public class JasperMobileModule extends AbstractModule {
         bind(Context.class).annotatedWith(ApplicationContext.class).toInstance(mContext);
         bind(ReportParamsStorage.class).in(Singleton.class);
         bind(AppConfigurator.class).to(AppConfiguratorImpl.class);
-        bind(Analytics.class).to(JasperAnalytics.class).in(Singleton.class);
+        bind(Analytics.class).toInstance(new JasperAnalytics(mContext));
         bind(SecurityProviderUpdater.class).to(JasperSecurityProviderUpdater.class).in(Singleton.class);
 
         // TODO clean up mess after roboguice will be removed out

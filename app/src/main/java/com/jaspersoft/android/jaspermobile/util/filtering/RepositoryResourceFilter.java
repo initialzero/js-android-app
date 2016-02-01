@@ -30,6 +30,7 @@ import android.support.v4.app.FragmentActivity;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 
+import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
@@ -92,6 +93,7 @@ public class RepositoryResourceFilter extends ResourceFilter {
         filterValues.addAll(JasperResources.report());
         filterValues.addAll(JasperResources.dashboard(infoProvider.getVersion()));
         filterValues.addAll(JasperResources.folder());
+        filterValues.addAll(JasperResources.files());
 
         return new Filter(RepositoryFilterCategory.all.name(), filterValues);
     }

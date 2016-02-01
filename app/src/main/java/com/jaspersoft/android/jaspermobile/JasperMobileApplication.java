@@ -24,8 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile;
 
-import android.app.Application;
-import android.content.Context;
+import android.support.multidex.MultiDexApplication;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
@@ -36,12 +35,14 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
+import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.utils.L;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EApplication;
 
 import roboguice.RoboGuice;
@@ -52,8 +53,9 @@ import timber.log.Timber;
  * @since 1.0
  */
 @EApplication
-public class JasperMobileApplication extends Application implements GraphObject {
+public class JasperMobileApplication extends MultiDexApplication implements GraphObject {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
+    public static final String RESOURCES_CACHE_DIR_NAME = "resources";
     public static final String SHARED_DIR = "com.jaspersoft.account.none";
 
     private ProfileComponent mProfileComponent;
@@ -63,15 +65,17 @@ public class JasperMobileApplication extends Application implements GraphObject 
     AppConfigurator appConfigurator;
     @Inject
     JsRestClientWrapper jsRestClient;
-    @Inject
-    Analytics analytics;
+    @Bean
+    SavedItemHelper savedItemHelper;
 
     @Override
     public void onCreate() {
         super.onCreate();
         RoboGuice.getInjector(this).injectMembers(this);
+
         initLegacyJsRestClient();
 
+        savedItemHelper.deleteUnsavedItems();
         forceDatabaseUpdate();
 
         if (BuildConfig.DEBUG) {
@@ -83,7 +87,6 @@ public class JasperMobileApplication extends Application implements GraphObject 
         // http://stackoverflow.com/questions/13182519/spring-rest-template-usage-causes-eofexception
         System.setProperty("http.keepAlive", "false");
 
-        analytics.init(this);
         appConfigurator.configCrashAnalytics(this);
         initImageLoader();
     }
@@ -94,6 +97,17 @@ public class JasperMobileApplication extends Application implements GraphObject 
 
     public void initLegacyJsRestClient() {
         JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
+
+        // TODO make proper analytics activation during profile activation
+//        Account account = JasperAccountManager.get(this).getActiveAccount();
+//        if (account != null) {
+//            AccountServerData serverData = AccountServerData.get(this, account);
+//            String serverEdition = serverData.getEdition();
+//            if (serverData.isDemo()) {
+//                serverEdition = "DEMO";
+//            }
+//            analytics.setServerInfo(serverData.getVersionName(), serverEdition);
+//        }
     }
 
     private void initImageLoader() {
@@ -113,10 +127,6 @@ public class JasperMobileApplication extends Application implements GraphObject 
         ImageLoader.getInstance().init(config);
         // Ignoring all log from UIL
         L.writeLogs(false);
-    }
-
-    public static JasperMobileApplication get(Context context) {
-        return (JasperMobileApplication) context.getApplicationContext();
     }
 
     @Override

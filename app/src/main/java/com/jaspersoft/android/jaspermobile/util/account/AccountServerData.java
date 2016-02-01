@@ -185,6 +185,10 @@ public class AccountServerData {
         return this;
     }
 
+    public boolean isDemo(){
+        return serverUrl.equals(Demo.SERVER_URL) || serverUrl.equals("http://mobiledemo.jaspersoft.com/jasperserver-pro") || serverUrl.equals("https://mobiledemo.jaspersoft.com/jasperserver-pro");
+    }
+
     @Override
     public String toString() {
         return "AccountServerData{" +

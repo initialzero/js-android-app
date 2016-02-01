@@ -24,23 +24,16 @@
 
 package com.jaspersoft.android.jaspermobile.internal.di.modules.app;
 
-import android.accounts.AccountManager;
-import android.content.Context;
-
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountCredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountJasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryVisualizeTemplateCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.VisualizeTemplateCache;
-import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
-import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Singleton;
 
@@ -68,10 +61,8 @@ public final class CacheModule {
 
     @Singleton
     @Provides
-    CredentialsCache provideCredentialsCache(@ApplicationContext Context context, AccountManager accountManager, AccountDataMapper accountDataMapper) {
-        String secret = context.getString(R.string.password_salt_key);
-        PasswordManager passwordManager = PasswordManager.init(context, secret);
-        return new AccountCredentialsCache(accountManager, passwordManager, accountDataMapper);
+    CredentialsCache provideCredentialsCache(AccountCredentialsCache credentialsCache) {
+        return credentialsCache;
     }
 
     @Singleton

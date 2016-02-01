@@ -7,7 +7,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.sdk.network.AuthorizedClient;
 import com.jaspersoft.android.sdk.network.Credentials;
 import com.jaspersoft.android.sdk.network.Server;
@@ -22,7 +21,7 @@ import java.net.CookieStore;
  * @since 2.3
  */
 final class RestClientProvider implements Provider<AuthorizedClient> {
-    private final PasswordManager passwordManager;
+//    private final PasswordManager passwordManager;
 
     @Inject
     Context mContext;
@@ -33,8 +32,7 @@ final class RestClientProvider implements Provider<AuthorizedClient> {
 
     @Inject
     public RestClientProvider() {
-        String salt = mContext.getResources().getString(R.string.password_salt_key);
-        passwordManager = PasswordManager.init(mContext, salt);
+        // TODO fix password injection
     }
 
     @Override
@@ -44,11 +42,11 @@ final class RestClientProvider implements Provider<AuthorizedClient> {
         AccountServerData serverData = AccountServerData.get(mContext, account);
 
         String pass = accountManager.getPassword(account);
-        try {
-            pass = passwordManager.decrypt(pass);
-        } catch (PasswordManager.DecryptionException e) {
-            pass = "";
-        }
+//        try {
+//            pass = passwordManager.decrypt(pass);
+//        } catch (PasswordManager.DecryptionException e) {
+//            pass = "";
+//        }
         Credentials credentials = SpringCredentials.builder()
                 .withUsername(serverData.getUsername())
                 .withPassword(pass)

@@ -26,7 +26,7 @@ package com.jaspersoft.android.jaspermobile.presentation.view.activity;
 
 import android.os.Bundle;
 
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
@@ -70,7 +70,7 @@ public class ReportViewActivity extends RoboToolbarActivity implements HasCompon
 
     @Override
     public ReportRestViewerComponent getComponent() {
-        return JasperMobileApplication.get(this)
+        return GraphObject.Factory.from(this)
                 .getProfileComponent()
                 .plusReportRestViewer(
                         new ActivityModule(this),

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.percent.PercentFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            app:layout_heightPercent="90%"
+            app:layout_widthPercent="100%">
+
+            <ImageView
+                android:id="@+id/toolbarImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:background="@drawable/bg_gradient_blue"
+                tools:src="@drawable/im_thumbnail_dashboard" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#80000000" />
+
+        </RelativeLayout>
+
+    </android.support.percent.PercentFrameLayout>
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent">
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/info_collapsing_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:contentScrim="@color/js_gray"
+            app:expandedTitleMarginEnd="@dimen/info_content_header_margin"
+            app:expandedTitleMarginStart="@dimen/info_content_header_margin"
+            app:expandedTitleTextAppearance="@style/Widget.JasperMobile.TextView.Info"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <android.support.percent.PercentFrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_collapseMode="none">
+
+                <View
+                    app:layout_heightPercent="50%"
+                    app:layout_widthPercent="100%" />
+
+            </android.support.percent.PercentFrameLayout>
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@android:color/transparent"
+                app:layout_collapseMode="pin" />
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <!-- CONTENT-->
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:paddingLeft="@dimen/info_content_side_margin_land"
+        android:paddingRight="@dimen/info_content_side_margin_land"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <com.jaspersoft.android.jaspermobile.widget.InfoView_ xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/infoDetailsView"
+            style="@style/Widget.JasperMobile.CardView.Auth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            card_view:cardBackgroundColor="@color/js_dark_gray"
+            card_view:cardCornerRadius="3dp"
+            card_view:cardElevation="4dp" />
+
+    </android.support.v4.widget.NestedScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

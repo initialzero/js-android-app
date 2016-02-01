@@ -29,8 +29,6 @@ import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
-import rx.Observable;
-
 /**
  * Abstraction around active profile cache
  * <br/>
@@ -40,14 +38,6 @@ import rx.Observable;
  * @since 2.3
  */
 public interface ActiveProfileCache {
-    /**
-     * Retrieves active profile from cache as observable
-     *
-     * @return profile if exists in cache otherwise null
-     */
-    @NonNull
-    Observable<Profile> getAsObservable();
-
     /**
      * Retrieves active profile from cache
      *
@@ -61,7 +51,7 @@ public interface ActiveProfileCache {
      *
      * @param profile target profile
      */
-    Observable<Profile> put(@NonNull Profile profile);
+    Profile put(@NonNull Profile profile);
 
     /**
      * Checks weather profile exists in cache

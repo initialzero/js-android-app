@@ -27,7 +27,11 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 import android.content.Context;
 import android.widget.ImageView;
 
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.octo.android.robospice.request.SpiceRequest;
 
 import timber.log.Timber;
 
@@ -35,24 +39,57 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-abstract class ResourceBinder {
+public abstract class ResourceBinder {
     private static final String LOG_TAG = ResourceBinder.class.getSimpleName();
     private final Context mContext;
 
     public ResourceBinder(Context context) {
         mContext = context;
+
         Timber.tag(ResourceBinder.LOG_TAG);
     }
 
-    public void bindView(ResourceView resourceView, ResourceLookup item) {
-        setIcon(resourceView.getImageView(), item.getUri());
+    public final void bindView(ResourceView resourceView, JasperResource item) {
+        unbindView(resourceView.getImageView());
+
+        if (resourceView.isImageThumbnail()) {
+            setThumbnail(resourceView.getImageView(), item);
+        } else {
+            setIcon(resourceView.getImageView(), item);
+        }
+        setTitle(resourceView, item);
+        setSubtitle(resourceView, item);
+        setActionResource(resourceView, item);
+    }
+
+    public abstract void setIcon(ImageView imageView, JasperResource jasperResource);
+
+    public void setThumbnail(ImageView imageView, JasperResource jasperResource) {
+        setIcon(imageView, jasperResource);
+    }
+
+    protected void setTitle (ResourceView resourceView, JasperResource item) {
         resourceView.setTitle(item.getLabel());
+    }
+
+    protected void setSubtitle (ResourceView resourceView, JasperResource item) {
         resourceView.setSubTitle(item.getDescription());
     }
 
-    public Context getContext() {
+    protected void setActionResource(ResourceView resourceView, JasperResource item) {
+        resourceView.setSecondaryAction(R.drawable.im_info);
+    }
+
+    protected Context getContext() {
         return mContext;
     }
 
-    public abstract void setIcon(ImageView imageView, String uri);
+    private void unbindView(ImageView imageView){
+        Object fileTypeRequest = imageView.getTag();
+        if (fileTypeRequest != null && fileTypeRequest instanceof SpiceRequest) {
+            ((RoboSpiceActivity) mContext).getSpiceManager().cancel((SpiceRequest) fileTypeRequest);
+        }
+
+        ImageLoader.getInstance().cancelDisplayTask(imageView);
+    }
 }

@@ -33,6 +33,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.folder;
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.legacyDashboard;
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.reportUnit;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.file;
 
 /**
  * @author Andrew Tivodar
@@ -48,6 +49,10 @@ public class JasperResources {
         return JasperFilter.REPORT.getAsList();
     }
 
+    public static ArrayList<String> files() {
+        return JasperFilter.FILES.getAsList();
+    }
+
     public static ArrayList<String> dashboard(ServerVersion version) {
         boolean isPreAmber = version.lessThan(ServerVersion.v6);
         if (isPreAmber) {
@@ -61,7 +66,8 @@ public class JasperResources {
         FOLDER(folder),
         REPORT(reportUnit),
         DASHBOARD_PRE_AMBER(dashboard),
-        DASHBOARD_AMBER(legacyDashboard, dashboard);
+        DASHBOARD_AMBER(legacyDashboard, dashboard),
+        FILES(file);
 
         private final ArrayList<String> mTypes = new ArrayList<String>();
 

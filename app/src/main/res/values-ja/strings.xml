@@ -82,12 +82,10 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">バージョン情報</string>
-    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>JasperReports® Server 5.5以上向けの管理ツールおよびレポートビューア<br><br>詳細について：<br><a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a><br><br>個人情報保護方針について：<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">個人情報保護方針</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">レポートの実行</string>
-    <string name="ro_page_title">フィルターオプション</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">レポートの保存</string>
@@ -129,15 +127,12 @@
 
     <!-- Settings activity -->
     <string name="st_title">設定</string>
-    <string name="st_category_repo_cache">リポジトリキャッシュ</string>
     <string name="st_category_connection">接続</string>
     <string name="st_title_cache_enable">キャッシュを有効にする</string>
-    <string name="st_title_cache_expiration">キャッシュの有効期限</string>
     <string name="st_title_connect_timeout">接続タイムアウト</string>
     <string name="st_title_read_timeout">データ読み込みタイムアウト</string>
     <string name="st_title_animations">アニメーション</string>
     <string name="st_send_crashes">クラッシュレポートを送信</string>
-    <string name="st_summary_cache_enable">指定した時間のキャッシュリポジトリリクエスト</string>
     <string name="st_summary_sec">%s 秒</string>
     <string name="st_summary_h">%s 時間</string>
     <string name="st_invalid_number_format">無効な数値フォーマット</string>
@@ -247,7 +242,7 @@
     <string name="sdr_dfd_msg">本当に「%s 」を削除しますか？</string>
 
     <!-- Settings activity -->
-    <string name="st_send_crashes_note">注：この設定を変更した後、アプリを再起動して下さい。</string>
+    <string name="st_restart_note">注：この設定を変更した後、アプリを再起動して下さい。</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">サーバーが見つかりません。</string>

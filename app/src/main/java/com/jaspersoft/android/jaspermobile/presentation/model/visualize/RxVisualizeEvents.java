@@ -48,6 +48,11 @@ public final class RxVisualizeEvents implements VisualizeEvents {
             }
 
             @Override
+            public void onAuthError(String error) {
+                // TODO handle on auth error
+            }
+
+            @Override
             public void onReportCompleted(String status, int pages, String errorMessage) {
                 if (status.equals("ready")) {
                     mReportCompleteEvent.onNext(new ReportCompleteEvent(pages));

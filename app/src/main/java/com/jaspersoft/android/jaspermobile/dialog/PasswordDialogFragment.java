@@ -24,31 +24,36 @@
 
 package com.jaspersoft.android.jaspermobile.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 
-import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.UiThread;
 
 import roboguice.fragment.RoboDialogFragment;
+import rx.Observable;
+import rx.Subscription;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 /**
  * @author Tom Koptel
@@ -59,7 +64,14 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
 
     private static final String TAG = PasswordDialogFragment.class.getSimpleName();
 
-    private EditText etPassword;
+    private EditText passwordField;
+    private JasperAccountManager mJasperManager;
+    private Subscription mLoginSubscription;
+    private Observable<String> mLoginOperation;
+    private Toast mToast;
+
+    @Bean
+    InfoProvider mInfoProvider;
 
     //---------------------------------------------------------------------
     // Static methods
@@ -69,7 +81,7 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
         PasswordDialogFragment dialogFragment = (PasswordDialogFragment)
                 fm.findFragmentByTag(TAG);
         if (dialogFragment == null) {
-            dialogFragment = new PasswordDialogFragment_().builder().build();
+            dialogFragment = PasswordDialogFragment_.builder().build();
             dialogFragment.show(fm, TAG);
         }
     }
@@ -78,16 +90,23 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
     // Public methods
     //---------------------------------------------------------------------
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+        mToast = Toast.makeText(getActivity(), "", Toast.LENGTH_LONG);
+        mJasperManager = JasperAccountManager.get(getActivity());
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = LayoutInflater.from(getActivity());
 
         View dialogView = inflater.inflate(R.layout.dialog_password, null);
-        ServerInfoProvider serverInfoProvider = new InfoProvider(getActivity());
-        String alias = serverInfoProvider.getAlias();
-        String username = serverInfoProvider.getUsername();
-        String organization = serverInfoProvider.getOrganization();
+        String alias = mInfoProvider.getAlias();
+        String username = mInfoProvider.getUsername();
+        String organization = mInfoProvider.getOrganization();
 
         ((TextView) dialogView.findViewById(R.id.tv_alias)).setText(alias);
         ((TextView) dialogView.findViewById(R.id.tv_username)).setText(username);
@@ -114,25 +133,66 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (mLoginOperation != null) {
+            mLoginSubscription = subscribeToLogin(mLoginOperation);
+        }
+    }
+
+    @Override
     public void onShow(DialogInterface dialogInterface) {
         AlertDialog dialog = ((AlertDialog) dialogInterface);
-        etPassword = (EditText) dialog.findViewById(R.id.et_new_password);
+        passwordField = (EditText) dialog.findViewById(R.id.et_new_password);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(new PasswordDialogOkClickListener());
     }
 
-    @Background
-    protected void tryToLogin() {
-        try {
-            JasperAccountManager.get(getActivity()).getActiveAuthToken();
-            loginSuccess();
-        } catch (JasperAccountManager.TokenException e) {
-            loginFailed(e);
+    @Override
+    public void onDestroyView() {
+        if (mLoginSubscription != null) {
+            mLoginSubscription.unsubscribe();
         }
+        if (mToast != null) {
+            mToast.cancel();
+        }
+        mLoginOperation = null;
+        super.onDestroyView();
     }
 
-    @UiThread
-    protected void loginSuccess(){
+    private void tryToLogin(String password) {
+        mLoginOperation = createLoginOperation(password).cache();
+        mLoginSubscription = subscribeToLogin(mLoginOperation);
+    }
+
+    private Observable<String> createLoginOperation(String password) {
+        Observable<Boolean> updatePasswordOperation = mJasperManager.updateActiveAccountPassword(password);
+        final Observable<String> loginOperation = mJasperManager.getActiveAuthTokenObservable();
+        return updatePasswordOperation
+                .concatMap(new Func1<Boolean, Observable<String>>() {
+                    @Override
+                    public Observable<String> call(Boolean aBoolean) {
+                        return loginOperation;
+                    }
+                })
+                .compose(RxTransformers.<String>applySchedulers());
+    }
+
+    private Subscription subscribeToLogin(Observable<String> loginOperation) {
+        return loginOperation.subscribe(new Action1<String>() {
+            @Override
+            public void call(String s) {
+                loginSuccess();
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                loginFailed(throwable);
+            }
+        });
+    }
+
+    protected void loginSuccess() {
         dismiss();
         ProgressDialogFragment.dismiss(getFragmentManager());
 
@@ -140,10 +200,11 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
         NavigationActivity_.intent(getActivity()).flags(flags).start();
     }
 
-    @UiThread
-    protected void loginFailed(Exception e){
+    protected void loginFailed(Throwable e) {
         RequestExceptionHandler.handle(e, getActivity());
         ProgressDialogFragment.dismiss(getFragmentManager());
+        mToast.setText(R.string.r_error_incorrect_credentials);
+        mToast.show();
     }
 
     //---------------------------------------------------------------------
@@ -151,18 +212,16 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
     //---------------------------------------------------------------------
 
     private class PasswordDialogOkClickListener implements View.OnClickListener {
-
         @Override
         public void onClick(View v) {
-            String password = etPassword.getText().toString().trim();
+            String password = passwordField.getText().toString().trim();
             if (TextUtils.isEmpty(password)) {
-                etPassword.setError(getString(R.string.sp_error_field_required));
+                passwordField.setError(getString(R.string.sp_error_field_required));
             } else {
-                JasperAccountManager.get(getActivity()).updateActiveAccountPassword(password);
                 ProgressDialogFragment.builder(getFragmentManager())
                         .setLoadingMessage(R.string.loading_msg)
                         .show();
-                tryToLogin();
+                tryToLogin(password);
             }
         }
     }

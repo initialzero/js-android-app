@@ -24,16 +24,16 @@
 
 package com.jaspersoft.android.jaspermobile.widget;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 
 import com.jaspersoft.android.jaspermobile.R;
 
@@ -49,7 +49,7 @@ import java.util.List;
  * @version $Id$
  * @since 1.0
  */
-public class MultiSelectSpinner<T> extends Spinner implements DialogInterface.OnMultiChoiceClickListener {
+public class MultiSelectSpinner<T> extends AppCompatSpinner implements DialogInterface.OnMultiChoiceClickListener {
 
     private static final String TEXT_SEPARATOR = ", ";
     private static final String TEXT_ELLIPSIS = "\u2026";

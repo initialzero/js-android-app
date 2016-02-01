@@ -29,6 +29,7 @@ import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.view.Window;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.AuthenticatorFragment_;
 
 /**
@@ -61,6 +62,7 @@ public class AuthenticatorActivity extends BaseActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
+        getAnalytics().setScreenName(getString(R.string.ja_aas));
 
         mAccountAuthenticatorResponse =
                 getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
@@ -70,14 +72,17 @@ public class AuthenticatorActivity extends BaseActivity  {
         }
 
         if (savedInstanceState == null) {
-            injectAuthView();
+            getSupportFragmentManager().beginTransaction()
+                    .add(android.R.id.content, AuthenticatorFragment_.builder().build())
+                    .commit();
         }
     }
 
-    private void injectAuthView() {
-        getSupportFragmentManager().beginTransaction()
-                .add(android.R.id.content, AuthenticatorFragment_.builder().build())
-                .commit();
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        analytics.sendScreenView(getString(R.string.ja_aas), null);
     }
 
     /**
@@ -96,4 +101,6 @@ public class AuthenticatorActivity extends BaseActivity  {
         }
         super.finish();
     }
+
+
 }

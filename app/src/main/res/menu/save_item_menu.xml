@@ -29,5 +29,5 @@
         android:id="@+id/saveAction"
         android:title="@string/sp_save_btn"
         android:icon="@drawable/ic_menu_save"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 </menu>

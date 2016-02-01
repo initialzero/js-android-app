@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
@@ -63,7 +62,7 @@ public class ProfileDataRepositoryTest {
         fakeProfile = Profile.create("any");
         repositoryUnderTest = new ProfileDataRepository(mAccountCache, mPreferencesCache);
 
-        when(mAccountCache.put(any(Profile.class))).thenReturn(Observable.just(fakeProfile));
+        when(mAccountCache.put(any(Profile.class))).thenReturn(fakeProfile);
     }
 
     @Test
@@ -74,11 +73,9 @@ public class ProfileDataRepositoryTest {
         verify(mAccountCache).put(fakeProfile);
     }
 
-
-
     @Test
     public void should_delegate_activate_on_preference_cache() throws Exception {
-        when(mPreferencesCache.put(any(Profile.class))).thenReturn(Observable.just(fakeProfile));
+        when(mPreferencesCache.put(any(Profile.class))).thenReturn(fakeProfile);
 
         TestSubscriber<Profile> test = new TestSubscriber<>();
         repositoryUnderTest.activate(fakeProfile).subscribe(test);

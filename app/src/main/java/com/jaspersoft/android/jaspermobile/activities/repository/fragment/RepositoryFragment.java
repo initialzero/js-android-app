@@ -25,40 +25,39 @@
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
-import com.jaspersoft.android.jaspermobile.util.SimpleScrollListener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter;
-import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
+import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.GetRootFolderDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -73,8 +72,11 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
-import org.androidannotations.annotations.ItemClick;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -83,9 +85,8 @@ import roboguice.inject.InjectView;
  * @author Tom Koptel
  * @since 1.9
  */
-@EFragment
-public class RepositoryFragment extends RoboSpiceFragment
-        implements SwipeRefreshLayout.OnRefreshListener, ResourceAdapter.ResourceInteractionListener {
+@EFragment(R.layout.fragment_refreshable_resource)
+public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG = RepositoryFragment.class.getSimpleName();
     public static final String ROOT_URI = "/";
@@ -94,7 +95,7 @@ public class RepositoryFragment extends RoboSpiceFragment
     private static final int LOAD_FROM_NETWORK = 2;
 
     @InjectView(android.R.id.list)
-    protected AbsListView listView;
+    protected JasperRecyclerView listView;
     @InjectView(R.id.refreshLayout)
     protected SwipeRefreshLayout swipeRefreshLayout;
 
@@ -105,6 +106,8 @@ public class RepositoryFragment extends RoboSpiceFragment
     protected JsRestClient jsRestClient;
     @Inject
     protected ResourceLookupSearchCriteria mSearchCriteria;
+    @Inject
+    protected Analytics analytics;
 
     @InstanceState
     @FragmentArg
@@ -148,12 +151,15 @@ public class RepositoryFragment extends RoboSpiceFragment
     @Bean
     protected InfoProvider infoProvider;
 
-    private ResourceAdapter mAdapter;
+    private JasperResourceAdapter mAdapter;
     private PaginationPolicy mPaginationPolicy;
+    private HashMap<String, ResourceLookup> mResourceLookupHashMap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mResourceLookupHashMap = new HashMap<>();
 
         mSearchCriteria.setForceFullPage(true);
         mSearchCriteria.setLimit(mLimit);
@@ -166,13 +172,6 @@ public class RepositoryFragment extends RoboSpiceFragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(
-                (viewType == ViewType.LIST) ? R.layout.fragment_resources_list : R.layout.fragment_resources_grid,
-                container, false);
-    }
-
-    @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -182,8 +181,8 @@ public class RepositoryFragment extends RoboSpiceFragment
                 R.color.js_blue,
                 R.color.js_dark_blue);
 
-        listView.setOnScrollListener(new ScrollListener());
-        setDataAdapter(savedInstanceState);
+        listView.addOnScrollListener(new ScrollListener());
+        setDataAdapter();
         updatePaginationPolicy();
         loadPage();
     }
@@ -192,7 +191,7 @@ public class RepositoryFragment extends RoboSpiceFragment
     public void onStart() {
         super.onStart();
 
-        boolean isResourceLoaded = (mAdapter.getCount() == 0);
+        boolean isResourceLoaded = (mAdapter.getItemCount() == 0);
         if (!mLoading && isResourceLoaded) {
             loadPage();
         }
@@ -210,6 +209,10 @@ public class RepositoryFragment extends RoboSpiceFragment
                 actionBar.setTitle(resourceLabel);
             }
         }
+
+        List<Analytics.Dimension> viewDimension = new ArrayList<>();
+        viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
+        analytics.sendScreenView(Analytics.ScreenName.REPOSITORY.getValue(), viewDimension);
     }
 
     @Override
@@ -219,21 +222,14 @@ public class RepositoryFragment extends RoboSpiceFragment
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        if (mAdapter != null) {
-            mAdapter.save(outState);
-        }
-        super.onSaveInstanceState(outState);
+    public void onDestroy() {
+        super.onDestroy();
+
+        listView.setVisibility(View.GONE);
     }
 
     public void setQuery(String query) {
         this.query = query;
-    }
-
-    @ItemClick(android.R.id.list)
-    public void onItemClick(ResourceLookup resource) {
-        mAdapter.finishActionMode();
-        resourceOpener.openResource(this, prefTag, resource);
     }
 
     //---------------------------------------------------------------------
@@ -242,10 +238,13 @@ public class RepositoryFragment extends RoboSpiceFragment
 
     @Override
     public void onRefresh() {
+        clearData();
         ImageLoader.getInstance().clearDiskCache();
         ImageLoader.getInstance().clearMemoryCache();
         mLoaderState = LOAD_FROM_NETWORK;
         loadPage();
+
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.REPOSITORY.getValue());
     }
 
     //---------------------------------------------------------------------
@@ -261,10 +260,43 @@ public class RepositoryFragment extends RoboSpiceFragment
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void setDataAdapter(Bundle savedInstanceState) {
-        mAdapter = new ResourceAdapter(getActivity(), savedInstanceState, viewType);
-        mAdapter.setResourcesInteractionListener(this);
-        mAdapter.setAdapterView(listView);
+    private void clearData() {
+        mResourceLookupHashMap.clear();
+        mAdapter.clear();
+    }
+
+    private void addData(List<ResourceLookup> data) {
+        Collections.sort(data, new OrderingByType());
+        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
+        mResourceLookupHashMap.putAll(jasperResourceConverter.convertToDataMap(data));
+        mAdapter.addAll(jasperResourceConverter.convertToJasperResource(data));
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private void onViewSingleClick(ResourceLookup resource) {
+        resourceOpener.openResource(this, prefTag, resource);
+    }
+
+    private void setDataAdapter() {
+        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
+
+        List<ResourceLookup> resourceLookupList = null;
+        mAdapter = new JasperResourceAdapter(getActivity(), jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
+        mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
+            @Override
+            public void onResourceItemClicked(String id) {
+                onViewSingleClick(mResourceLookupHashMap.get(id));
+            }
+
+            @Override
+            public void onSecondaryActionClicked(JasperResource jasperResource) {
+                ResourceInfoActivity_.intent(getActivity())
+                        .jasperResource(jasperResource)
+                        .start();
+            }
+        });
+
+        listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
     }
 
@@ -292,11 +324,12 @@ public class RepositoryFragment extends RoboSpiceFragment
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
         // Fetch default URI
-        GetRootFolderDataRequest request = new GetRootFolderDataRequest(jsRestClient);
-        long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
-                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
-        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
-                new GetRootFolderDataRequestListener());
+        // TODO fix get folder resources request
+//        GetRootFoldersDataRequest request = new GetRootFoldersDataRequest(jsRestClient);
+//        long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
+//                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
+//        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
+//                new GetRootFolderDataRequestListener());
     }
 
     private void loadNextPage() {
@@ -326,7 +359,7 @@ public class RepositoryFragment extends RoboSpiceFragment
     }
 
     private void showEmptyText(int resId) {
-        boolean noItems = (mAdapter.getCount() > 0);
+        boolean noItems = (mAdapter.getItemCount() > 0);
         emptyText.setVisibility(noItems ? View.GONE : View.VISIBLE);
         if (resId != 0) emptyText.setText(resId);
     }
@@ -335,6 +368,9 @@ public class RepositoryFragment extends RoboSpiceFragment
         mLoading = refreshing;
         if (!refreshing) {
             swipeRefreshLayout.setRefreshing(false);
+            mAdapter.hideLoading();
+        } else {
+            mAdapter.showLoading();
         }
     }
 
@@ -349,30 +385,23 @@ public class RepositoryFragment extends RoboSpiceFragment
     }
 
     //---------------------------------------------------------------------
-    // Implements FavoritesAdapter.FavoritesInteractionListener
-    //---------------------------------------------------------------------
-
-    @Override
-    public void onFavorite(ResourceLookup resource) {
-        Uri uri = favoritesHelper.queryFavoriteUri(resource);
-        favoritesHelper.handleFavoriteMenuAction(uri, resource, null);
-    }
-
-    @Override
-    public void onInfo(String resourceTitle, String resourceDescription) {
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        SimpleDialogFragment.createBuilder(getActivity(), fm)
-                .setTitle(resourceTitle)
-                .setMessage(resourceDescription)
-                .setNegativeButtonText(R.string.ok)
-                .show();
-    }
-
-    //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class GetRootFolderDataRequestListener extends SimpleRequestListener<FolderDataResponse> {
+    private static class OrderingByType implements Comparator<ResourceLookup> {
+        @Override
+        public int compare(ResourceLookup res1, ResourceLookup res2) {
+            int lhs = res1.getResourceType() == ResourceLookup.ResourceType.folder ? 0 : 1;
+            int rhs = res2.getResourceType() == ResourceLookup.ResourceType.folder ? 0 : 1;
+            return compare(lhs, rhs);
+        }
+
+        private static int compare(int lhs, int rhs) {
+            return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
+        }
+    }
+
+    private class GetRootFolderDataRequestListener extends SimpleRequestListener<List<FolderDataResponse>> {
 
         @Override
         protected Context getContext() {
@@ -387,23 +416,12 @@ public class RepositoryFragment extends RoboSpiceFragment
         }
 
         @Override
-        public void onRequestSuccess(FolderDataResponse folderDataResponse) {
-            // Do this for explicit refresh during pull to refresh interaction
-            if (mLoaderState == LOAD_FROM_NETWORK) {
-                mAdapter.setNotifyOnChange(false);
-                mAdapter.clear();
-            }
+        public void onRequestSuccess(List<FolderDataResponse> folderDataResponse) {
 
-            mAdapter.add(folderDataResponse);
+            List<ResourceLookup> datum = new ArrayList<>();
+            datum.addAll(folderDataResponse);
 
-            ResourceLookup publicLookup = new ResourceLookup();
-            publicLookup.setResourceType(ResourceLookup.ResourceType.folder);
-            publicLookup.setLabel("Public");
-            publicLookup.setUri("/public");
-            mAdapter.add(publicLookup);
-
-            mAdapter.setNotifyOnChange(true);
-            mAdapter.notifyDataSetChanged();
+            addData(datum);
 
             setRefreshState(false);
             showEmptyText(R.string.resources_not_found);
@@ -429,16 +447,7 @@ public class RepositoryFragment extends RoboSpiceFragment
             // set pagination data
             mPaginationPolicy.handleLookup(resourceLookupsList);
 
-            // set data
-            List<ResourceLookup> datum = resourceLookupsList.getResourceLookups();
-            // Do this for explicit refresh during pull to refresh interaction
-            if (mLoaderState == LOAD_FROM_NETWORK) {
-                mAdapter.setNotifyOnChange(false);
-                mAdapter.clear();
-            }
-            mAdapter.addAllByType(datum);
-            mAdapter.setNotifyOnChange(true);
-            mAdapter.notifyDataSetChanged();
+            addData(resourceLookupsList.getResourceLookups());
 
             // set refresh states
             setRefreshState(false);
@@ -451,30 +460,34 @@ public class RepositoryFragment extends RoboSpiceFragment
     // Implements AbsListView.OnScrollListener
     //---------------------------------------------------------------------
 
-    private class ScrollListener extends SimpleScrollListener {
+    private class ScrollListener extends RecyclerView.OnScrollListener {
+
         @Override
-        public void onScroll(AbsListView listView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+
+            RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+            int visibleItemCount = recyclerView.getChildCount();
+            int totalItemCount = recyclerView.getLayoutManager().getItemCount();
+            int firstVisibleItem;
+
+            if (layoutManager instanceof LinearLayoutManager) {
+                firstVisibleItem = ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
+            } else {
+                firstVisibleItem = ((GridLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
+            }
+
             if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
                 loadNextPage();
+
+                analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.LOADED_NEXT.getValue(),  Analytics.EventLabel.REPOSITORY.getValue());
             }
             enableRefreshLayout(listView);
         }
 
-        private void enableRefreshLayout(AbsListView listView) {
-            boolean enable = true;
-            if (listView != null && listView.getChildCount() > 0) {
-                // check if the first item of the list is visible
-                boolean firstItemVisible = listView.getFirstVisiblePosition() == 0;
-
-                // check if the top of the first item is visible
-                View topViewItem = listView.getChildAt(0);
-                boolean topOfFirstItemVisible = topViewItem.getTop() - listView.getPaddingTop() == 0;
-
-                // enabling or disabling the refresh layout
-                enable = firstItemVisible && topOfFirstItemVisible;
-            }
+        private void enableRefreshLayout(RecyclerView listView) {
+            boolean enable = !listView.canScrollVertically(-1);
             swipeRefreshLayout.setEnabled(enable);
         }
     }
-
 }

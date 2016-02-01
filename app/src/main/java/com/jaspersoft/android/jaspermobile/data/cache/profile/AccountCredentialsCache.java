@@ -26,18 +26,14 @@ package com.jaspersoft.android.jaspermobile.data.cache.profile;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.support.annotation.NonNull;
 
+import com.jaspersoft.android.jaspermobile.data.cache.SecureCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import rx.Observable;
-import rx.functions.Func0;
 
 /**
  * Stores credentials data inside {@link AccountManager} on the basis of passed {@link Profile}
@@ -51,15 +47,15 @@ public final class AccountCredentialsCache implements CredentialsCache {
     public static final String USERNAME_KEY = "USERNAME_KEY";
 
     private final AccountManager mAccountManager;
-    private final PasswordManager mPasswordManger;
+    private final SecureCache mSecureCache;
     private final AccountDataMapper mAccountDataMapper;
 
     @Inject
     public AccountCredentialsCache(AccountManager accountManager,
-                                   PasswordManager passwordManager,
+                                   SecureCache secureCache,
                                    AccountDataMapper accountDataMapper) {
         mAccountManager = accountManager;
-        mPasswordManger = passwordManager;
+        mSecureCache = secureCache;
         mAccountDataMapper = accountDataMapper;
     }
 
@@ -67,75 +63,30 @@ public final class AccountCredentialsCache implements CredentialsCache {
      * {@inheritDoc}
      */
     @Override
-    public Observable<AppCredentials> putAsObservable(final Profile profile, final AppCredentials credentials)  {
-        return Observable.defer(new Func0<Observable<AppCredentials>>() {
-            @Override
-            public Observable<AppCredentials> call() {
-                Account account = mAccountDataMapper.transform(profile);
-
-                String encryptedPassword = null;
-                try {
-                    encryptedPassword = mPasswordManger.encrypt(credentials.getPassword());
-                } catch (PasswordManager.EncryptionException e) {
-                    return Observable.error(e);
-                }
-                mAccountManager.setPassword(account, encryptedPassword);
-
-                mAccountManager.setUserData(account, ORGANIZATION_KEY, credentials.getOrganization());
-                mAccountManager.setUserData(account, USERNAME_KEY, credentials.getUsername());
-
-                return Observable.just(credentials);
-            }
-        });
+    public AppCredentials put(final Profile profile, final AppCredentials credentials)  {
+        Account account = mAccountDataMapper.transform(profile);
+        mSecureCache.put(account.name, credentials.getPassword());
+        mAccountManager.setUserData(account, ORGANIZATION_KEY, credentials.getOrganization());
+        mAccountManager.setUserData(account, USERNAME_KEY, credentials.getUsername());
+        return credentials;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Observable<AppCredentials> getAsObservable(final Profile profile) {
-        return Observable.defer(new Func0<Observable<AppCredentials>>() {
-            @Override
-            public Observable<AppCredentials> call() {
-                Account account = mAccountDataMapper.transform(profile);
-
-                String password = mAccountManager.getPassword(account);
-                String decryptedPassword = null;
-                try {
-                    decryptedPassword = mPasswordManger.decrypt(password);
-                } catch (PasswordManager.DecryptionException e) {
-                    return Observable.error(e);
-                }
-
-                AppCredentials appCredentials = buildCredentials(account, decryptedPassword);
-
-                return Observable.just(appCredentials);
-            }
-        });
-    }
-
-    @NonNull
-    @Override
-    public AppCredentials get(Profile profile) {
+    public AppCredentials get(final Profile profile) {
         Account account = mAccountDataMapper.transform(profile);
-        String password = mAccountManager.getPassword(account);
-        String decryptedPassword = null;
-        try {
-            decryptedPassword = mPasswordManger.decrypt(password);
-        } catch (PasswordManager.DecryptionException e) {
-            decryptedPassword = "broken";
-        }
-        return buildCredentials(account, decryptedPassword);
-    }
+        String password = mSecureCache.get(account.name);
 
-    private AppCredentials buildCredentials(Account account, String decryptedPassword) {
         String username = mAccountManager.getUserData(account, USERNAME_KEY);
         String organization = mAccountManager.getUserData(account, ORGANIZATION_KEY);
 
         AppCredentials.Builder credentialsBuilder = AppCredentials.builder();
-        credentialsBuilder.setPassword(decryptedPassword);
+        credentialsBuilder.setPassword(password);
         credentialsBuilder.setUsername(username);
         credentialsBuilder.setOrganization(organization);
+
         return credentialsBuilder.create();
     }
 }

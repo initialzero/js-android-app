@@ -38,14 +38,15 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.GraphObject;
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
@@ -54,7 +55,7 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
-import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
@@ -81,7 +82,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     private ViewGroup contentLayout;
 
     private boolean mSecureProviderDialogShown;
-    private ActivitySecureDelegate mActivitySecureDelegate;
     private JasperAccountManager mJasperAccountManager;
     private JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
 
@@ -89,6 +89,8 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     @Inject
     protected SecurityProviderUpdater mSecurityProviderUpdater;
+    @Inject
+    protected Analytics analytics;
 
     private final OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
@@ -147,16 +149,17 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             finish();
         }
 
+        setScreenName();
+
         // Lets update Security provider
         mSecurityProviderUpdater.update(this, new ProviderInstallListener());
 
-        mActivitySecureDelegate = ActivitySecureDelegate.create(this);
         // Lets check account to be properly setup
         mJasperAccountManager = JasperAccountManager.get(this);
         defineJasperAccountsState();
         updateActiveAccount();
         handleActiveAccountState();
-        mActivitySecureDelegate.onCreate(savedInstanceState);
+        disableScreenCapturing();
 
         super.onCreate(savedInstanceState);
         addToolbar();
@@ -167,10 +170,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             ViewServer.get(this).addWindow(this);
         }
 
-        // Listen to account changes
-        mJasperAccountManager.setOnAccountsUpdatedListener(accountsUpdateListener);
-
-        if (JasperMobileApplication.get(this).getProfileComponent() == null) {
+        if (GraphObject.Factory.from(this).getProfileComponent() == null) {
             ActiveProfileCache activeProfileCache = new PreferencesActiveProfileCache(this);
             Profile profile = activeProfileCache.get();
             if (profile != null) {
@@ -203,7 +203,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     }
 
     private void setupProfileModule(Profile profile) {
-        GraphObject graphObject = JasperMobileApplication.get(this);
+        GraphObject graphObject = GraphObject.Factory.from(this);
         ProfileComponent profileComponent = graphObject.getComponent()
                 .plus(new ProfileModule(profile));
         graphObject.setProfileComponent(profileComponent);
@@ -212,10 +212,19 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
         if (isDevMode()) {
             ViewServer.get(this).setFocusedWindow(this);
         }
         updateAccountDependentUi();
+
+        trackScreenView();
+    }
+
+    @Override
+    protected void onPause() {
+        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
+        super.onPause();
     }
 
     @Override
@@ -272,6 +281,15 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
+
+    private void disableScreenCapturing(){
+        boolean isScreenCaptureEnable = DefaultPrefHelper_.getInstance_(this).isScreenCapturingEnabled();
+
+        if (!isScreenCaptureEnable) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+                    WindowManager.LayoutParams.FLAG_SECURE);
+        }
+    }
 
     private void addToolbar() {
         TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.windowToolbar});
@@ -383,6 +401,24 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     }
 
     protected void onAccountsChanged() {
+    }
+
+    protected String getScreenName() {
+        return null;
+    }
+
+    protected void setScreenName() {
+        String screenName = getScreenName();
+        if (screenName != null) {
+            analytics.setScreenName(screenName);
+        }
+    }
+
+    protected void trackScreenView() {
+        String screenName = getScreenName();
+        if (screenName != null) {
+            analytics.sendScreenView(screenName, null);
+        }
     }
 
     public enum JasperAccountsStatus {

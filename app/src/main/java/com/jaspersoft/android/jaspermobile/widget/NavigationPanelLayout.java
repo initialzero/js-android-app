@@ -40,6 +40,8 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
@@ -52,6 +54,7 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
 
+import roboguice.RoboGuice;
 import timber.log.Timber;
 
 /**
@@ -66,6 +69,9 @@ public class NavigationPanelLayout extends RelativeLayout {
     private NavigationListener mListener;
     private View selectedItemView;
     boolean isShowingMenu;
+
+    @Inject
+    protected Analytics analytics;
 
     @ViewById(R.id.vg_navigation_menu)
     ViewGroup navigationMenu;
@@ -102,7 +108,7 @@ public class NavigationPanelLayout extends RelativeLayout {
     }
 
     public void setItemSelected(int viewId) {
-        navigationMenuItemSelect(findViewById(viewId));
+        selectItem(findViewById(viewId));
     }
 
     public void notifyAccountChange() {
@@ -111,7 +117,7 @@ public class NavigationPanelLayout extends RelativeLayout {
         showActivatedPanel(isShowingMenu);
     }
 
-    public void notifyPanelClosed(){
+    public void notifyPanelClosed() {
         isShowingMenu = true;
         showActivatedPanel(isShowingMenu);
         accountsMenu.setSelectionAfterHeaderView();
@@ -120,6 +126,8 @@ public class NavigationPanelLayout extends RelativeLayout {
 
     @AfterViews
     final void initNavigationLayout() {
+        RoboGuice.getInjector(getContext()).injectMembersWithoutViews(this);
+
         Timber.tag(TAG);
         isShowingMenu = true;
         View accountsFooter = LayoutInflater.from(getContext()).inflate(R.layout.view_accounts_footer, null, false);
@@ -154,14 +162,14 @@ public class NavigationPanelLayout extends RelativeLayout {
     private OnClickListener onAddProfileClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (mListener != null) mListener.onNavigate(R.id.vg_add_account);
+            navigateTo(v.getId());
         }
     };
 
     private OnClickListener onManageProfileClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (mListener != null) mListener.onNavigate(R.id.vg_manage_accounts);
+            navigateTo(v.getId());
         }
     };
 
@@ -171,28 +179,64 @@ public class NavigationPanelLayout extends RelativeLayout {
         showActivatedPanel(isShowingMenu);
     }
 
-    @Click({R.id.tv_settings, R.id.tv_feedback, R.id.tv_about})
-    final void navigationSubItemClick(View view) {
-        if (mListener != null) {
-            mListener.onNavigate(view.getId());
-        }
+    @Click(R.id.tv_feedback)
+    final void navigateToFeedback(View view) {
+        navigateTo(view.getId());
+        trackNavigateEvent(Analytics.EventLabel.FEEDBACK.getValue());
     }
 
-    @Click({R.id.vg_library, R.id.vg_repository, R.id.vg_favorites, R.id.vg_saved_items, R.id.vg_recent})
-    final void navigationMenuItemSelect(View newSelectItem) {
-        if (selectedItemView != null) {
-            setItemSelected(selectedItemView, false);
-        }
-        setItemSelected(newSelectItem, true);
-        selectedItemView = newSelectItem;
+    @Click(R.id.tv_settings)
+    final void navigateToSettings(View view) {
+        navigateTo(view.getId());
+        trackNavigateEvent(Analytics.EventLabel.SETTINGS.getValue());
+    }
 
-        if (mListener != null) {
-            mListener.onNavigate(newSelectItem.getId());
-        }
+    @Click(R.id.tv_about)
+    final void navigateToAbout(View view) {
+        navigateTo(view.getId());
+        trackNavigateEvent(Analytics.EventLabel.ABOUT.getValue());
+    }
+
+    @Click(R.id.vg_library)
+    final void navigateToLibrary(View newSelectItem) {
+        selectItem(newSelectItem);
+        trackNavigateEvent(Analytics.EventLabel.LIBRARY.getValue());
+    }
+
+    @Click(R.id.vg_repository)
+    final void navigateToRepository(View newSelectItem) {
+        selectItem(newSelectItem);
+        trackNavigateEvent(Analytics.EventLabel.REPOSITORY.getValue());
+    }
+
+    @Click(R.id.vg_favorites)
+    final void navigateToFavorites(View newSelectItem) {
+        selectItem(newSelectItem);
+        trackNavigateEvent(Analytics.EventLabel.FAVORITES.getValue());
+    }
+
+    @Click(R.id.vg_saved_items)
+    final void navigateToSavedItems(View newSelectItem) {
+        selectItem(newSelectItem);
+        trackNavigateEvent(Analytics.EventLabel.SAVED_ITEMS.getValue());
+    }
+
+    @Click(R.id.vg_recent)
+    final void navigateToRecent(View newSelectItem) {
+        selectItem(newSelectItem);
+        trackNavigateEvent(Analytics.EventLabel.RECENTLY_VIEWED.getValue());
+    }
+
+    @Click(R.id.vg_jobs)
+    final void navigateToJobs(View newSelectItem) {
+        selectItem(newSelectItem);
+        trackNavigateEvent(Analytics.EventLabel.JOBS.getValue());
     }
 
     @ItemClick(R.id.lv_accounts_menu)
     public void onAccountSelect(AccountServerData accountsData) {
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.CLICKED.getValue(), Analytics.EventLabel.SWITCH_ACCOUNT.getValue());
+
         Account[] accounts = JasperAccountManager.get(getContext()).getAccounts();
         for (Account account : accounts) {
             if (accountsData.getAlias().equals(account.name))
@@ -233,6 +277,22 @@ public class NavigationPanelLayout extends RelativeLayout {
     // Helper methods
     //---------------------------------------------------------------------
 
+    private void selectItem(View newSelectItem) {
+        if (selectedItemView != null) {
+            setItemSelected(selectedItemView, false);
+        }
+        setItemSelected(newSelectItem, true);
+        selectedItemView = newSelectItem;
+
+        navigateTo(newSelectItem.getId());
+    }
+
+    private void navigateTo(int viewId) {
+        if (mListener != null) {
+            mListener.onNavigate(viewId);
+        }
+    }
+
     private void showActivatedPanel(boolean isShowingMenu) {
         if (!isShowingMenu) {
             ivProfileArrow.setImageResource(R.drawable.ic_arrow_up);
@@ -261,6 +321,10 @@ public class NavigationPanelLayout extends RelativeLayout {
         }
     }
 
+    private void trackNavigateEvent(String location) {
+        analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.CLICKED.getValue(), location);
+    }
+
     //---------------------------------------------------------------------
     // Nested classes
     //---------------------------------------------------------------------
@@ -274,10 +338,9 @@ public class NavigationPanelLayout extends RelativeLayout {
             mJasperAccounts = JasperAccountManager.get(context).getInactiveAccountsData();
             mInflater = LayoutInflater.from(context);
 
-            if(mJasperAccounts.isEmpty()) {
+            if (mJasperAccounts.isEmpty()) {
                 footerDivider.setVisibility(GONE);
-            }
-            else {
+            } else {
                 footerDivider.setVisibility(VISIBLE);
             }
         }
@@ -367,9 +430,9 @@ public class NavigationPanelLayout extends RelativeLayout {
         /**
          * @param viewId returns selected view Id or 0 for same view
          */
-        public void onNavigate(int viewId);
+        void onNavigate(int viewId);
 
-        public void onProfileChange(Account account);
+        void onProfileChange(Account account);
     }
 
 }

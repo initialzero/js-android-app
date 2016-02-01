@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -35,18 +34,16 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
@@ -59,11 +56,6 @@ import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-
-import rx.Subscription;
-import rx.functions.Action0;
-import rx.functions.Action1;
-import rx.subscriptions.CompositeSubscription;
 
 /**
  * Activity that performs dashboard viewing in HTML format through native component.
@@ -82,11 +74,8 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     protected ResourceLookup resource;
     private MenuItem favoriteAction;
 
-    private Uri favoriteEntryUri;
     private FavoritesHelper_ favoritesHelper;
     private JasperChromeClientListenerImpl chromeClientListener;
-
-    private final CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
     @Inject
     protected Analytics analytics;
@@ -106,30 +95,13 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         }
 
         favoritesHelper = FavoritesHelper_.getInstance_(this);
-        if (savedInstanceState == null && resource != null) {
-            favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
-        }
 
         webView = (WebView) findViewById(R.id.webView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         emptyView = (TextView) findViewById(android.R.id.empty);
 
-        showMessage(getString(R.string.loading_msg));
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(
-                new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean aBoolean) {
-                        hideMessage();
-                        initWebView();
-                    }
-                },
-                new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        showMessage(throwable.getMessage());
-                    }
-                });
-        mCompositeSubscription.add(cookieSubscription);
+        showProgressDialog(R.string.loading_msg);
+        initWebView();
     }
 
     @Override
@@ -138,8 +110,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         menuInflater.inflate(R.menu.dashboard_menu, menu);
         favoriteAction = menu.findItem(R.id.favoriteAction);
 
-        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
-        favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+        favoritesHelper.updateFavoriteIconState(favoriteAction, resource.getUri());
 
         if (isDebugOrQa()) {
             MenuInflater inflater = getMenuInflater();
@@ -169,18 +140,12 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
             onHomeAsUpCalled();
         }
         if (itemId == R.id.printAction) {
-            analytics.trackPrintEvent(Analytics.PrintType.DASHBOARD);
+            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRINTED.getValue(), Analytics.EventLabel.DASHBOARD.getValue());
             ResourcePrintJob job = JasperPrintJobFactory.createDashboardPrintJob(webView, resource);
             JasperPrinter.print(job);
         }
 
         return true;
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mCompositeSubscription.unsubscribe();
     }
 
     @Override
@@ -208,10 +173,14 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         }
     }
 
-    protected void hideMessage() {
-        if (emptyView != null) {
-            emptyView.setVisibility(View.GONE);
-        }
+    private void showProgressDialog(int message) {
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(message)
+                .show();
+    }
+
+    private void hideProgressDialog() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
     //---------------------------------------------------------------------
@@ -237,33 +206,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
 
     @Override
     public void onSessionExpired() {
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this)
-                .doOnSubscribe(new Action0() {
-                    @Override
-                    public void call() {
-                        JasperAccountManager.get(BaseDashboardActivity.this).invalidateActiveToken();
-                    }
-                })
-                .subscribe(
-                        new Action1<Boolean>() {
-                            @Override
-                            public void call(Boolean isRefreshed) {
-                                if (isRefreshed) {
-                                    onSessionRefreshed();
-                                } else {
-                                    Toast.makeText(BaseDashboardActivity.this,
-                                            R.string.da_session_refresh_failed, Toast.LENGTH_LONG).show();
-                                    finish();
-                                }
-                            }
-                        },
-                        new Action1<Throwable>() {
-                            @Override
-                            public void call(Throwable throwable) {
-                                showMessage(throwable.getMessage());
-                            }
-                        });
-        mCompositeSubscription.add(cookieSubscription);
+        finish();
     }
 
     //---------------------------------------------------------------------
@@ -310,8 +253,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     }
 
     private void favoriteAction() {
-        favoriteEntryUri = favoritesHelper.
-                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
+        favoritesHelper.switchFavoriteState(resource, favoriteAction);
     }
 
     private void aboutAction() {

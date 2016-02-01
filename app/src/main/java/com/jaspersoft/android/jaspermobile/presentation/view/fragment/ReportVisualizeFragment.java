@@ -14,12 +14,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.AbstractPaginationView;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -41,7 +39,9 @@ import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
 import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
+import com.jaspersoft.android.jaspermobile.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
+import com.jaspersoft.android.jaspermobile.widget.PaginationBarView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.network.Server;
 
@@ -122,7 +122,6 @@ public class ReportVisualizeFragment extends BaseFragment
     @InstanceState
     protected ReportPageState mState;
 
-    private Uri favoriteEntryUri;
     private Toast mToast;
 
     protected boolean filtersMenuItemVisibilityFlag, saveMenuItemVisibilityFlag;
@@ -135,14 +134,11 @@ public class ReportVisualizeFragment extends BaseFragment
             mState = new ReportPageState();
         }
         mToast = Toast.makeText(getActivity(), "", Toast.LENGTH_LONG);
-        favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
-        favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
-
+        favoritesHelper.updateFavoriteIconState(favoriteAction, resource.getUri());
         saveReport.setVisible(saveMenuItemVisibilityFlag);
         showFilters.setVisible(filtersMenuItemVisibilityFlag);
     }
@@ -155,7 +151,7 @@ public class ReportVisualizeFragment extends BaseFragment
     }
 
     private void injectComponents() {
-        JasperMobileApplication.get(getContext())
+        GraphObject.Factory.from(getContext())
                 .getProfileComponent()
                 .plusReportVisualizeViewer(
                         new ActivityModule(getActivity()),
@@ -258,8 +254,7 @@ public class ReportVisualizeFragment extends BaseFragment
 
     @OptionsItem
     final void favoriteAction() {
-        favoriteEntryUri = favoritesHelper.
-                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
+        favoritesHelper.switchFavoriteState(resource, favoriteAction);
     }
 
     @OptionsItem

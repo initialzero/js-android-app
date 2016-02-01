@@ -24,26 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.db.migrate.v5;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.Settings;
-import android.util.Base64;
 
-import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
-
-import java.io.UnsupportedEncodingException;
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.KeySpec;
-import java.util.Arrays;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
 
 /**
  * @author Andrew Tivodar

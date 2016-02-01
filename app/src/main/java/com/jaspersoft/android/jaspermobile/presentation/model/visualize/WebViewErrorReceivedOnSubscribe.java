@@ -36,7 +36,7 @@ final class WebViewErrorReceivedOnSubscribe  implements Observable.OnSubscribe<W
         JasperWebViewClientListener errorListener = new ErrorWebViewClientListener(webView.getContext(),
                 new ErrorWebViewClientListener.OnWebViewErrorListener() {
                     @Override
-                    public void onWebViewError(String title, String message) {
+                    public void onWebViewError(String title, String message, String failingUrl, int errorCode) {
                         if (!subscriber.isUnsubscribed()) {
                             subscriber.onNext(new WebViewErrorEvent(title, message));
                         }

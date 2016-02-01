@@ -24,13 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.dialog;
 
-import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,9 +43,10 @@ import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActiv
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
+import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 
 import roboguice.fragment.RoboDialogFragment;
@@ -68,6 +69,9 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
     private Subscription mLoginSubscription;
     private Observable<String> mLoginOperation;
     private Toast mToast;
+
+    @Bean
+    InfoProvider mInfoProvider;
 
     //---------------------------------------------------------------------
     // Static methods
@@ -100,10 +104,9 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
         LayoutInflater inflater = LayoutInflater.from(getActivity());
 
         View dialogView = inflater.inflate(R.layout.dialog_password, null);
-        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(getActivity());
-        String alias = serverInfoProvider.getAlias();
-        String username = serverInfoProvider.getUsername();
-        String organization = serverInfoProvider.getOrganization();
+        String alias = mInfoProvider.getAlias();
+        String username = mInfoProvider.getUsername();
+        String organization = mInfoProvider.getOrganization();
 
         ((TextView) dialogView.findViewById(R.id.tv_alias)).setText(alias);
         ((TextView) dialogView.findViewById(R.id.tv_username)).setText(username);

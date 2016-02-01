@@ -39,14 +39,10 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Ambe
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.SavedValuesActivity_;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportViewActivity_;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
+import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
 import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;

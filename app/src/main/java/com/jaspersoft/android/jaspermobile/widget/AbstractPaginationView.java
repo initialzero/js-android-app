@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget;
+package com.jaspersoft.android.jaspermobile.widget;
 
 import android.annotation.TargetApi;
 import android.content.Context;

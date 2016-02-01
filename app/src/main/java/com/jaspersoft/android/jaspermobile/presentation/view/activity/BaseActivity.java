@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
-import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
 
 /**
  * @author Tom Koptel
@@ -14,14 +13,9 @@ import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
-    private ActivitySecureDelegate mActivitySecureDelegate;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mActivitySecureDelegate = ActivitySecureDelegate.create(this);
         super.onCreate(savedInstanceState);
-        mActivitySecureDelegate.onCreate(savedInstanceState);
-
         getAppComponent().inject(this);
     }
 

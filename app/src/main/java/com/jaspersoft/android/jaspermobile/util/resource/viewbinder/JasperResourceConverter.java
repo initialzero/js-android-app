@@ -18,15 +18,13 @@ import com.jaspersoft.android.jaspermobile.util.resource.JobResource;
 import com.jaspersoft.android.jaspermobile.util.resource.ReportResource;
 import com.jaspersoft.android.jaspermobile.util.resource.SavedItemResource;
 import com.jaspersoft.android.jaspermobile.util.resource.UndefinedResource;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.data.schedule.JobUnit;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -38,7 +36,7 @@ import roboguice.RoboGuice;
  */
 public class JasperResourceConverter {
 
-    private final boolean isAmberOrHigher;
+    private boolean isAmberOrHigher;
 
     @Inject
     protected JsRestClient jsRestClient;
@@ -48,8 +46,8 @@ public class JasperResourceConverter {
 
         Account account = JasperAccountManager.get(context).getActiveAccount();
         AccountServerData serverData = AccountServerData.get(context, account);
-        ServerRelease serverRelease = ServerRelease.parseVersion(serverData.getVersionName());
-        isAmberOrHigher = serverRelease.code() >= ServerRelease.AMBER.code();
+        ServerVersion versionName = ServerVersion.valueOf(serverData.getVersionName());
+        isAmberOrHigher = versionName.greaterThanOrEquals(ServerVersion.v6);
     }
 
     public JasperResource convertToJasperResource(ResourceLookup resourceLookup) {

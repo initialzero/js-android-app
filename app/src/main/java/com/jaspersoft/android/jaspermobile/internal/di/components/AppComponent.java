@@ -2,11 +2,11 @@ package com.jaspersoft.android.jaspermobile.internal.di.components;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileModule;
 import com.jaspersoft.android.jaspermobile.auth.JasperAuthenticator;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.app.CacheModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ServerClientModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.app.CacheModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.RepoModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.ValidatorModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.BaseActivity;

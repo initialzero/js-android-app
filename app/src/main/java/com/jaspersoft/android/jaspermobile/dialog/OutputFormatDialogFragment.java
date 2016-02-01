@@ -30,11 +30,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
-import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
 
 import java.util.ArrayList;

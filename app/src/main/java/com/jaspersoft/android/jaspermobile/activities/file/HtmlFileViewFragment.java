@@ -22,7 +22,6 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.client.RestClientException;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,7 +33,6 @@ import javax.security.auth.login.LoginException;
 import roboguice.inject.InjectView;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Action1;
 
 /**
  * @author Andrew Tivodar
@@ -161,9 +159,10 @@ public class HtmlFileViewFragment extends FileLoadFragment {
         InputStream attachmentInputStream = getCachedAttachment(attachmentFile);
 
         if (attachmentInputStream == null) {
-            byte[] attachmentBinary = jsRestClient.getResourceBinaryData(url);
-            cacheAttachment(attachmentFile, attachmentBinary);
-            attachmentInputStream = new ByteArrayInputStream(attachmentBinary);
+            // TODO fix resource binary data loading
+//            byte[] attachmentBinary = jsRestClient.getResourceBinaryData(url);
+//            cacheAttachment(attachmentFile, attachmentBinary);
+//            attachmentInputStream = new ByteArrayInputStream(attachmentBinary);
         }
 
         return new WebResourceResponse("image/*", "UTF-8", attachmentInputStream);

@@ -48,21 +48,16 @@ import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.multichoice.ResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
 import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
-import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
+import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.GetRootFoldersDataRequest;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -82,7 +77,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -330,11 +324,12 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
         // Fetch default URI
-        GetRootFoldersDataRequest request = new GetRootFoldersDataRequest(jsRestClient);
-        long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
-                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
-        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
-                new GetRootFolderDataRequestListener());
+        // TODO fix get folder resources request
+//        GetRootFoldersDataRequest request = new GetRootFoldersDataRequest(jsRestClient);
+//        long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
+//                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
+//        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
+//                new GetRootFolderDataRequestListener());
     }
 
     private void loadNextPage() {

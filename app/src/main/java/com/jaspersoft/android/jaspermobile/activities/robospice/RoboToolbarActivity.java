@@ -56,8 +56,6 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
-import com.jaspersoft.android.jaspermobile.util.ActivitySecureDelegate;
-import com.jaspersoft.android.jaspermobile.activities.auth.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 

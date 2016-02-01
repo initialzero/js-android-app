@@ -32,12 +32,8 @@ import com.orhanobut.hawk.Hawk;
 import com.orhanobut.hawk.HawkBuilder;
 
 import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import rx.Observable;
 import rx.functions.Action1;

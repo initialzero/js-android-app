@@ -74,11 +74,12 @@ public final class AccountCredentialsCache implements CredentialsCache {
                 Account account = mAccountDataMapper.transform(profile);
 
                 String encryptedPassword = null;
-                try {
-                    encryptedPassword = mPasswordManger.encrypt(credentials.getPassword());
-                } catch (PasswordManager.EncryptionException e) {
-                    return Observable.error(e);
-                }
+                // TODO fix password generation
+//                try {
+//                    encryptedPassword = mPasswordManger.encrypt(credentials.getPassword());
+//                } catch (PasswordManager.EncryptionException e) {
+//                    return Observable.error(e);
+//                }
                 mAccountManager.setPassword(account, encryptedPassword);
 
                 mAccountManager.setUserData(account, ORGANIZATION_KEY, credentials.getOrganization());
@@ -101,11 +102,12 @@ public final class AccountCredentialsCache implements CredentialsCache {
 
                 String password = mAccountManager.getPassword(account);
                 String decryptedPassword = null;
-                try {
-                    decryptedPassword = mPasswordManger.decrypt(password);
-                } catch (PasswordManager.DecryptionException e) {
-                    return Observable.error(e);
-                }
+                // TODO fix account password related issues
+//                try {
+//                    decryptedPassword = mPasswordManger.decrypt(password);
+//                } catch (PasswordManager.DecryptionException e) {
+//                    return Observable.error(e);
+//                }
 
                 AppCredentials appCredentials = buildCredentials(account, decryptedPassword);
 
@@ -119,13 +121,14 @@ public final class AccountCredentialsCache implements CredentialsCache {
     public AppCredentials get(Profile profile) {
         Account account = mAccountDataMapper.transform(profile);
         String password = mAccountManager.getPassword(account);
-        String decryptedPassword = null;
-        try {
-            decryptedPassword = mPasswordManger.decrypt(password);
-        } catch (PasswordManager.DecryptionException e) {
-            decryptedPassword = "broken";
-        }
-        return buildCredentials(account, decryptedPassword);
+        // TODO fix account password related issues
+//        String decryptedPassword = null;
+//        try {
+//            decryptedPassword = mPasswordManger.decrypt(password);
+//        } catch (PasswordManager.DecryptionException e) {
+//            decryptedPassword = "broken";
+//        }
+        return buildCredentials(account, "");
     }
 
     private AppCredentials buildCredentials(Account account, String decryptedPassword) {

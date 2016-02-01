@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile;
 
 import android.accounts.Account;
-import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDexApplication;
 
@@ -41,7 +40,6 @@ import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;

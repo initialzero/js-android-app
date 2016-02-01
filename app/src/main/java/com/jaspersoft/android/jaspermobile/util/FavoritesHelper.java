@@ -62,11 +62,13 @@ public class FavoritesHelper {
 
     @Inject
     protected Analytics analytics;
+    private Toast mToast;
 
     @AfterInject
     void injectRoboGuiceDependencies() {
         final RoboInjector injector = RoboGuice.getInjector(context);
         injector.injectMembersWithoutViews(this);
+        mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
     }
 
     public void switchFavoriteState(ResourceLookup resource, MenuItem favoriteIcon) {
@@ -180,7 +182,12 @@ public class FavoritesHelper {
             }
         }
 
-        Toast.makeText(context, context.getString(messageId), Toast.LENGTH_SHORT).show();
+        mToast.setText(context.getString(messageId));
+        mToast.show();
+    }
+
+    public Toast getToast() {
+        return mToast;
     }
 
     private void updateFavoriteIconState(MenuItem favoriteAction, boolean isFavorite) {

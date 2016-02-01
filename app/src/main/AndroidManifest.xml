@@ -96,16 +96,6 @@
                 android:value=".activities.navigation.NavigationActivity_" />
         </activity>
 
-        <!-- Activity that performs report viewing in HTML format -->
-        <activity
-            android:name=".activities.viewer.html.report.ReportHtmlViewerActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".activities.navigation.NavigationActivity_" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.navigation.NavigationActivity_" />
-        </activity>
-
         <!-- Activity that performs report viewing in HTML format. SDK 2.0 -->
         <activity
             android:name=".presentation.view.activity.ReportViewActivity_"
@@ -114,6 +104,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.navigation.NavigationActivity_" />
         </activity>
+
+        <activity android:name=".activities.viewer.html.report.ReportCastActivity_"/>
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity

@@ -4,8 +4,8 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControl
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.MultiSelectActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.SingleSelectActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 
 import dagger.Subcomponent;
 

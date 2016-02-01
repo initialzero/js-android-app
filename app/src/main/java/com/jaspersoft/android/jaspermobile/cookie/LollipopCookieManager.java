@@ -24,20 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.cookie;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.webkit.CookieManager;
-import android.webkit.ValueCallback;
 
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
 /**
  * @author Tom Koptel

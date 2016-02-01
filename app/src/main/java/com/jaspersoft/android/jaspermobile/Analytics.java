@@ -24,8 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile;
 
-import android.app.Application;
-
 import java.util.List;
 
 /**

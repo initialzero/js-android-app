@@ -31,8 +31,6 @@ import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Andrew Tivodar

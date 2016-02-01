@@ -29,7 +29,11 @@ import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import java.util.ArrayList;
 
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.*;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.dashboard;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.folder;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.legacyDashboard;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.reportUnit;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.file;
 
 /**
  * @author Andrew Tivodar

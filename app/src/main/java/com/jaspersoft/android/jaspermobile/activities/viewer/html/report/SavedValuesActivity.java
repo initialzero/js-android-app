@@ -13,9 +13,7 @@ import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.GetReportOptionResourceRequest;
 import com.jaspersoft.android.sdk.client.async.request.GetReportResourceRequest;
-import com.jaspersoft.android.sdk.client.oxm.resource.ReportOptionLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
@@ -75,8 +73,8 @@ public class SavedValuesActivity extends RoboSpiceActivity {
     }
 
     private void getSavedValuesInfo() {
-        GetReportOptionResourceRequest reportOptionResourceRequest = new GetReportOptionResourceRequest(jsRestClient, resourceLookup.getUri());
-        getSpiceManager().execute(reportOptionResourceRequest, new SavedValuesRequestListener());
+//        GetReportOptionResourceRequest reportOptionResourceRequest = new GetReportOptionResourceRequest(jsRestClient, resourceLookup.getUri());
+//        getSpiceManager().execute(reportOptionResourceRequest, new SavedValuesRequestListener());
     }
 
     private void getReportLookup(String reportUri) {
@@ -84,25 +82,25 @@ public class SavedValuesActivity extends RoboSpiceActivity {
         getSpiceManager().execute(reportResourceRequest, new ReportLookupListener());
     }
 
-    private class SavedValuesRequestListener extends SimpleRequestListener<ReportOptionLookup> {
-        @Override
-        protected Context getContext() {
-            return SavedValuesActivity.this;
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            super.onRequestFailure(spiceException);
-            finish();
-        }
-
-        @Override
-        public void onRequestSuccess(ReportOptionLookup reportOptionLookup) {
-            String reportUri = reportOptionLookup.getReportUri();
-            paramsStorage.getInputControlHolder(reportUri).setReportParams(reportOptionLookup.getReportParameters());
-            getReportLookup(reportUri);
-        }
-    }
+//    private class SavedValuesRequestListener extends SimpleRequestListener<ReportOptionLookup> {
+//        @Override
+//        protected Context getContext() {
+//            return SavedValuesActivity.this;
+//        }
+//
+//        @Override
+//        public void onRequestFailure(SpiceException spiceException) {
+//            super.onRequestFailure(spiceException);
+//            finish();
+//        }
+//
+//        @Override
+//        public void onRequestSuccess(ReportOptionLookup reportOptionLookup) {
+//            String reportUri = reportOptionLookup.getReportUri();
+//            paramsStorage.getInputControlHolder(reportUri).setReportParams(reportOptionLookup.getReportParameters());
+//            getReportLookup(reportUri);
+//        }
+//    }
 
     private class ReportLookupListener extends SimpleRequestListener<ResourceLookup> {
         @Override

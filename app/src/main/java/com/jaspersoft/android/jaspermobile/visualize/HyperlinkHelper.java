@@ -31,7 +31,6 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
@@ -105,11 +104,11 @@ public class HyperlinkHelper {
     @UiThread
     protected void startReportActivity(@NonNull ResourceLookup lookup, ArrayList<ReportParameter> reportParameters) {
         ProgressDialogFragment.dismiss(activity.getSupportFragmentManager());
-        ReportViewerActivity_
-                .intent(activity)
-                .reportParameters(reportParameters)
-                .resource(lookup)
-                .start();
+//        ReportViewerActivity_
+//                .intent(activity)
+//                .reportParameters(reportParameters)
+//                .resource(lookup)
+//                .start();
     }
 
     @UiThread

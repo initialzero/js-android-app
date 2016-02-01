@@ -33,8 +33,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.SavedItemResource;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;

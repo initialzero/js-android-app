@@ -49,8 +49,6 @@ public class JsSpiceManager extends SpiceManager {
     @Inject
     JsRestClientWrapper jsRestClientWrapper;
     @Inject
-    JsRestClient jsRestClient;
-    @Inject
     Context mContext;
 
     @Inject
@@ -67,6 +65,7 @@ public class JsSpiceManager extends SpiceManager {
     }
 
     private boolean isRestClientValid() {
+        JsRestClient jsRestClient = jsRestClientWrapper.getClient();
         if (jsRestClient != null) {
             JsServerProfile jsServerProfile = jsRestClient.getServerProfile();
             if (jsServerProfile == null) {
@@ -86,7 +85,7 @@ public class JsSpiceManager extends SpiceManager {
 
     private void tryToSetupRestClient() {
         if (!isRestClientValid()) {
-            JsServerProfileCompat.initLegacyJsRestClient(mContext, jsRestClient);
+            JsServerProfileCompat.initLegacyJsRestClient(mContext, jsRestClientWrapper);
         }
     }
 }

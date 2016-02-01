@@ -30,6 +30,7 @@ import android.support.v4.app.FragmentActivity;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 
+import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
@@ -61,13 +62,6 @@ public class RepositoryResourceFilter extends ResourceFilter {
         public String getLocalizedTitle(Context context) {
             return context.getString(this.mTitleId);
         }
-    }
-
-    @AfterInject
-    protected void initFilter() {
-        Account account = JasperAccountManager.get(activity).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(activity, account);
-        this.serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
     }
 
     @Override

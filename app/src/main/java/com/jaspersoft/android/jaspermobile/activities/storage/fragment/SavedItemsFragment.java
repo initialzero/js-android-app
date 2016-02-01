@@ -45,6 +45,7 @@ import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
@@ -53,8 +54,6 @@ import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResour
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.Bean;
@@ -65,7 +64,6 @@ import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;

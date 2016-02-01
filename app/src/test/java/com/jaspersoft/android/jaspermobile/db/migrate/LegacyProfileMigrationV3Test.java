@@ -28,8 +28,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.db.migrate.MigrationV3;
-import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.TestResource;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;

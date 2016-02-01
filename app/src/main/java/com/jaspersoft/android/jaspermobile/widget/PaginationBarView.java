@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget;
+package com.jaspersoft.android.jaspermobile.widget;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -127,13 +127,13 @@ public class PaginationBarView extends AbstractPaginationView {
     @Override
     protected void alterTotalCount() {
         if (isTotalPagesLoaded()) {
-            progressLayout.setVisibility(View.GONE);
-            totalPageLabel.setVisibility(View.VISIBLE);
+            progressLayout.setVisibility(GONE);
+            totalPageLabel.setVisibility(VISIBLE);
             totalPageLabel.setText(getContext().getString(R.string.of, getTotalPages()));
             lastPage.setEnabled(isEnabled() && getCurrentPage() != getTotalPages());
         } else {
-            progressLayout.setVisibility(View.VISIBLE);
-            totalPageLabel.setVisibility(View.GONE);
+            progressLayout.setVisibility(VISIBLE);
+            totalPageLabel.setVisibility(GONE);
             lastPage.setEnabled(false);
         }
     }

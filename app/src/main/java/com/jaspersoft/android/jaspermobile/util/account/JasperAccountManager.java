@@ -36,10 +36,9 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.jaspermobile.util.security.PasswordManager_;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
-import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.roboguice.shaded.goole.common.collect.Lists;
 

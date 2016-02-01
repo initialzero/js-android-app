@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget;
+package com.jaspersoft.android.jaspermobile.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -84,8 +84,8 @@ public class SeekPaginationView extends AbstractPaginationView {
     @Override
     protected void alterTotalCount() {
         seekBar.setEnabled(true);
-        progressLayout.setVisibility(View.GONE);
-        totalPageLabel.setVisibility(View.VISIBLE);
+        progressLayout.setVisibility(GONE);
+        totalPageLabel.setVisibility(VISIBLE);
 
         totalPageLabel.setText(getContext().getString(R.string.of, getTotalPages()));
     }

@@ -31,7 +31,6 @@ import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,7 +58,6 @@ import com.jaspersoft.android.sdk.service.data.schedule.JobForm;
 import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
 import com.jaspersoft.android.sdk.service.data.schedule.JobSimpleTrigger;
 import com.jaspersoft.android.sdk.service.data.schedule.JobSource;
-import com.jaspersoft.android.sdk.service.data.schedule.JobTrigger;
 import com.jaspersoft.android.sdk.service.data.schedule.RecurrenceIntervalUnit;
 import com.jaspersoft.android.sdk.service.data.schedule.RepositoryDestination;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;

@@ -28,7 +28,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.jaspersoft.android.jaspermobile.R;
 
 /**

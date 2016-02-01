@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.DisplayMetrics;
 

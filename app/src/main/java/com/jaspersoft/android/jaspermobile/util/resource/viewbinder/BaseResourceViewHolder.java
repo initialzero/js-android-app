@@ -3,8 +3,6 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-
 /**
  * @author Andrew Tivodar
  * @since 2.0

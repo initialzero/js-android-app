@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget;
+package com.jaspersoft.android.jaspermobile.widget;
 
 import rx.Observable;
 

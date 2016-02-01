@@ -43,23 +43,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.schedule.JobsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog_;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
@@ -70,7 +66,6 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
-import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
 /**

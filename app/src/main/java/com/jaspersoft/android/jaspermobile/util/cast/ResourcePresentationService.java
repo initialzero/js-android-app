@@ -30,20 +30,16 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
-import android.widget.RemoteViews;
 
 import com.google.android.gms.cast.CastPresentation;
 import com.google.android.gms.cast.CastRemoteDisplayLocalService;
@@ -73,7 +69,6 @@ import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInt
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
 import com.jaspersoft.android.jaspermobile.widget.ScrollComputableWebView;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
@@ -89,7 +84,6 @@ import java.util.Map;
 
 import roboguice.RoboGuice;
 import rx.Subscriber;
-import rx.functions.Action1;
 
 /**
  * @author Andrew Tivodar
@@ -505,16 +499,18 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             DefaultUrlPolicy.SessionListener sessionListener = DefaultSessionListener.from(null);
             UrlPolicy defaultPolicy = DefaultUrlPolicy.from(getContext()).withSessionListener(sessionListener);
 
-            SystemChromeClient systemChromeClient = SystemChromeClient.from(getContext())
-                    .withDelegateListener(chromeClientListener);
+            SystemChromeClient systemChromeClient = new SystemChromeClient.Builder(getContext())
+                    .withDelegateListener(chromeClientListener)
+                    .build();
 
             JasperWebViewClientListener errorListener = new ErrorWebViewClientListener(getContext(), this);
             JasperWebViewClientListener clientListener = TimeoutWebViewClientListener.wrap(errorListener);
 
-            SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
-                    .withInterceptor(new InjectionRequestInterceptor())
+            SystemWebViewClient systemWebViewClient = new SystemWebViewClient.Builder()
+                    .registerInterceptor(new InjectionRequestInterceptor())
                     .withDelegateListener(clientListener)
-                    .withUrlPolicy(defaultPolicy);
+                    .registerUrlPolicy(defaultPolicy)
+                    .build();
 
             WebInterface mWebInterface = ReportWebInterface.from(this);
             WebViewEnvironment.configure(webView)
@@ -525,9 +521,11 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         }
 
         private void loadVisualize() {
-            ServerRelease release = ServerRelease.parseVersion(accountServerData.getVersionName());
+            // TODO fix template loading
+//            ServerRelease release = ServerRelease.parseVersion(accountServerData.getVersionName());
             // For JRS 6.0 and 6.0.1 we are fixing regression by removing optimization flag
-            boolean optimized = !(release.code() >= ServerRelease.AMBER.code() && release.code() <= ServerRelease.AMBER_MR1.code());
+//            boolean optimized = !(release.code() >= ServerRelease.AMBER.code() && release.code() <= ServerRelease.AMBER_MR1.code());
+            boolean optimized = false;
 
             InputStream stream = null;
             try {

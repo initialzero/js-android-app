@@ -36,7 +36,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.SystemService;

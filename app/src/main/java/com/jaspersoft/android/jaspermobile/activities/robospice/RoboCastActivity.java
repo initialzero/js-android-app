@@ -24,13 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.MediaRouteActionProvider;
@@ -46,7 +42,6 @@ import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.google.android.gms.common.api.Status;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourceCastDialogFactory;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 

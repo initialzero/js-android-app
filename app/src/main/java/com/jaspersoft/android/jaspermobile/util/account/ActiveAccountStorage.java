@@ -32,7 +32,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 /**
  * @author Tom Koptel

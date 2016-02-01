@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
 
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
@@ -45,7 +44,6 @@ import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
@@ -53,14 +51,12 @@ import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.FavoritesResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -72,7 +68,6 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.UiThread;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;

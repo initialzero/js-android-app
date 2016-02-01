@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.OperationCanceledException;
 import android.support.v4.app.NotificationCompat;
-import android.util.ArraySet;
 
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
@@ -17,17 +16,13 @@ import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActiv
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment;
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.ReportAttachment;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportOutputResource;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportStatus;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -43,7 +38,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import roboguice.service.RoboIntentService;

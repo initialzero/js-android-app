@@ -30,14 +30,13 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.jaspersoft.android.jaspermobile.presentation.view.fragment.AuthenticatorFragment_;
 import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.AuthenticatorFragment_;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 
 import roboguice.RoboGuice;
-import roboguice.activity.RoboFragmentActivity;
 
 /**
  * @author Tom Koptel

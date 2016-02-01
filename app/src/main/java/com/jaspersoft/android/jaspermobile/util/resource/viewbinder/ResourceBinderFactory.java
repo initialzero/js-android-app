@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
+
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 
 /**

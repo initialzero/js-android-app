@@ -28,7 +28,6 @@ import android.accounts.Account;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;

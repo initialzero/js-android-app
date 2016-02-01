@@ -12,10 +12,7 @@ import com.jaspersoft.android.jaspermobile.activities.info.fragments.ResourceInf
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.ResourceInfoFragment_;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.SavedItemInfoFragment_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;

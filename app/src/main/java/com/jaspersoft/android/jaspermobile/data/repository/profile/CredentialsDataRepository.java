@@ -31,11 +31,8 @@ import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
-import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.profile.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.CacheModule;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -78,9 +75,10 @@ public final class CredentialsDataRepository implements CredentialsRepository {
                 .onErrorResumeNext(new Func1<Throwable, Observable<Profile>>() {
                     @Override
                     public Observable<Profile> call(Throwable throwable) {
-                        if (throwable instanceof PasswordManager.EncryptionException) {
-                            return Observable.error(new FailedToSaveCredentials(credentials));
-                        }
+                        // TODO fix password generation issues
+//                        if (throwable instanceof PasswordManager.EncryptionException) {
+//                            return Observable.error(new FailedToSaveCredentials(credentials));
+//                        }
                         return Observable.error(throwable);
                     }
                 });
@@ -95,9 +93,10 @@ public final class CredentialsDataRepository implements CredentialsRepository {
                 .onErrorResumeNext(new Func1<Throwable, Observable<AppCredentials>>() {
                     @Override
                     public Observable<AppCredentials> call(Throwable throwable) {
-                        if (throwable instanceof PasswordManager.DecryptionException) {
-                            return Observable.error(new FailedToRetrieveCredentials(profile, throwable));
-                        }
+                        // Fix password related issues
+//                        if (throwable instanceof PasswordManager.DecryptionException) {
+//                            return Observable.error(new FailedToRetrieveCredentials(profile, throwable));
+//                        }
                         return Observable.error(throwable);
                     }
                 });

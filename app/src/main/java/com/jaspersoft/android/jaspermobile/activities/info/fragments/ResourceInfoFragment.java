@@ -1,10 +1,8 @@
 package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.inject.Inject;
@@ -15,7 +13,6 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.widget.InfoView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.GetResourceDescriptorRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
@@ -60,9 +57,10 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
 
     @AfterViews
     protected void requestInfo() {
-        final GetResourceDescriptorRequest request = new GetResourceDescriptorRequest(jsRestClient, jasperResource.getId(),
-                mJasperResourceConverter.convertToResourceType(jasperResource.getResourceType()));
-        getSpiceManager().execute(request, new GetResourceDescriptorListener());
+        // TODO fix get resource descriptor request
+//        final GetResourceDescriptorRequest request = new GetResourceDescriptorRequest(jsRestClient, jasperResource.getId(),
+//                mJasperResourceConverter.convertToResourceType(jasperResource.getResourceType()));
+//        getSpiceManager().execute(request, new GetResourceDescriptorListener());
     }
 
     @Override

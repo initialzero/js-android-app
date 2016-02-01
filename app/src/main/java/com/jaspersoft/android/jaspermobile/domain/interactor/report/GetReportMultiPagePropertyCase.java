@@ -67,7 +67,11 @@ public class GetReportMultiPagePropertyCase extends AbstractUseCase<Boolean, Str
                 .flatMap(new Func1<RxReportExecution, Observable<ReportPage>>() {
                     @Override
                     public Observable<ReportPage> call(RxReportExecution execution) {
-                        return mReportPageRepository.get(execution, new PageRequest(reportUri, "2"));
+                        PageRequest pageRequest = new PageRequest.Builder()
+                                .setUri(reportUri)
+                                .setRange("2")
+                                .build();
+                        return mReportPageRepository.get(execution,pageRequest );
                     }
                 }).map(new Func1<ReportPage, Boolean>() {
                     @Override

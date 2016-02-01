@@ -92,7 +92,10 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
 
     private void loadPageByPosition(final String position) {
         showPageLoader();
-        PageRequest request = new PageRequest(mReportUri, position);
+        PageRequest request = new PageRequest.Builder()
+                .setUri(mReportUri)
+                .setRange(position)
+                .build();
         mGetReportPageContentCase.execute(request, new SimpleSubscriber<ReportPage>() {
             @Override
             public void onError(Throwable e) {
@@ -261,7 +264,10 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     private void reloadByPosition(final String position) {
         showLoading();
         resetTotalPagesLabel();
-        PageRequest request = new PageRequest(mReportUri, position);
+        PageRequest request = new PageRequest.Builder()
+                .setUri(mReportUri)
+                .setRange(position)
+                .build();
         mReloadReportCase.execute(request, new SimpleSubscriber<ReportPage>() {
             @Override
             public void onCompleted() {
@@ -329,7 +335,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
         mView.hideError();
         mView.showCurrentPage(Integer.valueOf(pagePosition));
         mView.getState().setCurrentPage(pagePosition);
-        mView.showPage(page.getContent());
+        mView.showPage(new String(page.getContent()));
     }
 
     @VisibleForTesting

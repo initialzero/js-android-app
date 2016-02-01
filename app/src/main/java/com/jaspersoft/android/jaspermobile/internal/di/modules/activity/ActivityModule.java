@@ -20,7 +20,6 @@ import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.internal.di.ActivityContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 
 import dagger.Module;
 import dagger.Provides;
@@ -50,11 +49,5 @@ public class ActivityModule {
     @ActivityContext
     Context context() {
         return activity;
-    }
-
-    @Provides
-    @PerActivity
-    RequestExceptionHandler provideRequestExceptionHandler() {
-        return new RequestExceptionHandler(activity);
     }
 }

@@ -7,15 +7,15 @@ package com.jaspersoft.android.jaspermobile.domain;
 public final class ReportPage {
     public static final ReportPage EMPTY = new ReportPage(null, true);
 
-    private final String mContent;
+    private final byte[] mContent;
     private final boolean mFinal;
 
-    public ReportPage(String content, boolean aFinal) {
+    public ReportPage(byte[] content, boolean aFinal) {
         mContent = content;
         mFinal = aFinal;
     }
 
-    public String getContent() {
+    public byte[] getContent() {
         return mContent;
     }
 

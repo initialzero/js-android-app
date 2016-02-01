@@ -34,6 +34,7 @@ import com.google.inject.util.Providers;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetInputControlsValuesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.DeleteReportOptionCase;
@@ -45,6 +46,7 @@ import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import javax.inject.Inject;
@@ -101,5 +103,7 @@ public class  JasperMobileModule extends AbstractModule {
         bind(JasperServer.class).toProvider(Providers.<JasperServer>of(null));
         bind(GetDashboardControlsCase.class).toProvider(Providers.<GetDashboardControlsCase>of(null));
         bind(RequestExceptionHandler.class).toProvider(Providers.<RequestExceptionHandler>of(null));
+        bind(FlushInputControlsCase.class).toProvider(Providers.<FlushInputControlsCase>of(null));
+        bind(ResourcePrintJob.class).toProvider(Providers.<ResourcePrintJob>of(null));
     }
 }

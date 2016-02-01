@@ -63,7 +63,7 @@ public final class InMemoryReportPageRepository implements ReportPageRepository 
                 @Override
                 public Observable<RxReportExport> call() {
                     ReportExportOptions options = ReportExportOptions.builder()
-                            .withFormat(ReportFormat.HTML)
+                            .withFormat(ReportFormat.valueOf(pageRequest.getFormat()))
                             .withPageRange(PageRange.parse(pageRequest.getRange()))
                             .build();
                     return execution.export(options);
@@ -79,7 +79,7 @@ public final class InMemoryReportPageRepository implements ReportPageRepository 
                     InputStream stream = null;
                     try {
                         stream = output.getStream();
-                        String content = IOUtils.toString(stream);
+                        byte[] content = IOUtils.toByteArray(stream);
                         return Observable.just(new ReportPage(content, output.isFinal()));
                     } catch (IOException e) {
                         return Observable.error(e);

@@ -44,7 +44,12 @@ public class RunReportCase extends AbstractUseCase<ReportPage, String> {
                 .flatMap(new Func1<RxReportExecution, Observable<ReportPage>>() {
                     @Override
                     public Observable<ReportPage> call(RxReportExecution execution) {
-                        return mReportPageRepository.get(execution, new PageRequest(reportUri, "1"));
+                        PageRequest page = new PageRequest.Builder()
+                                .setUri(reportUri)
+                                .setRange("1")
+                                .asHtml()
+                                .build();
+                        return mReportPageRepository.get(execution, page);
                     }
                 });
     }

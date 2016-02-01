@@ -27,7 +27,11 @@ import static org.mockito.MockitoAnnotations.initMocks;
  */
 public class GetReportPageContentCaseTest {
     private static final String REPORT_URI = "/my/uri";
-    private static final PageRequest PAGE_REQUEST = new PageRequest(REPORT_URI, "10");
+    private static final PageRequest PAGE_REQUEST = new PageRequest.Builder()
+            .setUri(REPORT_URI)
+            .setRange("10")
+            .asHtml()
+            .build();
 
     @Mock
     ReportRepository mReportRepository;
@@ -54,7 +58,10 @@ public class GetReportPageContentCaseTest {
         when(mReportRepository.getReport(anyString())).thenReturn(Observable.just(mRxReportExecution));
         when(mReportPageRepository.get(any(RxReportExecution.class), any(PageRequest.class))).thenReturn(Observable.<ReportPage>just(null));
 
-        PageRequest pageRequest = new PageRequest(REPORT_URI, "10");
+        PageRequest pageRequest = new PageRequest.Builder()
+                .setUri(REPORT_URI)
+                .setRange("10")
+                .asHtml().build();
         TestSubscriber<ReportPage> test = new TestSubscriber<>();
         mPageContentCase.execute(pageRequest, test);
 

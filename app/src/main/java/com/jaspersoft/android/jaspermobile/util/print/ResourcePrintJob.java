@@ -32,5 +32,5 @@ import android.support.annotation.NonNull;
  */
 public interface ResourcePrintJob {
     @NonNull
-    ResourcePrintJob printResource();
+    ResourcePrintJob printResource(@NonNull String resourceUri, @NonNull String printName);
 }

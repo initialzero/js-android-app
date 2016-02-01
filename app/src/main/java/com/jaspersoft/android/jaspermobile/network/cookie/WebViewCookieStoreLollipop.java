@@ -19,6 +19,7 @@ final class WebViewCookieStoreLollipop implements WebViewCookieStore {
 
     @Override
     public void add(@NonNull String domain, @NonNull String cookie) {
+        removeAllCookies();
         mCookieManager.setCookie(domain, cookie);
         mCookieManager.flush();
     }

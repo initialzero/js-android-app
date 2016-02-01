@@ -17,8 +17,12 @@ import static org.hamcrest.core.Is.is;
 public class InMemoryReportPageCacheTest {
     private static final String REPORT_URI = "/my/uri";
     private static final String PAGE_POSITION = "100";
-    private static final PageRequest PAGE_REQUEST = new PageRequest(REPORT_URI, PAGE_POSITION);
-    private static final ReportPage ANY_PAGE = new ReportPage("page", true);
+    private static final PageRequest PAGE_REQUEST = new PageRequest.Builder()
+            .setUri(REPORT_URI)
+            .setRange(PAGE_POSITION)
+            .asHtml()
+            .build();
+    private static final ReportPage ANY_PAGE = new ReportPage("page".getBytes(), true);
 
     private InMemoryReportPageCache mInMemoryReportPageCache;
 

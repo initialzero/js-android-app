@@ -2,7 +2,6 @@ package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
 import com.jaspersoft.android.jaspermobile.data.JasperClient;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryControlsCache;
@@ -20,7 +19,6 @@ import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReport
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPropertyRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryResourceRepository;
-import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ControlsRepository;
@@ -30,12 +28,6 @@ import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportProper
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ResourceRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
-import com.jaspersoft.android.sdk.network.AuthorizedClient;
-import com.jaspersoft.android.sdk.network.Credentials;
-import com.jaspersoft.android.sdk.network.Server;
-import com.jaspersoft.android.sdk.network.SpringCredentials;
-
-import java.net.CookieManager;
 
 import dagger.Module;
 import dagger.Provides;
@@ -67,21 +59,6 @@ public final class ProfileModule {
     @PerProfile
     JasperServer providesJasperServer(JasperServerCache jasperServerCache) {
         return jasperServerCache.get(mProfile);
-    }
-
-    @Provides
-    @PerProfile
-    AuthorizedClient provideAuthorizedClient(Server server, CredentialsCache credentialsCache) {
-        AppCredentials appCredentials = credentialsCache.get(mProfile);
-        Credentials credentials = SpringCredentials.builder()
-                .withUsername(appCredentials.getUsername())
-                .withPassword(appCredentials.getPassword())
-                .withOrganization(appCredentials.getOrganization())
-                .build();
-
-        return server.newClient(credentials)
-                .withCookieHandler(CookieManager.getDefault())
-                .create();
     }
 
     @Provides

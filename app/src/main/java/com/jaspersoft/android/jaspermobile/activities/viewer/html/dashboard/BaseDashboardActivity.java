@@ -34,18 +34,20 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.internal.di.components.DashboardActivityComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.DashboardModule;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
-import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
@@ -56,6 +58,8 @@ import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+
+import javax.inject.Inject;
 
 /**
  * Activity that performs dashboard viewing in HTML format through native component.
@@ -78,7 +82,11 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     private JasperChromeClientListenerImpl chromeClientListener;
 
     @Inject
-    protected Analytics analytics;
+    @Nullable
+    Analytics analytics;
+    @Inject
+    @Nullable
+    ResourcePrintJob mResourcePrintJob;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,8 +108,17 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         emptyView = (TextView) findViewById(android.R.id.empty);
 
-        showProgressDialog(R.string.loading_msg);
         initWebView();
+        getComponent().inject(this);
+    }
+
+    public DashboardActivityComponent getComponent() {
+        return GraphObject.Factory.from(this)
+                .getProfileComponent()
+                .plusDashboardPage(
+                        new ActivityModule(this),
+                        new DashboardModule(webView, String.valueOf(resource.getResourceType()))
+                );
     }
 
     @Override
@@ -140,9 +157,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
             onHomeAsUpCalled();
         }
         if (itemId == R.id.printAction) {
-            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRINTED.getValue(), Analytics.EventLabel.DASHBOARD.getValue());
-            ResourcePrintJob job = JasperPrintJobFactory.createDashboardPrintJob(webView, resource);
-            JasperPrinter.print(job);
+            mResourcePrintJob.printResource(resource.getUri(), resource.getLabel());
         }
 
         return true;
@@ -173,16 +188,6 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         }
     }
 
-    private void showProgressDialog(int message) {
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(message)
-                .show();
-    }
-
-    private void hideProgressDialog() {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-    }
-
     //---------------------------------------------------------------------
     // JasperWebViewClientListener callbacks
     //---------------------------------------------------------------------
@@ -206,7 +211,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
 
     @Override
     public void onSessionExpired() {
-        finish();
+        Toast.makeText(this, R.string.da_session_expired, Toast.LENGTH_SHORT).show();
     }
 
     //---------------------------------------------------------------------

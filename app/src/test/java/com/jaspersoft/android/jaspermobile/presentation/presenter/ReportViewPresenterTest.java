@@ -40,11 +40,11 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ReportViewPresenterTest {
     private static final String REPORT_URI = "my/uri";
     private static final String PAGE_CONTENT = "page content";
-    private static final ReportPage PAGE = new ReportPage(PAGE_CONTENT, true);
+    private static final ReportPage PAGE = new ReportPage(PAGE_CONTENT.getBytes(), true);
     private static final String CURRENT_PAGE = "10";
     private static final String REQUESTED_PAGE = "11";
-    private static final PageRequest CURRENT_PAGE_REQUEST = new PageRequest(REPORT_URI, CURRENT_PAGE);
-    private static final PageRequest NEW_PAGE_REQUEST = new PageRequest(REPORT_URI, REQUESTED_PAGE);
+    private static final PageRequest CURRENT_PAGE_REQUEST = new PageRequest.Builder().setUri(REPORT_URI).setRange(CURRENT_PAGE).asHtml().build();
+    private static final PageRequest NEW_PAGE_REQUEST = new PageRequest.Builder().setUri(REPORT_URI).setRange(REQUESTED_PAGE).asHtml().build();
 
     @Mock
     RequestExceptionHandler mExceptionHandler;
@@ -129,7 +129,8 @@ public class ReportViewPresenterTest {
         presenter.loadPage("10");
 
         verify(mView).showPageLoader();
-        verify(mFakeGetReportPageContentCase).execute(eq(new PageRequest(REPORT_URI, "10")), any(Subscriber.class));
+        PageRequest _10page = eq(new PageRequest.Builder().setUri(REPORT_URI).setRange("10").asHtml().build());
+        verify(mFakeGetReportPageContentCase).execute(_10page, any(Subscriber.class));
 
         verify(mReportPageState).setRequestedPage("10");
         verify(mReportPageState).setCurrentPage("10");
@@ -170,8 +171,14 @@ public class ReportViewPresenterTest {
     public void should_perform_refresh_report_action() throws Exception {
         presenter.refresh();
 
+        PageRequest _1page = new PageRequest.Builder()
+                .setUri(REPORT_URI)
+                .setRange("1")
+                .asHtml()
+                .build();
+
         verify(mView).showLoading();
-        verify(mFakeReloadReportCase).execute(eq(new PageRequest(REPORT_URI, "1")), any(Subscriber.class));
+        verify(mFakeReloadReportCase).execute(eq(_1page), any(Subscriber.class));
         verify(mView).hideLoading();
 
         verify(mView).resetPaginationControl();

@@ -29,8 +29,12 @@ import static org.mockito.MockitoAnnotations.initMocks;
  */
 public class GetReportMultiPagePropertyCaseTest {
     private static final String REPORT_URI = "/my/uri";
-    private static final PageRequest SECOND_PAGE_REQUEST = new PageRequest(REPORT_URI, "2");
-    private static final ReportPage ANY_PAGE = new ReportPage("page", true);
+    private static final PageRequest SECOND_PAGE_REQUEST = new PageRequest.Builder()
+            .setUri(REPORT_URI)
+            .setRange("2")
+            .asHtml()
+            .build();
+    private static final ReportPage ANY_PAGE = new ReportPage("page".getBytes(), true);
 
     @Mock
     ReportRepository mReportRepository;

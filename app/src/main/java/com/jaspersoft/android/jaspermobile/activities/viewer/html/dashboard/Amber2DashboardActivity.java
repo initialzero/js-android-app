@@ -33,7 +33,6 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
@@ -107,9 +106,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GraphObject.Factory.from(this)
-                .getProfileComponent()
-                .inject(this);
+        getComponent().inject(this);
+
         mGetDashboardControlsCase.execute(resource.getUri(), new SimpleSubscriber<Boolean>() {
             @Override
             public void onError(Throwable e) {

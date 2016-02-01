@@ -63,7 +63,7 @@
             android:visibility="gone" />
     </LinearLayout>
 
-    <com.jaspersoft.android.jaspermobile.activities.viewer.html.report.widget.PaginationBarView_
+    <com.jaspersoft.android.jaspermobile.widget.PaginationBarView_
         android:id="@+id/paginationControl"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"

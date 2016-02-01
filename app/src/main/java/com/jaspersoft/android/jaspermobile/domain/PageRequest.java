@@ -1,22 +1,40 @@
 package com.jaspersoft.android.jaspermobile.domain;
 
+import android.support.annotation.NonNull;
+
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 public final class PageRequest {
+    @NonNull
     private final String mUri;
+    @NonNull
     private final String mRange;
+    @NonNull
+    private final String mFormat;
 
-    public PageRequest(String uri, String range) {
+    private PageRequest(
+            @NonNull String uri,
+            @NonNull String range,
+            @NonNull String format
+    ) {
         mUri = uri;
         mRange = range;
+        mFormat = format;
     }
 
+    @NonNull
+    public String getFormat() {
+        return mFormat;
+    }
+
+    @NonNull
     public String getRange() {
         return mRange;
     }
 
+    @NonNull
     public String getUri() {
         return mUri;
     }
@@ -26,25 +44,52 @@ public final class PageRequest {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        PageRequest that = (PageRequest) o;
+        PageRequest request = (PageRequest) o;
 
-        if (mUri != null ? !mUri.equals(that.mUri) : that.mUri != null) return false;
-        return mRange != null ? mRange.equals(that.mRange) : that.mRange == null;
+        if (!mUri.equals(request.mUri)) return false;
+        if (!mRange.equals(request.mRange)) return false;
+        return mFormat.equals(request.mFormat);
 
     }
 
     @Override
     public int hashCode() {
-        int result = mUri != null ? mUri.hashCode() : 0;
-        result = 31 * result + (mRange != null ? mRange.hashCode() : 0);
+        int result = mUri.hashCode();
+        result = 31 * result + mRange.hashCode();
+        result = 31 * result + mFormat.hashCode();
         return result;
     }
 
-    @Override
-    public String toString() {
-        return "PageRequest{" +
-                "mRange='" + mRange + '\'' +
-                ", mUri='" + mUri + '\'' +
-                '}';
+    public static class Builder {
+        private String mUri;
+        private String mRange;
+        private String mFormat;
+
+        public Builder setUri(String uri) {
+            mUri = uri;
+            return this;
+        }
+
+        public Builder setRange(String range) {
+            mRange = range;
+            return this;
+        }
+
+        public Builder asPdf() {
+            mFormat = "PDF";
+            return this;
+        }
+
+       public Builder asHtml() {
+            mFormat = "HTML";
+            return this;
+        }
+
+        public PageRequest build() {
+            if (mFormat == null) {
+                mFormat = "HTML";
+            }
+            return new PageRequest(mUri, mRange, mFormat);
+        }
     }
 }

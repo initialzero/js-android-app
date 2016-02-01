@@ -50,15 +50,11 @@ import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ReportRestViewerComponent;
-import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
-import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
-import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListener;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
@@ -92,7 +88,12 @@ import rx.functions.Action1;
  * @since 2.3
  */
 @EFragment(R.layout.report_html_viewer)
-@OptionsMenu({R.menu.report_filter_manager_menu, R.menu.webview_menu, R.menu.retrofit_report_menu})
+@OptionsMenu({
+        R.menu.report_filter_manager_menu,
+        R.menu.webview_menu,
+        R.menu.retrofit_report_menu,
+        R.menu.print_menu,
+})
 public class ReportViewFragment extends BaseFragment implements ReportView, NumberDialogFragment.NumberDialogClickListener, PageDialogFragment.PageDialogClickListener {
 
     public static final String TAG = "report-view";
@@ -129,17 +130,15 @@ public class ReportViewFragment extends BaseFragment implements ReportView, Numb
     protected FavoritesHelper favoritesHelper;
 
     @Inject
-    protected JsRestClientWrapper mJsRestClientWrapper;
-    @Inject
     protected JasperServer mServer;
-    @Inject
-    protected ReportParamsStorage paramsStorage;
     @Inject
     protected ReportViewPresenter mPresenter;
     @Inject
     protected ReportActionListener mActionListener;
     @Inject
     protected PostExecutionThread mPostExecutionThread;
+    @Inject
+    protected ResourcePrintJob mResourcePrintJob;
 
     @InstanceState
     protected ReportPageState mReportPageState;
@@ -416,13 +415,7 @@ public class ReportViewFragment extends BaseFragment implements ReportView, Numb
 
     @OptionsItem
     final void printAction() {
-        ResourcePrintJob job = JasperPrintJobFactory.createReportPrintJob(
-                getActivity(),
-                mJsRestClientWrapper.getClient(),
-                resource,
-                paramsStorage.getInputControlHolder(resource.getUri()).getReportParams()
-        );
-        JasperPrinter.print(job);
+        mResourcePrintJob.printResource(resource.getUri(), resource.getLabel());
     }
 
     @OptionsItem

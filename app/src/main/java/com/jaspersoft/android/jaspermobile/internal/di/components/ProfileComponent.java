@@ -1,9 +1,9 @@
 package com.jaspersoft.android.jaspermobile.internal.di.components;
 
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.DashboardModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportRestViewerModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
@@ -28,5 +28,6 @@ public interface ProfileComponent {
     ControlsActivityComponent plusControlsPage(ActivityModule activityModule,
                                                ReportModule reportModule);
 
-    void inject(Amber2DashboardActivity amber2DashboardActivity);
+    DashboardActivityComponent plusDashboardPage(ActivityModule activityModule,
+                                                DashboardModule dashboardModule);
 }

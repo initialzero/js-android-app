@@ -6,8 +6,6 @@ import com.jaspersoft.android.sdk.service.rx.auth.RxAuthorizationService;
 import com.jaspersoft.android.sdk.service.rx.info.RxServerInfoService;
 
 import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.CookieStore;
 
 import dagger.Module;
 import dagger.Provides;
@@ -32,10 +30,9 @@ public class ServerClientModule {
     }
 
     @Provides
-    AnonymousClient provideAnonymousClient(Server server, CookieStore cookieStore) {
-        CookieManager cookieHandler = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+    AnonymousClient provideAnonymousClient(Server server) {
         return server.newClient()
-                .withCookieHandler(cookieHandler)
+                .withCookieHandler(CookieManager.getDefault())
                 .create();
     }
 

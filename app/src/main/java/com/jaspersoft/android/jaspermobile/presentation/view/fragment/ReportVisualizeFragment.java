@@ -27,7 +27,6 @@ import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
-import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
 import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
@@ -36,9 +35,6 @@ import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportVisualiz
 import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
-import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
-import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
@@ -67,7 +63,12 @@ import rx.functions.Action1;
  * @since 2.3
  */
 @EFragment(R.layout.activity_report_viewer)
-@OptionsMenu({R.menu.report_filter_manager_menu, R.menu.webview_menu, R.menu.retrofit_report_menu})
+@OptionsMenu({
+        R.menu.report_filter_manager_menu,
+        R.menu.webview_menu,
+        R.menu.retrofit_report_menu,
+        R.menu.print_menu,
+})
 public class ReportVisualizeFragment extends BaseFragment
         implements ReportVisualizeView,
         NumberDialogFragment.NumberDialogClickListener,
@@ -105,11 +106,7 @@ public class ReportVisualizeFragment extends BaseFragment
     protected FavoritesHelper favoritesHelper;
 
     @Inject
-    protected JsRestClientWrapper mJsRestClientWrapper;
-    @Inject
     protected JasperServer mServer;
-    @Inject
-    protected ReportParamsStorage paramsStorage;
     @Inject
     protected ReportVisualizePresenter mPresenter;
     @Inject
@@ -118,6 +115,8 @@ public class ReportVisualizeFragment extends BaseFragment
     protected PostExecutionThread mPostExecutionThread;
     @Inject
     protected VisualizeViewModel mVisualizeViewModel;
+    @Inject
+    protected ResourcePrintJob mResourcePrintJob;
 
     @InstanceState
     protected ReportPageState mState;
@@ -243,13 +242,7 @@ public class ReportVisualizeFragment extends BaseFragment
 
     @OptionsItem
     final void printAction() {
-        ResourcePrintJob job = JasperPrintJobFactory.createReportPrintJob(
-                getActivity(),
-                mJsRestClientWrapper.getClient(),
-                resource,
-                paramsStorage.getInputControlHolder(resource.getUri()).getReportParams()
-        );
-        JasperPrinter.print(job);
+        mResourcePrintJob.printResource(resource.getUri(), resource.getLabel());
     }
 
     @OptionsItem

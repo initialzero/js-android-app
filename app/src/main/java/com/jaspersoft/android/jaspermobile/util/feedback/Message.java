@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -109,9 +109,9 @@ class Message {
         try {
             packageInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
 
-            String versionCode = String.valueOf(packageInfo.versionCode);
+            String version = packageInfo.versionName + " (" + packageInfo.versionCode + ")";
 
-            return  mContext.getString(R.string.jasper_app_data, versionCode);
+            return mContext.getString(R.string.jasper_app_data, version);
         } catch (PackageManager.NameNotFoundException e) {
             return null;
         }

@@ -64,4 +64,9 @@ public class SaveReportActivity extends RoboSpiceActivity {
         }
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_srs);
+    }
+
 }

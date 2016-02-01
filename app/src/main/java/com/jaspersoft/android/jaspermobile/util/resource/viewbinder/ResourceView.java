@@ -36,7 +36,9 @@ public interface ResourceView {
 
     void setSubTitle(CharSequence subTitle);
 
-    void setInfo(CharSequence timestamp);
+    void setSecondaryAction(int actionImage);
 
     ImageView getImageView();
+
+    boolean isImageThumbnail();
 }

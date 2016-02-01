@@ -37,18 +37,25 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.schedule.JobsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
@@ -63,6 +70,7 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
+import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
 /**
@@ -72,7 +80,7 @@ import org.androidannotations.annotations.ViewById;
  * @since 1.0
  */
 @EActivity(R.layout.activity_navigation)
-public class NavigationActivity extends RoboToolbarActivity implements NavigationPanelController {
+public class NavigationActivity extends RoboCastActivity {
 
     private static final int NEW_ACCOUNT = 20;
 
@@ -111,6 +119,13 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        currentSelection = intent.getIntExtra(NavigationActivity_.CURRENT_SELECTION_EXTRA, R.id.vg_library);
+        navigateToCurrentSelection();
+    }
+
+    @Override
     protected void onAccountsChanged() {
         navigationPanelLayout.notifyAccountChange();
     }
@@ -140,14 +155,19 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
     }
 
     @Override
-    public void onActionModeEnabled(boolean enabled) {
-        if (!enabled) {
-            getToolbar().setVisibility(View.VISIBLE);
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        } else {
-            getToolbar().setVisibility(View.INVISIBLE);
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        }
+    public void onSupportActionModeStarted(ActionMode mode) {
+        super.onSupportActionModeStarted(mode);
+
+        getToolbar().setVisibility(View.INVISIBLE);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    @Override
+    public void onSupportActionModeFinished(ActionMode mode) {
+        super.onSupportActionModeFinished(mode);
+
+        getToolbar().setVisibility(View.VISIBLE);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }
 
     @OnActivityResult(NEW_ACCOUNT)
@@ -210,6 +230,8 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
+                analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.OPENED.getValue(), null);
+
                 invalidateOptionsMenu();
                 customToolbarDisplayEnabled = false;
                 setDisplayCustomToolbarEnable(false);
@@ -259,6 +281,10 @@ public class NavigationActivity extends RoboToolbarActivity implements Navigatio
             case R.id.vg_favorites:
                 currentSelection = R.id.vg_favorites;
                 commitContent(FavoritesPageFragment_.builder().build());
+                break;
+            case R.id.vg_jobs:
+                currentSelection = R.id.vg_jobs;
+                commitContent(JobsFragment_.builder().build());
                 break;
             case R.id.vg_add_account:
                 startActivityForResult(new Intent(this, AuthenticatorActivity.class), NEW_ACCOUNT);

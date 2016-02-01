@@ -62,7 +62,7 @@ public class RequestExceptionHandler {
         mContext = context;
     }
 
-    public static void handle(Exception exception, Context context) {
+    public static void handle(Throwable exception, Context context) {
         if (exception == null) {
             throw new IllegalArgumentException("Exception should not be null");
         }
@@ -193,7 +193,7 @@ public class RequestExceptionHandler {
         }
     }
 
-    private static void showCommonErrorMessage(@NonNull Context context, @NonNull Exception exception) {
+    private static void showCommonErrorMessage(@NonNull Context context, @NonNull Throwable exception) {
         String message = extractMessage(context, exception);
         if (!TextUtils.isEmpty(message)) {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show();

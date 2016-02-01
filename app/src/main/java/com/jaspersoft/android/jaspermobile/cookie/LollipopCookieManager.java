@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -43,43 +43,18 @@ import rx.schedulers.Schedulers;
  * @author Tom Koptel
  * @since 1.9
  */
-public class LollipopCookieManager implements JsCookieManager {
-    private final Context mContext;
+public class LollipopCookieManager extends JsCookieManager {
 
     public LollipopCookieManager(Context context) {
-        mContext = context;
+        super(context);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    public Observable<Boolean> manage() {
-        return JasperAccountManager.get(mContext)
-                .getAsyncActiveServerData()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(new Func1<AccountServerData, Observable<Boolean>>() {
-                    @Override
-                    public Observable<Boolean> call(final AccountServerData accountServerData) {
-                        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-                            @Override
-                            public void call(final Subscriber<? super Boolean> subscriber) {
-                                final CookieManager cookieManager = CookieManager.getInstance();
-                                cookieManager.removeSessionCookies(new ValueCallback<Boolean>() {
-                                    @Override
-                                    public void onReceiveValue(Boolean value) {
-                                        cookieManager.setCookie(accountServerData.getServerUrl(),
-                                                accountServerData.getServerCookie());
-                                        CookieManager.getInstance().flush();
-                                        if (!subscriber.isUnsubscribed()) {
-                                            subscriber.onNext(value);
-                                            subscriber.onCompleted();
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
+    protected void setCookies(AccountServerData accountServerData) {
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeAllCookies(null);
+        cookieManager.setCookie(accountServerData.getServerUrl(),
+                accountServerData.getServerCookie());
+        cookieManager.flush();
     }
 
 }

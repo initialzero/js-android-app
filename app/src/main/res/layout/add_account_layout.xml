@@ -44,7 +44,7 @@
             android:layout_marginTop="20dp" />
 
         <android.support.v7.widget.CardView
-            style="@style/CardView.Auth.Container"
+            style="@style/Widget.JasperMobile.CardView.Auth.Container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             card_view:cardBackgroundColor="@color/js_dark_gray"
@@ -61,7 +61,7 @@
 
                 <EditText
                     android:id="@+id/aliasEdit"
-                    style="@style/editTextAccount"
+                    style="@style/Widget.JasperMobile.EditText.AddAccount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
@@ -70,7 +70,7 @@
 
                 <EditText
                     android:id="@+id/serverUrlEdit"
-                    style="@style/editTextAccount"
+                    style="@style/Widget.JasperMobile.EditText.AddAccount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -79,7 +79,7 @@
 
                 <EditText
                     android:id="@+id/organizationEdit"
-                    style="@style/editTextAccount"
+                    style="@style/Widget.JasperMobile.EditText.AddAccount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -88,7 +88,7 @@
 
                 <EditText
                     android:id="@+id/usernameEdit"
-                    style="@style/editTextAccount"
+                    style="@style/Widget.JasperMobile.EditText.AddAccount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -97,7 +97,7 @@
 
                 <EditText
                     android:id="@+id/passwordEdit"
-                    style="@style/editTextAccount"
+                    style="@style/Widget.JasperMobile.EditText.AddAccount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -112,7 +112,7 @@
                     android:orientation="horizontal">
 
                     <android.support.v7.widget.CardView
-                        style="@style/CardView.Auth.AddAccount"
+                        style="@style/Widget.JasperMobile.CardView.Auth"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1">
@@ -128,7 +128,7 @@
 
                     <android.support.v7.widget.CardView
                         android:id="@+id/tryDemoContainer"
-                        style="@style/CardView.Auth.TryDemo"
+                        style="@style/Widget.JasperMobile.CardView.Auth"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1">

@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
@@ -43,11 +44,6 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import roboguice.RoboGuice;
 import roboguice.inject.RoboInjector;
@@ -63,7 +59,9 @@ public class FavoritesHelper {
 
     @Inject
     JsRestClient jsRestClient;
-    private Toast mToast;
+
+    @Inject
+    protected Analytics analytics;
 
     @AfterInject
     void injectRoboGuiceDependencies() {
@@ -71,99 +69,65 @@ public class FavoritesHelper {
         injector.injectMembersWithoutViews(this);
     }
 
-    public Uri addToFavorites(ResourceLookup resource) {
-        JsServerProfile profile = jsRestClient.getServerProfile();
-        Favorites favoriteEntry = new Favorites();
+    public void switchFavoriteState(ResourceLookup resource, MenuItem favoriteIcon) {
+        boolean isAlreadyFavorite = isFavorite(resource.getUri());
+        boolean changeStateSucceed;
 
-        favoriteEntry.setUri(resource.getUri());
-        favoriteEntry.setTitle(resource.getLabel());
-        favoriteEntry.setDescription(resource.getDescription());
-        favoriteEntry.setWstype(resource.getResourceType().toString());
-        favoriteEntry.setUsername(profile.getUsername());
-        favoriteEntry.setOrganization(profile.getOrganization());
-        favoriteEntry.setAccountName(JasperAccountManager.get(context).getActiveAccount().name);
-        favoriteEntry.setCreationTime(resource.getCreationDate());
+        if (isAlreadyFavorite) {
+            changeStateSucceed = removeFromFavorite(resource.getUri());
+        } else {
+            changeStateSucceed = addToFavorites(resource);
+        }
 
-        return context.getContentResolver().insert(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
-                favoriteEntry.getContentValues());
+        boolean newFavoriteState = !isAlreadyFavorite;
+        showFavoriteStateChanged(newFavoriteState, changeStateSucceed);
+
+        if (changeStateSucceed) {
+            updateFavoriteIconState(favoriteIcon, newFavoriteState);
+            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.MARKED_AS_FAVORITE.getValue(), "" + newFavoriteState);
+        }
     }
 
-    public Cursor queryFavoriteByResource(ResourceLookup resource) {
-        Map<String, String> mapValues = new HashMap<String, String>();
-        mapValues.put(FavoritesTable.TITLE, resource.getLabel());
-        mapValues.put(FavoritesTable.URI, resource.getUri());
-        mapValues.put(FavoritesTable.WSTYPE, resource.getResourceType().toString());
-        mapValues.put(FavoritesTable.ACCOUNT_NAME, JasperAccountManager.get(context).getActiveAccount().name);
+    public void updateFavoriteIconState(MenuItem favoriteAction, String resourceUri) {
+        boolean isFavorite = isFavorite(resourceUri);
+        updateFavoriteIconState(favoriteAction, isFavorite);
+    }
 
-        List<String> conditions = new ArrayList<String>();
-        for (Map.Entry<String, String> entry : mapValues.entrySet()) {
-            if (entry.getValue() == null) {
-                conditions.add(entry.getKey() + " IS NULL");
-            } else {
-                conditions.add(entry.getKey() + "=?");
-            }
+    private boolean isFavorite(String resourceUri) {
+        Cursor cursor = queryFavorite(resourceUri);
+        boolean isFavorite = cursor != null && cursor.getCount() > 0;
+
+        if (cursor != null) {
+            cursor.close();
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
+        return isFavorite;
+    }
 
-        int count = conditions.size();
-        for (int i = 0; i < count; i++) {
-            stringBuilder.append(conditions.get(i));
-            if (i != conditions.size() - 1) {
-                stringBuilder.append(" AND ");
-            }
-        }
+    private Cursor queryFavorite(String resourceUri) {
+        if (resourceUri == null || resourceUri.isEmpty()) return null;
 
-        String selection = stringBuilder.toString();
+        StringBuilder selection = new StringBuilder("");
+        String[] selectionArgs = new String[2];
 
-        List<String> args = new ArrayList<String>(mapValues.values());
-        String[] selectionArgs = new String[mapValues.values().size()];
-        args.toArray(selectionArgs);
+        //Add account name to WHERE params
+        selection.append(FavoritesTable.ACCOUNT_NAME + " =?");
+        selectionArgs[0] = JasperAccountManager.get(context).getActiveAccount().name;
+
+        //Add and to WHERE params
+        selection.append(" AND ");
+
+        //Add resourceUri to WHERE params
+        selection.append(FavoritesTable.URI + " =?");
+        selectionArgs[1] = resourceUri;
 
         return context.getContentResolver().query(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
-                new String[]{FavoritesTable._ID}, selection, selectionArgs, null);
+                new String[]{FavoritesTable._ID}, selection.toString(), selectionArgs, null);
     }
 
-    public Uri handleFavoriteMenuAction(Uri favoriteEntryUri, ResourceLookup resource, MenuItem favoriteAction) {
-        int messageId;
-        int iconId;
-
-        if (favoriteEntryUri == null) {
-            favoriteEntryUri = addToFavorites(resource);
-            if (favoriteEntryUri == null) {
-                messageId = R.string.r_cm_add_to_favorites_failed;
-                iconId = R.drawable.ic_menu_star_outline;
-            } else {
-                messageId = R.string.r_cm_added_to_favorites;
-                iconId = R.drawable.ic_menu_star;
-            }
-        } else {
-            int count = context.getContentResolver().delete(favoriteEntryUri, null, null);
-            if (count == 0) {
-                messageId = R.string.r_cm_remove_from_favorites_failed;
-                iconId = R.drawable.ic_menu_star;
-            } else {
-                favoriteEntryUri = null;
-                messageId = R.string.r_cm_removed_from_favorites;
-                iconId = R.drawable.ic_menu_star_outline;
-            }
-        }
-
-        if (favoriteAction != null) {
-            favoriteAction.setIcon(iconId);
-            favoriteAction.setTitle(iconId == R.drawable.ic_menu_star_outline
-                    ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
-        }
-
-        getToast().setText(messageId);
-        getToast().show();
-
-        return favoriteEntryUri;
-    }
-
-    public Uri queryFavoriteUri(ResourceLookup resource) {
+    private Uri getFavoriteUri(String resourceUri) {
         Uri favoriteEntryUri = null;
-        Cursor cursor = queryFavoriteByResource(resource);
+        Cursor cursor = queryFavorite(resourceUri);
         try {
             if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToPosition(0);
@@ -177,11 +141,52 @@ public class FavoritesHelper {
         return favoriteEntryUri;
     }
 
-    @SuppressWarnings("ShowToast")
-    public Toast getToast() {
-        if (mToast == null) {
-            mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
+    private boolean removeFromFavorite(String resourceUri) {
+        int removedCount = context.getContentResolver().delete(getFavoriteUri(resourceUri), null, null);
+        return removedCount > 0;
+    }
+
+    private boolean addToFavorites(ResourceLookup resource) {
+        JsServerProfile profile = jsRestClient.getServerProfile();
+        Favorites favoriteEntry = new Favorites();
+
+        favoriteEntry.setUri(resource.getUri());
+        favoriteEntry.setTitle(resource.getLabel());
+        favoriteEntry.setDescription(resource.getDescription());
+        favoriteEntry.setWstype(resource.getResourceType().toString());
+        favoriteEntry.setUsername(profile.getUsername());
+        favoriteEntry.setOrganization(profile.getOrganization());
+        favoriteEntry.setAccountName(JasperAccountManager.get(context).getActiveAccount().name);
+        favoriteEntry.setCreationTime(resource.getCreationDate());
+
+        return context.getContentResolver().insert(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
+                favoriteEntry.getContentValues()) != null;
+    }
+
+    private void showFavoriteStateChanged(boolean isFavorite, boolean succeed) {
+        int messageId;
+
+        if (isFavorite) {
+            if (succeed) {
+                messageId = R.string.r_cm_added_to_favorites;
+            } else {
+                messageId = R.string.r_cm_add_to_favorites_failed;
+            }
+        } else {
+            if (succeed) {
+                messageId = R.string.r_cm_removed_from_favorites;
+            } else {
+                messageId = R.string.r_cm_remove_from_favorites_failed;
+            }
         }
-        return mToast;
+
+        Toast.makeText(context, context.getString(messageId), Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateFavoriteIconState(MenuItem favoriteAction, boolean isFavorite) {
+        if (favoriteAction != null) {
+            favoriteAction.setIcon(isFavorite ? R.drawable.ic_menu_star : R.drawable.ic_menu_star_outline);
+            favoriteAction.setTitle(isFavorite ? R.string.r_cm_remove_from_favorites : R.string.r_cm_add_to_favorites);
+        }
     }
 }

@@ -24,120 +24,90 @@
 
 package com.jaspersoft.android.jaspermobile.util.security;
 
+import android.accounts.Account;
 import android.content.Context;
 import android.provider.Settings;
-import android.text.TextUtils;
-import android.util.Base64;
 
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
-import java.util.Arrays;
+import com.orhanobut.hawk.Hawk;
+import com.orhanobut.hawk.HawkBuilder;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
+import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 /**
  * @author Tom Koptel
  * @since 2.1.2
  */
+
+@EBean(scope = EBean.Scope.Singleton)
 public class PasswordManager {
-    protected static final String UTF8 = "utf-8";
-    private static int ITERATION_COUNT = 1000;
+    @RootContext
+    protected Context context;
 
-    private final char[] mSecret;
-    private final Context mContext;
+    static final String KEY = "PASSWORD_KEY";
 
-    private PasswordManager(Context context, String secret) {
-        mContext = context;
-        mSecret = secret.toCharArray();
-    }
+    private String mStoragePassword;
+    private Account mCurrentAccount;
 
-    public static PasswordManager init(Context context, String secret) {
-        if (TextUtils.isEmpty(secret)) {
-            throw new IllegalArgumentException("Secret should not be null or empty");
-        }
-        return new PasswordManager(context, secret);
-    }
-
-    public String encrypt(String value) throws EncryptionException {
-        try {
-            final byte[] bytes = value != null ? value.getBytes(UTF8) : new byte[0];
-
-            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
-            KeySpec keySpec = new PBEKeySpec(mSecret);
-            SecretKey key = keyFactory.generateSecret(keySpec);
-
-            Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES");
-            AlgorithmParameterSpec spec = new PBEParameterSpec(fetchSalt(), ITERATION_COUNT);
-
-            pbeCipher.init(Cipher.ENCRYPT_MODE, key, spec);
-
-            return toBase64(pbeCipher.doFinal(bytes));
-        } catch (NoSuchAlgorithmException | IllegalBlockSizeException |
-                BadPaddingException | UnsupportedEncodingException |
-                NoSuchPaddingException | InvalidKeySpecException |
-                InvalidAlgorithmParameterException | InvalidKeyException e) {
-            throw new EncryptionException(e);
-        }
-    }
-
-    public String decrypt(String value) throws DecryptionException {
-        try {
-            final byte[] bytes = value != null ? fromBase64(value) : new byte[0];
-
-            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
-            KeySpec keySpec = new PBEKeySpec(mSecret);
-            SecretKey key = keyFactory.generateSecret(keySpec);
-
-            Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES");
-            AlgorithmParameterSpec spec = new PBEParameterSpec(fetchSalt(), ITERATION_COUNT);
-
-            pbeCipher.init(Cipher.DECRYPT_MODE, key, spec);
-
-            return new String(pbeCipher.doFinal(bytes), UTF8);
-        } catch (NoSuchAlgorithmException | IllegalBlockSizeException |
-                BadPaddingException | UnsupportedEncodingException |
-                NoSuchPaddingException | InvalidKeySpecException |
-                InvalidAlgorithmParameterException | InvalidKeyException e) {
-            throw new DecryptionException(e);
-        }
-    }
-
-    private static String toBase64(byte[] bytes) throws UnsupportedEncodingException {
-        return new String(Base64.encode(bytes, Base64.NO_WRAP), UTF8);
-    }
-
-    private static byte[] fromBase64(String base64) {
-        return Base64.decode(base64, Base64.DEFAULT);
-    }
-
-    private byte[] fetchSalt() throws UnsupportedEncodingException {
-        String id = Settings.Secure.getString(mContext.getContentResolver(),
+    @AfterInject
+    protected void init() {
+        mStoragePassword = Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
-
-        return Arrays.copyOf(id.getBytes(UTF8), 8);
     }
 
-    public static class EncryptionException extends Exception {
-        public EncryptionException(Throwable throwable) {
-            super(throwable);
-        }
+    public Observable<Boolean> put(Account account, final String plainPassword) {
+        Observable<Boolean> initOperation = initHawk(account);
+        return initOperation.flatMap(new Func1<Boolean, Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call(Boolean aBoolean) {
+                return Hawk.putObservable(KEY, plainPassword);
+            }
+        }).onErrorReturn(new Func1<Throwable, Boolean>() {
+            @Override
+            public Boolean call(Throwable throwable) {
+                return false;
+            }
+        });
     }
 
-    public static class DecryptionException extends Exception {
-        public DecryptionException(Throwable throwable) {
-            super(throwable);
+    public Observable<String> get(Account account) {
+        Observable<Boolean> initOperation = initHawk(account);
+        return initOperation.flatMap(new Func1<Boolean, Observable<String>>() {
+            @Override
+            public Observable<String> call(Boolean aBoolean) {
+                return Hawk.getObservable(KEY);
+            }
+        }).onErrorReturn(new Func1<Throwable, String>() {
+            @Override
+            public String call(Throwable throwable) {
+                return null;
+            }
+        });
+    }
+
+    private Observable<Boolean> initHawk(final Account account) {
+        if (mCurrentAccount == null || !mCurrentAccount.equals(account)) {
+            return Hawk.init(context)
+                    .setEncryptionMethod(HawkBuilder.EncryptionMethod.HIGHEST)
+                    .setStorage(AccountStorage.create(context, account))
+                    .setPassword(mStoragePassword)
+                    .buildRx()
+                    .doOnNext(new Action1<Boolean>() {
+                        @Override
+                        public void call(Boolean isInitialized) {
+                            mCurrentAccount = isInitialized ? account : null;
+                        }
+                    });
         }
+        return Observable.just(mCurrentAccount != null);
     }
 }

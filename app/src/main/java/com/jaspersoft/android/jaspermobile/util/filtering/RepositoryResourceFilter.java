@@ -63,6 +63,13 @@ public class RepositoryResourceFilter extends ResourceFilter {
         }
     }
 
+    @AfterInject
+    protected void initFilter() {
+        Account account = JasperAccountManager.get(activity).getActiveAccount();
+        AccountServerData accountServerData = AccountServerData.get(activity, account);
+        this.serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
+    }
+
     @Override
     public String getFilterLocalizedTitle(Filter filter) {
         RepositoryFilterCategory repositoryFilterCategory = RepositoryFilterCategory.valueOf(filter.getName());
@@ -92,6 +99,7 @@ public class RepositoryResourceFilter extends ResourceFilter {
         filterValues.addAll(JasperResources.report());
         filterValues.addAll(JasperResources.dashboard(infoProvider.getVersion()));
         filterValues.addAll(JasperResources.folder());
+        filterValues.addAll(JasperResources.files());
 
         return new Filter(RepositoryFilterCategory.all.name(), filterValues);
     }

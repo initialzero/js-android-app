@@ -28,30 +28,30 @@ import android.content.Context;
 import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 class UnknownResourceBinder extends ResourceBinder {
-
     public UnknownResourceBinder(Context context) {
         super(context);
     }
 
     @Override
-    public void bindView(ResourceView resourceView, ResourceLookup item) {
-        setIcon(resourceView.getImageView(), item.getUri());
-        resourceView.setTitle(item.getLabel());
+    public void setIcon(ImageView imageView, JasperResource jasperResource) {
+        imageView.setScaleType(ImageView.ScaleType.CENTER);
+        imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
+        ImageLoader.getInstance().displayImage("", imageView, getDisplayImageOptions());
     }
 
-    @Override
-    public void setIcon(ImageView imageView, String uri) {
-        imageView.setBackgroundResource(R.drawable.bg_gradient_grey);
-        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        imageView.setImageResource(android.R.drawable.ic_menu_help);
-
+    private DisplayImageOptions getDisplayImageOptions() {
+        return new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.ic_undefined)
+                .build();
     }
 
 }

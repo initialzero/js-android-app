@@ -28,33 +28,31 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.Settings;
+import android.util.Base64;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 
+import java.io.UnsupportedEncodingException;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
+
 /**
- * @author Tom Koptel
- * @since 2.1.2
+ * @author Andrew Tivodar
+ * @since 2.3
  */
 public final class MigrationV5 implements Migration {
-    private static final String EDITION_KEY = "EDITION_KEY";
-
-    private final AccountManager mAccountManager;
-
-    public MigrationV5(Context context) {
-        mAccountManager = AccountManager.get(context);
-    }
 
     @Override
-    public void migrate(SQLiteDatabase database) {
-        Account[] accounts = mAccountManager.getAccountsByType("com.jaspersoft");
-        for (Account account : accounts) {
-            adaptEdition(account);
-        }
-    }
-
-    private void adaptEdition(Account account) {
-        String edition = mAccountManager.getUserData(account, EDITION_KEY);
-        boolean isPro = "PRO".equals(edition);
-        mAccountManager.setUserData(account, EDITION_KEY, String.valueOf(isPro));
+    public void migrate(SQLiteDatabase db) {
+        db.execSQL("ALTER TABLE saved_items ADD COLUMN downloaded NUMERIC DEFAULT 1");
     }
 }

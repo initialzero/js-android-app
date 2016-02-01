@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -192,6 +192,11 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
     public boolean onQueryTextChange(String newText) {
         mAvailableAdapter.filter(newText);
         return true;
+    }
+
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_ms_ic_s);
     }
 
     private void initAdapters() {

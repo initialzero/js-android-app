@@ -143,6 +143,11 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
         }
     }
 
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_dvs_hn);
+    }
+
     //---------------------------------------------------------------------
     // Abstract methods implementations
     //---------------------------------------------------------------------

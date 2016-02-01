@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -25,12 +25,12 @@
 package com.jaspersoft.android.jaspermobile.widget;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
@@ -40,7 +40,7 @@ import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
  * @author Andrew Tivodar
  * @since 2.0
  */
-public class FilterTitleView extends Spinner {
+public class FilterTitleView extends AppCompatSpinner {
     private boolean initialSelectionDone = false;
 
     private FilterListener filterSelectedListener;

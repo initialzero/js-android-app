@@ -27,8 +27,10 @@ package com.jaspersoft.android.jaspermobile.util;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
@@ -36,6 +38,13 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Reposi
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportHtmlViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.SavedValuesActivity_;
+import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
+import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportViewActivity_;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
@@ -78,13 +87,24 @@ public class ResourceOpener {
                 openFolder(fragment, prefTag, resource);
                 break;
             case reportUnit:
-                runReport(resource);
+                if (ResourcePresentationService.isStarted()) {
+                    castReport(resource);
+                } else {
+                    runReport(resource);
+                }
                 break;
             case legacyDashboard:
             case dashboard:
                 runDashboard(resource);
                 break;
+            case file:
+                showFile(resource);
+                break;
+            case reportOptions:
+                showReportOption(resource);
+                break;
             default:
+                showUnsupported();
                 break;
         }
     }
@@ -119,6 +139,11 @@ public class ResourceOpener {
         }
     }
 
+    private void castReport(final ResourceLookup resource) {
+        ReportCastActivity_.intent(activity)
+                .resource(resource).start();
+    }
+
     private void runDashboard(ResourceLookup resource) {
         boolean isLegacyDashboard = (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard);
 
@@ -140,5 +165,17 @@ public class ResourceOpener {
         if (isVisualizeEngine) {
             Amber2DashboardActivity_.intent(activity).resource(resource).start();
         }
+    }
+
+    private void showFile(ResourceLookup resource){
+        FileViewerActivity_.intent(activity).resourceLookup(resource).start();
+    }
+
+    private void showReportOption(ResourceLookup resource){
+        SavedValuesActivity_.intent(activity).resourceLookup(resource).start();
+    }
+
+    private void showUnsupported(){
+        Toast.makeText(activity, R.string.fv_undefined_message, Toast.LENGTH_SHORT).show();
     }
 }

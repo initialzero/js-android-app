@@ -82,12 +82,10 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">Informazioni</string>
-    <string name="sa_about_info"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Strumenti di gestione e visualizzazione di rapporti per il server JasperReports® 5.5 e versioni successive.<br><br>Per ulteriori informazioni visitare: <br><a href="http://community.jaspersoft.com/project/jaspermobile-android">http://community.jaspersoft.com/project/jaspermobile-android</a><br><br>Per informazioni sulle nostre normative sulla privacy, visitare:<br><a href="com.jaspersoft.android.privacy_policy://">http://www.tibco.com/privacy-policies/jaspermobile-android</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">Normative sulla Privacy</string>
 
     <!-- Report Options Activity -->
     <string name="ro_run_report_btn">Esegui report</string>
-    <string name="ro_page_title">Opzioni di filtraggio</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Salva report</string>
@@ -129,15 +127,12 @@
 
     <!-- Settings activity -->
     <string name="st_title">Impostazioni</string>
-    <string name="st_category_repo_cache">Cache di archivio</string>
     <string name="st_category_connection">Connessione</string>
     <string name="st_title_cache_enable">Abilita cache</string>
-    <string name="st_title_cache_expiration">Scadenza cache</string>
     <string name="st_title_connect_timeout">Timeout connessione</string>
     <string name="st_title_read_timeout">Timeout lettura dati</string>
     <string name="st_title_animations">Animazioni</string>
     <string name="st_send_crashes">Invia report di arresto anomalo</string>
-    <string name="st_summary_cache_enable">Richieste di cache di archivio per la quantità di tempo specificata</string>
     <string name="st_summary_sec">%s sec</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Formato numero non valido</string>
@@ -248,7 +243,7 @@
     <string name="sdr_dfd_msg">Rimuovere davvero \"%s\"?</string>
 
     <!-- Settings activity -->
-    <string name="st_send_crashes_note">NOTA: Riavviare l\'applicazione dopo aver modificato questa impostazione.</string>
+    <string name="st_restart_note">NOTA: Riavviare l\'applicazione dopo aver modificato questa impostazione.</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_found">Server non trovato.</string>

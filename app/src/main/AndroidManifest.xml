@@ -96,8 +96,9 @@
                 android:value=".activities.navigation.NavigationActivity_" />
         </activity>
 
+        <!-- Activity that performs report viewing in HTML format -->
         <activity
-            android:name=".activities.viewer.html.report.ReportViewerActivity_"
+            android:name=".activities.viewer.html.report.ReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
             android:parentActivityName=".activities.navigation.NavigationActivity_" >
             <meta-data
@@ -118,6 +119,10 @@
         <activity
             android:name=".activities.viewer.html.SavedReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+
+        <activity
+            android:theme="@style/Theme.JasperMobile.NoToolbar.TransparentStatusBar"
+            android:name=".activities.info.ResourceInfoActivity_"/>
 
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
@@ -142,10 +147,18 @@
             android:label="@string/sr_ab_title"
             android:windowSoftInputMode="stateHidden" />
 
+        <activity
+            android:name=".activities.schedule.ScheduleActivity_"/>
+
+        <activity
+            android:name=".activities.file.FileViewerActivity_"/>
+
+        <activity
+            android:name=".activities.viewer.html.report.SavedValuesActivity_"/>
+
         <!-- Activity that allows to specify the application settings -->
         <activity
             android:name=".activities.settings.SettingsActivity_"
-            android:theme="@style/Theme.JasperMobile.Settings"
             android:configChanges="locale"
             android:label="@string/st_title" >
             <meta-data
@@ -177,25 +190,6 @@
             android:configChanges="locale"
             android:launchMode="singleTop" />
 
-        <!-- Activity that shows Privacy Policy -->
-        <activity
-            android:windowSoftInputMode="adjustPan"
-            android:name=".activities.PrivacyPolicyActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".activities.navigation.NavigationActivity_" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.navigation.NavigationActivity_" />
-
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <data android:scheme="com.jaspersoft.android.privacy_policy" />
-            </intent-filter>
-        </activity>
-
         <activity
             android:name=".presentation.view.activity.AuthenticatorActivity" >
             <intent-filter>
@@ -211,6 +205,17 @@
             <intent-filter>
                 <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
             </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".util.cast.ResourceCastReceiver"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="com.jaspersoft.android.jaspermobile.RESOURCE_CAST_CANCEL" />
+                <action android:name="com.jaspersoft.android.jaspermobile.RESOURCE_PRESENTATION_STOP" />
+            </intent-filter>
+
         </receiver>
 
         <receiver
@@ -233,6 +238,14 @@
         <provider
             android:name=".db.MobileDbProvider"
             android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
+            android:exported="false" />
+
+        <service
+        android:name=".activities.save.SaveReportService_"
+        android:exported="false" />
+
+        <service
+            android:name=".util.cast.ResourcePresentationService"
             android:exported="false" />
 
         <!-- SDK external components -->

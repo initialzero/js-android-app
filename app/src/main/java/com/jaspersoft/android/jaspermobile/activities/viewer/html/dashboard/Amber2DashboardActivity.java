@@ -40,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
@@ -82,6 +83,9 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Inject
     @Nullable
     GetDashboardControlsCase mGetDashboardControlsCase;
+    @Inject
+    @Nullable
+    FlushInputControlsCase mFlushInputControlsCase;
     @Inject
     @Nullable
     RequestExceptionHandler mExceptionHandler;
@@ -310,6 +314,12 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onSessionRefreshed() {
         loadFlow();
+    }
+
+    @Override
+    public void finish() {
+        mFlushInputControlsCase.execute(resource.getUri());
+        super.finish();
     }
 
     //---------------------------------------------------------------------

@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Menu;
@@ -44,12 +43,11 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
-import com.jaspersoft.android.jaspermobile.widget.AbstractPaginationView;
-import com.jaspersoft.android.jaspermobile.widget.PaginationBarView;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ReportRestViewerComponent;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
@@ -65,9 +63,10 @@ import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListener;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
+import com.jaspersoft.android.jaspermobile.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
+import com.jaspersoft.android.jaspermobile.widget.PaginationBarView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.AfterViews;
@@ -132,7 +131,7 @@ public class ReportViewFragment extends BaseFragment implements ReportView, Numb
     @Inject
     protected JsRestClientWrapper mJsRestClientWrapper;
     @Inject
-    protected Server mServer;
+    protected JasperServer mServer;
     @Inject
     protected ReportParamsStorage paramsStorage;
     @Inject

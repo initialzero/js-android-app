@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.data.repository.report;
 
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.InputControlsMapper;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
@@ -49,6 +50,8 @@ public class InMemoryReportOptionsRepositoryTest {
     InputControlsMapper mControlsMapper;
     @Mock
     ReportOption mReportOption;
+    @Mock
+    JasperRestClient mJasperRestClient;
 
     private InMemoryReportOptionsRepository mInMemoryReportOptionsRepository;
 
@@ -57,13 +60,15 @@ public class InMemoryReportOptionsRepositoryTest {
         initMocks(this);
         setupMocks();
         mInMemoryReportOptionsRepository = new InMemoryReportOptionsRepository(
-                mFiltersService,
+                mJasperRestClient,
                 mReportParamsMapper,
                 mControlsMapper
         );
     }
 
     private void setupMocks() {
+        when(mJasperRestClient.filtersService())
+                .thenReturn(Observable.just(mFiltersService));
         when(mFiltersService.createReportOption(anyString(), anyString(),
                 anyListOf(com.jaspersoft.android.sdk.network.entity.report.ReportParameter.class), anyBoolean()))
                 .thenReturn(Observable.just(mReportOption));

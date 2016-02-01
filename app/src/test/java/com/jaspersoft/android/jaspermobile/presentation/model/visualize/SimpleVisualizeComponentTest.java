@@ -42,7 +42,11 @@ public class SimpleVisualizeComponentTest {
                 .setPassword("1234")
                 .setUsername("user")
                 .create();
-        VisualizeExecOptions options = new VisualizeExecOptions("/my/uri", "{}", credentials, 10);
+        VisualizeExecOptions options = new VisualizeExecOptions.Builder()
+                .setUri("/my/uri").setParams("{}")
+                .setAppCredentials(credentials)
+                .setDiagonal(10)
+                .build();
         mSimpleVisualizeComponent.run(options);
         verify(webView).loadUrl("javascript:MobileReport.configure({ \"auth\": {\"username\": \"user\",\"password\": \"1234\",\"organization\": \"org\"}, \"diagonal\": 10.0 }).run({\"uri\": \"/my/uri\",\"params\": {}})");
     }

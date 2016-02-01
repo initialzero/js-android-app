@@ -3,12 +3,11 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 import android.support.annotation.VisibleForTesting;
 
-import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMetadataCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
@@ -49,14 +48,13 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     private final double mScreenDiagonal;
     private final String mReportUri;
-    private final AppCredentials mCredentials;
     private final PostExecutionThread mPostExecutionThread;
     private final RequestExceptionHandler mRequestExceptionHandler;
     private final ResourceModelMapper mResourceModelMapper;
 
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private final GetVisualizeTemplateCase mGetVisualizeTemplateCase;
-    private final GetJsonParamsCase mGetJsonParamsCase;
+    private final GetVisualizeExecOptionsCase mGetVisualizeExecOptionsCase;
     private final FlushInputControlsCase mFlushInputControlsCase;
     private final GetReportMetadataCase mGetReportMetadataCase;
 
@@ -67,25 +65,23 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     public ReportVisualizePresenter(
             @Named("screen_diagonal") Double screenDiagonal,
             @Named("report_uri") String reportUri,
-            AppCredentials credentials,
             PostExecutionThread postExecutionThread,
             RequestExceptionHandler requestExceptionHandler,
             ResourceModelMapper resourceModelMapper,
             GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
             GetVisualizeTemplateCase getVisualizeTemplateCase,
-            GetJsonParamsCase getJsonParamsCase,
+            GetVisualizeExecOptionsCase getVisualizeExecOptionsCase,
             FlushInputControlsCase flushInputControlsCase,
             GetReportMetadataCase getReportMetadataCase
     ) {
         mScreenDiagonal = screenDiagonal;
         mReportUri = reportUri;
-        mCredentials = credentials;
         mPostExecutionThread = postExecutionThread;
         mRequestExceptionHandler = requestExceptionHandler;
         mResourceModelMapper = resourceModelMapper;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
         mGetVisualizeTemplateCase = getVisualizeTemplateCase;
-        mGetJsonParamsCase = getJsonParamsCase;
+        mGetVisualizeExecOptionsCase = getVisualizeExecOptionsCase;
         mFlushInputControlsCase = flushInputControlsCase;
         mGetReportMetadataCase = getReportMetadataCase;
     }
@@ -133,11 +129,13 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     @Override
     public void updateReport() {
-        mGetJsonParamsCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<String>() {
+        mGetVisualizeExecOptionsCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<VisualizeExecOptions.Builder>() {
             @Override
-            public void onNext(String params) {
+            public void onNext(VisualizeExecOptions.Builder optionsBuilder) {
+                // TODO fix nasty hack of passibg view model to domain
+                VisualizeExecOptions options = optionsBuilder.build();
                 mView.resetZoom();
-                mView.getVisualize().update(params);
+                mView.getVisualize().update(options.getParams());
             }
         }));
     }
@@ -172,14 +170,11 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     }
 
     private void runReportOnVisualize() {
-        mGetJsonParamsCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<String>() {
+        mGetVisualizeExecOptionsCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<VisualizeExecOptions.Builder>() {
             @Override
-            public void onNext(String params) {
-                VisualizeExecOptions options = new VisualizeExecOptions(
-                        mReportUri,
-                        params,
-                        mCredentials,
-                        mScreenDiagonal);
+            public void onNext(VisualizeExecOptions.Builder builder) {
+                VisualizeExecOptions options = builder.setDiagonal(mScreenDiagonal)
+                        .build();
                 mView.getVisualize().run(options);
             }
         }));
@@ -206,7 +201,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     public void destroy() {
         mGetReportShowControlsPropertyCase.unsubscribe();
         mGetVisualizeTemplateCase.unsubscribe();
-        mGetJsonParamsCase.unsubscribe();
+        mGetVisualizeExecOptionsCase.unsubscribe();
         mFlushInputControlsCase.execute(mReportUri);
     }
 

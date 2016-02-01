@@ -155,6 +155,8 @@ public class InputControlsActivity extends RoboSpiceActivity
 
     @Extra
     protected String reportUri;
+    @Extra
+    protected boolean loadReportOptions;
 
     private List<InputControl> mInputControls;
     private List<ReportOptionHolder> mReportOptions;
@@ -197,7 +199,7 @@ public class InputControlsActivity extends RoboSpiceActivity
             updateInputControlsFromReportParams();
         }
 
-        if (mReportOptions.isEmpty()) {
+        if (mReportOptions.isEmpty() && loadReportOptions) {
             loadReportOptions();
         }
     }

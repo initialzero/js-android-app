@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.data.repository.report;
 
 import android.support.annotation.NonNull;
 
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.InputControlsMapper;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportOptionsRepository;
@@ -28,9 +29,9 @@ import rx.functions.Func1;
 @PerProfile
 public final class InMemoryReportOptionsRepository implements ReportOptionsRepository {
 
-    private final RxFiltersService mFiltersService;
     private final ReportParamsMapper mReportParamsMapper;
     private final InputControlsMapper mControlsMapper;
+    private final JasperRestClient mJasperRestClient;
 
     private Observable<Set<ReportOption>> mGetReportOptionsAction;
     private Observable<ReportOption> mCreateReportOptionAction;
@@ -39,11 +40,11 @@ public final class InMemoryReportOptionsRepository implements ReportOptionsRepos
 
     @Inject
     public InMemoryReportOptionsRepository(
-            RxFiltersService filtersService,
+            JasperRestClient jasperRestClient,
             ReportParamsMapper reportParamsMapper,
             InputControlsMapper controlsMapper
     ) {
-        mFiltersService = filtersService;
+        mJasperRestClient = jasperRestClient;
         mReportParamsMapper = reportParamsMapper;
         mControlsMapper = controlsMapper;
     }
@@ -55,7 +56,12 @@ public final class InMemoryReportOptionsRepository implements ReportOptionsRepos
             mGetReportOptionsAction = Observable.defer(new Func0<Observable<Set<ReportOption>>>() {
                 @Override
                 public Observable<Set<ReportOption>> call() {
-                    return mFiltersService.listReportOptions(reportUri);
+                    return mJasperRestClient.filtersService().flatMap(new Func1<RxFiltersService, Observable<Set<ReportOption>>>() {
+                        @Override
+                        public Observable<Set<ReportOption>> call(RxFiltersService service) {
+                            return service.listReportOptions(reportUri);
+                        }
+                    });
                 }
             }).doOnTerminate(new Action0() {
                 @Override
@@ -76,9 +82,14 @@ public final class InMemoryReportOptionsRepository implements ReportOptionsRepos
             mCreateReportOptionAction = Observable.defer(new Func0<Observable<ReportOption>>() {
                 @Override
                 public Observable<ReportOption> call() {
-                    List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> reportParameters =
+                    final List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> reportParameters =
                             mReportParamsMapper.legacyParamsToRetrofitted(params);
-                    return mFiltersService.createReportOption(reportUri, label, reportParameters, true);
+                    return mJasperRestClient.filtersService().flatMap(new Func1<RxFiltersService, Observable<ReportOption>>() {
+                        @Override
+                        public Observable<ReportOption> call(RxFiltersService service) {
+                            return service.createReportOption(reportUri, label, reportParameters, true);
+                        }
+                    });
                 }
             }).doOnTerminate(new Action0() {
                 @Override
@@ -97,7 +108,12 @@ public final class InMemoryReportOptionsRepository implements ReportOptionsRepos
             mDeleteReportOptionAction = Observable.defer(new Func0<Observable<Void>>() {
                 @Override
                 public Observable<Void> call() {
-                    return mFiltersService.deleteReportOption(uri, optionId);
+                    return mJasperRestClient.filtersService().flatMap(new Func1<RxFiltersService, Observable<Void>>() {
+                        @Override
+                        public Observable<Void> call(RxFiltersService service) {
+                            return service.deleteReportOption(uri, optionId);
+                        }
+                    });
                 }
             }).doOnTerminate(new Action0() {
                 @Override
@@ -116,7 +132,12 @@ public final class InMemoryReportOptionsRepository implements ReportOptionsRepos
             mGetReportOptionStatesAction = Observable.defer(new Func0<Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>>>() {
                 @Override
                 public Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>> call() {
-                    return mFiltersService.listResourceStates(reportUri, true);
+                    return mJasperRestClient.filtersService().flatMap(new Func1<RxFiltersService, Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>>>() {
+                        @Override
+                        public Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>> call(RxFiltersService service) {
+                            return service.listResourceStates(reportUri, true);
+                        }
+                    });
                 }
             }).map(new Func1<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>, List<InputControlState>>() {
                 @Override

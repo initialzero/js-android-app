@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.data.repository.report;
 
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 import com.jaspersoft.android.sdk.service.rx.repository.RxRepositoryService;
 
@@ -28,13 +29,15 @@ public class InMemoryResourceRepositoryTest {
 
     @Mock
     ReportResource mReportResource;
+    @Mock
+    JasperRestClient mJasperRestClient;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         setupMocks();
         mInMemoryResourceRepository = new InMemoryResourceRepository(
-                mRepositoryService
+                mJasperRestClient
         );
     }
 
@@ -48,6 +51,7 @@ public class InMemoryResourceRepositoryTest {
     }
 
     private void setupMocks() {
+        when(mJasperRestClient.repositoryService()).thenReturn(Observable.just(mRepositoryService));
         when(mRepositoryService.fetchReportDetails(anyString()))
                 .thenReturn(Observable.just(mReportResource));
     }

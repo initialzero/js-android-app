@@ -6,7 +6,7 @@ import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetJsonParamsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
@@ -58,7 +58,7 @@ public class ReportVisualizePresenterTest {
     private ReportVisualizePresenter mReportVisualizePresenter;
     private FakeGetVisualizeTemplateCase mGetVisualizeTemplateCase;
     private FakeGetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
-    private FakeGetJsonParamsCase mGetJsonParamsCase;
+    private FakeGetVisualizeExecOptionsCase mGetJsonParamsCase;
     private FakeFlushInputControlsCase mFakeFlushInputControlsCase;
     private FakeGetReportMetadataCase mFakeGetReportMetadataCase;
 
@@ -96,7 +96,6 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter = new ReportVisualizePresenter(
                 SCREEN_DIAGONAL,
                 REPORT_URI,
-                mAppCredentials,
                 FakePostExecutionThread.create(),
                 mExceptionHandler,
                 mResourceModelMapper,
@@ -365,7 +364,7 @@ public class ReportVisualizePresenterTest {
         fakeState = spy(new ReportPageState());
         mGetVisualizeTemplateCase = spy(new FakeGetVisualizeTemplateCase());
         mGetReportShowControlsPropertyCase = spy(new FakeGetReportShowControlsPropertyCase());
-        mGetJsonParamsCase = spy(new FakeGetJsonParamsCase());
+        mGetJsonParamsCase = spy(new FakeGetVisualizeExecOptionsCase());
         mFakeFlushInputControlsCase = spy(new FakeFlushInputControlsCase());
         mFakeGetReportMetadataCase = spy(new FakeGetReportMetadataCase());
 
@@ -414,14 +413,14 @@ public class ReportVisualizePresenterTest {
         }
     }
 
-    private class FakeGetJsonParamsCase extends GetJsonParamsCase {
-        public FakeGetJsonParamsCase() {
-            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null);
+    private class FakeGetVisualizeExecOptionsCase extends GetVisualizeExecOptionsCase {
+        public FakeGetVisualizeExecOptionsCase() {
+            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null, null);
         }
 
         @Override
-        protected Observable<String> buildUseCaseObservable(String reportUri) {
-            return Observable.just(JSON_REPORT_PARAMS);
+        protected Observable<VisualizeExecOptions.Builder> buildUseCaseObservable(String reportUri) {
+            return Observable.just(new VisualizeExecOptions.Builder());
         }
     }
 }

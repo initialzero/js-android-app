@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.data.repository.report;
 
 import android.support.annotation.NonNull;
 
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
@@ -55,24 +56,24 @@ import rx.functions.Func1;
 @PerProfile
 public final class InMemoryReportRepository implements ReportRepository {
 
-    private final RxReportService mRxReportService;
     private final ReportPageCache mReportPageCache;
     private final ReportParamsCache mReportParamsCache;
     private final ReportParamsMapper mReportParamsMapper;
     private final ReportCache mReportCache;
+    private final JasperRestClient mJasperRestClient;
 
     private Observable<RxReportExecution> mReloadReportCommand;
     private Observable<RxReportExecution> mUpdateReportCommand;
     private Observable<RxReportExecution> mGetReportCommand;
 
     @Inject
-    public InMemoryReportRepository(RxReportService rxReportService,
+    public InMemoryReportRepository(JasperRestClient jasperRestClient,
                                     ReportPageCache reportPageCache,
                                     ReportParamsCache reportParamsCache,
                                     ReportParamsMapper reportParamsMapper,
                                     ReportCache reportCache
     ) {
-        mRxReportService = rxReportService;
+        mJasperRestClient = jasperRestClient;
         mReportPageCache = reportPageCache;
         mReportParamsCache = reportParamsCache;
         mReportParamsMapper = reportParamsMapper;
@@ -100,13 +101,18 @@ public final class InMemoryReportRepository implements ReportRepository {
                     List<com.jaspersoft.android.sdk.client.oxm.report.ReportParameter> legacyParams = mReportParamsCache.get(uri);
                     List<ReportParameter> params = mReportParamsMapper.legacyParamsToRetrofitted(legacyParams);
 
-                    ReportExecutionOptions options = ReportExecutionOptions.builder()
+                    final ReportExecutionOptions options = ReportExecutionOptions.builder()
                             .withFormat(ReportFormat.HTML)
                             .withFreshData(false)
                             .withParams(params)
                             .build();
 
-                    return mRxReportService.run(uri, options);
+                    return mJasperRestClient.reportService().flatMap(new Func1<RxReportService, Observable<RxReportExecution>>() {
+                        @Override
+                        public Observable<RxReportExecution> call(RxReportService reportService) {
+                            return reportService.run(uri, options);
+                        }
+                    });
                 }
             }).doOnNext(new Action1<RxReportExecution>() {
                 @Override

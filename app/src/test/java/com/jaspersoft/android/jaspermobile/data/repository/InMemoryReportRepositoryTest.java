@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.data.repository;
 
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
@@ -54,7 +55,8 @@ public class InMemoryReportRepositoryTest {
 
     @Mock
     ReportParamsCache mReportParamsCache;
-
+    @Mock
+    JasperRestClient mJasperRestClient;
 
     private InMemoryReportRepository inMemoryReportRepository;
     public static final ReportExecutionOptions EXECUTION_OPTIONS = ReportExecutionOptions.builder()
@@ -68,7 +70,7 @@ public class InMemoryReportRepositoryTest {
         initMocks(this);
         setupMocks();
         inMemoryReportRepository = new InMemoryReportRepository(
-                mRxReportService,
+                mJasperRestClient,
                 mReportPageCache,
                 mReportParamsCache,
                 mReportParamsMapper,
@@ -127,6 +129,7 @@ public class InMemoryReportRepositoryTest {
     }
 
     private void setupMocks() {
+        when(mJasperRestClient.reportService()).thenReturn(Observable.just(mRxReportService));
         when(mRxReportService.run(anyString(), any(ReportExecutionOptions.class)))
                 .thenReturn(Observable.just(mRxReportExecution));
         when(mReportParamsMapper.legacyParamsToRetrofitted(anyList())).thenReturn(REPORT_PARAMS);

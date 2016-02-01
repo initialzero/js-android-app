@@ -2,8 +2,11 @@ package com.jaspersoft.android.jaspermobile.domain.interactor.report;
 
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 
 import org.junit.Before;
@@ -25,7 +28,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
  * @author Tom Koptel
  * @since 2.3
  */
-public class GetJsonParamsCaseTest {
+public class GetVisualizeExecOptionsCaseTest {
     private static final String REPORT_URI = "/my/uri";
     private static final String EMPTY_JSON = "{}";
     private static final List<ReportParameter> REPORT_PARAMS = Collections.emptyList();
@@ -34,15 +37,22 @@ public class GetJsonParamsCaseTest {
     ReportParamsCache mReportParamsCache;
     @Mock
     ReportParamsMapper mReportParamsMapper;
-    private GetJsonParamsCase mGetJsonParamsCase;
+    @Mock
+    Profile profile;
+    @Mock
+    CredentialsCache credentialsCache;
+
+    private GetVisualizeExecOptionsCase mGetVisualizeExecOptionsCase;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         setUpMocks();
-        mGetJsonParamsCase = new GetJsonParamsCase(
+        mGetVisualizeExecOptionsCase = new GetVisualizeExecOptionsCase(
                 FakePreExecutionThread.create(),
                 FakePostExecutionThread.create(),
+                profile,
+                credentialsCache,
                 mReportParamsCache,
                 mReportParamsMapper
         );
@@ -55,8 +65,8 @@ public class GetJsonParamsCaseTest {
 
     @Test
     public void testBuildUseCaseObservable() throws Exception {
-        TestSubscriber<String> test = new TestSubscriber<>();
-        mGetJsonParamsCase.execute(REPORT_URI, test);
+        TestSubscriber<VisualizeExecOptions.Builder> test = new TestSubscriber<>();
+        mGetVisualizeExecOptionsCase.execute(REPORT_URI, test);
 
         verify(mReportParamsCache).get(REPORT_URI);
         verify(mReportParamsMapper).legacyParamsToJson(REPORT_PARAMS);

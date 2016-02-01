@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.data.repository;
 
 import com.jaspersoft.android.jaspermobile.Chain;
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.InputControlsMapper;
@@ -55,6 +56,9 @@ public class InMemoryControlsRepositoryTest {
     @Mock
     ReportParamsMapper mReportParamsMapper;
 
+    @Mock
+    JasperRestClient mJasperRestClient;
+
     private InMemoryControlsRepository inMemoryControlsRepository;
 
     @Before
@@ -62,7 +66,7 @@ public class InMemoryControlsRepositoryTest {
         initMocks(this);
         setupMocks();
         inMemoryControlsRepository = new InMemoryControlsRepository(
-                mFiltersService,
+                mJasperRestClient,
                 mControlsCache,
                 mReportParamsCache,
                 mInputControlsMapper,
@@ -135,6 +139,7 @@ public class InMemoryControlsRepositoryTest {
     }
 
     private void setupMocks() {
+        when(mJasperRestClient.filtersService()).thenReturn(Observable.just(mFiltersService));
         when(mFiltersService.listReportControls(anyString()))
                 .thenReturn(Observable.just(CONTROLS));
         when(mFiltersService.validateControls(anyString(), anyListOf(ReportParameter.class), anyBoolean()))

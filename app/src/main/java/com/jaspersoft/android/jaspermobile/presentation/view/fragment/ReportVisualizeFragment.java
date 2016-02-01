@@ -22,6 +22,7 @@ import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
@@ -43,7 +44,6 @@ import com.jaspersoft.android.jaspermobile.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.jaspermobile.widget.PaginationBarView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.network.Server;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -107,7 +107,7 @@ public class ReportVisualizeFragment extends BaseFragment
     @Inject
     protected JsRestClientWrapper mJsRestClientWrapper;
     @Inject
-    protected Server mServer;
+    protected JasperServer mServer;
     @Inject
     protected ReportParamsStorage paramsStorage;
     @Inject

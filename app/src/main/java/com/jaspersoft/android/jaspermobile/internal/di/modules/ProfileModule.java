@@ -1,7 +1,7 @@
 package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
-import android.content.Context;
-
+import com.jaspersoft.android.jaspermobile.data.JasperClient;
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
@@ -29,21 +29,13 @@ import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRe
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPropertyRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ResourceRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.sdk.network.AuthorizedClient;
 import com.jaspersoft.android.sdk.network.Credentials;
 import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.network.SpringCredentials;
-import com.jaspersoft.android.sdk.service.report.ReportService;
-import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
-import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
-import com.jaspersoft.android.sdk.service.rx.repository.RxRepositoryService;
 
 import java.net.CookieManager;
-import java.util.concurrent.TimeUnit;
 
 import dagger.Module;
 import dagger.Provides;
@@ -67,53 +59,14 @@ public final class ProfileModule {
     }
 
     @Provides
-    @PerProfile
-    Server provideServer(@ApplicationContext Context context, JasperServer jasperServer) {
-        DefaultPrefHelper prefHelper = DefaultPrefHelper_.getInstance_(context);
-        int connectTimeout = prefHelper.getConnectTimeoutValue();
-        int readTimeout = prefHelper.getReadTimeoutValue();
-
-        return Server.builder()
-                .withBaseUrl(jasperServer.getBaseUrl() + "/")
-                .withConnectionTimeOut(connectTimeout, TimeUnit.MILLISECONDS)
-                .withReadTimeout(readTimeout, TimeUnit.MILLISECONDS)
-                .build();
+    JasperRestClient provideJasperRestClient(JasperClient client) {
+        return client;
     }
 
     @Provides
     @PerProfile
-    AppCredentials providesCredentials(CredentialsCache credentialsCache) {
-        return credentialsCache.get(mProfile);
-    }
-
-    @Provides
-    @PerProfile
-    JasperServer providesJasperServer( JasperServerCache jasperServerCache) {
+    JasperServer providesJasperServer(JasperServerCache jasperServerCache) {
         return jasperServerCache.get(mProfile);
-    }
-
-    @Provides
-    @PerProfile
-    ReportService provideReportService(AuthorizedClient authorizedClient) {
-        return ReportService.newService(authorizedClient);
-    }
-
-    @Provides
-    @PerProfile
-    RxReportService provideRxReportService(AuthorizedClient authorizedClient) {
-        return RxReportService.newService(authorizedClient);
-    }
-
-    @Provides
-    @PerProfile
-    RxRepositoryService provideRxRepositoryService(AuthorizedClient authorizedClient) {
-        return RxRepositoryService.newService(authorizedClient);
-    }
-
-    @Provides
-    @PerProfile
-    RxFiltersService provideRxFiltersService(AuthorizedClient authorizedClient) {
-        return RxFiltersService.newService(authorizedClient);
     }
 
     @Provides

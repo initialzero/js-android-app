@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.data.repository.report;
 
 import android.support.annotation.NonNull;
 
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.InputControlsMapper;
@@ -30,22 +31,22 @@ import rx.functions.Func1;
  */
 @PerProfile
 public final class InMemoryControlsRepository implements ControlsRepository {
-    private final RxFiltersService mFiltersService;
     private final ControlsCache mControlsCache;
     private final ReportParamsCache mReportParamsCache;
     private final InputControlsMapper mControlsMapper;
     private final ReportParamsMapper mReportParamsMapper;
+    private final JasperRestClient mRestClient;
 
     private Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> mListInputControlsAction;
     private Observable<List<InputControlState>> mValidateControlsValuesAction;
     private Observable<List<InputControlState>> mListControlsValuesAction;
 
     @Inject
-    public InMemoryControlsRepository(RxFiltersService filtersService,
+    public InMemoryControlsRepository(JasperRestClient restClient,
                                       ControlsCache controlsCache,
                                       ReportParamsCache reportParamsCache, InputControlsMapper controlsMapper,
                                       ReportParamsMapper reportParamsMapper) {
-        mFiltersService = filtersService;
+        mRestClient = restClient;
         mControlsCache = controlsCache;
         mReportParamsCache = reportParamsCache;
         mControlsMapper = controlsMapper;
@@ -55,13 +56,26 @@ public final class InMemoryControlsRepository implements ControlsRepository {
     @NonNull
     @Override
     public Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> listReportControls(@NonNull final String reportUri) {
-        return createListControls(reportUri, mFiltersService.listReportControls(reportUri));
+        Observable<List<InputControl>> listObservable = mRestClient.filtersService().flatMap(new Func1<RxFiltersService, Observable<List<InputControl>>>() {
+            @Override
+            public Observable<List<InputControl>> call(RxFiltersService service) {
+                return service.listReportControls(reportUri);
+            }
+        });
+
+        return createListControls(reportUri, listObservable);
     }
 
     @NonNull
     @Override
-    public Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> listDashboardControls(@NonNull String dashboardUri) {
-        return createListControls(dashboardUri, mFiltersService.listDashboardControls(dashboardUri));
+    public Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> listDashboardControls(@NonNull final String dashboardUri) {
+        Observable<List<InputControl>> listObservable = mRestClient.filtersService().flatMap(new Func1<RxFiltersService, Observable<List<InputControl>>>() {
+            @Override
+            public Observable<List<InputControl>> call(RxFiltersService service) {
+                return service.listDashboardControls(dashboardUri);
+            }
+        });
+        return createListControls(dashboardUri, listObservable);
     }
 
     @NonNull
@@ -125,9 +139,15 @@ public final class InMemoryControlsRepository implements ControlsRepository {
                             if (parameters == null) {
                                 return Observable.just(Collections.<com.jaspersoft.android.sdk.network.entity.control.InputControlState>emptyList());
                             }
-                            List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> params =
+                            final List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> params =
                                     mReportParamsMapper.legacyParamsToRetrofitted(parameters);
-                            return mFiltersService.validateControls(reportUri, params, true);
+                            return mRestClient.filtersService()
+                                    .flatMap(new Func1<RxFiltersService, Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>>>() {
+                                        @Override
+                                        public Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>> call(RxFiltersService service) {
+                                            return service.validateControls(reportUri, params, true);
+                                        }
+                                    });
                         }
                     }).map(new Func1<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>, List<InputControlState>>() {
                 @Override
@@ -157,9 +177,15 @@ public final class InMemoryControlsRepository implements ControlsRepository {
                     if (parameters == null) {
                         return Observable.just(Collections.<com.jaspersoft.android.sdk.network.entity.control.InputControlState>emptyList());
                     }
-                    List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> params =
+                    final List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> params =
                             mReportParamsMapper.legacyParamsToRetrofitted(parameters);
-                    return mFiltersService.listControlsStates(reportUri, params, true);
+                    return mRestClient.filtersService()
+                            .flatMap(new Func1<RxFiltersService, Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>>>() {
+                                @Override
+                                public Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>> call(RxFiltersService service) {
+                                    return service.listControlsStates(reportUri, params, true);
+                                }
+                            });
                 }
             }).map(new Func1<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>, List<InputControlState>>() {
                 @Override

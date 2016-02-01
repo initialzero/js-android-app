@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
@@ -59,6 +60,8 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.UiThread;
 
 import javax.inject.Inject;
+
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -89,7 +92,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     private WebInterface mWebInterface;
     private DashboardExecutor mDashboardExecutor;
 
-    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
+    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
         @Override
         public void onCancel(DialogInterface dialog) {
             Amber2DashboardActivity.super.onBackPressed();
@@ -106,13 +109,19 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         mGetDashboardControlsCase.execute(resource.getUri(), new SimpleSubscriber<Boolean>() {
             @Override
             public void onError(Throwable e) {
+                Timber.e(e, "get dashboards thrown error");
                 String message = mExceptionHandler.extractMessage(e);
                 showMessage(message);
             }
 
             @Override
             public void onNext(Boolean hasControls) {
-                // show save items page
+                if (hasControls) {
+                    InputControlsActivity_.intent(Amber2DashboardActivity.this)
+                            .reportUri(resource.getUri())
+                            .loadReportOptions(false)
+                            .start();
+                }
             }
         });
         scrollableTitleHelper.injectTitle(resource.getLabel());

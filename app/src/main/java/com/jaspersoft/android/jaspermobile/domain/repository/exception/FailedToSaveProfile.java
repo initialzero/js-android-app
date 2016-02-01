@@ -30,7 +30,7 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class FailedToSaveProfile extends Exception {
+public final class FailedToSaveProfile extends RuntimeException {
     private final Profile mProfile;
 
     public FailedToSaveProfile(Profile profile) {

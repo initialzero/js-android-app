@@ -38,7 +38,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.functions.Func1;
+import rx.functions.Func0;
 
 /**
  * Implements repository pattern to control CRUD operations around credentials.
@@ -49,9 +49,6 @@ import rx.functions.Func1;
  */
 @Singleton
 public final class CredentialsDataRepository implements CredentialsRepository {
-    /**
-     * Injected by {@link CacheModule#provideCredentialsCache(Context, AccountManager, AccountDataMapper)}
-     */
     private final CredentialsCache mCredentialsCache;
 
     @Inject
@@ -64,24 +61,13 @@ public final class CredentialsDataRepository implements CredentialsRepository {
      */
     @Override
     public Observable<Profile> saveCredentials(final Profile profile, final AppCredentials credentials) {
-        Observable<AppCredentials> saveAction = mCredentialsCache.putAsObservable(profile, credentials);
-        return saveAction
-                .flatMap(new Func1<AppCredentials, Observable<Profile>>() {
-                    @Override
-                    public Observable<Profile> call(AppCredentials appCredentials) {
-                        return Observable.just(profile);
-                    }
-                })
-                .onErrorResumeNext(new Func1<Throwable, Observable<Profile>>() {
-                    @Override
-                    public Observable<Profile> call(Throwable throwable) {
-                        // TODO fix password generation issues
-//                        if (throwable instanceof PasswordManager.EncryptionException) {
-//                            return Observable.error(new FailedToSaveCredentials(credentials));
-//                        }
-                        return Observable.error(throwable);
-                    }
-                });
+        return Observable.defer(new Func0<Observable<Profile>>() {
+            @Override
+            public Observable<Profile> call() {
+                mCredentialsCache.put(profile, credentials);
+                return Observable.just(profile);
+            }
+        });
     }
 
     /**
@@ -89,16 +75,12 @@ public final class CredentialsDataRepository implements CredentialsRepository {
      */
     @Override
     public Observable<AppCredentials> getCredentials(final Profile profile) {
-        return mCredentialsCache.getAsObservable(profile)
-                .onErrorResumeNext(new Func1<Throwable, Observable<AppCredentials>>() {
-                    @Override
-                    public Observable<AppCredentials> call(Throwable throwable) {
-                        // Fix password related issues
-//                        if (throwable instanceof PasswordManager.DecryptionException) {
-//                            return Observable.error(new FailedToRetrieveCredentials(profile, throwable));
-//                        }
-                        return Observable.error(throwable);
-                    }
-                });
+        return Observable.defer(new Func0<Observable<AppCredentials>>() {
+            @Override
+            public Observable<AppCredentials> call() {
+                AppCredentials credentials = mCredentialsCache.get(profile);
+                return Observable.just(credentials);
+            }
+        });
     }
 }

@@ -40,9 +40,6 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
-import rx.functions.Func0;
-
 /**
  * Implementation of profile cache around {@link AccountManager}. This cache used in order to persist
  * new profiles in system. Also used for validation purposes of weather profile in cache or not.
@@ -67,20 +64,15 @@ public final class AccountProfileCache implements ProfileCache {
      * {@inheritDoc}
      */
     @Override
-    public Observable<Profile> put(@NonNull final Profile profile) {
-        return Observable.defer(new Func0<Observable<Profile>>() {
-            @Override
-            public Observable<Profile> call() {
-                Account accountProfile = mAccountDataMapper.transform(profile);
-                Bundle userData = new Bundle();
-                userData.putString(ALIAS_KEY, profile.getKey());
-                boolean saved = mAccountManager.addAccountExplicitly(accountProfile, null, userData);
-                if (!saved) {
-                    return Observable.error(new FailedToSaveProfile(profile));
-                }
-                return Observable.just(profile);
-            }
-        });
+    public Profile put(@NonNull final Profile profile) {
+        Account accountProfile = mAccountDataMapper.transform(profile);
+        Bundle userData = new Bundle();
+        userData.putString(ALIAS_KEY, profile.getKey());
+        boolean saved = mAccountManager.addAccountExplicitly(accountProfile, null, userData);
+        if (!saved) {
+            throw new FailedToSaveProfile(profile);
+        }
+        return profile;
     }
 
     /**

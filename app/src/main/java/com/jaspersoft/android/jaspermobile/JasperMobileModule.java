@@ -52,7 +52,7 @@ public class  JasperMobileModule extends AbstractModule {
     public JasperMobileModule(Application application) {
         super();
         mContext = application;
-        JasperMobileApplication.get(mContext)
+        GraphObject.Factory.from(mContext)
                 .getComponent()
                 .inject(this);
     }

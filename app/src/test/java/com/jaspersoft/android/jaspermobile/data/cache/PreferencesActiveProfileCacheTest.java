@@ -65,7 +65,7 @@ public class PreferencesActiveProfileCacheTest {
 
     @Test
     public void testPut() throws Exception {
-        cacheUnderTest.put(fakeProfile).subscribe();
+        cacheUnderTest.put(fakeProfile);
         assertThat("Failed to put " + fakeProfile + " in cache",
                 !store.getAll().isEmpty()
         );
@@ -74,10 +74,7 @@ public class PreferencesActiveProfileCacheTest {
     @Test
     public void testGet() throws Exception {
         store.edit().putString("ACCOUNT_NAME_KEY", "name").apply();
-
-        TestSubscriber<Profile> test = new TestSubscriber<>();
-        cacheUnderTest.getAsObservable().subscribe(test);
-        Profile profile = test.getOnNextEvents().get(0);
+        Profile profile = cacheUnderTest.get();
 
         assertThat("Failed to retrieve " + fakeProfile + " back",
                 profile.equals(fakeProfile)

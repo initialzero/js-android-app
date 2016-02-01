@@ -34,7 +34,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.FilterableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.SingleSelectIcAdapter;
@@ -98,7 +98,7 @@ public class SingleSelectActivity extends RoboToolbarActivity implements SearchV
 
     @AfterViews
     protected void init() {
-        ProfileComponent profileComponent = JasperMobileApplication.get(this).getProfileComponent();
+        ProfileComponent profileComponent = GraphObject.Factory.from(this).getProfileComponent();
         if (profileComponent == null) {
             Timber.w("Report component was garbage collected");
             finish();

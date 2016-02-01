@@ -22,10 +22,13 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.util.security;
+package com.jaspersoft.android.jaspermobile.data.cache;
 
 import android.accounts.Account;
 import android.provider.Settings;
+
+import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
+import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,10 +37,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import rx.observers.TestSubscriber;
-
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.hamcrest.Matchers.is;
 
 /**
  * @author Tom Koptel
@@ -45,9 +46,9 @@ import static org.hamcrest.core.IsCollectionContaining.hasItem;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE, sdk = 21)
-public class PasswordManagerTest {
+public class SecureStorageTest {
 
-    private PasswordManager passwordManager;
+    private SecureStorage mSecureStorage;
     private Account fakeAccount;
 
     @Before
@@ -57,23 +58,16 @@ public class PasswordManagerTest {
                 Settings.Secure.ANDROID_ID,
                 "ROBOLECTRICYOUAREBAD"
         );
-        passwordManager = new PasswordManager();
-        passwordManager.context = RuntimeEnvironment.application;
-        passwordManager.init();
+        mSecureStorage = new SecureStorage(RuntimeEnvironment.application,
+                FakePreExecutionThread.create(),
+                FakePostExecutionThread.create());
         fakeAccount = new Account("test", "com.test");
     }
 
     @Test
     public void shouldEncryptDecryptPassword() {
-        TestSubscriber<Boolean> putSubscriber = new TestSubscriber<>();
-        TestSubscriber<String> getSubscriber = new TestSubscriber<>();
-
-        passwordManager.put(fakeAccount, "1234").subscribe(putSubscriber);
-        putSubscriber.assertNoErrors();
-
-        passwordManager.get(fakeAccount).subscribe(getSubscriber);
-        getSubscriber.assertNoErrors();
-
-        assertThat("Password manager failed to encrypt/decrypt pass", getSubscriber.getOnNextEvents(), hasItem("1234"));
+        mSecureStorage.put(fakeAccount.name, "1234");
+        String pass = mSecureStorage.get(fakeAccount.name);
+        assertThat("Password manager failed to encrypt/decrypt pass", pass, is("1234"));
     }
 }

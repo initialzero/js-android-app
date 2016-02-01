@@ -24,12 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.data.cache.profile;
 
-import android.support.annotation.NonNull;
-
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-
-import rx.Observable;
 
 /**
  * Abstraction around caching of {@link AppCredentials} instance.
@@ -45,15 +41,12 @@ public interface CredentialsCache {
      * @param profile     the target profile we use to associate with credentials
      * @param credentials we are going to put inside repository
      */
-    Observable<AppCredentials> putAsObservable(Profile profile, AppCredentials credentials);
+    AppCredentials put(Profile profile, AppCredentials credentials);
 
     /**
      * Retrieves credentials from cache, presumably decoding sensitive data(e.g. password)
      *
      * @param profile the target profile we use to associate with credentials
      */
-    Observable<AppCredentials> getAsObservable(Profile profile);
-
-    @NonNull
     AppCredentials get(Profile profile);
 }

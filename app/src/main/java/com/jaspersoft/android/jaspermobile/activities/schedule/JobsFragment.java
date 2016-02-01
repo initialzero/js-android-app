@@ -47,24 +47,16 @@ import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.network.AuthorizedClient;
-import com.jaspersoft.android.sdk.network.Server;
-import com.jaspersoft.android.sdk.network.SpringCredentials;
 import com.jaspersoft.android.sdk.service.data.schedule.JobUnit;
 import com.jaspersoft.android.sdk.service.report.schedule.JobSearchCriteria;
 import com.jaspersoft.android.sdk.service.report.schedule.JobSortType;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxJobSearchTask;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -75,7 +67,6 @@ import roboguice.inject.InjectView;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -96,9 +87,6 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
     protected Analytics analytics;
     @Inject
     protected JsRestClient jsRestClient;
-
-    @Bean
-    protected PasswordManager mPasswordManager;
 
     private JasperResourceAdapter mAdapter;
     private RxReportScheduleService mScheduleService;
@@ -238,25 +226,27 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
 
     private Observable<RxReportScheduleService> initRestClient() {
         Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-        return mPasswordManager.get(account).map(new Func1<String, RxReportScheduleService>() {
-            @Override
-            public RxReportScheduleService call(String password) {
-                JsServerProfile serverProfile = jsRestClient.getServerProfile();
-                Server server = Server.builder()
-                        .withBaseUrl(serverProfile.getServerUrl() + "/")
-                        .build();
-                SpringCredentials credentials = SpringCredentials.builder()
-                        .withOrganization(serverProfile.getOrganization())
-                        .withUsername(serverProfile.getUsername())
-                        .withPassword(password)
-                        .build();
-
-                AuthorizedClient client = server.newClient(credentials)
-                        .withCookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER))
-                        .create();
-                return RxReportScheduleService.newService(client);
-            }
-        });
+//        return mPasswordManager.get(account).map(new Func1<String, RxReportScheduleService>() {
+//            @Override
+//            public RxReportScheduleService call(String password) {
+//                JsServerProfile serverProfile = jsRestClient.getServerProfile();
+//                Server server = Server.builder()
+//                        .withBaseUrl(serverProfile.getServerUrl() + "/")
+//                        .build();
+//                SpringCredentials credentials = SpringCredentials.builder()
+//                        .withOrganization(serverProfile.getOrganization())
+//                        .withUsername(serverProfile.getUsername())
+//                        .withPassword(password)
+//                        .build();
+//
+//                AuthorizedClient client = server.newClient(credentials)
+//                        .withCookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER))
+//                        .create();
+//                return RxReportScheduleService.newService(client);
+//            }
+//        });
+        // TODO fix service injection
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     private void setDataAdapter() {

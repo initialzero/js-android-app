@@ -24,8 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile;
 
-import android.accounts.Account;
-import android.content.Context;
 import android.support.multidex.MultiDexApplication;
 
 import com.google.inject.Inject;
@@ -38,8 +36,6 @@ import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
 import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -69,8 +65,6 @@ public class JasperMobileApplication extends MultiDexApplication implements Grap
     AppConfigurator appConfigurator;
     @Inject
     JsRestClientWrapper jsRestClient;
-    @Inject
-    Analytics analytics;
     @Bean
     SavedItemHelper savedItemHelper;
 
@@ -104,15 +98,16 @@ public class JasperMobileApplication extends MultiDexApplication implements Grap
     public void initLegacyJsRestClient() {
         JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
 
-        Account account = JasperAccountManager.get(this).getActiveAccount();
-        if (account != null) {
-            AccountServerData serverData = AccountServerData.get(this, account);
-            String serverEdition = serverData.getEdition();
-            if (serverData.isDemo()) {
-                serverEdition = "DEMO";
-            }
-            analytics.setServerInfo(serverData.getVersionName(), serverEdition);
-        }
+        // TODO make proper analytics activation during profile activation
+//        Account account = JasperAccountManager.get(this).getActiveAccount();
+//        if (account != null) {
+//            AccountServerData serverData = AccountServerData.get(this, account);
+//            String serverEdition = serverData.getEdition();
+//            if (serverData.isDemo()) {
+//                serverEdition = "DEMO";
+//            }
+//            analytics.setServerInfo(serverData.getVersionName(), serverEdition);
+//        }
     }
 
     private void initImageLoader() {
@@ -132,10 +127,6 @@ public class JasperMobileApplication extends MultiDexApplication implements Grap
         ImageLoader.getInstance().init(config);
         // Ignoring all log from UIL
         L.writeLogs(false);
-    }
-
-    public static JasperMobileApplication get(Context context) {
-        return (JasperMobileApplication) context.getApplicationContext();
     }
 
     @Override

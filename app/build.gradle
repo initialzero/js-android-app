@@ -37,8 +37,8 @@ buildscript {
 apply plugin: "com.android.application"
 apply plugin: "android-apt"
 apply plugin: "io.fabric"
-apply plugin: 'com.getkeepsafe.dexcount'
-apply from: "build_utils.gradle"
+apply plugin: "com.getkeepsafe.dexcount"
+//apply from: "build_utils.gradle"
 
 repositories {
     maven { url "https://maven.fabric.io/public" }

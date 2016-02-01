@@ -43,7 +43,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.InputControlsAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.ItemSpaceDecoration;
@@ -151,7 +151,8 @@ public class InputControlsActivity extends RoboSpiceActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ProfileComponent profileComponent = JasperMobileApplication.get(this).getProfileComponent();
+        ProfileComponent profileComponent = GraphObject.Factory.from(this)
+                .getProfileComponent();
         if (profileComponent == null) {
             Timber.w("Profile component was garbage collected");
             finish();

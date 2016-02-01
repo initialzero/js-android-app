@@ -4,8 +4,12 @@ import android.accounts.AccountManager;
 import android.app.Application;
 import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BackgroundThread;
+import com.jaspersoft.android.jaspermobile.JasperAnalytics;
 import com.jaspersoft.android.jaspermobile.UIThread;
+import com.jaspersoft.android.jaspermobile.data.cache.SecureCache;
+import com.jaspersoft.android.jaspermobile.data.cache.SecureStorage;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
@@ -27,7 +31,8 @@ import dagger.Provides;
  * @since 2.3
  */
 @Module
-public final class AppModule {
+public final class
+AppModule {
     private final Application mApplication;
 
     public AppModule(Application application) {
@@ -82,5 +87,17 @@ public final class AppModule {
     @Singleton
     JsRestClientWrapper providesJsRestClientWrapper(@ApplicationContext Context context, CookieStorage cookieStore) {
         return new JsRestClientWrapper(context, cookieStore);
+    }
+
+    @Provides
+    @Singleton
+    Analytics providesAnalytics(@ApplicationContext Context context) {
+        return new JasperAnalytics(context);
+    }
+
+    @Provides
+    @Singleton
+    SecureCache provideSecureStorage(SecureStorage secureStorage) {
+        return secureStorage;
     }
 }

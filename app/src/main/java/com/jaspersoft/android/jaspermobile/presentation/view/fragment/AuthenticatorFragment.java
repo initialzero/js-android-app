@@ -32,7 +32,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
@@ -249,7 +249,7 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     }
 
     private void injectComponents(String baseUrl) {
-        AuthenticatorActivityComponent component = JasperMobileApplication.get(getActivity())
+        AuthenticatorActivityComponent component = GraphObject.Factory.from(getActivity())
                 .getComponent()
                 .plus(new ActivityModule(getActivity()), new ServerClientModule(baseUrl));
         component.inject(this);

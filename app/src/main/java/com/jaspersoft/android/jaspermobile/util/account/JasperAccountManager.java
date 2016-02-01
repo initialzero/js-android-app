@@ -37,8 +37,6 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager_;
 
 import org.roboguice.shaded.goole.common.collect.Lists;
 
@@ -67,16 +65,14 @@ public class JasperAccountManager {
     private final Context mContext;
     private final AccountManager mDelegateManager;
     private final ActiveAccountStorage mAccountCache;
-    private final PasswordManager mPasswordManager;
 
     JasperAccountManager(Context context,
                          AccountManager delegateManager,
-                         ActiveAccountStorage accountCache, PasswordManager passwordManager) {
+                         ActiveAccountStorage accountCache) {
         RoboGuice.getInjector(context.getApplicationContext()).injectMembersWithoutViews(this);
         mContext = context;
         mDelegateManager = delegateManager;
         mAccountCache = accountCache;
-        mPasswordManager = passwordManager;
     }
 
     public static JasperAccountManager get(Context context) {
@@ -85,7 +81,11 @@ public class JasperAccountManager {
         }
         AccountManager accountManager = AccountManager.get(context);
         ActiveAccountStorage accountCache = ActiveAccountStorage.create(context);
-        return new JasperAccountManager(context, accountManager, accountCache, PasswordManager_.getInstance_(context));
+        return new JasperAccountManager(
+                context,
+                accountManager,
+                accountCache
+        );
     }
 
     public void setOnAccountsUpdatedListener(OnAccountsUpdateListener listener) {
@@ -162,7 +162,8 @@ public class JasperAccountManager {
     }
 
     private Observable<Boolean> updateAccountPassword(Account account, String newPassword) {
-        return mPasswordManager.put(account, newPassword);
+        // TODO fix this by deleting account manager
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     public Account[] getAccounts() {
@@ -198,8 +199,9 @@ public class JasperAccountManager {
                             JasperSettings.JASPER_ACCOUNT_TYPE);
 
                     mDelegateManager.addAccountExplicitly(account, null, null);
-                    mPasswordManager.put(account, serverData.getPassword())
-                            .toBlocking().firstOrDefault(false);
+                    // TODO fix this by deleting account manager
+//                    mPasswordManager.put(account, serverData.getPassword())
+//                            .toBlocking().firstOrDefault(false);
                     setUserData(account, serverData);
 
                     if (!subscriber.isUnsubscribed()) {

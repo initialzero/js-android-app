@@ -28,15 +28,9 @@ import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.view.Window;
-import android.view.WindowManager;
 
-import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.AuthenticatorFragment_;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-
-import roboguice.RoboGuice;
 
 /**
  * @author Tom Koptel
@@ -46,9 +40,6 @@ public class AuthenticatorActivity extends BaseActivity  {
 
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle mResultBundle = null;
-
-    @Inject
-    protected Analytics analytics;
 
     /**
      * Set the result that is to be sent as the result of the request that caused this
@@ -69,13 +60,9 @@ public class AuthenticatorActivity extends BaseActivity  {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        RoboGuice.getInjector(this).injectMembersWithoutViews(this);
-        analytics.setScreenName(getString(R.string.ja_aas));
-
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
-
-        disableScreenCapturing();
+        getAnalytics().setScreenName(getString(R.string.ja_aas));
 
         mAccountAuthenticatorResponse =
                 getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
@@ -85,14 +72,10 @@ public class AuthenticatorActivity extends BaseActivity  {
         }
 
         if (savedInstanceState == null) {
-            injectAuthView();
+            getSupportFragmentManager().beginTransaction()
+                    .add(android.R.id.content, AuthenticatorFragment_.builder().build())
+                    .commit();
         }
-    }
-
-    private void injectAuthView() {
-        getSupportFragmentManager().beginTransaction()
-                .add(android.R.id.content, AuthenticatorFragment_.builder().build())
-                .commit();
     }
 
     @Override
@@ -119,13 +102,5 @@ public class AuthenticatorActivity extends BaseActivity  {
         super.finish();
     }
 
-    private void disableScreenCapturing(){
-        boolean isScreenCaptureEnable = DefaultPrefHelper_.getInstance_(this).isScreenCapturingEnabled();
-
-        if (!isScreenCaptureEnable) {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
-                    WindowManager.LayoutParams.FLAG_SECURE);
-        }
-    }
 
 }

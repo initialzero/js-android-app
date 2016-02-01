@@ -45,14 +45,9 @@ import com.jaspersoft.android.jaspermobile.dialog.ValueInputDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.jaspermobile.widget.DateTimeView;
 import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
-import com.jaspersoft.android.sdk.network.AuthorizedClient;
-import com.jaspersoft.android.sdk.network.Server;
-import com.jaspersoft.android.sdk.network.SpringCredentials;
 import com.jaspersoft.android.sdk.service.data.schedule.JobData;
 import com.jaspersoft.android.sdk.service.data.schedule.JobForm;
 import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
@@ -63,7 +58,6 @@ import com.jaspersoft.android.sdk.service.data.schedule.RepositoryDestination;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
@@ -72,8 +66,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -105,9 +97,6 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     protected Analytics analytics;
     @Inject
     protected JsRestClient jsRestClient;
-
-    @Bean
-    protected PasswordManager mPasswordManager;
 
     @ViewById(R.id.scheduleName)
     TextView jobName;
@@ -301,25 +290,27 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
 
     private Observable<RxReportScheduleService> initRestClient() {
         Account account = JasperAccountManager.get(this).getActiveAccount();
-        return mPasswordManager.get(account).map(new Func1<String, RxReportScheduleService>() {
-            @Override
-            public RxReportScheduleService call(String password) {
-                JsServerProfile serverProfile = jsRestClient.getServerProfile();
-                Server server = Server.builder()
-                        .withBaseUrl(serverProfile.getServerUrl() + "/")
-                        .build();
-                SpringCredentials credentials = SpringCredentials.builder()
-                        .withOrganization(serverProfile.getOrganization())
-                        .withUsername(serverProfile.getUsername())
-                        .withPassword(password)
-                        .build();
-
-                AuthorizedClient client = server.newClient(credentials)
-                        .withCookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER))
-                        .create();
-                return RxReportScheduleService.newService(client);
-            }
-        });
+//        return mPasswordManager.get(account).map(new Func1<String, RxReportScheduleService>() {
+//            @Override
+//            public RxReportScheduleService call(String password) {
+//                JsServerProfile serverProfile = jsRestClient.getServerProfile();
+//                Server server = Server.builder()
+//                        .withBaseUrl(serverProfile.getServerUrl() + "/")
+//                        .build();
+//                SpringCredentials credentials = SpringCredentials.builder()
+//                        .withOrganization(serverProfile.getOrganization())
+//                        .withUsername(serverProfile.getUsername())
+//                        .withPassword(password)
+//                        .build();
+//
+//                AuthorizedClient client = server.newClient(credentials)
+//                        .withCookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER))
+//                        .create();
+//                return RxReportScheduleService.newService(client);
+//            }
+//        });
+        // TODO fix service injection
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     private JobForm createJobForm() {

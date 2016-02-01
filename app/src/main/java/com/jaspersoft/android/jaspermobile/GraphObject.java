@@ -1,5 +1,7 @@
 package com.jaspersoft.android.jaspermobile;
 
+import android.content.Context;
+
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 
@@ -14,4 +16,10 @@ public interface GraphObject {
     void setProfileComponent(ProfileComponent profileComponent);
 
     ProfileComponent getProfileComponent();
+
+    class Factory {
+        public static GraphObject from(Context context) {
+            return (GraphObject) context.getApplicationContext();
+        }
+    }
 }

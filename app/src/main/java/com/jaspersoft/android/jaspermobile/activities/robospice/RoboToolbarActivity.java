@@ -47,7 +47,6 @@ import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.GraphObject;
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
@@ -171,10 +170,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             ViewServer.get(this).addWindow(this);
         }
 
-        // Listen to account changes
-        mJasperAccountManager.setOnAccountsUpdatedListener(accountsUpdateListener);
-
-        if (JasperMobileApplication.get(this).getProfileComponent() == null) {
+        if (GraphObject.Factory.from(this).getProfileComponent() == null) {
             ActiveProfileCache activeProfileCache = new PreferencesActiveProfileCache(this);
             Profile profile = activeProfileCache.get();
             if (profile != null) {
@@ -207,7 +203,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     }
 
     private void setupProfileModule(Profile profile) {
-        GraphObject graphObject = JasperMobileApplication.get(this);
+        GraphObject graphObject = GraphObject.Factory.from(this);
         ProfileComponent profileComponent = graphObject.getComponent()
                 .plus(new ProfileModule(profile));
         graphObject.setProfileComponent(profileComponent);
@@ -216,12 +212,19 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
         if (isDevMode()) {
             ViewServer.get(this).setFocusedWindow(this);
         }
         updateAccountDependentUi();
 
         trackScreenView();
+    }
+
+    @Override
+    protected void onPause() {
+        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
+        super.onPause();
     }
 
     @Override

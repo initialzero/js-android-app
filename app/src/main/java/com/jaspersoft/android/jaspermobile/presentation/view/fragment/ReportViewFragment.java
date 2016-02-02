@@ -50,10 +50,9 @@ import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ReportRestViewerComponent;
-import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.contract.RestReportContract;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
-import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListener;
@@ -94,7 +93,10 @@ import rx.functions.Action1;
         R.menu.retrofit_report_menu,
         R.menu.print_menu,
 })
-public class ReportViewFragment extends BaseFragment implements ReportView, NumberDialogFragment.NumberDialogClickListener, PageDialogFragment.PageDialogClickListener {
+public class ReportViewFragment extends BaseFragment
+        implements RestReportContract.View,
+        NumberDialogFragment.NumberDialogClickListener,
+        PageDialogFragment.PageDialogClickListener {
 
     public static final String TAG = "report-view";
     private static final String MIME = "text/html";
@@ -134,7 +136,7 @@ public class ReportViewFragment extends BaseFragment implements ReportView, Numb
     @Inject
     protected ReportViewPresenter mPresenter;
     @Inject
-    protected ReportActionListener mActionListener;
+    protected RestReportContract.Action mActionListener;
     @Inject
     protected PostExecutionThread mPostExecutionThread;
     @Inject

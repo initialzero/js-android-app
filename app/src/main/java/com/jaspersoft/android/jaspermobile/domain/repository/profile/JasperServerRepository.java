@@ -28,8 +28,6 @@ import com.jaspersoft.android.jaspermobile.data.repository.profile.JasperServerD
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
-import rx.Observable;
-
 /**
  * Abstraction responsible for create, update, get, fetch operations around server meta data.
  * Following interface implemented by {@link JasperServerDataRepository}
@@ -42,9 +40,9 @@ public interface JasperServerRepository {
      * Saves server
      *
      * @param profile the target profile we use to associate with credentials
-     * @param baseUrl the http url that points to users Jasper server
+     * @param server the server we are going persist in application
      */
-    Observable<Profile> saveServer(final Profile profile, final String baseUrl);
+    JasperServer saveServer(final Profile profile, final JasperServer server);
 
     /**
      * Retrieves server instance from cache.
@@ -52,5 +50,13 @@ public interface JasperServerRepository {
      * @param profile the target profile we use to associate with credentials
      * @return {@link JasperServer} abstraction that encompass additional server metadata
      */
-    Observable<JasperServer> getServer(Profile profile);
+    JasperServer getServer(Profile profile);
+
+    /**
+     * Loads server instance metadata from network.
+     *
+     * @param serverUrl the http url that points to users Jasper server
+     * @return {@link JasperServer} abstraction that encompass additional server metadata
+     */
+    JasperServer loadServer(String serverUrl) throws Exception;
 }

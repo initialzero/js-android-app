@@ -31,7 +31,6 @@ import android.text.TextUtils;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -69,7 +68,7 @@ public final class AccountJasperServerCache implements JasperServerCache {
         Account accountProfile = mAccountDataMapper.transform(profile);
         mAccountManager.setUserData(accountProfile, SERVER_URL_KEY, jasperServer.getBaseUrl());
         mAccountManager.setUserData(accountProfile, EDITION_KEY, String.valueOf(jasperServer.isProEdition()));
-        mAccountManager.setUserData(accountProfile, VERSION_NAME_KEY, String.valueOf(jasperServer.getVersionName()));
+        mAccountManager.setUserData(accountProfile, VERSION_NAME_KEY, String.valueOf(jasperServer.getVersion()));
     }
 
     /**
@@ -83,10 +82,10 @@ public final class AccountJasperServerCache implements JasperServerCache {
         String edition = mAccountManager.getUserData(accountProfile, EDITION_KEY);
         String versionString = mAccountManager.getUserData(accountProfile, VERSION_NAME_KEY);
 
-        JasperServer.Builder serverBuilder = JasperServer.builder();
+        JasperServer.Builder serverBuilder = new JasperServer.Builder();
         serverBuilder.setBaseUrl(baseUrl);
-        serverBuilder.setEditionIsPro(Boolean.valueOf(edition));
-        serverBuilder.setVersion(ServerVersion.valueOf(versionString));
+        serverBuilder.setEdition(Boolean.valueOf(edition) ? "PRO" : "CE");
+        serverBuilder.setVersion(versionString);
 
         return serverBuilder.create();
     }

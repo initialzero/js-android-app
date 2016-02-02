@@ -67,9 +67,7 @@ public class ProfileDataRepositoryTest {
 
     @Test
     public void should_save() throws Exception {
-        TestSubscriber<Profile> test = new TestSubscriber<>();
-        repositoryUnderTest.saveProfile(fakeProfile).subscribe(test);
-
+        repositoryUnderTest.saveProfile(fakeProfile);
         verify(mAccountCache).put(fakeProfile);
     }
 
@@ -77,8 +75,7 @@ public class ProfileDataRepositoryTest {
     public void should_delegate_activate_on_preference_cache() throws Exception {
         when(mPreferencesCache.put(any(Profile.class))).thenReturn(fakeProfile);
 
-        TestSubscriber<Profile> test = new TestSubscriber<>();
-        repositoryUnderTest.activate(fakeProfile).subscribe(test);
+        repositoryUnderTest.activate(fakeProfile);
 
         verify(mPreferencesCache).put(fakeProfile);
         verifyNoMoreInteractions(mPreferencesCache);

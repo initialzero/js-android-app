@@ -16,14 +16,13 @@ import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVers
 import com.jaspersoft.android.jaspermobile.internal.di.ActivityContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.contract.AuthenticationContract;
 import com.jaspersoft.android.jaspermobile.presentation.validation.AliasMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.PasswordMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.ProfileFormValidation;
 import com.jaspersoft.android.jaspermobile.presentation.validation.ServerUrlFormatException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.ServerUrlMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.UsernameMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 
 import javax.inject.Inject;
@@ -35,9 +34,8 @@ import rx.Subscriber;
  * @since 2.3
  */
 @PerActivity
-public final class AuthenticationPresenter implements Presenter<AuthenticationView>, ProfileActionListener {
+public final class AuthenticationPresenter extends Presenter<AuthenticationContract.View> implements AuthenticationContract.Action {
     private final Context mContext;
-    private AuthenticationView mView;
 
     private final SaveProfileUseCase mSaveProfileUseCaseUseCase;
     private final ProfileFormValidation mProfileFormValidation;
@@ -56,11 +54,6 @@ public final class AuthenticationPresenter implements Presenter<AuthenticationVi
     }
 
     @Override
-    public void injectView(AuthenticationView view) {
-        mView = view;
-    }
-
-    @Override
     public void resume() {
     }
 
@@ -76,7 +69,7 @@ public final class AuthenticationPresenter implements Presenter<AuthenticationVi
     @Override
     public void saveProfile(ProfileForm profileForm) {
         if (isClientDataValid(profileForm)) {
-            mView.showLoading();
+            getView().showLoading();
             mSaveProfileUseCaseUseCase.execute(profileForm, new ProfileSaveListener());
         }
     }
@@ -86,15 +79,15 @@ public final class AuthenticationPresenter implements Presenter<AuthenticationVi
             mProfileFormValidation.validate(form);
             return true;
         } catch (UsernameMissingException e) {
-            mView.showUsernameRequiredError();
+            getView().showUsernameRequiredError();
         } catch (PasswordMissingException e) {
-            mView.showPasswordRequiredError();
+            getView().showPasswordRequiredError();
         } catch (AliasMissingException e) {
-            mView.showAliasRequiredError();
+            getView().showAliasRequiredError();
         } catch (ServerUrlMissingException e) {
-            mView.showServerUrlRequiredError();
+            getView().showServerUrlRequiredError();
         } catch (ServerUrlFormatException e) {
-            mView.showServerUrlFormatError();
+            getView().showServerUrlFormatError();
         }
         return false;
     }
@@ -102,32 +95,32 @@ public final class AuthenticationPresenter implements Presenter<AuthenticationVi
     @VisibleForTesting
     void handleProfileComplete() {
         initLegacyJsRestClient();
-        mView.hideLoading();
+        getView().hideLoading();
     }
 
     @VisibleForTesting
     void handleProfileSaveFailure(Throwable e) {
-        mView.hideLoading();
+        getView().hideLoading();
         if (e instanceof DuplicateProfileException) {
-            mView.showAliasDuplicateError();
+            getView().showAliasDuplicateError();
         } else if (e instanceof ProfileReservedException) {
-            mView.showAliasReservedError();
+            getView().showAliasReservedError();
         } else if (e instanceof ServerVersionNotSupportedException) {
-            mView.showServerVersionNotSupported();
+            getView().showServerVersionNotSupported();
         } else if (e instanceof FailedToSaveProfile) {
-            mView.showFailedToAddProfile(e.getMessage());
+            getView().showFailedToAddProfile(e.getMessage());
         } else if (e instanceof FailedToSaveCredentials) {
-            mView.showFailedToAddProfile(e.getMessage());
+            getView().showFailedToAddProfile(e.getMessage());
         } else if (e instanceof ServiceException) {
-            mView.showError(mRequestExceptionHandler.extractMessage(e));
+            getView().showError(mRequestExceptionHandler.extractMessage(e));
         } else {
-            mView.showError(e.getMessage());
+            getView().showError(e.getMessage());
         }
     }
 
     @VisibleForTesting
     void handleProfileSaveSuccess() {
-        mView.navigateToApp();
+        getView().navigateToApp();
     }
 
     /**

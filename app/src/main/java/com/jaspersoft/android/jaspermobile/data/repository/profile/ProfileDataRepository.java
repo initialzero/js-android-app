@@ -35,9 +35,6 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.app.CacheModule;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import rx.Observable;
-import rx.functions.Func0;
-
 /**
  * Implementation of repo pattern for {@link Profile}
  *
@@ -67,27 +64,17 @@ public final class ProfileDataRepository implements ProfileRepository {
      * {@inheritDoc}
      */
     @Override
-    public Observable<Profile> saveProfile(final Profile profile) {
-        return Observable.defer(new Func0<Observable<Profile>>() {
-            @Override
-            public Observable<Profile> call() {
-                mAccountCache.put(profile);
-                return Observable.just(profile);
-            }
-        });
+    public Profile saveProfile(final Profile profile) {
+        mAccountCache.put(profile);
+        return profile;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Observable<Profile> activate(final Profile profile) {
-        return Observable.defer(new Func0<Observable<Profile>>() {
-            @Override
-            public Observable<Profile> call() {
-                mPrefActiveCache.put(profile);
-                return Observable.just(profile);
-            }
-        });
+    public Profile activate(final Profile profile) {
+        mPrefActiveCache.put(profile);
+        return profile;
     }
 }

@@ -5,7 +5,7 @@ import android.util.DisplayMetrics;
 import android.webkit.WebView;
 
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.contract.VisualizeReportContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewConfiguration;
@@ -83,7 +83,7 @@ public final class ReportVisualizeViewerModule extends ReportModule {
 
     @Provides
     @PerActivity
-    ReportActionListener provideReportActionListener(ReportVisualizePresenter presenter) {
+    VisualizeReportContract.Action provideReportActionListener(ReportVisualizePresenter presenter) {
         return presenter;
     }
 }

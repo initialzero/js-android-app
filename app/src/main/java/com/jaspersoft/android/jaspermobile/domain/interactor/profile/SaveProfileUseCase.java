@@ -24,13 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.domain.interactor.profile;
 
-import com.google.inject.Inject;
-import com.jaspersoft.android.jaspermobile.data.repository.profile.CredentialsDataRepository;
-import com.jaspersoft.android.jaspermobile.data.repository.profile.JasperServerDataRepository;
-import com.jaspersoft.android.jaspermobile.data.repository.profile.ProfileDataRepository;
-import com.jaspersoft.android.jaspermobile.data.validator.CredentialsValidatorImpl;
-import com.jaspersoft.android.jaspermobile.data.validator.ProfileValidatorImpl;
-import com.jaspersoft.android.jaspermobile.data.validator.ServerValidatorImpl;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -41,16 +34,16 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.profile.CredentialsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.profile.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.profile.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
-import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
-import com.jaspersoft.android.jaspermobile.domain.validator.ServerValidator;
+import com.jaspersoft.android.jaspermobile.domain.validator.ValidationRule;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.AuthenticatorModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.app.RepoModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.app.ValidatorModule;
+
+import javax.inject.Inject;
 
 import rx.Observable;
-import rx.functions.Func1;
+import rx.functions.Func0;
 
 /**
  * @author Tom Koptel
@@ -58,93 +51,70 @@ import rx.functions.Func1;
  */
 @PerActivity
 public class SaveProfileUseCase extends AbstractUseCase<Profile, ProfileForm> {
-    /**
-     * Injected by {@link RepoModule#providesProfileRepository(ProfileDataRepository)}
-     */
+
     private final ProfileRepository mProfileRepository;
-    /**
-     * Injected by {@link AuthenticatorModule#providesServerRepository(JasperServerDataRepository)}
-     */
     private final JasperServerRepository mJasperServerRepository;
-    /**
-     * Injected by {@link RepoModule#providesCredentialsDataRepository(CredentialsDataRepository)}
-     */
     private final CredentialsRepository mCredentialsDataRepository;
 
-    /**
-     * Injected by {@link ValidatorModule#provideProfileValidator(ProfileValidatorImpl)}
-     */
-    private final ProfileValidator mProfileValidator;
-
-    /**
-     * Injected by {@link AuthenticatorModule#providesServerValidator(ServerValidatorImpl)}}
-     */
-    private final ServerValidator mServerValidator;
-
-    /**
-     * Injected by {@link AuthenticatorModule#providesCredentialsValidator(CredentialsValidatorImpl)}
-     */
-    private final CredentialsValidator mCredentialsValidator;
+    private final ValidationRule<JasperServer, ServerVersionNotSupportedException> mServerVersionValidation;
+    private final ValidationRule<Profile, DuplicateProfileException> mDuplicateProfileValidation;
+    private final ValidationRule<Profile, ProfileReservedException> mReservedProfileValidation;
+    private final ValidationRule<ProfileForm, Exception> mProfileAuthorizedValidation;
 
     @Inject
     public SaveProfileUseCase(
             PreExecutionThread preExecutionThread,
             PostExecutionThread postExecutionThread,
+
             ProfileRepository profileRepository,
             JasperServerRepository jasperServerRepository,
             CredentialsRepository credentialsDataRepository,
-            ProfileValidator profileValidator,
-            ServerValidator serverValidator,
-            CredentialsValidator credentialsValidator) {
+
+            ValidationRule<JasperServer, ServerVersionNotSupportedException> serverVersionValidation,
+            ValidationRule<Profile, DuplicateProfileException> duplicateProfileValidation,
+            ValidationRule<Profile, ProfileReservedException> reservedProfileValidation,
+            ValidationRule<ProfileForm, Exception> profileAuthorizedValidation
+    ) {
         super(preExecutionThread, postExecutionThread);
+
+        mDuplicateProfileValidation = duplicateProfileValidation;
+        mReservedProfileValidation = reservedProfileValidation;
+        mProfileAuthorizedValidation = profileAuthorizedValidation;
+
         mProfileRepository = profileRepository;
         mJasperServerRepository = jasperServerRepository;
         mCredentialsDataRepository = credentialsDataRepository;
-        mProfileValidator = profileValidator;
-        mServerValidator = serverValidator;
-        mCredentialsValidator = credentialsValidator;
+        mServerVersionValidation = serverVersionValidation;
     }
 
     @Override
     protected Observable<Profile> buildUseCaseObservable(final ProfileForm form) {
-        Profile profile = form.getProfile();
-        final String serverUrl = form.getServerUrl();
-        AppCredentials credentials = form.getCredentials();
+        return Observable.defer(new Func0<Observable<Profile>>() {
+            @Override
+            public Observable<Profile> call() {
+                Profile profile = form.getProfile();
+                String serverUrl = form.getServerUrl();
+                AppCredentials credentials = form.getCredentials();
 
-        Observable<Profile> validateProfile = mProfileValidator.validate(profile);
-        final Observable<JasperServer> validateServer = mServerValidator.validate(serverUrl);
-        final Observable<AppCredentials> validateCredentials = mCredentialsValidator.validate(credentials);
+                try {
+                    mReservedProfileValidation.validate(profile);
+                    mDuplicateProfileValidation.validate(profile);
 
-        Observable<Profile> saveProfileAction = mProfileRepository.saveProfile(profile);
-        Observable<Profile> saveServerAction = mJasperServerRepository.saveServer(profile, serverUrl);
-        Observable<Profile> saveCredentialsAction = mCredentialsDataRepository.saveCredentials(profile, credentials);
-        Observable<Profile> activateProfileAction = mProfileRepository.activate(profile);
+                    JasperServer server = mJasperServerRepository.loadServer(serverUrl);
+                    mServerVersionValidation.validate(server);
 
-        final Observable<Profile> saveAction = saveProfileAction
-                .concatWith(saveServerAction)
-                .concatWith(saveCredentialsAction)
-                .concatWith(activateProfileAction)
-                .last();
+                    mProfileAuthorizedValidation.validate(form);
 
-        return validateProfile
-                .flatMap(new Func1<Profile, Observable<JasperServer>>() {
-                    @Override
-                    public Observable<JasperServer> call(Profile profile) {
-                        return validateServer;
-                    }
-                })
-                .flatMap(new Func1<JasperServer, Observable<AppCredentials>>() {
-                    @Override
-                    public Observable<AppCredentials> call(JasperServer server) {
-                        return validateCredentials;
-                    }
-                })
-                .flatMap(new Func1<AppCredentials, Observable<Profile>>() {
-                    @Override
-                    public Observable<Profile> call(AppCredentials appCredentials) {
-                        return saveAction;
-                    }
-                });
+                    mProfileRepository.saveProfile(profile);
+                    mJasperServerRepository.saveServer(profile, server);
+                    mCredentialsDataRepository.saveCredentials(profile, credentials);
+                    mProfileRepository.activate(profile);
+
+                    return Observable.just(profile);
+                } catch (Exception e) {
+                    return Observable.error(e);
+                }
+            }
+        });
     }
-
 }

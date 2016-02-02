@@ -1,16 +1,11 @@
 package com.jaspersoft.android.jaspermobile.data;
 
-import android.content.Context;
-
 import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.sdk.network.AuthorizedClient;
 import com.jaspersoft.android.sdk.network.Credentials;
 import com.jaspersoft.android.sdk.network.Server;
@@ -20,7 +15,6 @@ import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
 import com.jaspersoft.android.sdk.service.rx.repository.RxRepositoryService;
 
 import java.net.CookieManager;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -34,19 +28,19 @@ import rx.functions.Func1;
  */
 @PerProfile
 public class JasperClient implements JasperRestClient {
-    private final Context mContext;
+    private final Server.Builder mServerBuilder;
     private final Profile mProfile;
     private final CredentialsCache mCredentialsCache;
     private final JasperServerCache mServerCache;
 
     @Inject
     public JasperClient(
-            @ApplicationContext Context context,
+            Server.Builder serverBuilder,
             Profile profile,
             CredentialsCache credentialsCache,
             JasperServerCache serverCache
     ) {
-        mContext = context;
+        mServerBuilder = serverBuilder;
         mProfile = profile;
         mCredentialsCache = credentialsCache;
         mServerCache = serverCache;
@@ -101,16 +95,9 @@ public class JasperClient implements JasperRestClient {
     }
 
     private Server provideServer() {
-        DefaultPrefHelper prefHelper = DefaultPrefHelper_.getInstance_(mContext);
-        int connectTimeout = prefHelper.getConnectTimeoutValue();
-        int readTimeout = prefHelper.getReadTimeoutValue();
-
         JasperServer server = providesJasperServer();
-
-        return Server.builder()
-                .withBaseUrl(server.getBaseUrl() + "/")
-                .withConnectionTimeOut(connectTimeout, TimeUnit.MILLISECONDS)
-                .withReadTimeout(readTimeout, TimeUnit.MILLISECONDS)
+        return mServerBuilder
+                .withBaseUrl(server.getBaseUrl())
                 .build();
     }
 

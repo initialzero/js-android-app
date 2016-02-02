@@ -230,6 +230,7 @@ android {
             exclude group: "org.mockito"
         }
         testCompile "org.powermock:powermock-module-junit4:1.6.2"
+        testCompile("org.robolectric:shadows-multidex:3.0")
         testCompile("org.robolectric:shadows-support-v4:3.0") {
             exclude group: "commons-logging", module: "commons-logging"
             exclude group: "org.apache.httpcomponents", module: "httpclient"

@@ -13,8 +13,8 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.ReloadReport
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.RunReportCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.UpdateReportCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.contract.RestReportContract;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
-import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
@@ -49,7 +49,7 @@ public class ReportViewPresenterTest {
     @Mock
     RequestExceptionHandler mExceptionHandler;
     @Mock
-    ReportView mView;
+    RestReportContract.View mView;
 
     private ReportViewPresenter presenter;
     private FakeGetReportShowControlsPropertyCase mFakeGetReportShowControlsPropertyCase;
@@ -126,12 +126,16 @@ public class ReportViewPresenterTest {
     @Test
     @SuppressWarnings("unchecked")
     public void should_perform_load_page_action() throws Exception {
+        PageRequest _10page = new PageRequest.Builder()
+                .setUri(REPORT_URI)
+                .setRange("10")
+                .asHtml()
+                .build();
+
         presenter.loadPage("10");
 
         verify(mView).showPageLoader();
-        PageRequest _10page = eq(new PageRequest.Builder().setUri(REPORT_URI).setRange("10").asHtml().build());
-        verify(mFakeGetReportPageContentCase).execute(_10page, any(Subscriber.class));
-
+        verify(mFakeGetReportPageContentCase).execute(eq(_10page), any(Subscriber.class));
         verify(mReportPageState).setRequestedPage("10");
         verify(mReportPageState).setCurrentPage("10");
         verify(mView).showCurrentPage(10);

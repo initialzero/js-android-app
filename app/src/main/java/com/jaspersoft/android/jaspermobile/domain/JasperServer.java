@@ -25,20 +25,22 @@
 package com.jaspersoft.android.jaspermobile.domain;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
-import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 public class JasperServer {
+    @NonNull
     private final String baseUrl;
-    private final Boolean edition;
-    private final ServerVersion version;
+    @NonNull
+    private final String edition;
+    @NonNull
+    private final String version;
 
-    private JasperServer(String baseUrl, Boolean edition, ServerVersion version) {
+    private JasperServer(@NonNull String baseUrl,
+                         @NonNull String edition,
+                         @NonNull String version) {
         this.baseUrl = baseUrl;
         this.edition = edition;
         this.version = version;
@@ -49,21 +51,13 @@ public class JasperServer {
         return baseUrl;
     }
 
-    @Nullable
-    public Boolean isProEdition() {
-        return edition;
+    public boolean isProEdition() {
+        return "PRO".equals(edition);
     }
 
-    @Nullable
-    public String getVersionName() {
-        if (version == null) {
-            return null;
-        }
-        return version.toString();
-    }
-
-    public static Builder builder() {
-        return new Builder();
+    @NonNull
+    public String getVersion() {
+        return version;
     }
 
     @Override
@@ -71,55 +65,61 @@ public class JasperServer {
         if (this == o) return true;
         if (!(o instanceof JasperServer)) return false;
 
-        JasperServer that = (JasperServer) o;
+        JasperServer server = (JasperServer) o;
 
-        if (baseUrl != null ? !baseUrl.equals(that.baseUrl) : that.baseUrl != null) return false;
-        if (edition != null ? !edition.equals(that.edition) : that.edition != null) return false;
-        return version != null ? version.equals(that.version) : that.version == null;
+        if (!baseUrl.equals(server.baseUrl)) return false;
+        if (!edition.equals(server.edition)) return false;
+        return version.equals(server.version);
+
     }
 
     @Override
     public final int hashCode() {
-        int result = baseUrl != null ? baseUrl.hashCode() : 0;
-        result = 31 * result + (edition != null ? edition.hashCode() : 0);
-        result = 31 * result + (version != null ? version.hashCode() : 0);
+        int result = baseUrl.hashCode();
+        result = 31 * result + edition.hashCode();
+        result = 31 * result + version.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        String editionName = edition ? "PRO" : "CE";
         return "JasperServer{" +
                 "baseUrl='" + baseUrl + '\'' +
-                ", edition='" + editionName + '\'' +
+                ", edition='" + edition + '\'' +
                 ", version=" + version +
                 '}';
     }
 
     public static class Builder {
         private String mBaseUrl;
-        private Boolean mEdition;
-        private ServerVersion mVersion;
-
-        private Builder() {
-        }
+        private String mEdition;
+        private String mVersion;
 
         public Builder setBaseUrl(String baseUrl) {
             mBaseUrl = baseUrl;
             return this;
         }
 
-        public Builder setEditionIsPro(boolean edition) {
+        public Builder setEdition(String edition) {
             mEdition = edition;
             return this;
         }
 
-        public Builder setVersion(ServerVersion version) {
+        public Builder setVersion(String version) {
             mVersion = version;
             return this;
         }
 
         public JasperServer create() {
+            if (mEdition == null) {
+                throw new NullPointerException("Edition should not be null");
+            }
+            if (mVersion == null) {
+                throw new NullPointerException("Edition should not be null");
+            }
+            if (mBaseUrl == null) {
+                throw new NullPointerException("Edition should not be null");
+            }
             return new JasperServer(mBaseUrl, mEdition, mVersion);
         }
     }

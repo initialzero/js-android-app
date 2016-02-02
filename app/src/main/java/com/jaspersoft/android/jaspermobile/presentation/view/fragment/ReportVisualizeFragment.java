@@ -27,12 +27,11 @@ import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
-import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.contract.VisualizeReportContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportVisualizePresenter;
-import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
@@ -70,7 +69,7 @@ import rx.functions.Action1;
         R.menu.print_menu,
 })
 public class ReportVisualizeFragment extends BaseFragment
-        implements ReportVisualizeView,
+        implements VisualizeReportContract.View,
         NumberDialogFragment.NumberDialogClickListener,
         PageDialogFragment.PageDialogClickListener {
 
@@ -110,7 +109,7 @@ public class ReportVisualizeFragment extends BaseFragment
     @Inject
     protected ReportVisualizePresenter mPresenter;
     @Inject
-    protected ReportActionListener mActionListener;
+    protected VisualizeReportContract.Action mActionListener;
     @Inject
     protected PostExecutionThread mPostExecutionThread;
     @Inject

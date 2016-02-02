@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import rx.observers.TestSubscriber;
 
@@ -31,7 +32,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
  * @since 2.3
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 21)
+@Config(constants = BuildConfig.class, sdk = 21, shadows = {ShadowMultiDex.class})
 public class InMemoryVisualizeTemplateRepositoryTest {
 
     @Mock
@@ -59,7 +60,7 @@ public class InMemoryVisualizeTemplateRepositoryTest {
 
     private void setUpMocks() {
         when(mJasperServerCache.get(any(Profile.class))).thenReturn(mJasperServer);
-        when(mJasperServer.getVersionName()).thenReturn("6.1");
+        when(mJasperServer.getVersion()).thenReturn("6.1");
         when(mJasperServer.getBaseUrl()).thenReturn("http://server.url/");
     }
 
@@ -72,7 +73,7 @@ public class InMemoryVisualizeTemplateRepositoryTest {
 
         verify(mJasperServerCache).get(fakeProfile);
         verify(mJasperServer).getBaseUrl();
-        verify(mJasperServer).getVersionName();
+        verify(mJasperServer).getVersion();
         verify(mVisualizeTemplateCache).put(eq(fakeProfile), any(VisualizeTemplate.class));
     }
 

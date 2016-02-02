@@ -18,10 +18,10 @@ public class JasperServerMapper {
     }
 
     public JasperServer toDomainModel(String serverUrl, ServerInfo serverInfo) {
-        return JasperServer.builder()
+        return new JasperServer.Builder()
                 .setBaseUrl(serverUrl)
-                .setEditionIsPro(serverInfo.isEditionPro())
-                .setVersion(serverInfo.getVersion())
+                .setEdition(serverInfo.getEdition())
+                .setVersion(serverInfo.getVersion().toString())
                 .create();
     }
 }

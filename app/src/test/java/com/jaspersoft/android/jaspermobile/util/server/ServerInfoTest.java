@@ -38,6 +38,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -47,7 +48,7 @@ import static org.junit.Assert.assertThat;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 21)
+@Config(manifest = Config.NONE, sdk = 21, constants = BuildConfig.class, shadows = {ShadowMultiDex.class})
 public class ServerInfoTest {
 
     AccountServerData fakeServerData;

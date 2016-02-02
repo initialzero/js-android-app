@@ -16,8 +16,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.RunReportCas
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.UpdateReportCase;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
-import com.jaspersoft.android.jaspermobile.presentation.view.ReportView;
+import com.jaspersoft.android.jaspermobile.presentation.contract.RestReportContract;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
@@ -31,9 +30,7 @@ import timber.log.Timber;
  * @since 2.3
  */
 @PerActivity
-public class ReportViewPresenter implements ReportActionListener, Presenter<ReportView> {
-    private ReportView mView;
-
+public class ReportViewPresenter extends Presenter<RestReportContract.View> implements RestReportContract.Action {
     private final String mReportUri;
     private final RequestExceptionHandler mExceptionHandler;
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
@@ -74,10 +71,10 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     }
 
     public void init() {
-        if (mView == null) {
+        if (getView() == null) {
             throw new NullPointerException("Please inject view before calling this method");
         }
-        if (mView.getState().isControlsPageShown()) {
+        if (getView().getState().isControlsPageShown()) {
             loadLastSavedPage();
             loadMultiPageProperty();
             loadTotalPagesProperty();
@@ -87,7 +84,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     }
 
     private void loadLastSavedPage() {
-        loadPageByPosition(mView.getState().getCurrentPage());
+        loadPageByPosition(getView().getState().getCurrentPage());
     }
 
     private void loadPageByPosition(final String position) {
@@ -124,7 +121,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
 
             @Override
             public void onNext(Boolean needControls) {
-                mView.getState().setControlsPageShown(true);
+                getView().getState().setControlsPageShown(true);
                 toggleFiltersAction(needControls);
                 resolveNeedControls(needControls);
             }
@@ -133,15 +130,10 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
 
     private void resolveNeedControls(boolean needControls) {
         if (needControls) {
-            mView.showInitialFiltersPage();
+            getView().showInitialFiltersPage();
         } else {
             runReport();
         }
-    }
-
-    @Override
-    public void injectView(ReportView view) {
-        mView = view;
     }
 
     @Override
@@ -167,7 +159,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
 
     @Override
     public void loadPage(String pageRange) {
-        mView.getState().setRequestedPage(pageRange);
+        getView().getState().setRequestedPage(pageRange);
         loadPageByPosition(pageRange);
     }
 
@@ -289,53 +281,53 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     }
 
     private void showPageLoader() {
-        mView.showPageLoader();
+        getView().showPageLoader();
     }
 
     private void showPageOutOfRangeError() {
-        mView.showPageOutOfRangeError();
+        getView().showPageOutOfRangeError();
     }
 
     private void showEmptyPage() {
-        mView.showEmptyPageMessage();
+        getView().showEmptyPageMessage();
     }
 
     private void resetTotalPagesLabel() {
-        mView.resetPaginationControl();
+        getView().resetPaginationControl();
     }
 
     private void updateTotalPagesLabel(int pages) {
-        mView.showTotalPages(pages);
+        getView().showTotalPages(pages);
     }
 
     private void toggleSaveAction(boolean visibility) {
-        mView.setSaveActionVisibility(visibility);
-        mView.reloadMenu();
+        getView().setSaveActionVisibility(visibility);
+        getView().reloadMenu();
     }
 
     private void toggleFiltersAction(boolean visibility) {
-        mView.setFilterActionVisibility(visibility);
-        mView.reloadMenu();
+        getView().setFilterActionVisibility(visibility);
+        getView().reloadMenu();
     }
 
     private void togglePaginationControl(boolean multiPage) {
-        mView.setPaginationControlVisibility(multiPage);
+        getView().setPaginationControlVisibility(multiPage);
     }
 
     private void hideLoading() {
-        mView.hideLoading();
+        getView().hideLoading();
     }
 
     private void showLoading() {
-        mView.showLoading();
+        getView().showLoading();
     }
 
     @VisibleForTesting
     void showPage(String pagePosition, ReportPage page) {
-        mView.hideError();
-        mView.showCurrentPage(Integer.valueOf(pagePosition));
-        mView.getState().setCurrentPage(pagePosition);
-        mView.showPage(new String(page.getContent()));
+        getView().hideError();
+        getView().showCurrentPage(Integer.valueOf(pagePosition));
+        getView().getState().setCurrentPage(pagePosition);
+        getView().showPage(new String(page.getContent()));
     }
 
     @VisibleForTesting
@@ -357,7 +349,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
                 loadLastSavedPage();
                 break;
             case StatusCodes.REPORT_EXECUTION_INVALID:
-                reloadByPosition(mView.getState().getRequestedPage());
+                reloadByPosition(getView().getState().getRequestedPage());
                 break;
             default:
                 Timber.e(serviceException, "Page request operation crashed with SDK exception");
@@ -366,7 +358,7 @@ public class ReportViewPresenter implements ReportActionListener, Presenter<Repo
     }
 
     private void showErrorMessage(Throwable error) {
-        mView.hideLoading();
-        mView.showError(mExceptionHandler.extractMessage(error));
+        getView().hideLoading();
+        getView().showError(mExceptionHandler.extractMessage(error));
     }
 }

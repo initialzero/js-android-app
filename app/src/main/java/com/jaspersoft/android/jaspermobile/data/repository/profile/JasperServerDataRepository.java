@@ -30,17 +30,16 @@ import com.jaspersoft.android.jaspermobile.data.entity.mapper.JasperServerMapper
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.profile.JasperServerRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.CacheModule;
+import com.jaspersoft.android.sdk.network.AnonymousClient;
+import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
-import com.jaspersoft.android.sdk.service.rx.info.RxServerInfoService;
+import com.jaspersoft.android.sdk.service.info.ServerInfoService;
+
+import java.net.CookieHandler;
 
 import javax.inject.Inject;
-
-import rx.Observable;
-import rx.functions.Action1;
-import rx.functions.Func0;
-import rx.functions.Func1;
+import javax.inject.Singleton;
 
 /**
  * Implementation of repository pattern responsible CRUD operations around server meta data.
@@ -48,7 +47,7 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
+@Singleton
 public final class JasperServerDataRepository implements JasperServerRepository {
 
     /**
@@ -56,50 +55,45 @@ public final class JasperServerDataRepository implements JasperServerRepository 
      */
     private final JasperServerCache mJasperServerCache;
     private final JasperServerMapper mJasperServerMapper;
-    private final RxServerInfoService mRxServerInfoService;
+    private final Server.Builder mServerBuilder;
 
     @Inject
-    public JasperServerDataRepository(JasperServerCache jasperServerCache, JasperServerMapper jasperServerMapper, RxServerInfoService rxServerInfoService) {
+    public JasperServerDataRepository(JasperServerCache jasperServerCache,
+                                      JasperServerMapper jasperServerMapper,
+                                      Server.Builder serverBuilder) {
         mJasperServerCache = jasperServerCache;
         mJasperServerMapper = jasperServerMapper;
-        mRxServerInfoService = rxServerInfoService;
+        mServerBuilder = serverBuilder;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Observable<Profile> saveServer(final Profile profile, final String serverUrl) {
-        return mRxServerInfoService.requestServerInfo()
-                .map(new Func1<ServerInfo, JasperServer>() {
-                    @Override
-                    public JasperServer call(ServerInfo serverInfo) {
-                        return mJasperServerMapper.toDomainModel(serverUrl, serverInfo);
-                    }
-                }).doOnNext(new Action1<JasperServer>() {
-                    @Override
-                    public void call(JasperServer server) {
-                        mJasperServerCache.put(profile, server);
-                    }
-                }).map(new Func1<JasperServer, Profile>() {
-                    @Override
-                    public Profile call(JasperServer server) {
-                        return profile;
-                    }
-                });
+    public JasperServer saveServer(final Profile profile, final JasperServer server) {
+        mJasperServerCache.put(profile, server);
+        return server;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Observable<JasperServer> getServer(final Profile profile) {
-        return Observable.defer(new Func0<Observable<JasperServer>>() {
-            @Override
-            public Observable<JasperServer> call() {
-                JasperServer server = mJasperServerCache.get(profile);
-                return Observable.just(server);
-            }
-        });
+    public JasperServer getServer(final Profile profile) {
+        return mJasperServerCache.get(profile);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JasperServer loadServer(final String serverUrl) throws Exception {
+        Server server = mServerBuilder.withBaseUrl(serverUrl).build();
+        AnonymousClient client = server.newClient()
+                .withCookieHandler(CookieHandler.getDefault())
+                .create();
+        ServerInfoService infoService = ServerInfoService.newService(client);
+        ServerInfo serverInfo = infoService.requestServerInfo();
+        return mJasperServerMapper.toDomainModel(serverUrl, serverInfo);
     }
 }

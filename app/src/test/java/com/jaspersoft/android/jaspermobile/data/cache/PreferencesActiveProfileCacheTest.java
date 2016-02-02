@@ -36,8 +36,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-
-import rx.observers.TestSubscriber;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -46,7 +45,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, shadows = {ShadowMultiDex.class})
 public class PreferencesActiveProfileCacheTest {
 
     private PreferencesActiveProfileCache cacheUnderTest;

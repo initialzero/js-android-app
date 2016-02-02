@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import java.net.HttpCookie;
 import java.net.URI;
@@ -25,7 +26,7 @@ import static org.hamcrest.core.Is.is;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 21)
+@Config(manifest = Config.NONE, sdk = 21, shadows = {ShadowMultiDex.class})
 public class PersistentCookieStoreTest {
     public static final URI DOMAIN = URI.create("http://localhost");
     public static final URI DOMAIN_WITH_PATH = URI.create("http://localhost/path");

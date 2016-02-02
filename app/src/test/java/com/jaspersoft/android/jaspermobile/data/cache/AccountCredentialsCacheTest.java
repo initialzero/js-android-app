@@ -41,11 +41,11 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-
-import rx.observers.TestSubscriber;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -54,10 +54,10 @@ import static org.mockito.Mockito.when;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, shadows = {ShadowMultiDex.class})
 public class AccountCredentialsCacheTest {
     @Mock
-    SecureStorage mSecureStorage;
+    SecureCache mSecureCache;
 
     AccountCredentialsCache cacheUnderTest;
     Profile fakeProfile;
@@ -66,10 +66,10 @@ public class AccountCredentialsCacheTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(mSecureStorage.get(anyString())).thenReturn("encrypted");
+        when(mSecureCache.get(anyString())).thenReturn("encrypted");
 
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
-        cacheUnderTest = new AccountCredentialsCache(accountManager, mSecureStorage, FakeAccountDataMapper.get());
+        cacheUnderTest = new AccountCredentialsCache(accountManager, mSecureCache, FakeAccountDataMapper.get());
         fakeProfile = Profile.create("name");
         fakeCredentials = AppCredentials.builder()
                 .setPassword("1234")
@@ -85,9 +85,8 @@ public class AccountCredentialsCacheTest {
         Account fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
 
         cacheUnderTest.put(fakeProfile, fakeCredentials);
+        verify(mSecureCache).put(fakeProfile.getKey(), "1234");
 
-        assertThat("Password should be injected in cache",
-                "encrypted".equals(accountManager.getPassword(fakeAccount)));
         assertThat("Username should be injected in cache",
                 "nay".equals(accountManager.getUserData(fakeAccount, "USERNAME_KEY"))
         );
@@ -98,14 +97,14 @@ public class AccountCredentialsCacheTest {
 
     @Test
     public void testHappyGetCase() throws Exception {
+        when(mSecureCache.get(anyString())).thenReturn("1234");
+
         FakeAccount.injectAccount(fakeProfile)
                 .injectCredentials(fakeCredentials)
                 .done();
 
-        TestSubscriber<AppCredentials> test = new TestSubscriber<>();
-        cacheUnderTest.get(fakeProfile);
+        AppCredentials credentials = cacheUnderTest.get(fakeProfile);
 
-        AppCredentials credentials = test.getOnNextEvents().get(0);
         assertThat("Failed to retrieve password for profile " + fakeProfile,
                 "1234".equals(credentials.getPassword()));
         assertThat("Failed to retrieve username for profile " + fakeProfile,

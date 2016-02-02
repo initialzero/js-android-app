@@ -29,6 +29,7 @@ import com.jaspersoft.android.jaspermobile.data.entity.mapper.JasperServerMapper
 import com.jaspersoft.android.jaspermobile.data.repository.profile.JasperServerDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.jaspersoft.android.sdk.service.rx.info.RxServerInfoService;
@@ -38,12 +39,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import rx.Observable;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tom Koptel
@@ -51,20 +47,10 @@ import static org.mockito.Mockito.when;
  */
 public class JasperServerDataRepositoryTest {
 
-    public static final String SERVER_URL = "http://localhost";
-
     @Mock
     JasperServerCache mJasperServerCache;
     @Mock
     JasperServerMapper mJasperServerMapper;
-
-    /**
-     * SDK mocks
-     */
-    @Mock
-    RxServerInfoService mRxServerInfoService;
-    @Mock
-    ServerInfo mServerInfo;
 
     JasperServerDataRepository repoUnderTest;
     Profile fakeProfile;
@@ -73,34 +59,25 @@ public class JasperServerDataRepositoryTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
-        JasperServer.Builder serverBuilder = JasperServer.builder().setBaseUrl(SERVER_URL);
-
-
-        repoUnderTest = new JasperServerDataRepository(mJasperServerCache, mJasperServerMapper, mRxServerInfoService);
+        Server.Builder builder = Server.builder();
+        repoUnderTest = new JasperServerDataRepository(mJasperServerCache, mJasperServerMapper, builder);
         fakeProfile = Profile.create("name");
-        fakeServer = JasperServer.builder()
+        fakeServer = new JasperServer.Builder()
                 .setBaseUrl("http://localhost")
-                .setVersion(ServerVersion.v6)
-                .setEditionIsPro(true)
+                .setVersion(ServerVersion.v6.toString())
+                .setEdition("PRO")
                 .create();
     }
 
     @Test
     public void testSaveServer() throws Exception {
-        when(mRxServerInfoService.requestServerInfo()).thenReturn(Observable.just(mServerInfo));
-        when(mJasperServerMapper.toDomainModel(anyString(), any(ServerInfo.class))).thenReturn(fakeServer);
-
-        repoUnderTest.saveServer(fakeProfile, SERVER_URL).subscribe();
-
-        verify(mRxServerInfoService).requestServerInfo();
-        verify(mJasperServerMapper).toDomainModel(SERVER_URL, mServerInfo);
+        repoUnderTest.saveServer(fakeProfile, fakeServer);
         verify(mJasperServerCache).put(fakeProfile, fakeServer);
     }
 
     @Test
     public void testGetServer() throws Exception {
-        repoUnderTest.getServer(fakeProfile).subscribe();
+        repoUnderTest.getServer(fakeProfile);
         verify(mJasperServerCache).get(fakeProfile);
     }
 }

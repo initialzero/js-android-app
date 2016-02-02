@@ -27,13 +27,11 @@ package com.jaspersoft.android.jaspermobile.domain.repository.profile;
 import com.jaspersoft.android.jaspermobile.data.repository.profile.ProfileDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
-import rx.Observable;
-
 /**
  * Abstraction around profile CRUD operations.
  * Additionally supports activation of {@link Profile}
  * <br/>
- *
+ * <p/>
  * Implemented by {@link ProfileDataRepository}
  *
  * @author Tom Koptel
@@ -42,15 +40,15 @@ import rx.Observable;
 public interface ProfileRepository {
     /**
      * Persists profile data in system
-
+     *
      * @param profile target {@link Profile} we would like to cache
      */
-    Observable<Profile> saveProfile(Profile profile);
+    Profile saveProfile(Profile profile);
 
     /**
      * Makes target profile active
      *
      * @param profile target {@link Profile} we would like to activate
      */
-    Observable<Profile> activate(Profile profile);
+    Profile activate(Profile profile);
 }

@@ -28,9 +28,18 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
  * @author Tom Koptel
  * @since 2.3
  */
-public interface Presenter<View> {
-    void injectView(View view);
-    void resume();
-    void pause();
-    void destroy();
+public abstract class Presenter<View> {
+    private View mView;
+
+    public final void injectView(View view) {
+        mView = view;
+    }
+
+    public View getView() {
+        return mView;
+    }
+
+    public abstract void resume();
+    public abstract void pause();
+    public abstract void destroy();
 }

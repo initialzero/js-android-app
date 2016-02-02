@@ -43,6 +43,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
@@ -54,7 +55,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, shadows = {ShadowMultiDex.class})
 public class AccountJasperServerCacheTest {
     AccountManager accountManager;
     AccountJasperServerCache cacheUnderTest;
@@ -70,10 +71,10 @@ public class AccountJasperServerCacheTest {
 
         accountManager = AccountManager.get(RuntimeEnvironment.application);
         fakeProfile = Profile.create("name");
-        fakeServer = JasperServer.builder()
+        fakeServer = new JasperServer.Builder()
                 .setBaseUrl("http://localhost")
-                .setVersion(ServerVersion.v6)
-                .setEditionIsPro(false)
+                .setVersion(ServerVersion.v6.toString())
+                .setEdition("CE")
                 .create();
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
         cacheUnderTest = new AccountJasperServerCache(accountManager, FakeAccountDataMapper.get(), mProfileCache);
@@ -93,7 +94,7 @@ public class AccountJasperServerCacheTest {
         assertThat("Edition should be injected in cache",
                 !fakeServer.isProEdition());
         assertThat("Version should be injected in cache",
-                String.valueOf(fakeServer.getVersionName())
+                String.valueOf(fakeServer.getVersion())
                         .equals(versionName));
     }
 
@@ -107,7 +108,7 @@ public class AccountJasperServerCacheTest {
         assertThat("Failed to retrieve base url for profile " + fakeAccount,
                 "http://localhost".equals(server.getBaseUrl()));
         assertThat("Failed to retrieve version for profile " + fakeAccount,
-                server.getVersionName().equals("6.0"));
+                server.getVersion().equals("6.0"));
         assertThat("Failed to retrieve edition for profile " + fakeAccount,
                 !server.isProEdition());
     }
@@ -123,53 +124,5 @@ public class AccountJasperServerCacheTest {
                 cacheUnderTest.hasServer(fakeProfile));
 
         verify(mProfileCache).hasProfile(fakeProfile);
-    }
-
-    @Test
-    public void testServerMissingIfServerUrlMissing() throws Exception {
-        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(true);
-        FakeAccount.injectAccount(fakeProfile)
-                .injectServer(
-                        JasperServer.builder()
-                                .setEditionIsPro(false)
-                                .setVersion(ServerVersion.v5_5)
-                                .create()
-                ).done();
-
-
-        assertThat("Cache should not contain injected server, because server url missing",
-                !cacheUnderTest.hasServer(fakeProfile));
-    }
-
-    @Test
-    public void testServerMissingIfEditionMissing() throws Exception {
-        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(true);
-        FakeAccount.injectAccount(fakeProfile)
-                .injectServer(
-                        JasperServer.builder()
-                                .setBaseUrl("http://localhost/")
-                                .setVersion(ServerVersion.v5_5)
-                                .create()
-                ).done();
-
-
-        assertThat("Cache should not contain injected server, because edition missing",
-                !cacheUnderTest.hasServer(fakeProfile));
-    }
-
-    @Test
-    public void testServerMissingIfVersionMissing() throws Exception {
-        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(true);
-        FakeAccount.injectAccount(fakeProfile)
-                .injectServer(
-                        JasperServer.builder()
-                                .setBaseUrl("http://localhost/")
-                                .setEditionIsPro(false)
-                                .create()
-                ).done();
-
-
-        assertThat("Cache should not contain injected server, because version missing",
-                !cacheUnderTest.hasServer(fakeProfile));
     }
 }

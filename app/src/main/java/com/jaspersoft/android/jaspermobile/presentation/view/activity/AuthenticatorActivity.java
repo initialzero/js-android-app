@@ -30,13 +30,16 @@ import android.os.Bundle;
 import android.view.Window;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.AuthenticatorActivityComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.AuthenticatorFragment_;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public class AuthenticatorActivity extends BaseActivity  {
+public class AuthenticatorActivity extends BaseActivity implements HasComponent<AuthenticatorActivityComponent> {
 
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle mResultBundle = null;
@@ -103,4 +106,8 @@ public class AuthenticatorActivity extends BaseActivity  {
     }
 
 
+    @Override
+    public AuthenticatorActivityComponent getComponent() {
+        return getAppComponent().plus(new ActivityModule(this));
+    }
 }

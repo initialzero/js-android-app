@@ -61,16 +61,12 @@ public class ProfileForm {
                 '}';
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public static class Builder {
         private String mAlias;
         private String mBaseUrl;
         private AppCredentials mCredentials;
 
-        private Builder() {
+        public Builder() {
         }
 
         public Builder setAlias(String alias) {

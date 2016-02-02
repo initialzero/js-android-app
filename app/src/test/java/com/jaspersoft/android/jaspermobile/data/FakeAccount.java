@@ -91,7 +91,7 @@ public final class FakeAccount {
             AccountManager accountManager = AccountManager.get(mContext);
             accountManager.setUserData(mAccount, "SERVER_URL_KEY", fakeServer.getBaseUrl());
             accountManager.setUserData(mAccount, "EDITION_KEY", String.valueOf(fakeServer.isProEdition()));
-            accountManager.setUserData(mAccount, "VERSION_NAME_KEY", String.valueOf(fakeServer.getVersionName()));
+            accountManager.setUserData(mAccount, "VERSION_NAME_KEY", String.valueOf(fakeServer.getVersion()));
             return this;
         }
 

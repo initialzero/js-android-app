@@ -1,7 +1,7 @@
 package com.jaspersoft.android.jaspermobile.internal.di.modules.activity;
 
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.contract.RestReportContract;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
 
 import dagger.Module;
@@ -19,7 +19,7 @@ public final class ReportRestViewerModule extends ReportModule {
 
     @Provides
     @PerActivity
-    ReportActionListener provideReportActionListener(ReportViewPresenter presenter) {
+    RestReportContract.Action provideReportActionListener(ReportViewPresenter presenter) {
         return presenter;
     }
 }

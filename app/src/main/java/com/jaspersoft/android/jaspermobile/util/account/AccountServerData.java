@@ -29,6 +29,8 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.jaspersoft.android.jaspermobile.util.BaseUrlNormalizer;
+
 /**
  * TODO provide unit tests
  * Wraps JRS instance info and provides as bundle for the needs of {@link android.accounts.AccountManager}.
@@ -107,7 +109,7 @@ public class AccountServerData {
     }
 
     public String getServerUrl() {
-        return serverUrl;
+        return BaseUrlNormalizer.denormalize(serverUrl);
     }
 
     public AccountServerData setServerUrl(String serverUrl) {

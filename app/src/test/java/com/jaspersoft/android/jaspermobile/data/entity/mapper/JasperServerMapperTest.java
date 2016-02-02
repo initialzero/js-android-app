@@ -33,7 +33,7 @@ public class JasperServerMapperTest {
 
         JasperServer result = mapper.toDomainModel(SERVER_URL, serverInfo);
         assertThat("Failed to map server url", result.getBaseUrl(), is(SERVER_URL));
-        assertThat("Failed to map server version", result.getVersionName(), is("5.5"));
+        assertThat("Failed to map server version", result.getVersion(), is("5.5"));
         assertThat("Failed to map server edition", result.isProEdition(), is(true));
     }
 }

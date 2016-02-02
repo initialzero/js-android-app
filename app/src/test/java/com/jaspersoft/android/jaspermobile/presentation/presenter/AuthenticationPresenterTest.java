@@ -32,13 +32,13 @@ import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateP
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.contract.AuthenticationContract;
 import com.jaspersoft.android.jaspermobile.presentation.validation.AliasMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.PasswordMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.ProfileFormValidation;
 import com.jaspersoft.android.jaspermobile.presentation.validation.ServerUrlFormatException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.ServerUrlMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.UsernameMissingException;
-import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +48,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import rx.Subscriber;
 
@@ -61,7 +62,7 @@ import static org.mockito.Mockito.when;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, sdk = 21, shadows = {ShadowMultiDex.class})
 public class AuthenticationPresenterTest {
 
     @Mock
@@ -70,7 +71,7 @@ public class AuthenticationPresenterTest {
     RequestExceptionHandler mRequestExceptionHandler;
 
     @Mock
-    AuthenticationView mAuthenticationView;
+    AuthenticationContract.View mAuthenticationView;
 
     // Domain mock components
     @Mock

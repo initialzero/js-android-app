@@ -9,8 +9,6 @@ import com.jaspersoft.android.jaspermobile.util.print.DashboardViewPrintJob;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
-import javax.inject.Named;
-
 import dagger.Module;
 import dagger.Provides;
 
@@ -32,7 +30,7 @@ public final class DashboardModule {
     @Provides
     @PerActivity
     ResourcePrintJob providePrintJob(JasperServer server) {
-        String versionName = server.getVersionName();
+        String versionName = server.getVersion();
         ServerVersion version = ServerVersion.valueOf(versionName);
         if (version.lessThan(ServerVersion.v6) || "legacyDashboard".equals(mType)) {
             return new DashboardPicturePrintJob(mWebView);

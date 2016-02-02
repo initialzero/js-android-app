@@ -22,49 +22,65 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.data.entity.mapper;
+package com.jaspersoft.android.jaspermobile.data.validator;
 
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.JasperServerMapper;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static junit.framework.Assert.fail;
+
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ServerInfo.class})
-public class ServerInfoDataMapperTest {
+public class ServerVersionValidationTest {
+
     @Mock
-    ServerInfo mServerInfo;
-    ServerInfoDataMapper mapper;
+    JasperServerMapper serverMapper;
+    private ServerVersionValidation validator;
+    private JasperServer.Builder mServerBuilder;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        mapper = new ServerInfoDataMapper();
+        validator = new ServerVersionValidation();
+        mServerBuilder = new JasperServer.Builder()
+                .setEdition("PRO")
+                .setBaseUrl("http://localhost");
     }
 
     @Test
-    public void testTransform() throws Exception {
-        when(mServerInfo.isEditionPro()).thenReturn(false);
-        when(mServerInfo.getVersion()).thenReturn(ServerVersion.v6);
+    public void serverThatIsEquals5_5IsValid() throws Exception {
+        JasperServer server = mServerBuilder
+                .setVersion(ServerVersion.v5_5.toString())
+                .create();
+        validator.validate(server);
+    }
 
-        JasperServer server = mapper.transform("http://localhost", mServerInfo);
-        assertThat(server.isProEdition(), is(false));
-        assertThat(server.getVersionName(), is("6.0"));
-        assertThat(server.getBaseUrl(), is("http://localhost"));
+    @Test
+    public void serverThatIsHigherThan5_5IsValid() throws Exception {
+        JasperServer server = mServerBuilder
+                .setVersion(ServerVersion.v6.toString())
+                .create();
+        validator.validate(server);
+    }
+
+    @Test
+    public void serverThatIsEquals5_0IsNotValid() throws Exception {
+        JasperServer server = mServerBuilder
+                .setVersion("5.0")
+                .create();
+        try {
+            validator.validate(server);
+            fail("Should throw ServerVersionNotSupportedException");
+        } catch (Exception ex) {
+        }
     }
 }

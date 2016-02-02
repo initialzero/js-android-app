@@ -24,6 +24,7 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -43,7 +44,9 @@ public class InMemoryReportPageRepositoryTest {
             .setRange(PAGE_POSITION)
             .asHtml()
             .build();
-    private static final ReportPage ANY_PAGE = new ReportPage("page".getBytes(), true);
+
+    private static final byte[] CONTENT = "page".getBytes();
+    private static final ReportPage ANY_PAGE = new ReportPage(CONTENT, true);;
 
     @Mock
     ReportPageCache mReportPageCache;
@@ -79,7 +82,7 @@ public class InMemoryReportPageRepositoryTest {
         verify(mReportExport).download();
         verify(mReportExportOutput).getStream();
         verify(mReportExportOutput).isFinal();
-        verify(mReportPageCache).put(PAGE_REQUEST, ANY_PAGE);
+        verify(mReportPageCache).put(eq(PAGE_REQUEST), any(ReportPage.class));
     }
 
     @Test
@@ -112,7 +115,7 @@ public class InMemoryReportPageRepositoryTest {
 
     private void setupMocks() throws IOException {
         when(mReportExportOutput.isFinal()).thenReturn(true);
-        when(mReportExportOutput.getStream()).thenReturn(new ByteArrayInputStream("page".getBytes()));
+        when(mReportExportOutput.getStream()).thenReturn(new ByteArrayInputStream(CONTENT));
         when(mReportExport.download()).thenReturn(Observable.just(mReportExportOutput));
         when(mReportExecution.export(any(ReportExportOptions.class))).thenReturn(Observable.just(mReportExport));
     }

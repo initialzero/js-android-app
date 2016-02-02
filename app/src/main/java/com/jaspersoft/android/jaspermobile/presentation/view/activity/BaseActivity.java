@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
@@ -29,7 +29,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected AppComponent getAppComponent() {
-        return ((JasperMobileApplication)getApplication()).getComponent();
+        return GraphObject.Factory.from(this).getComponent();
     }
 
     protected ActivityModule getActivityModule() {

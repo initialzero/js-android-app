@@ -16,9 +16,12 @@ import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.network.cookie.CookieStorage;
 import com.jaspersoft.android.jaspermobile.network.cookie.CookieStorageFactory;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
+import com.jaspersoft.android.sdk.network.Server;
 
 import java.net.CookieStore;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -79,6 +82,13 @@ AppModule {
 
     @Provides
     @Singleton
+    @Named("reserved_account_name")
+    String provideReservedAccountName() {
+        return JasperSettings.RESERVED_ACCOUNT_NAME;
+    }
+
+    @Provides
+    @Singleton
     AccountManager providesAccountManager(@ApplicationContext Context context) {
         return AccountManager.get(context);
     }
@@ -99,5 +109,13 @@ AppModule {
     @Singleton
     SecureCache provideSecureStorage(SecureStorage secureStorage) {
         return secureStorage;
+    }
+
+    @Provides
+    Server.Builder provideServerBuilder() {
+        DefaultPrefHelper_ helper = DefaultPrefHelper_.getInstance_(mApplication);
+        return Server.builder()
+                .withConnectionTimeOut(helper.getConnectTimeoutValue(), TimeUnit.MILLISECONDS)
+                .withReadTimeout(helper.getReadTimeoutValue(), TimeUnit.MILLISECONDS);
     }
 }

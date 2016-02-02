@@ -32,19 +32,16 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AuthenticatorActivityComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.AuthenticatorModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ServerClientModule;
-import com.jaspersoft.android.jaspermobile.presentation.action.ProfileActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.contract.AuthenticationContract;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
-import com.jaspersoft.android.jaspermobile.presentation.view.AuthenticationView;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
+import com.jaspersoft.android.jaspermobile.util.BaseUrlNormalizer;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.androidannotations.annotations.Click;
@@ -58,7 +55,7 @@ import javax.inject.Inject;
  * @since 2.0
  */
 @EFragment(R.layout.add_account_layout)
-public class AuthenticatorFragment extends BaseFragment implements AuthenticationView {
+public class AuthenticatorFragment extends BaseFragment implements AuthenticationContract.View {
     private static final String ALIAS = "Mobile Demo";
     private static final String SERVER_URL = "http://mobiledemo2.jaspersoft.com/jasperserver-pro";
     private static final String ORGANIZATION = "organization_1";
@@ -84,7 +81,20 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
      * Injected through {@link AuthenticatorModule#provideActionListener(AuthenticationPresenter)}
      */
     @Inject
-    ProfileActionListener mProfileActionListener;
+    AuthenticationContract.Action mProfileActionListener;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (mPresenter == null) {
+            injectComponents();
+        }
+    }
+
+    private void injectComponents() {
+        getComponent(AuthenticatorActivityComponent.class).inject(this);
+        mPresenter.injectView(this);
+    }
 
     @Click
     void addAccount() {
@@ -230,29 +240,23 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
         }
     }
 
-    private void saveProfile(String alias, String serverUrl,
-                             String username, String password,
-                             String organization) {
+    private void saveProfile(
+            String alias,
+            String serverUrl,
+            String username,
+            String password,
+            String organization
+    ) {
         AppCredentials credentials = AppCredentials.builder()
                 .setUsername(username)
                 .setPassword(password)
                 .setOrganization(organization)
                 .create();
-        ProfileForm profileForm = ProfileForm.builder()
+        ProfileForm profileForm = new ProfileForm.Builder()
                 .setAlias(alias)
-                .setBaseUrl(serverUrl)
+                .setBaseUrl(BaseUrlNormalizer.normalize(serverUrl))
                 .setCredentials(credentials)
                 .build();
-
-        injectComponents(serverUrl);
         mPresenter.saveProfile(profileForm);
-    }
-
-    private void injectComponents(String baseUrl) {
-        AuthenticatorActivityComponent component = GraphObject.Factory.from(getActivity())
-                .getComponent()
-                .plus(new ActivityModule(getActivity()), new ServerClientModule(baseUrl));
-        component.inject(this);
-        mPresenter.injectView(this);
     }
 }

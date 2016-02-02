@@ -7,13 +7,13 @@ import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMetadataCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.presentation.action.ReportActionListener;
+import com.jaspersoft.android.jaspermobile.presentation.contract.VisualizeReportContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ResourceModelMapper;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
@@ -28,7 +28,6 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.Visualiz
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewErrorEvent;
-import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
 import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 
@@ -44,7 +43,7 @@ import timber.log.Timber;
  * @since 2.3
  */
 @PerActivity
-public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>, ReportActionListener {
+public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.View> implements VisualizeReportContract.Action {
 
     private final double mScreenDiagonal;
     private final String mReportUri;
@@ -59,7 +58,6 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     private final GetReportMetadataCase mGetReportMetadataCase;
 
     private CompositeSubscription mCompositeSubscription;
-    private ReportVisualizeView mView;
 
     @Inject
     public ReportVisualizePresenter(
@@ -87,20 +85,20 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     }
 
     public void init() {
-        if (mView == null) {
+        if (getView() == null) {
             throw new NullPointerException("Please inject view before calling this method");
         }
-        if (!mView.getState().isControlsPageShown()) {
+        if (!getView().getState().isControlsPageShown()) {
             loadControls();
         }
     }
 
     private void loadControls() {
-        mView.showLoading();
+        getView().showLoading();
         mGetReportShowControlsPropertyCase.execute(mReportUri, new SimpleSubscriber<Boolean>() {
             @Override
             public void onCompleted() {
-                mView.hideLoading();
+                getView().hideLoading();
             }
 
             @Override
@@ -110,7 +108,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
             @Override
             public void onNext(Boolean needControls) {
-                mView.getState().setControlsPageShown(true);
+                getView().getState().setControlsPageShown(true);
                 toggleFiltersAction(needControls);
                 resolveNeedControls(needControls);
             }
@@ -124,7 +122,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
 
     @Override
     public void loadPage(String pageRange) {
-        mView.getVisualize().loadPage(pageRange);
+        getView().getVisualize().loadPage(pageRange);
     }
 
     @Override
@@ -132,27 +130,27 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
         mGetVisualizeExecOptionsCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<VisualizeExecOptions.Builder>() {
             @Override
             public void onNext(VisualizeExecOptions.Builder optionsBuilder) {
-                // TODO fix nasty hack of passibg view model to domain
+                // TODO fix nasty hack of passing view model to domain
                 VisualizeExecOptions options = optionsBuilder.build();
-                mView.resetZoom();
-                mView.getVisualize().update(options.getParams());
+                getView().resetZoom();
+                getView().getVisualize().update(options.getParams());
             }
         }));
     }
 
     @Override
     public void refresh() {
-        mView.showLoading();
-        mView.getVisualize().refresh();
-        mView.resetZoom();
-        mView.setWebViewVisibility(false);
-        mView.setPaginationVisibility(false);
-        mView.resetPaginationControl();
+        getView().showLoading();
+        getView().getVisualize().refresh();
+        getView().resetZoom();
+        getView().setWebViewVisibility(false);
+        getView().setPaginationVisibility(false);
+        getView().resetPaginationControl();
     }
 
     private void resolveNeedControls(boolean needControls) {
         if (needControls) {
-            mView.showInitialFiltersPage();
+            getView().showInitialFiltersPage();
         } else {
             loadVisualizeTemplate();
         }
@@ -164,7 +162,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                 new SimpleSubscriber<VisualizeTemplate>() {
                     @Override
                     public void onNext(VisualizeTemplate template) {
-                        mView.loadTemplateInView(template);
+                        getView().loadTemplateInView(template);
                     }
                 }));
     }
@@ -175,14 +173,9 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
             public void onNext(VisualizeExecOptions.Builder builder) {
                 VisualizeExecOptions options = builder.setDiagonal(mScreenDiagonal)
                         .build();
-                mView.getVisualize().run(options);
+                getView().getVisualize().run(options);
             }
         }));
-    }
-
-    @Override
-    public void injectView(ReportVisualizeView visualizeReportView) {
-        mView = visualizeReportView;
     }
 
     @Override
@@ -206,7 +199,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     }
 
     private void subscribeToWebViewEvents() {
-        VisualizeViewModel visualize = mView.getVisualize();
+        VisualizeViewModel visualize = getView().getVisualize();
         listenForProgressChanges(visualize);
         listenForReceivedError(visualize);
         listenForSessionExpiration(visualize);
@@ -220,7 +213,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Integer>() {
                             @Override
                             public void onNext(Integer progress) {
-                                mView.updateDeterminateProgress(progress);
+                                getView().updateDeterminateProgress(progress);
                             }
                         }))
         );
@@ -234,9 +227,9 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<WebViewErrorEvent>() {
                             @Override
                             public void onNext(WebViewErrorEvent event) {
-                                mView.hideLoading();
-                                mView.setWebViewVisibility(false);
-                                mView.showError("title" + "\n" + "message");
+                                getView().hideLoading();
+                                getView().setWebViewVisibility(false);
+                                getView().showError("title" + "\n" + "message");
                             }
                         }))
         );
@@ -250,14 +243,14 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
                             @Override
                             public void onNext(Void item) {
-                                mView.handleSessionExpiration();
+                                getView().handleSessionExpiration();
                             }
                         }))
         );
     }
 
     private void subscribeToVisualizeEvents() {
-        VisualizeViewModel visualize = mView.getVisualize();
+        VisualizeViewModel visualize = getView().getVisualize();
         listenForLoadStartEvent(visualize);
         listenScriptLoadedEvent(visualize);
         listenForLoadCompleteEvent(visualize);
@@ -279,9 +272,9 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
                             @Override
                             public void onNext(Void item) {
-                                mView.showLoading();
-                                mView.setWebViewVisibility(false);
-                                mView.resetPaginationControl();
+                                getView().showLoading();
+                                getView().setWebViewVisibility(false);
+                                getView().resetPaginationControl();
                             }
                         }))
         );
@@ -309,8 +302,8 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<LoadCompleteEvent>() {
                             @Override
                             public void onNext(LoadCompleteEvent completeEvent) {
-                                mView.hideLoading();
-                                mView.setWebViewVisibility(true);
+                                getView().hideLoading();
+                                getView().setWebViewVisibility(true);
                             }
                         }))
         );
@@ -324,8 +317,8 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ErrorEvent>() {
                             @Override
                             public void onNext(ErrorEvent errorEvent) {
-                                mView.hideLoading();
-                                mView.showError(errorEvent.getErrorMessage());
+                                getView().hideLoading();
+                                getView().showError(errorEvent.getErrorMessage());
                             }
                         }))
         );
@@ -346,17 +339,17 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                                 toggleSaveAction(hasContent);
 
                                 if (hasContent) {
-                                    mView.hideEmptyPageMessage();
+                                    getView().hideEmptyPageMessage();
 
                                     boolean multiPage = totalPages > 1;
-                                    mView.setPaginationVisibility(multiPage);
+                                    getView().setPaginationVisibility(multiPage);
 
                                     if (multiPage) {
-                                        mView.setPaginationTotalPages(totalPages);
+                                        getView().setPaginationTotalPages(totalPages);
                                     }
                                 } else {
-                                    mView.setPaginationVisibility(false);
-                                    mView.showEmptyPageMessage();
+                                    getView().setPaginationVisibility(false);
+                                    getView().showEmptyPageMessage();
                                 }
                             }
                         }))
@@ -371,8 +364,8 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<PageLoadCompleteEvent>() {
                             @Override
                             public void onNext(PageLoadCompleteEvent event) {
-                                mView.setPaginationEnabled(true);
-                                mView.setPaginationCurrentPage(event.getPage());
+                                getView().setPaginationEnabled(true);
+                                getView().setPaginationCurrentPage(event.getPage());
                             }
                         }))
         );
@@ -386,9 +379,9 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<PageLoadErrorEvent>() {
                             @Override
                             public void onNext(PageLoadErrorEvent event) {
-                                mView.setPaginationEnabled(true);
-                                mView.setPaginationCurrentPage(event.getPage());
-                                mView.showError(event.getErrorMessage());
+                                getView().setPaginationEnabled(true);
+                                getView().setPaginationCurrentPage(event.getPage());
+                                getView().showError(event.getErrorMessage());
                             }
                         }))
         );
@@ -402,8 +395,8 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<MultiPageLoadEvent>() {
                             @Override
                             public void onNext(MultiPageLoadEvent event) {
-                                boolean needToShowPagination = event.isMultiPage() && mView.getPaginationTotalPages() > 0;
-                                mView.setPaginationVisibility(needToShowPagination);
+                                boolean needToShowPagination = event.isMultiPage() && getView().getPaginationTotalPages() > 0;
+                                getView().setPaginationVisibility(needToShowPagination);
                             }
                         }))
         );
@@ -417,7 +410,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ExternalReferenceClickEvent>() {
                             @Override
                             public void onNext(ExternalReferenceClickEvent event) {
-                                mView.showExternalLink(event.getExternalReference());
+                                getView().showExternalLink(event.getExternalReference());
                             }
                         }))
         );
@@ -438,17 +431,17 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     }
 
     private void loadReportMetadata(ReportData reportData) {
-        mView.showLoading();
+        getView().showLoading();
         mGetReportMetadataCase.execute(reportData, new ErrorSubscriber<>(new SimpleSubscriber<ReportResource>() {
             @Override
             public void onCompleted() {
-                mView.hideLoading();
+                getView().hideLoading();
             }
 
             @Override
             public void onNext(ReportResource item) {
                 ReportResourceModel model = mResourceModelMapper.mapReportModel(item);
-                mView.executeReport(model);
+                getView().executeReport(model);
             }
         }));
     }
@@ -461,7 +454,7 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ErrorEvent>() {
                             @Override
                             public void onNext(ErrorEvent event) {
-                                mView.showError(event.getErrorMessage());
+                                getView().showError(event.getErrorMessage());
                             }
                         }))
         );
@@ -470,18 +463,18 @@ public class ReportVisualizePresenter implements Presenter<ReportVisualizeView>,
     @VisibleForTesting
     void handleError(Throwable error) {
         Timber.e(error, "Presenter received unexpected error");
-        mView.hideLoading();
-        mView.showError(mRequestExceptionHandler.extractMessage(error));
+        getView().hideLoading();
+        getView().showError(mRequestExceptionHandler.extractMessage(error));
     }
 
     private void toggleFiltersAction(boolean visibility) {
-        mView.setFilterActionVisibility(visibility);
-        mView.reloadMenu();
+        getView().setFilterActionVisibility(visibility);
+        getView().reloadMenu();
     }
 
     private void toggleSaveAction(boolean visibility) {
-        mView.setSaveActionVisibility(visibility);
-        mView.reloadMenu();
+        getView().setSaveActionVisibility(visibility);
+        getView().reloadMenu();
     }
 
     private void subscribeToEvent(Subscription subscription) {

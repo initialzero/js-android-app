@@ -28,7 +28,6 @@ import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.repository.profile.CredentialsDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.validator.CredentialsValidator;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,15 +43,12 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
- * TODO fix password issues
  * @author Tom Koptel
  * @since 2.3
  */
 public class CredentialsDataRepositoryTest {
     @Mock
     CredentialsCache mCredentialsCache;
-    @Mock
-    CredentialsValidator mCredentialsValidator;
 
     private CredentialsDataRepository repoUnderTest;
     private AppCredentials fakeCredentials;
@@ -68,16 +64,13 @@ public class CredentialsDataRepositoryTest {
                 .setUsername("nay")
                 .create();
 
-        when(mCredentialsValidator.validate(any(AppCredentials.class))).thenReturn(Observable.just(fakeCredentials));
         when(mCredentialsCache.put(any(Profile.class), any(AppCredentials.class))).thenReturn(fakeCredentials);
         when(mCredentialsCache.get(any(Profile.class))).thenReturn(fakeCredentials);
     }
 
     @Test
     public void should_validate_and_save_credentials() throws Exception {
-        TestSubscriber<Profile> test = new TestSubscriber<>();
-        repoUnderTest.saveCredentials(fakeProfile, fakeCredentials).subscribe(test);
-        test.assertNoErrors();
+        repoUnderTest.saveCredentials(fakeProfile, fakeCredentials);
 
         verify(mCredentialsCache).put(fakeProfile, fakeCredentials);
         verifyNoMoreInteractions(mCredentialsCache);
@@ -85,10 +78,7 @@ public class CredentialsDataRepositoryTest {
 
     @Test
     public void should_retrieve_credentials_from_cache() throws Exception {
-        TestSubscriber<AppCredentials> test = new TestSubscriber<>();
-        repoUnderTest.getCredentials(fakeProfile).subscribe(test);
-        test.assertNoErrors();
-
+        repoUnderTest.getCredentials(fakeProfile);
         verify(mCredentialsCache).get(fakeProfile);
     }
 }

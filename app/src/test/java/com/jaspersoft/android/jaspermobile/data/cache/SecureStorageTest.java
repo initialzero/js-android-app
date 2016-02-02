@@ -36,6 +36,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -45,7 +46,7 @@ import static org.hamcrest.Matchers.is;
  * @since 2.1.1
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 21)
+@Config(manifest = Config.NONE, sdk = 21, shadows = {ShadowMultiDex.class})
 public class SecureStorageTest {
 
     private SecureStorage mSecureStorage;

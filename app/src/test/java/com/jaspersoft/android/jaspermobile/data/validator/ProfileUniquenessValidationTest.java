@@ -24,53 +24,64 @@
 
 package com.jaspersoft.android.jaspermobile.data.validator;
 
-import com.google.inject.Singleton;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.validator.ProfileValidator;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.app.CacheModule;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
-import javax.inject.Inject;
+import org.hamcrest.Matchers;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-import rx.Observable;
+import rx.observers.TestSubscriber;
+
+import static junit.framework.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
- * Performs validation on profile.
- *
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
-public final class ProfileValidatorImpl implements ProfileValidator {
+public class ProfileUniquenessValidationTest {
+    @Mock
+    ProfileCache mProfileCache;
+    private ProfileUniquenessValidation validator;
 
-    /**
-     * Injected by {@link CacheModule#providesProfileAccountCache(AccountProfileCache)}}
-     */
-    private final ProfileCache mProfileCache;
-
-    @Inject
-    public ProfileValidatorImpl(ProfileCache profileCache) {
-        mProfileCache = profileCache;
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        validator = new ProfileUniquenessValidation(mProfileCache);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Observable<Profile> validate(Profile profile) {
-        final String profileName = profile.getKey();
-        if (JasperSettings.RESERVED_ACCOUNT_NAME.equals(profileName)) {
-            return Observable.error(new ProfileReservedException());
-        }
+    @Test
+    public void should_fail_if_profile_exists() throws Exception {
+        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(true);
+        Profile fakeProfile = Profile.create("name");
 
-        if (mProfileCache.hasProfile(profile)) {
-            return Observable.error(new DuplicateProfileException(profileName));
+        try {
+            validator.validate(fakeProfile);
+            fail("Should fail with DuplicateProfileException");
+        } catch (Exception ex) {
+            // stub
         }
-
-        return Observable.just(null);
     }
+
+    @Test
+    public void should_accept_profile_if_unique() throws Exception {
+        when(mProfileCache.hasProfile(any(Profile.class))).thenReturn(false);
+        Profile fakeProfile = Profile.create("name");
+        validator.validate(fakeProfile);
+    }
+
+
+
 }

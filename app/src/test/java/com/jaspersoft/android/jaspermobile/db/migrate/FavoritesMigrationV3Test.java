@@ -41,6 +41,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static com.jaspersoft.android.jaspermobile.test.support.JsAssertions.assertCursor;
 import static org.hamcrest.core.Is.is;
@@ -53,7 +54,8 @@ import static org.junit.Assert.assertThat;
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(
         constants = BuildConfig.class,
-        sdk = 21
+        sdk = 21,
+        shadows = {ShadowMultiDex.class}
 )
 public class FavoritesMigrationV3Test {
 

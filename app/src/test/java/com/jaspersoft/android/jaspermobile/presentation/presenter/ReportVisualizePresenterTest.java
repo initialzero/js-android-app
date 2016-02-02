@@ -4,11 +4,11 @@ import android.webkit.ConsoleMessage;
 
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
-import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.contract.VisualizeReportContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ResourceModelMapper;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
@@ -25,7 +25,6 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.Visualiz
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewEvents;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
-import com.jaspersoft.android.jaspermobile.presentation.view.ReportVisualizeView;
 import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 
@@ -66,7 +65,7 @@ public class ReportVisualizePresenterTest {
     RequestExceptionHandler mExceptionHandler;
 
     @Mock
-    ReportVisualizeView mView;
+    VisualizeReportContract.View mView;
     @Mock
     VisualizeViewModel mVisualizeViewModel;
     @Mock
@@ -82,11 +81,6 @@ public class ReportVisualizePresenterTest {
     ReportResource mReportResource;
 
     private ReportPageState fakeState;
-    private AppCredentials mAppCredentials = AppCredentials.builder()
-            .setOrganization("org")
-            .setPassword("1234")
-            .setUsername("user")
-            .create();
 
     @Before
     public void setUp() throws Exception {
@@ -420,7 +414,9 @@ public class ReportVisualizePresenterTest {
 
         @Override
         protected Observable<VisualizeExecOptions.Builder> buildUseCaseObservable(String reportUri) {
-            return Observable.just(new VisualizeExecOptions.Builder());
+            return Observable.just(
+                    new VisualizeExecOptions.Builder().setParams(JSON_REPORT_PARAMS)
+            );
         }
     }
 }

@@ -66,7 +66,7 @@ public final class InMemoryVisualizeTemplateRepository implements VisualizeTempl
             @Override
             public Observable<VisualizeTemplate> call() {
                 JasperServer server = mJasperServerCache.get(profile);
-                String versionName = server.getVersionName();
+                String versionName = server.getVersion();
                 if (versionName == null) {
                     throw new IllegalStateException("Server version missing impossible to load server");
                 }

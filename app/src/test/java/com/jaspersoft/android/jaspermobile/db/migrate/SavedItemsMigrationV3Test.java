@@ -40,6 +40,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +56,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
  */
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(
-        shadows = {ShadowApplicationImpl.class},
+        shadows = {ShadowApplicationImpl.class, ShadowMultiDex.class},
         constants = BuildConfig.class,
         sdk = 21
 )

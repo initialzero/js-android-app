@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.is;
@@ -36,7 +37,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, shadows = {ShadowMultiDex.class})
 public class BuildConfigTest {
 
     @Test

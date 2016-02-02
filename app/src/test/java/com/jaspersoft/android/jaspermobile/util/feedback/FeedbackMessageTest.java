@@ -41,6 +41,7 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.res.builder.RobolectricPackageManager;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -55,7 +56,7 @@ import static org.robolectric.Shadows.shadowOf;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(sdk = 21, constants = BuildConfig.class)
+@Config(manifest = Config.NONE, sdk = 21, constants = BuildConfig.class, shadows = {ShadowMultiDex.class})
 public class FeedbackMessageTest {
     @Mock
     ServerInfoProvider serverInfoProvider;
@@ -83,7 +84,7 @@ public class FeedbackMessageTest {
     public void shouldGenerateAppVersionInfo() {
         mockPackageManager();
         String message = feedbackMessage.generateAppVersionInfo();
-        assertThat(message, containsString("Version code: 20100000"));
+        assertThat(message, containsString("App version"));
     }
 
     @Test

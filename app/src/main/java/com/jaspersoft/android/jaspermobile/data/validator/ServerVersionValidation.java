@@ -22,40 +22,33 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.presentation.view;
+package com.jaspersoft.android.jaspermobile.data.validator;
 
-import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.validator.ValidationRule;
+import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
+import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
+
+import javax.inject.Inject;
 
 /**
+ * Implementation of server validation
+ *
  * @author Tom Koptel
  * @since 2.3
  */
-public interface ReportView extends LoadDataView {
-    void setFilterActionVisibility(boolean visibilityFlag);
+@PerActivity
+public final class ServerVersionValidation implements ValidationRule<JasperServer, ServerVersionNotSupportedException> {
+    @Inject
+    public ServerVersionValidation() {
+    }
 
-    void setSaveActionVisibility(boolean visibilityFlag);
-
-    void reloadMenu();
-
-    void showInitialFiltersPage();
-
-    void showPage(String pageContent);
-
-    void setPaginationControlVisibility(boolean visibility);
-
-    void resetPaginationControl();
-
-    void showTotalPages(int totalPages);
-
-    void showCurrentPage(int page);
-
-    void showPageOutOfRangeError();
-
-    void showEmptyPageMessage();
-
-    void showReloadMessage();
-
-    void showPageLoader();
-
-    ReportPageState getState();
+    @Override
+    public void validate(JasperServer server) throws ServerVersionNotSupportedException {
+        ServerVersion version = ServerVersion.valueOf(server.getVersion());
+        if (version.lessThan(ServerVersion.v5_5)) {
+             throw new ServerVersionNotSupportedException(version.toString());
+        }
+    }
 }

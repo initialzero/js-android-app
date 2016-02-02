@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -37,7 +38,7 @@ import static org.junit.Assert.assertThat;
  * @since 2.1
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, sdk = 21, shadows = {ShadowMultiDex.class})
 public class VisualizeEndpointTest {
 
     private static final String MOCK_URL = "http://mobiledemo2.jaspersoft.com/jasperserver-pro";

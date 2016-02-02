@@ -25,6 +25,9 @@
 package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.sdk.service.data.report.FileResource;
 
 import org.androidannotations.annotations.EFragment;
 
@@ -39,23 +42,16 @@ public class FileInfoFragment extends ResourceInfoFragment {
     protected void onDataObtain() {
         super.onDataObtain();
 
-        loadFileType();
-    }
+        mGetFileDetailsCase.execute(jasperResource.getId(), new SimpleSubscriber<FileResource>() {
+            @Override
+            public void onError(Throwable e) {
+                RequestExceptionHandler.handle(e, getContext());
+            }
 
-    private void loadFileType() {
-        // TODO list file
-//        GetFileResourceRequest mFileResourceRequest = new GetFileResourceRequest(jsRestClient, jasperResource.getId());
-//        getSpiceManager().execute(mFileResourceRequest, new SimpleRequestListener<FileLookup>() {
-//            @Override
-//            protected Context getContext() {
-//                return getActivity();
-//            }
-//
-//            @Override
-//            public void onRequestSuccess(FileLookup fileLookup) {
-//                infoView.addInfoItem(getString(R.string.ri_file_format), fileLookup.getFileType().name(), 1);
-//            }
-//        });
+            @Override
+            public void onNext(FileResource fileResource) {
+                infoView.addInfoItem(getString(R.string.ri_file_format), fileResource.getType().name(), 1);
+            }
+        });
     }
-
 }

@@ -42,6 +42,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetRe
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.LoadControlsForOptionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.SaveReportOptionsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetFileDetailsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetRootFoldersCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
@@ -112,6 +113,7 @@ public class  JasperMobileModule extends AbstractModule {
         bind(GetRootFoldersCase.class).toProvider(Providers.<GetRootFoldersCase>of(null));
         bind(GetResourceDetailsCase.class).toProvider(Providers.<GetResourceDetailsCase>of(null));
         bind(LoadControlsForOptionCase.class).toProvider(Providers.<LoadControlsForOptionCase>of(null));
+        bind(GetFileDetailsCase.class).toProvider(Providers.<GetFileDetailsCase>of(null));
         bind(ReportParamsStorage.class).toProvider(Providers.<ReportParamsStorage>of(null));
     }
 }

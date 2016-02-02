@@ -10,6 +10,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
+import com.jaspersoft.android.sdk.service.data.report.FileResource;
 import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 import com.jaspersoft.android.sdk.service.data.repository.Resource;
 import com.jaspersoft.android.sdk.service.repository.RepositorySearchCriteria;
@@ -34,6 +35,9 @@ public final class InMemoryResourceRepository implements ResourceRepository {
     private final ResourceMapper mResourceMapper;
 
     private Observable<ReportResource> mGetReportDetailsAction;
+    private Observable<FileResource> mGetFileDetailsAction;
+    private Observable<List<FolderDataResponse>> mGetRootRepositoriesAction;
+    private Observable<List<ResourceLookup>> mSearchAction;
 
     @Inject
     public InMemoryResourceRepository(
@@ -65,44 +69,80 @@ public final class InMemoryResourceRepository implements ResourceRepository {
                         }
                     }).cache();
         }
-
         return mGetReportDetailsAction;
     }
 
     @NonNull
     @Override
+    public Observable<FileResource> getFileResource(@NonNull final String resourceUri) {
+        if (mGetFileDetailsAction == null) {
+            mGetFileDetailsAction = mRestClient.repositoryService()
+                    .flatMap(new Func1<RxRepositoryService, Observable<FileResource>>() {
+                        @Override
+                        public Observable<FileResource> call(RxRepositoryService service) {
+                            return service.fetchFileDetails(resourceUri);
+                        }
+                    })
+                    .doOnTerminate(new Action0() {
+                        @Override
+                        public void call() {
+                            mGetFileDetailsAction = null;
+                        }
+                    }).cache();
+        }
+        return mGetFileDetailsAction;
+    }
+
+    @NonNull
+    @Override
     public Observable<List<ResourceLookup>> searchResources(@NonNull final ResourceLookupSearchCriteria criteria) {
-        return mRestClient.repositoryService()
-                .flatMap(new Func1<RxRepositoryService, Observable<List<Resource>>>() {
-                    @Override
-                    public Observable<List<Resource>> call(RxRepositoryService service) {
-                        RepositorySearchCriteria searchCriteria = mCriteriaMapper.toRetrofittedCriteria(criteria);
-                        return service.search(searchCriteria).nextLookup();
-                    }
-                })
-                .map(new Func1<List<Resource>, List<ResourceLookup>>() {
-                    @Override
-                    public List<ResourceLookup> call(List<Resource> resources) {
-                        return mResourceMapper.toLegacyResources(resources);
-                    }
-                });
+        if (mSearchAction == null) {
+            mSearchAction = mRestClient.repositoryService()
+                    .flatMap(new Func1<RxRepositoryService, Observable<List<Resource>>>() {
+                        @Override
+                        public Observable<List<Resource>> call(RxRepositoryService service) {
+                            RepositorySearchCriteria searchCriteria = mCriteriaMapper.toRetrofittedCriteria(criteria);
+                            return service.search(searchCriteria).nextLookup();
+                        }
+                    })
+                    .map(new Func1<List<Resource>, List<ResourceLookup>>() {
+                        @Override
+                        public List<ResourceLookup> call(List<Resource> resources) {
+                            return mResourceMapper.toLegacyResources(resources);
+                        }
+                    }).doOnTerminate(new Action0() {
+                        @Override
+                        public void call() {
+                            mSearchAction = null;
+                        }
+                    });
+        }
+        return mSearchAction;
     }
 
     @NonNull
     @Override
     public Observable<List<FolderDataResponse>> getRootRepositories() {
-        return mRestClient.repositoryService()
-                .flatMap(new Func1<RxRepositoryService, Observable<List<Resource>>>() {
-                    @Override
-                    public Observable<List<Resource>> call(RxRepositoryService service) {
-                        return service.fetchRootFolders();
-                    }
-                })
-                .map(new Func1<List<Resource>, List<FolderDataResponse>>() {
-                    @Override
-                    public List<FolderDataResponse> call(List<Resource> resources) {
-                        return mResourceMapper.toLegacyFolders(resources);
-                    }
-                });
+        if (mGetRootRepositoriesAction == null) {
+            mGetRootRepositoriesAction = mRestClient.repositoryService()
+                    .flatMap(new Func1<RxRepositoryService, Observable<List<Resource>>>() {
+                        @Override
+                        public Observable<List<Resource>> call(RxRepositoryService service) {
+                            return service.fetchRootFolders();
+                        }
+                    })
+                    .map(new Func1<List<Resource>, List<FolderDataResponse>>() {
+                        @Override
+                        public List<FolderDataResponse> call(List<Resource> resources) {
+                            return mResourceMapper.toLegacyFolders(resources);
+                        }
+                    }).doOnTerminate(new Action0() {
+                        @Override
+                        public void call() {
+                            mGetRootRepositoriesAction = null;
+                        }
+                    });
+        }
+        return mGetRootRepositoriesAction;
     }
 }

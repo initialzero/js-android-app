@@ -17,6 +17,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.LoadControlsForOptionCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetFileDetailsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsCase;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
@@ -58,6 +59,9 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
     @Inject
     @Nullable
     protected LoadControlsForOptionCase mLoadControlsForOptionCase;
+    @Inject
+    @Nullable
+    protected GetFileDetailsCase mGetFileDetailsCase;
 
     @InjectView(R.id.toolbarImageView)
     protected ImageView toolbarImage;
@@ -94,6 +98,7 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
 
     @Override
     public void onDestroyView() {
+        mGetFileDetailsCase.unsubscribe();
         mGetResourceDetailsCase.unsubscribe();
         mGetReportOptionsCase.unsubscribe();
         mLoadControlsForOptionCase.unsubscribe();

@@ -24,12 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 
-import android.content.Context;
-
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
-import com.jaspersoft.android.sdk.client.async.request.GetFileResourceRequest;
-import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
 
 import org.androidannotations.annotations.EFragment;
 
@@ -48,18 +43,19 @@ public class FileInfoFragment extends ResourceInfoFragment {
     }
 
     private void loadFileType() {
-        GetFileResourceRequest mFileResourceRequest = new GetFileResourceRequest(jsRestClient, jasperResource.getId());
-        getSpiceManager().execute(mFileResourceRequest, new SimpleRequestListener<FileLookup>() {
-            @Override
-            protected Context getContext() {
-                return getActivity();
-            }
-
-            @Override
-            public void onRequestSuccess(FileLookup fileLookup) {
-                infoView.addInfoItem(getString(R.string.ri_file_format), fileLookup.getFileType().name(), 1);
-            }
-        });
+        // TODO list file
+//        GetFileResourceRequest mFileResourceRequest = new GetFileResourceRequest(jsRestClient, jasperResource.getId());
+//        getSpiceManager().execute(mFileResourceRequest, new SimpleRequestListener<FileLookup>() {
+//            @Override
+//            protected Context getContext() {
+//                return getActivity();
+//            }
+//
+//            @Override
+//            public void onRequestSuccess(FileLookup fileLookup) {
+//                infoView.addInfoItem(getString(R.string.ri_file_format), fileLookup.getFileType().name(), 1);
+//            }
+//        });
     }
 
 }

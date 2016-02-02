@@ -40,7 +40,9 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateInpu
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.DeleteReportOptionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionValuesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.LoadControlsForOptionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.SaveReportOptionsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetRootFoldersCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
@@ -90,7 +92,6 @@ public class  JasperMobileModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("DEMO_ENDPOINT")).to(endpoint);
 
         bind(Context.class).annotatedWith(ApplicationContext.class).toInstance(mContext);
-        bind(ReportParamsStorage.class).in(Singleton.class);
         bind(AppConfigurator.class).to(AppConfiguratorImpl.class);
         bind(Analytics.class).toInstance(new JasperAnalytics(mContext));
         bind(SecurityProviderUpdater.class).to(JasperSecurityProviderUpdater.class).in(Singleton.class);
@@ -109,5 +110,8 @@ public class  JasperMobileModule extends AbstractModule {
         bind(ResourcePrintJob.class).toProvider(Providers.<ResourcePrintJob>of(null));
         bind(SearchResourcesCase.class).toProvider(Providers.<SearchResourcesCase>of(null));
         bind(GetRootFoldersCase.class).toProvider(Providers.<GetRootFoldersCase>of(null));
+        bind(GetResourceDetailsCase.class).toProvider(Providers.<GetResourceDetailsCase>of(null));
+        bind(LoadControlsForOptionCase.class).toProvider(Providers.<LoadControlsForOptionCase>of(null));
+        bind(ReportParamsStorage.class).toProvider(Providers.<ReportParamsStorage>of(null));
     }
 }

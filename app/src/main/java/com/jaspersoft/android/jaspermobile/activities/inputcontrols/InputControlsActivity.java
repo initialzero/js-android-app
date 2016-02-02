@@ -119,6 +119,7 @@ public class InputControlsActivity extends RoboSpiceActivity
     public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
 
     @Inject
+    @Nullable
     protected ReportParamsStorage paramsStorage;
     @Inject
     @Nullable
@@ -156,7 +157,7 @@ public class InputControlsActivity extends RoboSpiceActivity
     @Extra
     protected String reportUri;
     @Extra
-    protected boolean loadReportOptions;
+    protected boolean loadReportOptions = true;
 
     private List<InputControl> mInputControls;
     private List<ReportOptionHolder> mReportOptions;
@@ -183,10 +184,7 @@ public class InputControlsActivity extends RoboSpiceActivity
                 )
                 .inject(this);
 
-        Boolean proEdition = mJasperServer.isProEdition();
-        if (proEdition != null) {
-            mIsProJrs = proEdition;
-        }
+        mIsProJrs = mJasperServer.isProEdition();
 
         mInputControls = paramsStorage.getInputControlHolder(reportUri).getInputControls();
         if (mInputControls == null) {

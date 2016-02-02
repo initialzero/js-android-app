@@ -32,6 +32,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
@@ -115,5 +116,6 @@ public class  JasperMobileModule extends AbstractModule {
         bind(LoadControlsForOptionCase.class).toProvider(Providers.<LoadControlsForOptionCase>of(null));
         bind(GetFileDetailsCase.class).toProvider(Providers.<GetFileDetailsCase>of(null));
         bind(ReportParamsStorage.class).toProvider(Providers.<ReportParamsStorage>of(null));
+        bind(JasperRestClient.class).toProvider(Providers.<JasperRestClient>of(null));
     }
 }

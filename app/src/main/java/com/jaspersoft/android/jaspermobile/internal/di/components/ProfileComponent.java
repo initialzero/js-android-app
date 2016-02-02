@@ -5,6 +5,8 @@ import com.jaspersoft.android.jaspermobile.activities.info.fragments.ResourceInf
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.SimpleInfoFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryFragment;
+import com.jaspersoft.android.jaspermobile.activities.schedule.JobsFragment;
+import com.jaspersoft.android.jaspermobile.activities.schedule.ScheduleActivity;
 import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
@@ -48,4 +50,6 @@ public interface ProfileComponent {
     void inject(SimpleInfoFragment simpleInfoFragment);
     void inject(ResourceInfoFragment resourceInfoFragment);
     void inject(ReportInfoFragment reportInfoFragment);
+    void inject(ScheduleActivity scheduleActivity);
+    void inject(JobsFragment jobsFragment);
 }

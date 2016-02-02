@@ -156,9 +156,9 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
         // Lets check account to be properly setup
         mJasperAccountManager = JasperAccountManager.get(this);
-        defineJasperAccountsState();
-        updateActiveAccount();
-        handleActiveAccountState();
+//        defineJasperAccountsState();
+//        updateActiveAccount();
+//        handleActiveAccountState();
         disableScreenCapturing();
 
         super.onCreate(savedInstanceState);
@@ -173,7 +173,10 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         if (GraphObject.Factory.from(this).getProfileComponent() == null) {
             ActiveProfileCache activeProfileCache = new PreferencesActiveProfileCache(this);
             Profile profile = activeProfileCache.get();
-            if (profile != null) {
+            if (profile == null) {
+                startActivity(new Intent(this, AuthenticatorActivity.class));
+                finish();
+            } else {
                 setupProfileModule(profile);
             }
         }
@@ -212,27 +215,22 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
         if (isDevMode()) {
             ViewServer.get(this).setFocusedWindow(this);
         }
-        updateAccountDependentUi();
-
         trackScreenView();
     }
 
     @Override
     protected void onPause() {
-        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
         super.onPause();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-
+        // We can now safely retry Security provider installation.
         if (mSecureProviderDialogShown) {
-            // We can now safely retry Security provider installation.
             mSecurityProviderUpdater.update(this, new ProviderInstallListener());
         }
     }
@@ -240,7 +238,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mJasperAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
         if (isDevMode()) {
             ViewServer.get(this).removeWindow(this);
         }
@@ -426,7 +423,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     }
 
     private class ProviderInstallListener implements ProviderInstaller.ProviderInstallListener {
-
         @Override
         public void onProviderInstalled() {
             // Provider is up-to-date, app can make secure network calls.

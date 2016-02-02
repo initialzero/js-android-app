@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.presentation.contract;
 
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.presentation.view.LoadDataView;
 
@@ -18,7 +19,7 @@ public interface AuthenticationContract {
         void showPasswordRequiredError();
         void showServerVersionNotSupported();
         void showFailedToAddProfile(String message);
-        void navigateToApp();
+        void navigateToApp(Profile profile);
     }
 
     interface Action {

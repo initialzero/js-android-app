@@ -46,6 +46,7 @@ public final class AccountDataMapper {
     }
 
     public Account transform(Profile profile) {
-        return new Account(profile.getKey(), mAccountType);
+        String name = profile.getKey();
+        return new Account(name, mAccountType);
     }
 }

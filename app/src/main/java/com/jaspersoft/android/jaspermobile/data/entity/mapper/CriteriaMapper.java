@@ -26,9 +26,14 @@ public class CriteriaMapper {
         criteriaBuilder.withLimit(legacyCriteria.getLimit());
         criteriaBuilder.withOffset(legacyCriteria.getOffset());
         criteriaBuilder.withQuery(legacyCriteria.getQuery());
-        criteriaBuilder.withResourceMask(adaptMask(legacyCriteria));
         criteriaBuilder.withRecursive(legacyCriteria.isRecursive());
-        criteriaBuilder.withSortType(SortType.fromRawValue(legacyCriteria.getSortBy()));
+
+        String sortBy = legacyCriteria.getSortBy();
+        if (sortBy != null) {
+            criteriaBuilder.withSortType(SortType.fromRawValue(sortBy));
+        }
+        criteriaBuilder.withResourceMask(adaptMask(legacyCriteria));
+
         return criteriaBuilder.build();
     }
 

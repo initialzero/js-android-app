@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.library.fragment;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -47,9 +46,7 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
-import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
@@ -62,12 +59,9 @@ import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResour
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -75,6 +69,7 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -83,6 +78,7 @@ import javax.inject.Named;
 
 import roboguice.inject.InjectView;
 import rx.Subscriber;
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -126,8 +122,6 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     protected int mTreshold;
     @Inject
     protected Analytics analytics;
-    @Inject
-    protected JsRestClientWrapper jsRestClientWrapper;
 
     @Inject
     @Nullable
@@ -374,16 +368,17 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     }
 
     private void requestResourceLookup(String label) {
-        List<String> resTypes = new ArrayList<String>() {{
-            add(ResourceLookup.ResourceType.reportUnit.name());
-        }};
-
-        ProgressDialogFragment.builder(getActivity().getSupportFragmentManager())
-                .setLoadingMessage(R.string.loading_msg)
-                .show();
-
-        GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClientWrapper.getClient(), "/", label, resTypes, true, 0, 0);
-        getSpiceManager().execute(request, new GetResourceMetadataListener(label));
+        List<String> resTypes = Collections.singletonList(
+                ResourceLookup.ResourceType.reportUnit.name()
+        );
+        ResourceLookupSearchCriteria criteria = new ResourceLookupSearchCriteria();
+        criteria.setFolderUri(ROOT_URI);
+        criteria.setTypes(resTypes);
+        criteria.setQuery(label);
+        criteria.setRecursive(true);
+        criteria.setOffset(0);
+        criteria.setLimit(1);
+        mSearchResourcesCase.execute(criteria, new GetResourceMetadataListener(label));
     }
 
     private void showEmptyTextIfNoItems(int resId) {
@@ -414,6 +409,7 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
 
         @Override
         public void onError(Throwable e) {
+            Timber.e(e, "LibraryFragment#GetResourceLookupsListener failed");
             RequestExceptionHandler.handle(e, getContext());
             showEmptyTextIfNoItems(R.string.failed_load_data);
         }
@@ -426,8 +422,7 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         }
     }
 
-    private class GetResourceMetadataListener extends SimpleRequestListener<ResourceLookupsList> {
-
+    private class GetResourceMetadataListener extends Subscriber<List<ResourceLookup>> {
         private String mResourceQuery;
 
         public GetResourceMetadataListener(String mResourceQuery) {
@@ -435,27 +430,30 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         }
 
         @Override
-        protected Context getContext() {
-            return getActivity();
+        public void onStart() {
+            ProgressDialogFragment.builder(getActivity().getSupportFragmentManager())
+                    .setLoadingMessage(R.string.loading_msg)
+                    .show();
         }
 
         @Override
-        public void onRequestFailure(SpiceException exception) {
-            super.onRequestFailure(exception);
-
+        public void onCompleted() {
             ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
         }
 
         @Override
-        public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
-            ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+        public void onError(Throwable e) {
+            Timber.e(e, "LibraryFragment#GetResourceMetadataListener failed");
+            RequestExceptionHandler.handle(e, getContext());
+        }
 
-            if (resourceLookupsList.getResourceLookups().isEmpty()) {
+        @Override
+        public void onNext(List<ResourceLookup> resourceLookupsList) {
+            if (resourceLookupsList.isEmpty()) {
                 Toast.makeText(getActivity(), "Can not find " + "\"" + mResourceQuery + "\"", Toast.LENGTH_SHORT).show();
-                return;
+            } else {
+                resourceOpener.openResource(LibraryFragment.this, resourceLookupsList.get(0));
             }
-
-            resourceOpener.openResource(LibraryFragment.this, resourceLookupsList.getResourceLookups().get(0));
         }
     }
 

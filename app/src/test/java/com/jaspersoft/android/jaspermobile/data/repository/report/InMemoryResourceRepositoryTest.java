@@ -1,6 +1,8 @@
 package com.jaspersoft.android.jaspermobile.data.repository.report;
 
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.CriteriaMapper;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.ResourceMapper;
 import com.jaspersoft.android.jaspermobile.data.repository.resource.InMemoryResourceRepository;
 import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 import com.jaspersoft.android.sdk.service.rx.repository.RxRepositoryService;
@@ -33,13 +35,20 @@ public class InMemoryResourceRepositoryTest {
     @Mock
     JasperRestClient mJasperRestClient;
 
+    @Mock
+    CriteriaMapper mCriteriaMapper;
+    @Mock
+    ResourceMapper mResourceMapper;
+
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         setupMocks();
         mInMemoryResourceRepository = new InMemoryResourceRepository(
                 mJasperRestClient,
-                criteriaMapper, resourceMapper);
+                mCriteriaMapper,
+                mResourceMapper
+        );
     }
 
     @Test

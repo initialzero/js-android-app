@@ -74,8 +74,6 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
     private static final int VOICE_COMMAND = 132;
 
     @Inject
-    protected JsRestClient jsRestClient;
-    @Inject
     protected Analytics analytics;
 
     @OptionsMenuItem(R.id.voiceCommand)

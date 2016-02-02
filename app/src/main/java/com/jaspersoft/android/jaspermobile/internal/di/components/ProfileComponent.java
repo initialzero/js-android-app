@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.internal.di.components;
 
+import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryFragment;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
@@ -30,4 +31,6 @@ public interface ProfileComponent {
 
     DashboardActivityComponent plusDashboardPage(ActivityModule activityModule,
                                                 DashboardModule dashboardModule);
+
+    void inject(LibraryFragment libraryFragment);
 }

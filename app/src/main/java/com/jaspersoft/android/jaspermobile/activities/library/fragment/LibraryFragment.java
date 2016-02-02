@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.activities.library.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -39,14 +38,17 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.library.LibrarySearchableActivity_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
+import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -55,22 +57,16 @@ import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.VoiceRecognitionHelper;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
-import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
-import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.Bean;
@@ -82,7 +78,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import roboguice.inject.InjectView;
+import rx.Subscriber;
 
 /**
  * @author Tom Koptel
@@ -105,11 +105,6 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     @InjectView(android.R.id.empty)
     protected TextView emptyText;
 
-    @Inject
-    protected JsRestClient jsRestClient;
-    @Inject
-    protected ResourceLookupSearchCriteria mSearchCriteria;
-
     @InstanceState
     @FragmentArg
     protected String resourceLabel;
@@ -131,11 +126,22 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     protected int mTreshold;
     @Inject
     protected Analytics analytics;
+    @Inject
+    protected JsRestClientWrapper jsRestClientWrapper;
+
+    @Inject
+    @Nullable
+    protected SearchResourcesCase mSearchResourcesCase;
+    @Inject
+    @Nullable
+    protected RequestExceptionHandler mExceptionHandler;
 
     @InstanceState
     protected boolean mLoading;
     @InstanceState
     protected int mLoaderState = LOAD_FROM_CACHE;
+    @InstanceState
+    protected boolean mHasNextPage = true;
 
     @Bean
     protected LibraryResourceFilter libraryResourceFilter;
@@ -149,15 +155,20 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     protected InfoProvider infoProvider;
 
     private JasperResourceAdapter mAdapter;
-    private PaginationPolicy mPaginationPolicy;
     private HashMap<String, ResourceLookup> mResourceLookupHashMap;
+    private ResourceLookupSearchCriteria mSearchCriteria;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        GraphObject.Factory.from(getContext())
+                .getProfileComponent()
+                .inject(this);
+
         mResourceLookupHashMap = new HashMap<>();
 
+        mSearchCriteria = new ResourceLookupSearchCriteria();
         mSearchCriteria.setForceFullPage(true);
         mSearchCriteria.setLimit(mLimit);
         mSearchCriteria.setRecursive(true);
@@ -184,7 +195,6 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
 
         listView.addOnScrollListener(new ScrollListener());
         setDataAdapter();
-        updatePaginationPolicy();
         loadFirstPage();
     }
 
@@ -228,6 +238,12 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         super.onDestroy();
 
         listView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onDestroyView() {
+        mSearchResourcesCase.unsubscribe();
+        super.onDestroyView();
     }
 
     public void setQuery(String query) {
@@ -342,50 +358,19 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         listView.setAdapter(mAdapter);
     }
 
-    private void updatePaginationPolicy() {
-        ServerVersion version = infoProvider.getVersion();
-
-        if (version.lessThanOrEquals(ServerVersion.v5_5)) {
-            mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
-        }
-        if (version.greaterThan(ServerVersion.v5_5)) {
-            mPaginationPolicy = Emerald3PaginationFragment_.builder().build();
-        }
-
-        if (mPaginationPolicy == null) {
-            throw new UnsupportedOperationException();
-        } else {
-            mPaginationPolicy.setSearchCriteria(mSearchCriteria);
-            getChildFragmentManager().beginTransaction()
-                    .add((Fragment) mPaginationPolicy,
-                            PaginationPolicy.class.getSimpleName()).commit();
-        }
-    }
-
     private void loadNextPage() {
-        if (!mLoading && hasNextPage()) {
-            mSearchCriteria.setOffset(calculateNextOffset());
+        if (!mLoading && mHasNextPage) {
+            int currentOffset = mSearchCriteria.getOffset();
+            mSearchCriteria.setOffset(currentOffset + mLimit);
             mLoaderState = LOAD_FROM_CACHE;
             loadResources(mLoaderState);
         }
     }
 
-    private boolean hasNextPage() {
-        return mPaginationPolicy.hasNextPage();
-    }
-
-    private int calculateNextOffset() {
-        return mPaginationPolicy.calculateNextOffset();
-    }
-
     private void loadResources(int state) {
         setRefreshState(true);
-        showEmptyText(R.string.loading_msg);
-
-        final GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
-        final long cacheExpiryDuration = (LOAD_FROM_CACHE == state)
-                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
-        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
+        showEmptyTextIfNoItems(R.string.loading_msg);
+        mSearchResourcesCase.execute(mSearchCriteria, new GetResourceLookupsListener());
     }
 
     private void requestResourceLookup(String label) {
@@ -397,11 +382,11 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
                 .setLoadingMessage(R.string.loading_msg)
                 .show();
 
-        GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, "/", label, resTypes, true, 0, 0);
+        GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClientWrapper.getClient(), "/", label, resTypes, true, 0, 0);
         getSpiceManager().execute(request, new GetResourceMetadataListener(label));
     }
 
-    private void showEmptyText(int resId) {
+    private void showEmptyTextIfNoItems(int resId) {
         boolean noItems = (mAdapter.getItemCount() > 0);
         emptyText.setVisibility(noItems ? View.GONE : View.VISIBLE);
         if (resId != 0) emptyText.setText(resId);
@@ -421,31 +406,23 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class GetResourceLookupsListener extends SimpleRequestListener<ResourceLookupsList> {
-
+    private class GetResourceLookupsListener extends Subscriber<List<ResourceLookup>> {
         @Override
-        protected Context getContext() {
-            return getActivity();
+        public void onCompleted() {
+            setRefreshState(false);
         }
 
         @Override
-        public void onRequestFailure(SpiceException exception) {
-            super.onRequestFailure(exception);
-            setRefreshState(false);
-            showEmptyText(R.string.failed_load_data);
+        public void onError(Throwable e) {
+            RequestExceptionHandler.handle(e, getContext());
+            showEmptyTextIfNoItems(R.string.failed_load_data);
         }
 
         @Override
-        public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
-            // set pagination data
-            mPaginationPolicy.handleLookup(resourceLookupsList);
-
-            addData(resourceLookupsList.getResourceLookups());
-
-            // set refresh states
-            setRefreshState(false);
-            // If need we show 'empty' message
-            showEmptyText(R.string.resources_not_found);
+        public void onNext(List<ResourceLookup> resourceLookups) {
+            mHasNextPage = !resourceLookups.isEmpty();
+            addData(resourceLookups);
+            showEmptyTextIfNoItems(R.string.resources_not_found);
         }
     }
 
@@ -482,12 +459,11 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         }
     }
 
-//---------------------------------------------------------------------
-// Implements AbsListView.OnScrollListener
-//---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    // Implements AbsListView.OnScrollListener
+    //---------------------------------------------------------------------
 
     private class ScrollListener extends RecyclerView.OnScrollListener {
-
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);

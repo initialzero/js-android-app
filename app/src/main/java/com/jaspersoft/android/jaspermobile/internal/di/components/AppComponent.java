@@ -6,6 +6,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.CacheModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.app.ConstantsModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.RepoModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.BaseActivity;
 
@@ -22,6 +23,7 @@ import dagger.Component;
         AppModule.class,
         CacheModule.class,
         RepoModule.class,
+        ConstantsModule.class,
 })
 public interface AppComponent {
     void inject(BaseActivity baseActivity);

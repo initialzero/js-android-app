@@ -126,9 +126,6 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     @Inject
     @Nullable
     protected SearchResourcesCase mSearchResourcesCase;
-    @Inject
-    @Nullable
-    protected RequestExceptionHandler mExceptionHandler;
 
     @InstanceState
     protected boolean mLoading;

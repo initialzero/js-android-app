@@ -7,6 +7,7 @@ import com.jaspersoft.android.jaspermobile.data.entity.mapper.CriteriaMapper;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ResourceMapper;
 import com.jaspersoft.android.jaspermobile.domain.repository.resource.ResourceRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
+import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.service.data.report.ReportResource;
@@ -45,6 +46,7 @@ public final class InMemoryResourceRepository implements ResourceRepository {
         mResourceMapper = resourceMapper;
     }
 
+    @NonNull
     @Override
     public Observable<ReportResource> getReportResource(@NonNull final String reportUri) {
         if (mGetReportDetailsAction == null) {
@@ -82,6 +84,24 @@ public final class InMemoryResourceRepository implements ResourceRepository {
                     @Override
                     public List<ResourceLookup> call(List<Resource> resources) {
                         return mResourceMapper.toLegacyResources(resources);
+                    }
+                });
+    }
+
+    @NonNull
+    @Override
+    public Observable<List<FolderDataResponse>> getRootRepositories() {
+        return mRestClient.repositoryService()
+                .flatMap(new Func1<RxRepositoryService, Observable<List<Resource>>>() {
+                    @Override
+                    public Observable<List<Resource>> call(RxRepositoryService service) {
+                        return service.fetchRootFolders();
+                    }
+                })
+                .map(new Func1<List<Resource>, List<FolderDataResponse>>() {
+                    @Override
+                    public List<FolderDataResponse> call(List<Resource> resources) {
+                        return mResourceMapper.toLegacyFolders(resources);
                     }
                 });
     }

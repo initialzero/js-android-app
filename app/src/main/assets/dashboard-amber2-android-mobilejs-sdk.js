@@ -203,11 +203,11 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         this._defineComponentsClickEvent();
         this._setupFiltersApperance();
         this._overrideApplyButton();
-        return this.callback.onLoadDone(dashboard.params());
+        return this.callback.onLoadDone();
       };
 
       DashboardController.prototype._refreshSuccess = function(dashboard) {
-        return this.callback.onLoadDone(dashboard.params());
+        return this.callback.onLoadDone();
       };
 
       DashboardController.prototype._processErrors = function(error) {
@@ -727,9 +727,9 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         });
       };
 
-      AndroidCallback.prototype.onLoadDone = function(params) {
+      AndroidCallback.prototype.onLoadDone = function() {
         this.dispatch(function() {
-          return Android.onLoadDone(params);
+          return Android.onLoadDone();
         });
       };
 

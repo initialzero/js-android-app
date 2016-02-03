@@ -152,6 +152,8 @@ public class InputControlsActivity extends RoboSpiceActivity
     protected MenuItem deleteAction;
     @OptionsMenuItem(R.id.saveReportOption)
     protected MenuItem saveAction;
+    @OptionsMenuItem(R.id.resetReportOption)
+    protected MenuItem resetAction;
 
     @Extra
     protected String reportUri;
@@ -269,6 +271,7 @@ public class InputControlsActivity extends RoboSpiceActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         deleteAction.setVisible(reportOptionsList.getSelectedItemPosition() > 0 && mIsProJrs);
         saveAction.setVisible(mIsProJrs && !dashboardInputControl);
+        resetAction.setVisible(!dashboardInputControl);
         return super.onPrepareOptionsMenu(menu);
     }
 

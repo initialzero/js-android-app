@@ -37,7 +37,7 @@ public interface DashboardCallback {
     void onMinimizeFailed(String error);
     void onScriptLoaded();
     void onLoadStart();
-    void onLoadDone(String params);
+    void onLoadDone();
     void onLoadError(String error);
     void onReportExecution(String data);
     void onWindowResizeStart();

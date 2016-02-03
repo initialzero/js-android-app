@@ -276,7 +276,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @UiThread
     @Override
-    public void onLoadDone(String params) {
+    public void onLoadDone() {
         webView.setVisibility(View.VISIBLE);
         hideLoading();
     }

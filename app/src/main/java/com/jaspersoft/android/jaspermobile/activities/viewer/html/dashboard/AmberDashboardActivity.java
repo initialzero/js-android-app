@@ -254,7 +254,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
 
     @UiThread
     @Override
-    public void onLoadDone(String params) {
+    public void onLoadDone() {
         hideInitialLoader();
     }
 

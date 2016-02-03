@@ -137,12 +137,12 @@ public final class DashboardWebInterface extends WebInterface implements Dashboa
 
     @JavascriptInterface
     @Override
-    public void onLoadDone(final String params) {
+    public void onLoadDone() {
         mOnLoadDone = true;
         handleCallback(new Runnable() {
             @Override
             public void run() {
-                delegate.onLoadDone(params);
+                delegate.onLoadDone();
             }
         });
     }

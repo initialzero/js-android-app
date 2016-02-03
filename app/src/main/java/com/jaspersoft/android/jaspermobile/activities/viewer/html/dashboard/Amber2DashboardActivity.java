@@ -25,7 +25,9 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,13 +36,17 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMetadataCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
@@ -57,6 +63,8 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.OnActivityResult;
+import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.UiThread;
 
 import javax.inject.Inject;
@@ -67,8 +75,12 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
+@OptionsMenu(R.menu.report_filter_manager_menu)
 @EActivity
 public class Amber2DashboardActivity extends BaseDashboardActivity implements DashboardCallback {
+
+    private static final int REQUEST_DASHBOARDS_PARAMETERS = 200;
+
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
     @Bean
@@ -87,10 +99,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     FlushInputControlsCase mFlushInputControlsCase;
     @Inject
     @Nullable
+    GetVisualizeExecOptionsCase mGetVisualizeExecOptionsCase;
+    @Inject
+    @Nullable
     RequestExceptionHandler mExceptionHandler;
 
-    private boolean mFavoriteItemVisible, mInfoItemVisible;
-    private MenuItem favoriteAction, aboutAction;
+    private boolean mFavoriteItemVisible, mInfoItemVisible, mFiltersVisible;
+    private MenuItem favoriteAction, aboutAction, filerAction;
     private DashboardTrigger mDashboardTrigger;
     private WebInterface mWebInterface;
     private DashboardExecutor mDashboardExecutor;
@@ -112,18 +127,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
             @Override
             public void onError(Throwable e) {
                 Timber.e(e, "get dashboards thrown error");
-                String message = mExceptionHandler.extractMessage(e);
-                showMessage(message);
+                mFiltersVisible = false;
             }
 
             @Override
             public void onNext(Boolean hasControls) {
-                if (hasControls) {
-                    InputControlsActivity_.intent(Amber2DashboardActivity.this)
-                            .reportUri(resource.getUri())
-                            .loadReportOptions(false)
-                            .start();
-                }
+                mFiltersVisible = hasControls;
+                invalidateOptionsMenu();
             }
         });
         scrollableTitleHelper.injectTitle(resource.getLabel());
@@ -135,6 +145,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         boolean result = super.onCreateOptionsMenu(menu);
         favoriteAction = menu.findItem(R.id.favoriteAction);
         aboutAction = menu.findItem(R.id.aboutAction);
+        filerAction = menu.findItem(R.id.showFilters);
         return result;
     }
 
@@ -143,7 +154,33 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         boolean result = super.onPrepareOptionsMenu(menu);
         favoriteAction.setVisible(mFavoriteItemVisible);
         aboutAction.setVisible(mInfoItemVisible);
+        filerAction.setVisible(mFiltersVisible);
+
         return result;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.showFilters) {
+            InputControlsActivity_.intent(Amber2DashboardActivity.this)
+                    .reportUri(resource.getUri())
+                    .dashboardInputControl(true)
+                    .startForResult(REQUEST_DASHBOARDS_PARAMETERS);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @OnActivityResult(REQUEST_DASHBOARDS_PARAMETERS)
+    final void onNewParametersResult(int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            boolean isNewParamsEqualOld = data.getBooleanExtra(
+                    InputControlsActivity.RESULT_SAME_PARAMS, false);
+            if (!isNewParamsEqualOld) {
+                applyParams();
+            }
+        }
     }
 
     @Override
@@ -245,7 +282,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @UiThread
     @Override
-    public void onLoadDone() {
+    public void onLoadDone(String params) {
         webView.setVisibility(View.VISIBLE);
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
@@ -330,6 +367,21 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     private void runDashboard() {
         mDashboardExecutor.execute();
+    }
+
+    private void applyParams() {
+        mGetVisualizeExecOptionsCase.execute(resource.getUri(), new SimpleSubscriber<VisualizeExecOptions.Builder>() {
+            @Override
+            public void onNext(VisualizeExecOptions.Builder item) {
+                String params = item.build().getParams();
+                mDashboardTrigger.applyParams(params);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                super.onError(e);
+            }
+        });
     }
 
     private void showMenuItems() {

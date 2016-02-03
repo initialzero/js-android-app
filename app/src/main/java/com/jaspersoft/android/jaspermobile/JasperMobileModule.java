@@ -36,6 +36,7 @@ import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetInputControlsValuesCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.DeleteReportOptionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionValuesCase;
@@ -102,6 +103,7 @@ public class  JasperMobileModule extends AbstractModule {
         bind(DeleteReportOptionCase.class).toProvider(Providers.<DeleteReportOptionCase>of(null));
         bind(JasperServer.class).toProvider(Providers.<JasperServer>of(null));
         bind(GetDashboardControlsCase.class).toProvider(Providers.<GetDashboardControlsCase>of(null));
+        bind(GetVisualizeExecOptionsCase.class).toProvider(Providers.<GetVisualizeExecOptionsCase>of(null));
         bind(RequestExceptionHandler.class).toProvider(Providers.<RequestExceptionHandler>of(null));
         bind(FlushInputControlsCase.class).toProvider(Providers.<FlushInputControlsCase>of(null));
         bind(ResourcePrintJob.class).toProvider(Providers.<ResourcePrintJob>of(null));

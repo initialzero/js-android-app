@@ -156,7 +156,7 @@ public class InputControlsActivity extends RoboSpiceActivity
     @Extra
     protected String reportUri;
     @Extra
-    protected boolean loadReportOptions;
+    protected boolean dashboardInputControl;
 
     private List<InputControl> mInputControls;
     private List<ReportOptionHolder> mReportOptions;
@@ -199,7 +199,7 @@ public class InputControlsActivity extends RoboSpiceActivity
             updateInputControlsFromReportParams();
         }
 
-        if (mReportOptions.isEmpty() && loadReportOptions) {
+        if (mReportOptions.isEmpty() && !dashboardInputControl) {
             loadReportOptions();
         }
     }
@@ -243,8 +243,13 @@ public class InputControlsActivity extends RoboSpiceActivity
 
     @Click(R.id.btnApplyParams)
     protected void applyParamsClick() {
-        setProgressDialogState(true);
-        mValidateInputControlsCase.execute(reportUri, new GenericSubscriber<>(new ValidateInputControlsValuesListener()));
+        if (dashboardInputControl) {
+            // TODO add validation for dashboard filters
+            runReport();
+        } else {
+            setProgressDialogState(true);
+            mValidateInputControlsCase.execute(reportUri, new GenericSubscriber<>(new ValidateInputControlsValuesListener()));
+        }
     }
 
     @OnActivityResult(SELECT_IC_REQUEST_CODE)
@@ -263,7 +268,7 @@ public class InputControlsActivity extends RoboSpiceActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         deleteAction.setVisible(reportOptionsList.getSelectedItemPosition() > 0 && mIsProJrs);
-        saveAction.setVisible(mIsProJrs);
+        saveAction.setVisible(mIsProJrs && !dashboardInputControl);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -415,7 +420,7 @@ public class InputControlsActivity extends RoboSpiceActivity
 
         int selectedReportOptionPosition = getSelectedReportOptionPosition();
         reportOptionsList.setSelection(selectedReportOptionPosition, false);
-        reportOptionsList.setVisibility(mIsProJrs ? View.VISIBLE : View.GONE);
+        reportOptionsList.setVisibility(mIsProJrs && !dashboardInputControl ? View.VISIBLE : View.GONE);
     }
 
     private void onReportOptionSelected(int position) {

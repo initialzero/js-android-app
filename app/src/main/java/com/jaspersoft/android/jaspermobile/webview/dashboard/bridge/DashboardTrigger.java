@@ -43,4 +43,8 @@ public interface DashboardTrigger {
      * Minimize latest maximized dashlet.
      */
     void minimizeDashlet();
+    /**
+     * Apply params.
+     */
+    void applyParams(String params);
 }

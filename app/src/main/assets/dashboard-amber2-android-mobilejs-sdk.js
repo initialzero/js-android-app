@@ -154,6 +154,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         })(this));
       };
 
+      DashboardController.prototype.applyParams = function(parameters) {
+        return this.dashboard.params(parameters).run().done(function() {}).fail(function() {});
+      };
+
       DashboardController.prototype.runDashboard = function() {
         this._setGlobalErrorListener();
         this._scaleDashboard();
@@ -199,11 +203,11 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         this._defineComponentsClickEvent();
         this._setupFiltersApperance();
         this._overrideApplyButton();
-        return this.callback.onLoadDone(this.components);
+        return this.callback.onLoadDone(dashboard.params());
       };
 
       DashboardController.prototype._refreshSuccess = function(dashboard) {
-        return this.callback.onLoadDone(this.components);
+        return this.callback.onLoadDone(dashboard.params());
       };
 
       DashboardController.prototype._processErrors = function(error) {
@@ -526,6 +530,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         return this._instance._minimizeDashlet();
       };
 
+      MobileDashboard.applyParams = function(params) {
+         return this._instance._applyParams(params);
+      };
+
       MobileDashboard.refreshDashlet = function() {
         return this._instance._refreshDashlet();
       };
@@ -549,6 +557,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       MobileDashboard.prototype._minimizeDashlet = function() {
         return this._controller.minimizeDashlet();
+      };
+
+      MobileDashboard.prototype._applyParams = function(params) {
+        return this._controller.applyParams(params);
       };
 
       MobileDashboard.prototype._refreshDashlet = function() {
@@ -715,9 +727,9 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         });
       };
 
-      AndroidCallback.prototype.onLoadDone = function(components) {
+      AndroidCallback.prototype.onLoadDone = function(params) {
         this.dispatch(function() {
-          return Android.onLoadDone();
+          return Android.onLoadDone(params);
         });
       };
 

@@ -1,21 +1,22 @@
 package com.jaspersoft.android.jaspermobile.activities.file;
 
 import android.accounts.Account;
-import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
 
-import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.LoadFileRequest;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.LoadResourceInFileCase;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.GetFileContentRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
-import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -25,6 +26,9 @@ import org.androidannotations.annotations.InstanceState;
 import java.io.File;
 import java.util.Date;
 
+import javax.inject.Inject;
+
+import rx.Subscriber;
 import timber.log.Timber;
 
 /**
@@ -37,7 +41,11 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
     private static final String TEMP_FILE_NAME = "tempFile";
 
     @Inject
-    protected JsRestClient jsRestClient;
+    @Nullable
+    protected LoadResourceInFileCase mLoadResourceInFileCase;
+    @Inject
+    @Nullable
+    protected JasperServer mServer;
 
     @Bean
     DefaultPrefHelper prefHelper;
@@ -50,6 +58,20 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
     @FragmentArg
     protected String fileUri;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        GraphObject.Factory.from(getContext())
+                .getProfileComponent()
+                .inject(this);
+    }
+
+    @Override
+    public void onDestroyView() {
+        mLoadResourceInFileCase.unsubscribe();
+        super.onDestroyView();
+    }
+
     protected abstract void onFileReady(File file);
 
     protected abstract void showErrorMessage();
@@ -57,10 +79,10 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
     protected void loadFile() {
         File resourceFile = getResourceFile(fileUri);
 
-        if (resourceFile != null) {
-            loadFile(resourceFile);
-        } else {
+        if (resourceFile == null) {
             showErrorMessage();
+        } else {
+            loadFile(resourceFile);
         }
     }
 
@@ -88,14 +110,13 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
         if (!resourceFile.exists() || !isFileValid(resourceFile)) {
             requestFile(resourceFile);
         } else {
-            new FileContentListener().onRequestSuccess(resourceFile);
+            onFileReady(resourceFile);
         }
     }
 
     private void requestFile(File resourceFile) {
-        GetFileContentRequest fileContentRequest = new GetFileContentRequest(jsRestClient, resourceFile, fileUri);
-        getSpiceManager().execute(fileContentRequest, new FileContentListener());
-        showProgressDialog();
+        LoadFileRequest request = new LoadFileRequest(fileUri, resourceFile);
+        mLoadResourceInFileCase.execute(request, new FileContentListener() );
     }
 
     private File getCacheFile(String resourceUri) {
@@ -138,22 +159,25 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
                 .show();
     }
 
-    private class FileContentListener extends SimpleRequestListener<File> {
+    private class FileContentListener extends Subscriber<File> {
         @Override
-        protected Context getContext() {
-            return getActivity();
+        public void onStart() {
+            showProgressDialog();
         }
 
         @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            super.onRequestFailure(spiceException);
+        public void onCompleted() {
             ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            RequestExceptionHandler.handle(e, getContext());
             showErrorMessage();
         }
 
         @Override
-        public void onRequestSuccess(File file) {
-            ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+        public void onNext(File file) {
             onFileReady(file);
         }
     }

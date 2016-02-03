@@ -3,19 +3,17 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 import android.content.Context;
 import android.widget.ImageView;
 
-import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.jaspermobile.domain.ResourceDetailsRequest;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsByTypeCase;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.GetFileResourceRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
-import com.octo.android.robospice.SpiceManager;
-import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import roboguice.RoboGuice;
+import javax.inject.Inject;
+
 
 /**
  * @author Andrew Tivodar
@@ -24,13 +22,13 @@ import roboguice.RoboGuice;
 public class FileResourceBinder extends ResourceBinder {
 
     @Inject
-    protected JsRestClient jsRestClient;
-    private final SpiceManager mSpiceManager;
+    protected GetResourceDetailsByTypeCase mGetResourceDetailsByTypeCase;
 
     public FileResourceBinder(Context context) {
         super(context);
-        mSpiceManager = ((RoboSpiceActivity) getContext()).getSpiceManager();
-        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
+        GraphObject.Factory.from(context)
+                .getProfileComponent()
+                .inject(this);
     }
 
     @Override
@@ -56,25 +54,14 @@ public class FileResourceBinder extends ResourceBinder {
     }
 
     private void loadFileType(final ImageView imageView, String uri) {
-        GetFileResourceRequest mFileResourceRequest = new GetFileResourceRequest(jsRestClient, uri);
-        long cacheExpiryDuration = DefaultPrefHelper_.getInstance_(getContext()).getRepoCacheExpirationValue();
-
-        imageView.setTag(mFileResourceRequest);
-        mSpiceManager.execute(mFileResourceRequest, mFileResourceRequest.createCacheKey(), cacheExpiryDuration, new SimpleRequestListener<FileLookup>() {
+        ResourceDetailsRequest request = new ResourceDetailsRequest(uri, "file");
+        mGetResourceDetailsByTypeCase.execute(request, new SimpleSubscriber<ResourceLookup>() {
             @Override
-            protected Context getContext() {
-                return FileResourceBinder.this.getContext();
-            }
-
-            @Override
-            public void onRequestFailure(SpiceException spiceException) {
-
-            }
-
-            @Override
-            public void onRequestSuccess(FileLookup fileLookup) {
+            public void onNext(ResourceLookup resourceLookup) {
+                FileLookup fileLookup = (FileLookup) resourceLookup;
+                FileLookup.FileType fileType = fileLookup.getFileType();
                 int resId;
-                switch (fileLookup.getFileType()) {
+                switch (fileType) {
                     case csv:
                         resId = R.drawable.ic_file_csv;
                         break;

@@ -9,12 +9,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.EFragment;
 import org.apache.commons.io.FileUtils;
@@ -42,9 +40,6 @@ public class HtmlFileViewFragment extends FileLoadFragment {
     protected WebView resourceView;
     @InjectView(R.id.error_text)
     protected TextView errorText;
-
-    @Inject
-    protected JsRestClient jsRestClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,17 +87,17 @@ public class HtmlFileViewFragment extends FileLoadFragment {
         }
         resourceView.getSettings().setUseWideViewPort(true);
         resourceView.getSettings().setLoadWithOverviewMode(true);
-        resourceView.setWebViewClient(new SessionResumeWebViewClient());
+//        resourceView.setWebViewClient(new SessionResumeWebViewClient());
 
         resourceView.loadDataWithBaseURL(getBaseUrl(), resourceData, null, "UTF-8", null);
     }
 
     private String getBaseUrl() {
-        return jsRestClient.getServerProfile().getServerUrl() + "/fileview/fileview" + fileUri.subSequence(0, (fileUri.lastIndexOf('/') + 1));
+        return mServer.getBaseUrl() + "fileview/fileview" + fileUri.subSequence(0, (fileUri.lastIndexOf('/') + 1));
     }
 
     private String getAttachmentUrl(String fullResourceUri) {
-        return fullResourceUri.replace(jsRestClient.getServerProfile().getServerUrl() + "/fileview/fileview", "");
+        return fullResourceUri.replace(mServer.getBaseUrl() + "fileview/fileview", "");
     }
 
     private void cacheAttachment(File file, byte[] attachment) {

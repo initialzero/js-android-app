@@ -43,9 +43,9 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetRe
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.LoadControlsForOptionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.SaveReportOptionsCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetFileDetailsCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsByTypeCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetRootFoldersCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.LoadResourceInFileCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
@@ -112,10 +112,10 @@ public class  JasperMobileModule extends AbstractModule {
         bind(ResourcePrintJob.class).toProvider(Providers.<ResourcePrintJob>of(null));
         bind(SearchResourcesCase.class).toProvider(Providers.<SearchResourcesCase>of(null));
         bind(GetRootFoldersCase.class).toProvider(Providers.<GetRootFoldersCase>of(null));
-        bind(GetResourceDetailsCase.class).toProvider(Providers.<GetResourceDetailsCase>of(null));
+        bind(GetResourceDetailsByTypeCase.class).toProvider(Providers.<GetResourceDetailsByTypeCase>of(null));
         bind(LoadControlsForOptionCase.class).toProvider(Providers.<LoadControlsForOptionCase>of(null));
-        bind(GetFileDetailsCase.class).toProvider(Providers.<GetFileDetailsCase>of(null));
         bind(ReportParamsStorage.class).toProvider(Providers.<ReportParamsStorage>of(null));
         bind(JasperRestClient.class).toProvider(Providers.<JasperRestClient>of(null));
+        bind(LoadResourceInFileCase.class).toProvider(Providers.<LoadResourceInFileCase>of(null));
     }
 }

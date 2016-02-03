@@ -1,5 +1,7 @@
 package com.jaspersoft.android.jaspermobile.internal.di.components;
 
+import com.jaspersoft.android.jaspermobile.activities.file.FileLoadFragment;
+import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.ReportInfoFragment;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.ResourceInfoFragment;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.SimpleInfoFragment;
@@ -15,6 +17,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.Dashboar
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportRestViewerModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.FileResourceBinder;
 
 import dagger.Subcomponent;
 
@@ -52,4 +55,7 @@ public interface ProfileComponent {
     void inject(ReportInfoFragment reportInfoFragment);
     void inject(ScheduleActivity scheduleActivity);
     void inject(JobsFragment jobsFragment);
+    void inject(FileLoadFragment fileLoadFragment);
+    void inject(FileResourceBinder fileResourceBinder);
+    void inject(FileViewerActivity fileViewerActivity);
 }

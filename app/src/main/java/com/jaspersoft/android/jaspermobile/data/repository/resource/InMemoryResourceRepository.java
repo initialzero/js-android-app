@@ -12,7 +12,9 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.service.data.report.FileResource;
 import com.jaspersoft.android.sdk.service.data.report.ReportResource;
+import com.jaspersoft.android.sdk.service.data.report.ResourceOutput;
 import com.jaspersoft.android.sdk.service.data.repository.Resource;
+import com.jaspersoft.android.sdk.service.data.repository.ResourceType;
 import com.jaspersoft.android.sdk.service.repository.RepositorySearchCriteria;
 import com.jaspersoft.android.sdk.service.rx.repository.RxRepositoryService;
 
@@ -34,8 +36,10 @@ public final class InMemoryResourceRepository implements ResourceRepository {
     private final CriteriaMapper mCriteriaMapper;
     private final ResourceMapper mResourceMapper;
 
+    private Observable<Resource> mGetResourceDetailsAction;
     private Observable<ReportResource> mGetReportDetailsAction;
     private Observable<FileResource> mGetFileDetailsAction;
+    private Observable<ResourceOutput> mGetFileContentAction;
     private Observable<List<FolderDataResponse>> mGetRootRepositoriesAction;
     private Observable<List<ResourceLookup>> mSearchAction;
 
@@ -52,45 +56,44 @@ public final class InMemoryResourceRepository implements ResourceRepository {
 
     @NonNull
     @Override
-    public Observable<ReportResource> getReportResource(@NonNull final String reportUri) {
-        if (mGetReportDetailsAction == null) {
-
-            mGetReportDetailsAction = mRestClient.repositoryService()
-                    .flatMap(new Func1<RxRepositoryService, Observable<ReportResource>>() {
+    public Observable<Resource> getResourceByType(@NonNull final String reportUri, @NonNull final String type) {
+        if (mGetResourceDetailsAction == null) {
+            mGetResourceDetailsAction = mRestClient.repositoryService()
+                    .flatMap(new Func1<RxRepositoryService, Observable<Resource>>() {
                         @Override
-                        public Observable<ReportResource> call(RxRepositoryService service) {
-                            return service.fetchReportDetails(reportUri);
+                        public Observable<Resource> call(RxRepositoryService service) {
+                            return service.fetchResourceDetails(reportUri, ResourceType.valueOf(type));
                         }
                     })
                     .doOnTerminate(new Action0() {
                         @Override
                         public void call() {
-                            mGetReportDetailsAction = null;
+                            mGetResourceDetailsAction = null;
                         }
                     }).cache();
         }
-        return mGetReportDetailsAction;
+        return mGetResourceDetailsAction;
     }
 
     @NonNull
     @Override
-    public Observable<FileResource> getFileResource(@NonNull final String resourceUri) {
-        if (mGetFileDetailsAction == null) {
-            mGetFileDetailsAction = mRestClient.repositoryService()
-                    .flatMap(new Func1<RxRepositoryService, Observable<FileResource>>() {
+    public Observable<ResourceOutput> getResourceContent(@NonNull final String resourceUri) {
+        if (mGetFileContentAction == null) {
+            mGetFileContentAction = mRestClient.repositoryService()
+                    .flatMap(new Func1<RxRepositoryService, Observable<ResourceOutput>>() {
                         @Override
-                        public Observable<FileResource> call(RxRepositoryService service) {
-                            return service.fetchFileDetails(resourceUri);
+                        public Observable<ResourceOutput> call(RxRepositoryService service) {
+                            return service.fetchResourceContent(resourceUri);
                         }
                     })
                     .doOnTerminate(new Action0() {
                         @Override
                         public void call() {
-                            mGetFileDetailsAction = null;
+                            mGetFileContentAction = null;
                         }
                     }).cache();
         }
-        return mGetFileDetailsAction;
+        return mGetFileContentAction;
     }
 
     @NonNull

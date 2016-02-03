@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
 import com.jaspersoft.android.sdk.service.data.report.FileResource;
 
 import org.androidannotations.annotations.EFragment;
@@ -37,21 +38,10 @@ import org.androidannotations.annotations.EFragment;
  */
 @EFragment(R.layout.fragment_resource_info)
 public class FileInfoFragment extends ResourceInfoFragment {
-
     @Override
     protected void onDataObtain() {
         super.onDataObtain();
-
-        mGetFileDetailsCase.execute(jasperResource.getId(), new SimpleSubscriber<FileResource>() {
-            @Override
-            public void onError(Throwable e) {
-                RequestExceptionHandler.handle(e, getContext());
-            }
-
-            @Override
-            public void onNext(FileResource fileResource) {
-                infoView.addInfoItem(getString(R.string.ri_file_format), fileResource.getType().name(), 1);
-            }
-        });
+        FileLookup fileLookup = (FileLookup) mResourceLookup;
+        infoView.addInfoItem(getString(R.string.ri_file_format), fileLookup.getFileType().name(), 1);
     }
 }

@@ -4,12 +4,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsCase;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.domain.ResourceDetailsRequest;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
@@ -23,8 +20,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
-
-import javax.inject.Inject;
 
 import rx.Subscriber;
 
@@ -57,7 +52,11 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
 
     @AfterViews
     protected void requestInfo() {
-        mGetResourceDetailsCase.execute(jasperResource.getId(), new GetResourceDescriptorListener());
+        ResourceDetailsRequest resource = new ResourceDetailsRequest(
+                jasperResource.getId(),
+                jasperResource.getResourceType().name()
+        );
+        mGetResourceDetailsByTypeCase.execute(resource, new GetResourceDescriptorListener());
     }
 
     @Override
@@ -81,10 +80,16 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
     }
 
     private void fillWithData() {
-        infoView.fillWithBaseData(mResourceLookup.getResourceType().name(), mResourceLookup.getLabel(),
-                mResourceLookup.getDescription(), mResourceLookup.getUri(),
-                mResourceLookup.getCreationDate(), mResourceLookup.getUpdateDate(),
-                String.valueOf(mResourceLookup.getVersion()), mResourceLookup.getPermissionMask());
+        infoView.fillWithBaseData(
+                mResourceLookup.getResourceType().name(),
+                mResourceLookup.getLabel(),
+                mResourceLookup.getDescription(),
+                mResourceLookup.getUri(),
+                mResourceLookup.getCreationDate(),
+                mResourceLookup.getUpdateDate(),
+                String.valueOf(mResourceLookup.getVersion()),
+                mResourceLookup.getPermissionMask()
+        );
     }
 
     private class GetResourceDescriptorListener extends Subscriber<ResourceLookup> {

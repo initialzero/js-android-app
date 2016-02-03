@@ -10,6 +10,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.data.report.ReportResource;
+import com.jaspersoft.android.sdk.service.data.repository.Resource;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 
 import rx.Observable;
 import rx.functions.Func0;
+import rx.functions.Func1;
 
 /**
  * TODO: remove data package related dependencies
@@ -53,7 +55,12 @@ public class GetReportMetadataCase extends AbstractUseCase<ReportResource, Repor
                         mReportParamsMapper.mapToLegacyParams(reportData.getParams());
                 String uri = reportData.getResource();
                 mReportParamsCache.put(uri, reportParameters);
-                return mResourceRepository.getReportResource(uri);
+                return mResourceRepository.getResourceByType(uri, "reportUnit").map(new Func1<Resource, ReportResource>() {
+                    @Override
+                    public ReportResource call(Resource resource) {
+                        return (ReportResource) resource;
+                    }
+                });
             }
         });
     }

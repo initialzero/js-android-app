@@ -34,6 +34,7 @@ import com.google.inject.util.Providers;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardVisualizeParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetInputControlsValuesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
@@ -107,5 +108,6 @@ public class  JasperMobileModule extends AbstractModule {
         bind(RequestExceptionHandler.class).toProvider(Providers.<RequestExceptionHandler>of(null));
         bind(FlushInputControlsCase.class).toProvider(Providers.<FlushInputControlsCase>of(null));
         bind(ResourcePrintJob.class).toProvider(Providers.<ResourcePrintJob>of(null));
+        bind(GetDashboardVisualizeParamsCase.class).toProvider(Providers.<GetDashboardVisualizeParamsCase>of(null));
     }
 }

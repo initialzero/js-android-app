@@ -42,11 +42,9 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardVisualizeParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMetadataCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
@@ -99,7 +97,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     FlushInputControlsCase mFlushInputControlsCase;
     @Inject
     @Nullable
-    GetVisualizeExecOptionsCase mGetVisualizeExecOptionsCase;
+    GetDashboardVisualizeParamsCase mGetDashboardVisualizeParamsCase;
     @Inject
     @Nullable
     RequestExceptionHandler mExceptionHandler;
@@ -223,15 +221,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     public void onMaximizeStart(String title) {
         resetZoom();
         hideMenuItems();
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.loading_msg)
-                .show();
+        showLoading();
     }
 
     @UiThread
     @Override
     public void onMaximizeEnd(String title) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
         resetZoom();
         mMaximized = true;
         scrollableTitleHelper.injectTitle(title);
@@ -240,7 +236,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @UiThread
     @Override
     public void onMaximizeFailed(String error) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     @UiThread
@@ -248,15 +244,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     public void onMinimizeStart() {
         resetZoom();
         showMenuItems();
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.loading_msg)
-                .show();
+        showLoading();
     }
 
     @UiThread
     @Override
     public void onMinimizeEnd() {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
         mMaximized = false;
     }
 
@@ -284,14 +278,14 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onLoadDone(String params) {
         webView.setVisibility(View.VISIBLE);
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     @UiThread
     @Override
     public void onLoadError(String error) {
         Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     @UiThread
@@ -320,7 +314,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onWindowError(String errorMessage) {
         showMessage(getString(R.string.failed_load_data));
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     @Override
@@ -370,10 +364,19 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     }
 
     private void applyParams() {
-        mGetVisualizeExecOptionsCase.execute(resource.getUri(), new SimpleSubscriber<VisualizeExecOptions.Builder>() {
+        mGetDashboardVisualizeParamsCase.execute(resource.getUri(), new SimpleSubscriber<String>() {
             @Override
-            public void onNext(VisualizeExecOptions.Builder item) {
-                String params = item.build().getParams();
+            public void onStart() {
+                showLoading();
+            }
+
+            @Override
+            public void onCompleted() {
+                hideLoading();
+            }
+
+            @Override
+            public void onNext(String params) {
                 mDashboardTrigger.applyParams(params);
             }
 
@@ -392,5 +395,15 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     private void hideMenuItems() {
         mFavoriteItemVisible = mInfoItemVisible = false;
         supportInvalidateOptionsMenu();
+    }
+
+    private void showLoading() {
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
+    }
+
+    private void hideLoading() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 }

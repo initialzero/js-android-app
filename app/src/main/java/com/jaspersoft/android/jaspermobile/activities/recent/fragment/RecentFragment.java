@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.recent.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -39,7 +38,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
@@ -51,8 +51,6 @@ import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -65,6 +63,8 @@ import java.util.List;
 import javax.inject.Inject;
 
 import roboguice.inject.InjectView;
+import rx.Subscriber;
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -90,6 +90,9 @@ public class RecentFragment extends RoboSpiceFragment
     @Inject
     @Nullable
     protected JasperResourceConverter jasperResourceConverter;
+    @Inject
+    @Nullable
+    protected SearchResourcesCase mSearchResourcesCase;
 
     @FragmentArg
     protected ViewType viewType;
@@ -152,13 +155,19 @@ public class RecentFragment extends RoboSpiceFragment
 
         List<Analytics.Dimension> viewDimension = new ArrayList<>();
         viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
-        analytics.sendScreenView(Analytics.ScreenName.RECENTLY_VIEWED.getValue(),viewDimension);
+        analytics.sendScreenView(Analytics.ScreenName.RECENTLY_VIEWED.getValue(), viewDimension);
     }
 
     @Override
     public void onPause() {
         swipeRefreshLayout.clearAnimation();
         super.onPause();
+    }
+
+    @Override
+    public void onDestroyView() {
+        mSearchResourcesCase.unsubscribe();
+        super.onDestroyView();
     }
 
     //---------------------------------------------------------------------
@@ -216,11 +225,7 @@ public class RecentFragment extends RoboSpiceFragment
     private void loadResources() {
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
-
-        // TODO replace with SDK 2.0 calls
-//        GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
-//        long cacheExpiryDuration = DurationInMillis.ALWAYS_EXPIRED;
-//        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
+        mSearchResourcesCase.execute(mSearchCriteria,  new GetResourceLookupsListener());
     }
 
     private void showEmptyText(int resId) {
@@ -239,28 +244,24 @@ public class RecentFragment extends RoboSpiceFragment
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class GetResourceLookupsListener extends SimpleRequestListener<ResourceLookupsList> {
-
+    private class GetResourceLookupsListener extends Subscriber<List<ResourceLookup>> {
         @Override
-        protected Context getContext() {
-            return getActivity();
+        public void onCompleted() {
+            setRefreshState(false);
         }
 
         @Override
-        public void onRequestFailure(SpiceException exception) {
-            super.onRequestFailure(exception);
-            setRefreshState(false);
+        public void onError(Throwable e) {
+            Timber.e(e, "LibraryFragment#GetResourceLookupsListener failed");
+            RequestExceptionHandler.handle(e, getContext());
             showEmptyText(R.string.failed_load_data);
         }
 
+
         @Override
-        public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
-
-            addData(resourceLookupsList.getResourceLookups());
-
-            // set refresh states
+        public void onNext(List<ResourceLookup> resourceLookups) {
+            addData(resourceLookups);
             setRefreshState(false);
-            // If need we show 'empty' message
             showEmptyText(R.string.resources_not_found);
         }
     }

@@ -44,19 +44,21 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
 import com.jaspersoft.android.jaspermobile.activities.schedule.JobsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog_;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
@@ -67,6 +69,8 @@ import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
+
+import javax.inject.Inject;
 
 /**
  * @author Ivan Gadzhega
@@ -83,6 +87,11 @@ public class NavigationActivity extends RoboCastActivity {
     protected DrawerLayout drawerLayout;
     @ViewById(R.id.npl_navigation_menu)
     protected NavigationPanelLayout navigationPanelLayout;
+
+    @Inject
+    @Nullable
+    protected JasperServer mJasperServer;
+
     private ActionBarDrawerToggle mDrawerToggle;
 
     @Extra
@@ -98,6 +107,14 @@ public class NavigationActivity extends RoboCastActivity {
         }
         setupNavDrawer();
         setupNavPanel();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        GraphObject.Factory.from(this)
+                .getProfileComponent()
+                .inject(this);
     }
 
     @Override
@@ -198,12 +215,8 @@ public class NavigationActivity extends RoboCastActivity {
     //---------------------------------------------------------------------
 
     private void enableRecentlyViewedSection() {
-        Account account = JasperAccountManager.get(this).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(this, account);
-        boolean isProJrs = serverData.getEdition().equals("PRO");
-
         View recentlyView = findViewById(R.id.vg_recent);
-        if (isProJrs) {
+        if (mJasperServer.isProEdition()) {
             recentlyView.setVisibility(View.VISIBLE);
         } else {
             recentlyView.setVisibility(View.GONE);

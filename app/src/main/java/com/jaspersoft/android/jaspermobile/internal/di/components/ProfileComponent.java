@@ -7,6 +7,7 @@ import com.jaspersoft.android.jaspermobile.activities.info.fragments.ReportInfoF
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.ResourceInfoFragment;
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.SimpleInfoFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryFragment;
+import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity;
 import com.jaspersoft.android.jaspermobile.activities.recent.fragment.RecentFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryFragment;
 import com.jaspersoft.android.jaspermobile.activities.schedule.JobsFragment;
@@ -64,4 +65,5 @@ public interface ProfileComponent {
     void inject(FavoritesFragment favoritesFragment);
     void inject(RecentFragment recentFragment);
     void inject(SavedItemsFragment savedItemsFragment);
+    void inject(NavigationActivity navigationActivity);
 }

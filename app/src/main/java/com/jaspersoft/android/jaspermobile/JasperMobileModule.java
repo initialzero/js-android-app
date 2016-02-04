@@ -120,6 +120,7 @@ public class  JasperMobileModule extends AbstractModule {
         bind(JasperRestClient.class).toProvider(Providers.<JasperRestClient>of(null));
         bind(LoadResourceInFileCase.class).toProvider(Providers.<LoadResourceInFileCase>of(null));
         bind(Profile.class).toProvider(Providers.<Profile>of(null));
+        bind(JasperServer.class).toProvider(Providers.<JasperServer>of(null));
         bind(JasperResourceConverter.class).toProvider(Providers.<JasperResourceConverter>of(null));
     }
 }

@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.data.entity.mapper;
 import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
+import com.jaspersoft.android.sdk.service.repository.AccessType;
 import com.jaspersoft.android.sdk.service.repository.RepositorySearchCriteria;
 import com.jaspersoft.android.sdk.service.repository.SortType;
 
@@ -27,6 +28,11 @@ public class CriteriaMapper {
         criteriaBuilder.withOffset(legacyCriteria.getOffset());
         criteriaBuilder.withQuery(legacyCriteria.getQuery());
         criteriaBuilder.withRecursive(legacyCriteria.isRecursive());
+
+        String accessType = legacyCriteria.getAccessType();
+        if (accessType != null) {
+            criteriaBuilder.withAccessType(AccessType.fromRawValue(accessType));
+        }
 
         String sortBy = legacyCriteria.getSortBy();
         if (sortBy != null) {

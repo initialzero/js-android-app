@@ -38,7 +38,7 @@ public class GetResourceDetailsByTypeCase extends AbstractUseCase<ResourceLookup
     }
 
     @Override
-    public Observable<ResourceLookup> buildUseCaseObservable(@NonNull final ResourceDetailsRequest request) {
+    protected Observable<ResourceLookup> buildUseCaseObservable(@NonNull final ResourceDetailsRequest request) {
         return mResourceRepository.getResourceByType(request.getUri(), request.getType())
                 .flatMap(new Func1<Resource, Observable<ResourceLookup>>() {
                     @Override

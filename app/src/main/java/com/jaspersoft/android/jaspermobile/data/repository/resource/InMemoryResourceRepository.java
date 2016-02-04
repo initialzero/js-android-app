@@ -10,8 +10,6 @@ import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
-import com.jaspersoft.android.sdk.service.data.report.FileResource;
-import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 import com.jaspersoft.android.sdk.service.data.report.ResourceOutput;
 import com.jaspersoft.android.sdk.service.data.repository.Resource;
 import com.jaspersoft.android.sdk.service.data.repository.ResourceType;
@@ -37,8 +35,6 @@ public final class InMemoryResourceRepository implements ResourceRepository {
     private final ResourceMapper mResourceMapper;
 
     private Observable<Resource> mGetResourceDetailsAction;
-    private Observable<ReportResource> mGetReportDetailsAction;
-    private Observable<FileResource> mGetFileDetailsAction;
     private Observable<ResourceOutput> mGetFileContentAction;
     private Observable<List<FolderDataResponse>> mGetRootRepositoriesAction;
     private Observable<List<ResourceLookup>> mSearchAction;
@@ -57,22 +53,13 @@ public final class InMemoryResourceRepository implements ResourceRepository {
     @NonNull
     @Override
     public Observable<Resource> getResourceByType(@NonNull final String reportUri, @NonNull final String type) {
-        if (mGetResourceDetailsAction == null) {
-            mGetResourceDetailsAction = mRestClient.repositoryService()
-                    .flatMap(new Func1<RxRepositoryService, Observable<Resource>>() {
-                        @Override
-                        public Observable<Resource> call(RxRepositoryService service) {
-                            return service.fetchResourceDetails(reportUri, ResourceType.valueOf(type));
-                        }
-                    })
-                    .doOnTerminate(new Action0() {
-                        @Override
-                        public void call() {
-                            mGetResourceDetailsAction = null;
-                        }
-                    }).cache();
-        }
-        return mGetResourceDetailsAction;
+        return mRestClient.repositoryService()
+                .flatMap(new Func1<RxRepositoryService, Observable<Resource>>() {
+                    @Override
+                    public Observable<Resource> call(RxRepositoryService service) {
+                        return service.fetchResourceDetails(reportUri, ResourceType.valueOf(type));
+                    }
+                });
     }
 
     @NonNull

@@ -14,6 +14,8 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import javax.inject.Inject;
 
+import rx.Subscription;
+
 
 /**
  * @author Andrew Tivodar
@@ -55,7 +57,7 @@ public class FileResourceBinder extends ResourceBinder {
 
     private void loadFileType(final ImageView imageView, String uri) {
         ResourceDetailsRequest request = new ResourceDetailsRequest(uri, "file");
-        mGetResourceDetailsByTypeCase.execute(request, new SimpleSubscriber<ResourceLookup>() {
+        Subscription subscription = mGetResourceDetailsByTypeCase.execute(request, new SimpleSubscriber<ResourceLookup>() {
             @Override
             public void onNext(ResourceLookup resourceLookup) {
                 FileLookup fileLookup = (FileLookup) resourceLookup;
@@ -106,5 +108,6 @@ public class FileResourceBinder extends ResourceBinder {
                 imageView.setImageResource(resId);
             }
         });
+        imageView.setTag(subscription);
     }
 }

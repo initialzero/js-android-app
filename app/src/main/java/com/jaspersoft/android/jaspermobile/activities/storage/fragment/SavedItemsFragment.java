@@ -39,8 +39,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
@@ -89,7 +91,11 @@ public class SavedItemsFragment extends RoboFragment
     protected ViewType viewType;
 
     @Inject
+    @Nullable
     protected Analytics analytics;
+    @Inject
+    @Nullable
+    protected JasperResourceConverter jasperResourceConverter;
 
     @InjectView(android.R.id.list)
     protected JasperRecyclerView listView;
@@ -108,12 +114,15 @@ public class SavedItemsFragment extends RoboFragment
     protected StorageResourceFilter storageResourceFilter;
 
     private JasperResourceAdapter mAdapter;
-    private JasperResourceConverter jasperResourceConverter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        jasperResourceConverter = new JasperResourceConverter(getActivity());
+
+        GraphObject.Factory.from(getContext())
+                .getProfileComponent()
+                .inject(this);
+
         analytics.setScreenName(Analytics.ScreenName.SAVED_ITEMS.getValue());
     }
 

@@ -113,6 +113,9 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     @Inject
     @Nullable
     protected GetRootFoldersCase mGetRootFoldersCase;
+    @Inject
+    @Nullable
+    protected JasperResourceConverter jasperResourceConverter;
 
     @InstanceState
     @FragmentArg
@@ -270,7 +273,6 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
 
     private void addData(List<ResourceLookup> data) {
         Collections.sort(data, new OrderingByType());
-        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
         mResourceLookupHashMap.putAll(jasperResourceConverter.convertToDataMap(data));
         mAdapter.addAll(jasperResourceConverter.convertToJasperResource(data));
         mAdapter.notifyDataSetChanged();
@@ -281,8 +283,6 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     }
 
     private void setDataAdapter() {
-        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
-
         List<ResourceLookup> resourceLookupList = null;
         mAdapter = new JasperResourceAdapter(getActivity(), jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {

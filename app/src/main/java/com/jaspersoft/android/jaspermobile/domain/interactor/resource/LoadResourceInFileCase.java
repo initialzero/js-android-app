@@ -47,6 +47,10 @@ public class LoadResourceInFileCase extends AbstractUseCase<File, LoadFileReques
                     @Override
                     public Observable<File> call(ResourceOutput resourceOutput) {
                         File target = request.getTarget();
+                        File parentFolder = target.getParentFile();
+                        if (parentFolder != null && !parentFolder.exists() && !parentFolder.mkdirs()) {
+                            throw new IllegalStateException("Unable to create folder: " + parentFolder);
+                        }
 
                         try {
                             OutputStream out = new FileOutputStream(target);

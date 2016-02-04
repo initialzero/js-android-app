@@ -39,6 +39,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
@@ -109,7 +110,11 @@ public class FavoritesFragment extends RoboFragment
     MenuItem sortAction;
 
     @Inject
+    @com.jaspersoft.android.jaspermobile.activities.robospice.Nullable
     protected Analytics analytics;
+    @Inject
+    @com.jaspersoft.android.jaspermobile.activities.robospice.Nullable
+    protected JasperResourceConverter jasperResourceConverter;
 
     @Bean
     ResourceOpener resourceOpener;
@@ -119,7 +124,6 @@ public class FavoritesFragment extends RoboFragment
     String searchQuery;
 
     private JasperResourceAdapter mAdapter;
-    private JasperResourceConverter jasperResourceConverter;
 
 
     @OptionsItem(R.id.sort)
@@ -133,12 +137,14 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GraphObject.Factory.from(getContext())
+                .getProfileComponent()
+                .inject(this);
 
         setHasOptionsMenu(true);
         if (savedInstanceState == null) {
             sortOptions.putOrder(SortOrder.LABEL);
         }
-        jasperResourceConverter = new JasperResourceConverter(getActivity());
         analytics.setScreenName(Analytics.ScreenName.FAVORITES.getValue());
     }
 

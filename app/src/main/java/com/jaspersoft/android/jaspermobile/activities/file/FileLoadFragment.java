@@ -1,6 +1,5 @@
 package com.jaspersoft.android.jaspermobile.activities.file;
 
-import android.accounts.Account;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -12,10 +11,10 @@ import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragmen
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.LoadFileRequest;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.LoadResourceInFileCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -46,6 +45,9 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
     @Inject
     @Nullable
     protected JasperServer mServer;
+    @Inject
+    @Nullable
+    protected Profile mProfile;
 
     @Bean
     DefaultPrefHelper prefHelper;
@@ -86,7 +88,7 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
         }
     }
 
-    protected File getResourceFile(String resourceUri){
+    protected File getResourceFile(String resourceUri) {
         boolean cacheEnabled = isCachingEnabled();
         if (cacheEnabled) {
             return getCacheFile(resourceUri);
@@ -116,23 +118,20 @@ public abstract class FileLoadFragment extends RoboSpiceFragment {
 
     private void requestFile(File resourceFile) {
         LoadFileRequest request = new LoadFileRequest(fileUri, resourceFile);
-        mLoadResourceInFileCase.execute(request, new FileContentListener() );
+        mLoadResourceInFileCase.execute(request, new FileContentListener());
     }
 
+    @Nullable
     private File getCacheFile(String resourceUri) {
         File cacheDir = getActivity().getExternalCacheDir();
         File resourceCacheDir = new File(cacheDir, JasperMobileApplication.RESOURCES_CACHE_DIR_NAME);
 
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-        if (account != null) {
-            File accountCacheDir = new File(resourceCacheDir, account.name);
-            if (!accountCacheDir.exists() && !accountCacheDir.mkdirs()) {
-                Timber.e("Unable to create %s", accountCacheDir);
-                return null;
-            }
-            return new File(accountCacheDir, resourceUri);
+        File accountCacheDir = new File(resourceCacheDir, mProfile.getKey());
+        if (!accountCacheDir.exists() && !accountCacheDir.mkdirs()) {
+            Timber.e("Unable to create %s", accountCacheDir);
+            return null;
         }
-        return null;
+        return new File(accountCacheDir, resourceUri);
     }
 
     private File getTempFile() {

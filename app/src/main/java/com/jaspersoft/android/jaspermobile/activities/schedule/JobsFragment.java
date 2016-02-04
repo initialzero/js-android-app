@@ -89,6 +89,9 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
     @Inject
     @Nullable
     protected JasperRestClient mRestClient;
+    @Inject
+    @Nullable
+    protected JasperResourceConverter jasperResourceConverter;
 
     private JasperResourceAdapter mAdapter;
     private RxReportScheduleService mScheduleService;
@@ -218,8 +221,6 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
 
                     @Override
                     public void onNext(List<JobUnit> jobUnits) {
-                        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
-
                         mAdapter.addAll(jasperResourceConverter.convertToJasperResources(jobUnits));
 
                         for (JobUnit job : jobUnits) {

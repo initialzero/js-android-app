@@ -34,6 +34,7 @@ import com.google.inject.util.Providers;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetInputControlsValuesCase;
@@ -53,6 +54,7 @@ import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import javax.inject.Inject;
@@ -117,5 +119,7 @@ public class  JasperMobileModule extends AbstractModule {
         bind(ReportParamsStorage.class).toProvider(Providers.<ReportParamsStorage>of(null));
         bind(JasperRestClient.class).toProvider(Providers.<JasperRestClient>of(null));
         bind(LoadResourceInFileCase.class).toProvider(Providers.<LoadResourceInFileCase>of(null));
+        bind(Profile.class).toProvider(Providers.<Profile>of(null));
+        bind(JasperResourceConverter.class).toProvider(Providers.<JasperResourceConverter>of(null));
     }
 }

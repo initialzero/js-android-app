@@ -20,6 +20,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.LoadC
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsByTypeCase;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinder;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinderFactory;
 
@@ -48,6 +49,9 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
     @Inject
     @Nullable
     protected JasperServer mJasperServer;
+    @Inject
+    @Nullable
+    protected JasperResourceConverter mJasperResourceConverter;
 
     @Inject
     @Nullable

@@ -10,6 +10,7 @@ import com.jaspersoft.android.jaspermobile.domain.repository.resource.ResourceRe
 import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.data.report.ReportResource;
+import com.jaspersoft.android.sdk.service.data.repository.Resource;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 
 import org.junit.Before;
@@ -57,7 +58,7 @@ public class GetReportMetadataCaseTest {
     @Mock
     ReportData mReportData;
     @Mock
-    ReportResource mReportResource;
+    Resource mReportResource;
 
     private GetReportMetadataCase mGetReportMetadataCase;
 
@@ -86,8 +87,7 @@ public class GetReportMetadataCaseTest {
     @Test
     public void should_request_report_Details() throws Exception {
         performExecute();
-
-        verify(mResourceRepository).getReportResource(REPORT_URI);
+        verify(mResourceRepository).getResourceByType(REPORT_URI, "reportUnit");
     }
 
     private void performExecute() {
@@ -97,7 +97,7 @@ public class GetReportMetadataCaseTest {
     }
 
     private void setupMocks() {
-        when(mResourceRepository.getReportResource(anyString()))
+        when(mResourceRepository.getResourceByType(anyString(), anyString()))
                 .thenReturn(Observable.just(mReportResource));
         when(mReportData.getResource()).thenReturn(REPORT_URI);
         when(mReportData.getParams()).thenReturn(REPORT_PARAMS);

@@ -77,10 +77,14 @@ public class ResourceMapper {
         String creationDate = simpleDateFormat.format(resource.getCreationDate());
         String updateDate = simpleDateFormat.format(resource.getUpdateDate());
 
+
+        String rawValue = resource.getResourceType().getRawValue();
+        ResourceLookup.ResourceType resourceType = ResourceLookup.ResourceType.valueOf(rawValue);
+        lookup.setResourceType(resourceType);
+
         lookup.setLabel(resource.getLabel());
         lookup.setDescription(resource.getDescription());
         lookup.setUri(resource.getUri());
-        lookup.setResourceType(ResourceLookup.ResourceType.valueOf(resource.getResourceType().getRawValue()));
         lookup.setVersion(resource.getVersion());
         lookup.setCreationDate(creationDate);
         lookup.setUpdateDate(updateDate);

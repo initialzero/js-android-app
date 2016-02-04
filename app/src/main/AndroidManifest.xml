@@ -145,9 +145,6 @@
         <activity
             android:name=".activities.file.FileViewerActivity_"/>
 
-        <activity
-            android:name=".activities.viewer.html.report.SavedValuesActivity_"/>
-
         <!-- Activity that allows to specify the application settings -->
         <activity
             android:name=".activities.settings.SettingsActivity_"

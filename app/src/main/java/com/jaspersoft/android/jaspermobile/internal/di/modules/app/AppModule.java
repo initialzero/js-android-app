@@ -17,13 +17,11 @@ import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.network.cookie.CookieStorage;
 import com.jaspersoft.android.jaspermobile.network.cookie.CookieStorageFactory;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import com.jaspersoft.android.sdk.network.Server;
 
 import java.net.CookieStore;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -34,8 +32,7 @@ import dagger.Provides;
  * @since 2.3
  */
 @Module
-public final class
-AppModule {
+public final class AppModule {
     private final Application mApplication;
 
     public AppModule(Application application) {
@@ -71,20 +68,6 @@ AppModule {
     @Singleton
     PreExecutionThread providePreExecutionThread(BackgroundThread backgroundThread) {
         return backgroundThread;
-    }
-
-    @Provides
-    @Singleton
-    @Named("accountType")
-    String provideAccountType() {
-        return JasperSettings.JASPER_ACCOUNT_TYPE;
-    }
-
-    @Provides
-    @Singleton
-    @Named("reserved_account_name")
-    String provideReservedAccountName() {
-        return JasperSettings.RESERVED_ACCOUNT_NAME;
     }
 
     @Provides

@@ -43,6 +43,8 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.Delet
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionValuesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.SaveReportOptionsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetRootFoldersCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
@@ -108,6 +110,8 @@ public class  JasperMobileModule extends AbstractModule {
         bind(RequestExceptionHandler.class).toProvider(Providers.<RequestExceptionHandler>of(null));
         bind(FlushInputControlsCase.class).toProvider(Providers.<FlushInputControlsCase>of(null));
         bind(ResourcePrintJob.class).toProvider(Providers.<ResourcePrintJob>of(null));
+        bind(SearchResourcesCase.class).toProvider(Providers.<SearchResourcesCase>of(null));
+        bind(GetRootFoldersCase.class).toProvider(Providers.<GetRootFoldersCase>of(null));
         bind(GetDashboardVisualizeParamsCase.class).toProvider(Providers.<GetDashboardVisualizeParamsCase>of(null));
     }
 }

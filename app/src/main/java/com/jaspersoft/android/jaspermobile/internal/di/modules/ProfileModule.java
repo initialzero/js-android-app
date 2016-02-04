@@ -18,7 +18,7 @@ import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReport
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPageRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPropertyRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportRepository;
-import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryResourceRepository;
+import com.jaspersoft.android.jaspermobile.data.repository.resource.InMemoryResourceRepository;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ControlsRepository;
@@ -26,7 +26,7 @@ import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportOption
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPropertyRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
-import com.jaspersoft.android.jaspermobile.domain.repository.report.ResourceRepository;
+import com.jaspersoft.android.jaspermobile.domain.repository.resource.ResourceRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 
 import dagger.Module;

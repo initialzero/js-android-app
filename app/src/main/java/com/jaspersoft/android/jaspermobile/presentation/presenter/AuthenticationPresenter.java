@@ -118,10 +118,6 @@ public final class AuthenticationPresenter extends Presenter<AuthenticationContr
         }
     }
 
-    @VisibleForTesting
-    void handleProfileSaveSuccess() {
-        getView().navigateToApp();
-    }
 
     /**
      * This is ugly fix for incompatible versions
@@ -150,7 +146,7 @@ public final class AuthenticationPresenter extends Presenter<AuthenticationContr
 
         @Override
         public void onNext(Profile profile) {
-            handleProfileSaveSuccess();
+            getView().navigateToApp(profile);
         }
     }
 }

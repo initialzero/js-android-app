@@ -167,12 +167,6 @@ public class AuthenticationPresenterTest {
     }
 
     @Test
-    public void testPresenterHandlesSuccessProfileSaveEvent() throws Exception {
-        presenterUnderTest.handleProfileSaveSuccess();
-        verify(mAuthenticationView).navigateToApp();
-    }
-
-    @Test
     public void testPresenterHandlesCompleteProfileSaveEvent() throws Exception {
         presenterUnderTest.handleProfileComplete();
         verify(mAuthenticationView).hideLoading();

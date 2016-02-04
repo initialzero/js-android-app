@@ -24,9 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -37,36 +35,29 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetRootFoldersCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald2PaginationFragment_;
-import com.jaspersoft.android.jaspermobile.util.resource.pagination.Emerald3PaginationFragment_;
-import com.jaspersoft.android.jaspermobile.util.resource.pagination.PaginationPolicy;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.octo.android.robospice.persistence.DurationInMillis;
-import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -79,7 +70,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import roboguice.inject.InjectView;
+import rx.Subscriber;
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -103,11 +99,20 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     protected TextView emptyText;
 
     @Inject
-    protected JsRestClient jsRestClient;
-    @Inject
-    protected ResourceLookupSearchCriteria mSearchCriteria;
-    @Inject
     protected Analytics analytics;
+    @Inject
+    @Named("LIMIT")
+    protected int mLimit;
+    @Inject
+    @Named("THRESHOLD")
+    protected int mTreshold;
+
+    @Inject
+    @Nullable
+    protected SearchResourcesCase mSearchResourcesCase;
+    @Inject
+    @Nullable
+    protected GetRootFoldersCase mGetRootFoldersCase;
 
     @InstanceState
     @FragmentArg
@@ -124,21 +129,15 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     @InstanceState
     @FragmentArg
     protected boolean recursive;
-
     @FragmentArg
     protected ViewType viewType;
-
-    @Inject
-    @Named("LIMIT")
-    protected int mLimit;
-    @Inject
-    @Named("THRESHOLD")
-    protected int mTreshold;
 
     @InstanceState
     protected boolean mLoading;
     @InstanceState
     protected int mLoaderState = LOAD_FROM_CACHE;
+    @InstanceState
+    protected boolean mHasNextPage;
 
     @Bean
     RepositoryResourceFilter repositoryResourceFilter;
@@ -152,15 +151,20 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
     protected InfoProvider infoProvider;
 
     private JasperResourceAdapter mAdapter;
-    private PaginationPolicy mPaginationPolicy;
     private HashMap<String, ResourceLookup> mResourceLookupHashMap;
+    protected ResourceLookupSearchCriteria mSearchCriteria;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        GraphObject.Factory.from(getContext())
+                .getProfileComponent()
+                .inject(this);
+
         mResourceLookupHashMap = new HashMap<>();
 
+        mSearchCriteria = new ResourceLookupSearchCriteria();
         mSearchCriteria.setForceFullPage(true);
         mSearchCriteria.setLimit(mLimit);
         mSearchCriteria.setRecursive(recursive);
@@ -183,7 +187,6 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
 
         listView.addOnScrollListener(new ScrollListener());
         setDataAdapter();
-        updatePaginationPolicy();
         loadPage();
     }
 
@@ -300,62 +303,24 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         listView.setAdapter(mAdapter);
     }
 
-    private void updatePaginationPolicy() {
-        ServerVersion version = infoProvider.getVersion();
-
-        if (version.lessThanOrEquals(ServerVersion.v5_5)) {
-            mPaginationPolicy = Emerald2PaginationFragment_.builder().build();
-        }
-        if (version.greaterThan(ServerVersion.v5_5)) {
-            mPaginationPolicy = Emerald3PaginationFragment_.builder().build();
-        }
-
-        if (mPaginationPolicy == null) {
-            throw new UnsupportedOperationException();
-        } else {
-            mPaginationPolicy.setSearchCriteria(mSearchCriteria);
-            getChildFragmentManager().beginTransaction()
-                    .add((Fragment) mPaginationPolicy,
-                            PaginationPolicy.class.getSimpleName()).commit();
-        }
-    }
-
     private void loadRootFolders() {
         setRefreshState(true);
-        showEmptyText(R.string.loading_msg);
-        // Fetch default URI
-        // TODO fix get folder resources request
-//        GetRootFoldersDataRequest request = new GetRootFoldersDataRequest(jsRestClient);
-//        long cacheExpiryDuration = (LOAD_FROM_CACHE == mLoaderState)
-//                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
-//        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration,
-//                new GetRootFolderDataRequestListener());
+        mGetRootFoldersCase.execute(new GetRootFolderDataRequestListener());
     }
 
     private void loadNextPage() {
-        if (!mLoading && hasNextPage()) {
-            mSearchCriteria.setOffset(calculateNextOffset());
+        if (!mLoading && mHasNextPage) {
+            int currentOffset = mSearchCriteria.getOffset();
+            mSearchCriteria.setOffset(currentOffset + mLimit);
             mLoaderState = LOAD_FROM_CACHE;
             loadResources(mLoaderState);
         }
     }
 
-    private boolean hasNextPage() {
-        return mPaginationPolicy.hasNextPage();
-    }
-
-    private int calculateNextOffset() {
-        return mPaginationPolicy.calculateNextOffset();
-    }
 
     private void loadResources(int state) {
         setRefreshState(true);
-        showEmptyText(R.string.loading_msg);
-
-        GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
-        long cacheExpiryDuration = (LOAD_FROM_CACHE == state)
-                ? prefHelper.getRepoCacheExpirationValue() : DurationInMillis.ALWAYS_EXPIRED;
-        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
+        mSearchResourcesCase.execute(mSearchCriteria, new GetResourceLookupsListener());
     }
 
     private void showEmptyText(int resId) {
@@ -401,58 +366,44 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         }
     }
 
-    private class GetRootFolderDataRequestListener extends SimpleRequestListener<List<FolderDataResponse>> {
-
+    private class GetRootFolderDataRequestListener extends GenericSubscriber<List<FolderDataResponse>> {
         @Override
-        protected Context getContext() {
-            return getActivity();
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException exception) {
-            super.onRequestFailure(exception);
-            setRefreshState(false);
-            showEmptyText(R.string.failed_load_data);
-        }
-
-        @Override
-        public void onRequestSuccess(List<FolderDataResponse> folderDataResponse) {
-
+        public void onNext(List<FolderDataResponse> folderDataResponses) {
             List<ResourceLookup> datum = new ArrayList<>();
-            datum.addAll(folderDataResponse);
+            datum.addAll(folderDataResponses);
 
             addData(datum);
 
+            showEmptyText(R.string.resources_not_found);
+        }
+    }
+
+    private class GetResourceLookupsListener extends GenericSubscriber<List<ResourceLookup>> {
+        @Override
+        public void onNext(List<ResourceLookup> resourceLookupsList) {
+            mHasNextPage = !resourceLookupsList.isEmpty();
+            addData(resourceLookupsList);
             setRefreshState(false);
             showEmptyText(R.string.resources_not_found);
         }
     }
 
-    private class GetResourceLookupsListener extends SimpleRequestListener<ResourceLookupsList> {
-
+    private abstract class GenericSubscriber<R> extends Subscriber<R> {
         @Override
-        protected Context getContext() {
-            return getActivity();
+        public void onStart() {
+            showEmptyText(com.jaspersoft.android.jaspermobile.R.string.loading_msg);
         }
 
         @Override
-        public void onRequestFailure(SpiceException exception) {
-            super.onRequestFailure(exception);
+        public void onCompleted() {
             setRefreshState(false);
-            showEmptyText(R.string.failed_load_data);
         }
 
         @Override
-        public void onRequestSuccess(ResourceLookupsList resourceLookupsList) {
-            // set pagination data
-            mPaginationPolicy.handleLookup(resourceLookupsList);
-
-            addData(resourceLookupsList.getResourceLookups());
-
-            // set refresh states
-            setRefreshState(false);
-            // If need we show 'empty' message
-            showEmptyText(R.string.resources_not_found);
+        public void onError(Throwable e) {
+            Timber.e(e, "RepositoryFragment#GetRootFolderDataRequestListener failed");
+            RequestExceptionHandler.handle(e, getContext());
+            showEmptyText(com.jaspersoft.android.jaspermobile.R.string.failed_load_data);
         }
     }
 

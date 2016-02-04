@@ -1,20 +1,16 @@
 package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
+import com.jaspersoft.android.jaspermobile.domain.ResourceDetailsRequest;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
-import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.widget.InfoView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -23,6 +19,9 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
+
+import rx.Subscriber;
+import timber.log.Timber;
 
 /**
  * @author Andrew Tivodar
@@ -35,32 +34,24 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
     @ViewById(R.id.infoDetailsView)
     protected InfoView infoView;
 
-    @Inject
-    protected JsRestClient jsRestClient;
-
     @Bean
     protected FavoritesHelper favoriteHelper;
 
     @OptionsMenuItem(R.id.favoriteAction)
     protected MenuItem favoriteAction;
 
-    private JasperResourceConverter mJasperResourceConverter;
-
     protected ResourceLookup mResourceLookup;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mJasperResourceConverter = new JasperResourceConverter(getActivity());
     }
 
     @AfterViews
     protected void requestInfo() {
-        // TODO fix get resource descriptor request
-//        final GetResourceDescriptorRequest request = new GetResourceDescriptorRequest(jsRestClient, jasperResource.getId(),
-//                mJasperResourceConverter.convertToResourceType(jasperResource.getResourceType()));
-//        getSpiceManager().execute(request, new GetResourceDescriptorListener());
+        ResourceLookup.ResourceType resourceType = mJasperResourceConverter.convertToResourceType(jasperResource);
+        ResourceDetailsRequest resource = new ResourceDetailsRequest(jasperResource.getId(), resourceType.name());
+        mGetResourceDetailsByTypeCase.execute(resource, new GetResourceDescriptorListener());
     }
 
     @Override
@@ -76,7 +67,7 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
         favoriteHelper.switchFavoriteState(mResourceLookup, favoriteAction);
     }
 
-    protected void onDataObtain () {
+    protected void onDataObtain() {
         jasperResource.setLabel(mResourceLookup.getLabel());
         fillWithData();
         updateHeaderViewLabel(mResourceLookup.getLabel());
@@ -84,30 +75,34 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
     }
 
     private void fillWithData() {
-        infoView.fillWithBaseData(mResourceLookup.getResourceType().name(), mResourceLookup.getLabel(),
-                mResourceLookup.getDescription(), mResourceLookup.getUri(),
-                mResourceLookup.getCreationDate(), mResourceLookup.getUpdateDate(),
-                String.valueOf(mResourceLookup.getVersion()), mResourceLookup.getPermissionMask());
+        infoView.fillWithBaseData(
+                mResourceLookup.getResourceType().name(),
+                mResourceLookup.getLabel(),
+                mResourceLookup.getDescription(),
+                mResourceLookup.getUri(),
+                mResourceLookup.getCreationDate(),
+                mResourceLookup.getUpdateDate(),
+                String.valueOf(mResourceLookup.getVersion()),
+                mResourceLookup.getPermissionMask()
+        );
     }
 
-    private class GetResourceDescriptorListener extends SimpleRequestListener<ResourceLookup> {
-
+    private class GetResourceDescriptorListener extends Subscriber<ResourceLookup> {
         @Override
-        protected Context getContext() {
-            return getActivity();
+        public void onCompleted() {
+            ProgressDialogFragment.dismiss(getFragmentManager());
         }
 
         @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            super.onRequestFailure(spiceException);
-
-            ProgressDialogFragment.dismiss(getFragmentManager());
+        public void onError(Throwable e) {
+            Timber.e(e, "ResourceInfoFragment#GetResourceDescriptorListener failed");
+            RequestExceptionHandler.handle(e, getContext());
             getActivity().finish();
         }
 
         @Override
-        public void onRequestSuccess(final ResourceLookup resourceLookup) {
-            mResourceLookup = resourceLookup;
+        public void onNext(ResourceLookup lookup) {
+            mResourceLookup = lookup;
             onDataObtain();
         }
     }

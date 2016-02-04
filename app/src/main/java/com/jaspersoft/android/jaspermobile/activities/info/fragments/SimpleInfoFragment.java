@@ -8,17 +8,26 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.LoadControlsForOptionCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsByTypeCase;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinder;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinderFactory;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
+
+import javax.inject.Inject;
 
 import roboguice.inject.InjectView;
 
@@ -35,7 +44,24 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
     protected JasperResource jasperResource;
 
     @Inject
+    @Nullable
     protected Analytics analytics;
+    @Inject
+    @Nullable
+    protected JasperServer mJasperServer;
+    @Inject
+    @Nullable
+    protected JasperResourceConverter mJasperResourceConverter;
+
+    @Inject
+    @Nullable
+    protected GetResourceDetailsByTypeCase mGetResourceDetailsByTypeCase;
+    @Inject
+    @Nullable
+    protected GetReportOptionsCase mGetReportOptionsCase;
+    @Inject
+    @Nullable
+    protected LoadControlsForOptionCase mLoadControlsForOptionCase;
 
     @InjectView(R.id.toolbarImageView)
     protected ImageView toolbarImage;
@@ -45,6 +71,15 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
 
     private InfoHeaderView infoHeaderView;
 
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ProfileComponent profileComponent = GraphObject.Factory.from(getContext())
+                .getProfileComponent();
+        profileComponent.inject(this);
+    }
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -53,8 +88,20 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
         showHeaderView();
 
         if (savedInstanceState == null) {
-            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.INFO_VIEWED.getValue(), jasperResource.getResourceType().name());
+            analytics.sendEvent(
+                    Analytics.EventCategory.RESOURCE.getValue(),
+                    Analytics.EventAction.INFO_VIEWED.getValue(),
+                    jasperResource.getResourceType().name()
+            );
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        mGetResourceDetailsByTypeCase.unsubscribe();
+        mGetReportOptionsCase.unsubscribe();
+        mLoadControlsForOptionCase.unsubscribe();
+        super.onDestroyView();
     }
 
     final protected void updateHeaderViewLabel(String label) {
@@ -62,7 +109,7 @@ public class SimpleInfoFragment extends RoboSpiceFragment {
         infoHeaderView.setTitle(label);
     }
 
-    private void showHeaderView(){
+    private void showHeaderView() {
         ResourceBinderFactory mResourceBinderFactory = new ResourceBinderFactory(getActivity());
         ResourceBinder resourceBinder = mResourceBinderFactory.create(jasperResource.getResourceType());
 

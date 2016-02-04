@@ -1,53 +1,43 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.data.ThumbNailGenerator;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.util.resource.DashboardResource;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.JobResource;
+import com.jaspersoft.android.jaspermobile.util.resource.LegacyDashboardResource;
 import com.jaspersoft.android.jaspermobile.util.resource.ReportResource;
 import com.jaspersoft.android.jaspermobile.util.resource.SavedItemResource;
 import com.jaspersoft.android.jaspermobile.util.resource.UndefinedResource;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.data.schedule.JobUnit;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import roboguice.RoboGuice;
+import javax.inject.Inject;
 
 /**
  * @author Andrew Tivodar
  * @since 2.0
  */
+@PerProfile
 public class JasperResourceConverter {
 
-    private boolean isAmberOrHigher;
+    private final ThumbNailGenerator mThumbNailGenerator;
 
     @Inject
-    protected JsRestClient jsRestClient;
-
-    public JasperResourceConverter(Context context) {
-        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
-
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(context, account);
-        ServerVersion versionName = ServerVersion.valueOf(serverData.getVersionName());
-        isAmberOrHigher = versionName.greaterThanOrEquals(ServerVersion.v6);
+    public JasperResourceConverter(ThumbNailGenerator thumbNailGenerator) {
+        mThumbNailGenerator = thumbNailGenerator;
     }
 
     public JasperResource convertToJasperResource(ResourceLookup resourceLookup) {
@@ -57,14 +47,13 @@ public class JasperResourceConverter {
                 resource = new FolderResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
                 break;
             case legacyDashboard:
+                resource = new LegacyDashboardResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
+                break;
             case dashboard:
                 resource = new DashboardResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription());
                 break;
             case reportUnit:
-                String imageUri = "";
-                if (isAmberOrHigher) {
-                    imageUri = jsRestClient.generateThumbNailUri(resourceLookup.getUri());
-                }
+                String imageUri = mThumbNailGenerator.generate(resourceLookup.getUri());
                 resource = new ReportResource(resourceLookup.getUri(), resourceLookup.getLabel(), resourceLookup.getDescription(), imageUri);
                 break;
             case file:
@@ -99,13 +88,16 @@ public class JasperResourceConverter {
         return jasperResourceList;
     }
 
-    public ResourceLookup.ResourceType convertToResourceType(JasperResourceType jasperResourceType) {
-        if (jasperResourceType == null) return null;
+    public ResourceLookup.ResourceType convertToResourceType(JasperResource resource) {
+        if (resource == null) return null;
 
         ResourceLookup.ResourceType resourceType;
-        switch (jasperResourceType) {
+        switch (resource.getResourceType()) {
             case folder:
                 resourceType = ResourceLookup.ResourceType.folder;
+                break;
+            case legacyDashboard:
+                resourceType = ResourceLookup.ResourceType.legacyDashboard;
                 break;
             case dashboard:
                 resourceType = ResourceLookup.ResourceType.dashboard;
@@ -147,10 +139,7 @@ public class JasperResourceConverter {
                         resource = new FileResource(entryUri, resourceLookup.getLabel(), resourceLookup.getDescription(), resourceLookup.getUri());
                         break;
                     case reportUnit:
-                        String imageUri = "";
-                        if (isAmberOrHigher) {
-                            imageUri = jsRestClient.generateThumbNailUri(resourceLookup.getUri());
-                        }
+                        String imageUri = mThumbNailGenerator.generate(resourceLookup.getUri());
                         resource = new ReportResource(entryUri, resourceLookup.getLabel(), resourceLookup.getDescription(), imageUri);
                         break;
                     default:

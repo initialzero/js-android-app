@@ -32,7 +32,9 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetInputControlsValuesCase;
@@ -40,8 +42,11 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateInpu
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.DeleteReportOptionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionValuesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.LoadControlsForOptionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.SaveReportOptionsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsByTypeCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetRootFoldersCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.LoadResourceInFileCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
@@ -49,6 +54,7 @@ import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import javax.inject.Inject;
@@ -90,7 +96,6 @@ public class  JasperMobileModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("DEMO_ENDPOINT")).to(endpoint);
 
         bind(Context.class).annotatedWith(ApplicationContext.class).toInstance(mContext);
-        bind(ReportParamsStorage.class).in(Singleton.class);
         bind(AppConfigurator.class).to(AppConfiguratorImpl.class);
         bind(Analytics.class).toInstance(new JasperAnalytics(mContext));
         bind(SecurityProviderUpdater.class).to(JasperSecurityProviderUpdater.class).in(Singleton.class);
@@ -109,5 +114,12 @@ public class  JasperMobileModule extends AbstractModule {
         bind(ResourcePrintJob.class).toProvider(Providers.<ResourcePrintJob>of(null));
         bind(SearchResourcesCase.class).toProvider(Providers.<SearchResourcesCase>of(null));
         bind(GetRootFoldersCase.class).toProvider(Providers.<GetRootFoldersCase>of(null));
+        bind(GetResourceDetailsByTypeCase.class).toProvider(Providers.<GetResourceDetailsByTypeCase>of(null));
+        bind(LoadControlsForOptionCase.class).toProvider(Providers.<LoadControlsForOptionCase>of(null));
+        bind(ReportParamsStorage.class).toProvider(Providers.<ReportParamsStorage>of(null));
+        bind(JasperRestClient.class).toProvider(Providers.<JasperRestClient>of(null));
+        bind(LoadResourceInFileCase.class).toProvider(Providers.<LoadResourceInFileCase>of(null));
+        bind(Profile.class).toProvider(Providers.<Profile>of(null));
+        bind(JasperResourceConverter.class).toProvider(Providers.<JasperResourceConverter>of(null));
     }
 }

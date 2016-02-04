@@ -28,11 +28,10 @@ import android.content.Context;
 import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.octo.android.robospice.request.SpiceRequest;
 
+import rx.Subscription;
 import timber.log.Timber;
 
 /**
@@ -85,11 +84,11 @@ public abstract class ResourceBinder {
     }
 
     private void unbindView(ImageView imageView){
-        Object fileTypeRequest = imageView.getTag();
-        if (fileTypeRequest != null && fileTypeRequest instanceof SpiceRequest) {
-            ((RoboSpiceActivity) mContext).getSpiceManager().cancel((SpiceRequest) fileTypeRequest);
+        Object tag = imageView.getTag();
+        if (tag instanceof Subscription) {
+            Subscription subscription = (Subscription) tag;
+            subscription.unsubscribe();
         }
-
         ImageLoader.getInstance().cancelDisplayTask(imageView);
     }
 }

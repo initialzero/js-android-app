@@ -36,12 +36,13 @@ public abstract class AbstractUseCase<Result, Argument> implements UseCase<Resul
      * @param useCaseSubscriber The guy who will be listen to the observable build with {@link #buildUseCaseObservable(Argument)}.
      */
     @Override
-    public void execute(@NonNull Argument argument, @NonNull Subscriber<? super Result> useCaseSubscriber) {
+    public Subscription execute(@NonNull Argument argument, @NonNull Subscriber<? super Result> useCaseSubscriber) {
         Observable<Result> command = this.buildUseCaseObservable(argument);
         this.subscription = command
                 .subscribeOn(mPreExecutionThread.getScheduler())
                 .observeOn(mPostExecutionThread.getScheduler())
                 .subscribe(useCaseSubscriber);
+        return subscription;
     }
 
     /**

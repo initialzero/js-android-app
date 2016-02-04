@@ -12,6 +12,7 @@ import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.network.SpringCredentials;
 import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
+import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 import com.jaspersoft.android.sdk.service.rx.repository.RxRepositoryService;
 
 import java.net.CookieManager;
@@ -72,6 +73,16 @@ public class JasperClient implements JasperRestClient {
             @Override
             public RxFiltersService call(AuthorizedClient authorizedClient) {
                 return RxFiltersService.newService(authorizedClient);
+            }
+        });
+    }
+
+    @Override
+    public Observable<RxReportScheduleService> scheduleService() {
+        return createAuthorizedClient().map(new Func1<AuthorizedClient, RxReportScheduleService>() {
+            @Override
+            public RxReportScheduleService call(AuthorizedClient authorizedClient) {
+                return RxReportScheduleService.newService(authorizedClient);
             }
         });
     }

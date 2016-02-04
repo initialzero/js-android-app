@@ -1,33 +1,22 @@
 package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 
-import android.accounts.Account;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.schedule.ScheduleActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
-import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
+import com.jaspersoft.android.jaspermobile.domain.LoadOptionParamsRequest;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.client.async.request.ReportOptionsRequest;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOptionResponse;
 import com.jaspersoft.android.sdk.service.data.report.option.ReportOption;
 import com.jaspersoft.android.sdk.util.FileUtils;
-import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -35,8 +24,9 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+
+import rx.Subscriber;
 
 /**
  * @author Andrew Tivodar
@@ -50,9 +40,6 @@ public class ReportInfoFragment extends ResourceInfoFragment
     @Bean
     protected ResourceOpener resourceOpener;
 
-    @Inject
-    protected ReportParamsStorage paramsStorage;
-
     @OptionsMenuItem(R.id.showReportOptions)
     protected MenuItem reportOptions;
 
@@ -64,7 +51,6 @@ public class ReportInfoFragment extends ResourceInfoFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         requestReportOptions();
     }
 
@@ -107,11 +93,11 @@ public class ReportInfoFragment extends ResourceInfoFragment
 
     @Override
     public void onOptionSelected(ReportOption reportOption) {
-        showProgressDialog();
-
-        GetInputControlsRequest request = new GetInputControlsRequest(jsRestClient, reportOption.getUri());
-        getSpiceManager().execute(request, new GetInputControlsListener());
-
+        LoadOptionParamsRequest request = new LoadOptionParamsRequest(
+                reportOption.getUri(),
+                jasperResource.getId()
+        );
+        mLoadControlsForOptionCase.execute(request, new GetInputControlsListener());
         analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.OPENED.getValue(), Analytics.EventLabel.WITH_RO.getValue());
     }
 
@@ -127,62 +113,38 @@ public class ReportInfoFragment extends ResourceInfoFragment
         }
     }
 
-    private ArrayList<ReportParameter> initParametersUsingSelectedValues(List<InputControl> inputControls) {
-        ArrayList<ReportParameter> parameters = new ArrayList<>();
-        for (InputControl inputControl : inputControls) {
-            parameters.add(new ReportParameter(inputControl.getId(), inputControl.getSelectedValues()));
-        }
-        return parameters;
-    }
-
     private void requestReportOptions() {
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(getActivity(), account);
-        boolean isProJrs = serverData.getEdition().equals("PRO");
-        if (isProJrs) {
-            ReportOptionsRequest runReportExecutionRequest = new ReportOptionsRequest(jsRestClient, jasperResource.getId());
-            getSpiceManager().execute(runReportExecutionRequest, new GetReportOptionsListener());
+        if (mJasperServer.isProEdition()) {
+            mGetReportOptionsCase.execute(jasperResource.getId(), new GetReportOptionsListener());
         }
     }
 
-    private class GetInputControlsListener extends SimpleRequestListener<InputControlsList> {
+    private class GetInputControlsListener extends Subscriber<Void> {
+        @Override
+        public void onStart() {
+            showProgressDialog();
+        }
 
         @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            super.onRequestFailure(spiceException);
-            paramsStorage.clearInputControlHolder(jasperResource.getId());
+        public void onCompleted() {
             hideProgressDialog();
         }
 
         @Override
-        protected Context getContext() {
-            return getActivity();
+        public void onError(Throwable e) {
+            RequestExceptionHandler.handle(e, getContext());
         }
 
         @Override
-        public void onRequestSuccess(InputControlsList controlsList) {
-            ArrayList<InputControl> inputControls = new ArrayList<>(controlsList.getInputControls());
-            paramsStorage.getInputControlHolder(jasperResource.getId()).setInputControls(inputControls);
-            paramsStorage.getInputControlHolder(jasperResource.getId()).setReportParams(initParametersUsingSelectedValues(inputControls));
+        public void onNext(Void aVoid) {
             resourceOpener.openResource(ReportInfoFragment.this, mResourceLookup);
-            hideProgressDialog();
         }
     }
 
-    private class GetReportOptionsListener extends SimpleRequestListener<ReportOptionResponse> {
+    private class GetReportOptionsListener extends SimpleSubscriber<Set<ReportOption>> {
         @Override
-        protected Context getContext() {
-            return getActivity();
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException spiceException) {
-
-        }
-
-        @Override
-        public void onRequestSuccess(ReportOptionResponse reportOptionResponse) {
-            mReportOptionsExist = !reportOptionResponse.getOptions().isEmpty();
+        public void onNext(Set<ReportOption> options) {
+            mReportOptionsExist = !options.isEmpty();
             getActivity().invalidateOptionsMenu();
         }
     }

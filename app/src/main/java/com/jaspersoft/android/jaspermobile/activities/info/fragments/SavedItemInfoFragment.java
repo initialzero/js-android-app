@@ -31,7 +31,9 @@ import java.util.Date;
  */
 @OptionsMenu(R.menu.am_saved_items_menu)
 @EFragment(R.layout.fragment_resource_info)
-public class SavedItemInfoFragment extends SimpleInfoFragment implements DeleteDialogFragment.DeleteDialogClickListener, RenameDialogFragment.RenameDialogClickListener {
+public class SavedItemInfoFragment extends SimpleInfoFragment
+        implements DeleteDialogFragment.DeleteDialogClickListener,
+        RenameDialogFragment.RenameDialogClickListener {
 
     @ViewById(R.id.infoDetailsView)
     protected InfoView infoView;

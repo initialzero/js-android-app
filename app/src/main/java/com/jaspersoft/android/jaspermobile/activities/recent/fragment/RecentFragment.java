@@ -33,10 +33,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -48,12 +49,9 @@ import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResour
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetResourceLookupsRequest;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupsList;
-import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.Bean;
@@ -63,6 +61,8 @@ import org.androidannotations.annotations.FragmentArg;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import roboguice.inject.InjectView;
 
@@ -85,11 +85,11 @@ public class RecentFragment extends RoboSpiceFragment
     protected TextView emptyText;
 
     @Inject
-    protected JsRestClient jsRestClient;
-    @Inject
-    protected ResourceLookupSearchCriteria mSearchCriteria;
-    @Inject
+    @Nullable
     protected Analytics analytics;
+    @Inject
+    @Nullable
+    protected JasperResourceConverter jasperResourceConverter;
 
     @FragmentArg
     protected ViewType viewType;
@@ -103,13 +103,19 @@ public class RecentFragment extends RoboSpiceFragment
 
     private JasperResourceAdapter mAdapter;
     private HashMap<String, ResourceLookup> mResourceLookupHashMap;
+    private ResourceLookupSearchCriteria mSearchCriteria;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        GraphObject.Factory.from(getContext())
+                .getProfileComponent()
+                .inject(this);
+
         mResourceLookupHashMap = new HashMap<>();
 
+        mSearchCriteria = new ResourceLookupSearchCriteria();
         mSearchCriteria.setLimit(10);
         mSearchCriteria.setAccessType("viewed");
         mSearchCriteria.setTypes(recentlyViewedResourceFilter.getCurrent().getValues());
@@ -177,7 +183,6 @@ public class RecentFragment extends RoboSpiceFragment
     }
 
     private void addData(List<ResourceLookup> data) {
-        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
         mResourceLookupHashMap.putAll(jasperResourceConverter.convertToDataMap(data));
         mAdapter.addAll(jasperResourceConverter.convertToJasperResource(data));
         mAdapter.notifyDataSetChanged();
@@ -188,8 +193,6 @@ public class RecentFragment extends RoboSpiceFragment
     }
 
     private void setDataAdapter() {
-        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
-
         List<ResourceLookup> resourceLookupList = null;
         mAdapter = new JasperResourceAdapter(getActivity(), jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
@@ -214,9 +217,10 @@ public class RecentFragment extends RoboSpiceFragment
         setRefreshState(true);
         showEmptyText(R.string.loading_msg);
 
-        GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
-        long cacheExpiryDuration = DurationInMillis.ALWAYS_EXPIRED;
-        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
+        // TODO replace with SDK 2.0 calls
+//        GetResourceLookupsRequest request = new GetResourceLookupsRequest(jsRestClient, mSearchCriteria);
+//        long cacheExpiryDuration = DurationInMillis.ALWAYS_EXPIRED;
+//        getSpiceManager().execute(request, request.createCacheKey(), cacheExpiryDuration, new GetResourceLookupsListener());
     }
 
     private void showEmptyText(int resId) {

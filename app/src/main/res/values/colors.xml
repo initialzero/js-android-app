@@ -41,6 +41,7 @@
     <color name="js_night_blue">#145a82</color>
 
     <color name="js_gray_with_opacity">#41000000</color>
+    <color name="js_sun_gray">#7d8089</color>
     <color name="js_lightest_gray">#5f626b</color>
     <color name="js_light_gray">#4b4e57</color>
     <color name="js_gray">#373a43</color>

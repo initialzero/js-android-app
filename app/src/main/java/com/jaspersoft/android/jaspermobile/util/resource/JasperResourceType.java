@@ -7,6 +7,7 @@ package com.jaspersoft.android.jaspermobile.util.resource;
 public enum JasperResourceType {
     report,
     dashboard,
+    legacyDashboard,
     folder,
     saved_item,
     file,

@@ -44,6 +44,7 @@ public class ResourceBinderFactory {
         switch (type) {
             case folder:
                 return new FolderResourceBinder(mContext);
+            case legacyDashboard:
             case dashboard:
                 return new DashboardResourceBinder(mContext);
             case report:

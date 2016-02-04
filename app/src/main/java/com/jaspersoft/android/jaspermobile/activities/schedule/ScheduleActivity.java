@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.schedule;
 
-import android.accounts.Account;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -34,19 +33,19 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OutputFormatDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ValueInputDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
 import com.jaspersoft.android.jaspermobile.widget.DateTimeView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.service.data.schedule.JobData;
 import com.jaspersoft.android.sdk.service.data.schedule.JobForm;
@@ -69,6 +68,8 @@ import org.androidannotations.annotations.ViewById;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
+
+import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -94,9 +95,11 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     protected JasperResource jasperResource;
 
     @Inject
+    @Nullable
     protected Analytics analytics;
     @Inject
-    protected JsRestClient jsRestClient;
+    @Nullable
+    protected JasperRestClient mRestClient;
 
     @ViewById(R.id.scheduleName)
     TextView jobName;
@@ -120,9 +123,11 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCompositeSubscription = new CompositeSubscription();
+        GraphObject.Factory.from(this)
+                .getProfileComponent()
+                .inject(this);
 
-        initRestClient();
+        mCompositeSubscription = new CompositeSubscription();
 
         mFormats = new ArrayList<>();
         mFormats.add(JobOutputFormat.PDF);
@@ -175,7 +180,7 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
                 })
                 .show();
         subscribe(
-                initRestClient()
+                mRestClient.scheduleService()
                         .flatMap(new Func1<RxReportScheduleService, Observable<JobData>>() {
                             @Override
                             public Observable<JobData> call(RxReportScheduleService rxReportScheduleService) {
@@ -286,31 +291,6 @@ public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFra
 
     private String getSupportedFormatsTitles() {
         return mFormats.isEmpty() ? InputControlWrapper.NOTHING_SUBSTITUTE_LABEL : TextUtils.join(", ", mFormats);
-    }
-
-    private Observable<RxReportScheduleService> initRestClient() {
-        Account account = JasperAccountManager.get(this).getActiveAccount();
-//        return mPasswordManager.get(account).map(new Func1<String, RxReportScheduleService>() {
-//            @Override
-//            public RxReportScheduleService call(String password) {
-//                JsServerProfile serverProfile = jsRestClient.getServerProfile();
-//                Server server = Server.builder()
-//                        .withBaseUrl(serverProfile.getServerUrl() + "/")
-//                        .build();
-//                SpringCredentials credentials = SpringCredentials.builder()
-//                        .withOrganization(serverProfile.getOrganization())
-//                        .withUsername(serverProfile.getUsername())
-//                        .withPassword(password)
-//                        .build();
-//
-//                AuthorizedClient client = server.newClient(credentials)
-//                        .withCookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER))
-//                        .create();
-//                return RxReportScheduleService.newService(client);
-//            }
-//        });
-        // TODO fix service injection
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     private JobForm createJobForm() {

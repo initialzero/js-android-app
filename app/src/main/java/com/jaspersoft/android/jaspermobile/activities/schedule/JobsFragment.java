@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.schedule;
 
-import android.accounts.Account;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -34,21 +33,21 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.service.data.schedule.JobUnit;
 import com.jaspersoft.android.sdk.service.report.schedule.JobSearchCriteria;
 import com.jaspersoft.android.sdk.service.report.schedule.JobSortType;
@@ -63,8 +62,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import roboguice.inject.InjectView;
-import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -84,9 +84,14 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
     protected TextView message;
 
     @Inject
+    @Nullable
     protected Analytics analytics;
     @Inject
-    protected JsRestClient jsRestClient;
+    @Nullable
+    protected JasperRestClient mRestClient;
+    @Inject
+    @Nullable
+    protected JasperResourceConverter jasperResourceConverter;
 
     private JasperResourceAdapter mAdapter;
     private RxReportScheduleService mScheduleService;
@@ -97,6 +102,10 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        GraphObject.Factory.from(getContext())
+                .getProfileComponent()
+                .inject(this);
 
         mCompositeSubscription = new CompositeSubscription();
 
@@ -157,7 +166,7 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
     }
 
     private void createJobSearchTask() {
-        initRestClient()
+        mRestClient.scheduleService()
                 .compose(RxTransformers.<RxReportScheduleService>applySchedulers())
                 .subscribe(new Subscriber<RxReportScheduleService>() {
                     @Override
@@ -212,8 +221,6 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
 
                     @Override
                     public void onNext(List<JobUnit> jobUnits) {
-                        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
-
                         mAdapter.addAll(jasperResourceConverter.convertToJasperResources(jobUnits));
 
                         for (JobUnit job : jobUnits) {
@@ -222,31 +229,6 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
                     }
                 });
         mCompositeSubscription.add(subscription);
-    }
-
-    private Observable<RxReportScheduleService> initRestClient() {
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-//        return mPasswordManager.get(account).map(new Func1<String, RxReportScheduleService>() {
-//            @Override
-//            public RxReportScheduleService call(String password) {
-//                JsServerProfile serverProfile = jsRestClient.getServerProfile();
-//                Server server = Server.builder()
-//                        .withBaseUrl(serverProfile.getServerUrl() + "/")
-//                        .build();
-//                SpringCredentials credentials = SpringCredentials.builder()
-//                        .withOrganization(serverProfile.getOrganization())
-//                        .withUsername(serverProfile.getUsername())
-//                        .withPassword(password)
-//                        .build();
-//
-//                AuthorizedClient client = server.newClient(credentials)
-//                        .withCookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER))
-//                        .create();
-//                return RxReportScheduleService.newService(client);
-//            }
-//        });
-        // TODO fix service injection
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     private void setDataAdapter() {

@@ -122,6 +122,9 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     protected int mTreshold;
     @Inject
     protected Analytics analytics;
+    @Inject
+    @Nullable
+    protected JasperResourceConverter jasperResourceConverter;
 
     @Inject
     @Nullable
@@ -316,7 +319,6 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     }
 
     private void addData(List<ResourceLookup> data) {
-        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
         mResourceLookupHashMap.putAll(jasperResourceConverter.convertToDataMap(data));
         mAdapter.addAll(jasperResourceConverter.convertToJasperResource(data));
         mAdapter.notifyDataSetChanged();
@@ -327,8 +329,6 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     }
 
     private void setDataAdapter() {
-        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
-
         List<ResourceLookup> resourceLookupList = null;
         mAdapter = new JasperResourceAdapter(getActivity(), jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {

@@ -24,12 +24,11 @@
 
 package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 
-import android.content.Context;
-
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
-import com.jaspersoft.android.sdk.client.async.request.GetFileResourceRequest;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
+import com.jaspersoft.android.sdk.service.data.report.FileResource;
 
 import org.androidannotations.annotations.EFragment;
 
@@ -39,27 +38,10 @@ import org.androidannotations.annotations.EFragment;
  */
 @EFragment(R.layout.fragment_resource_info)
 public class FileInfoFragment extends ResourceInfoFragment {
-
     @Override
     protected void onDataObtain() {
         super.onDataObtain();
-
-        loadFileType();
+        FileLookup fileLookup = (FileLookup) mResourceLookup;
+        infoView.addInfoItem(getString(R.string.ri_file_format), fileLookup.getFileType().name(), 1);
     }
-
-    private void loadFileType() {
-        GetFileResourceRequest mFileResourceRequest = new GetFileResourceRequest(jsRestClient, jasperResource.getId());
-        getSpiceManager().execute(mFileResourceRequest, new SimpleRequestListener<FileLookup>() {
-            @Override
-            protected Context getContext() {
-                return getActivity();
-            }
-
-            @Override
-            public void onRequestSuccess(FileLookup fileLookup) {
-                infoView.addInfoItem(getString(R.string.ri_file_format), fileLookup.getFileType().name(), 1);
-            }
-        });
-    }
-
 }

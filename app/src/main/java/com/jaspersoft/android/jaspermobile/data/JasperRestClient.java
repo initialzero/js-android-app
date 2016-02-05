@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.data;
 
+import com.jaspersoft.android.sdk.service.report.ReportService;
 import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
@@ -12,6 +13,7 @@ import rx.Observable;
  * @since 2.3
  */
 public interface JasperRestClient {
+    ReportService syncReportService();
     Observable<RxReportService> reportService();
     Observable<RxRepositoryService> repositoryService();
     Observable<RxFiltersService> filtersService();

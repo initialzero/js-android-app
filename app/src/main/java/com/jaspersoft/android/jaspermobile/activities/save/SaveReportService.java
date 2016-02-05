@@ -1,6 +1,7 @@
 package com.jaspersoft.android.jaspermobile.activities.save;
 
 import android.accounts.Account;
+import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -9,30 +10,42 @@ import android.os.Bundle;
 import android.os.OperationCanceledException;
 import android.support.v4.app.NotificationCompat;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment;
+import com.jaspersoft.android.jaspermobile.data.ExportBundle;
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
+import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.report.ExportExecution;
 import com.jaspersoft.android.sdk.client.oxm.report.ExportsRequest;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportExecutionResponse;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportOutputResource;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportStatus;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.report.PageRange;
+import com.jaspersoft.android.sdk.service.data.report.ReportExportOutput;
+import com.jaspersoft.android.sdk.service.data.report.ResourceOutput;
+import com.jaspersoft.android.sdk.service.exception.ServiceException;
+import com.jaspersoft.android.sdk.service.report.ReportAttachment;
+import com.jaspersoft.android.sdk.service.report.ReportExecution;
+import com.jaspersoft.android.sdk.service.report.ReportExecutionOptions;
+import com.jaspersoft.android.sdk.service.report.ReportExport;
+import com.jaspersoft.android.sdk.service.report.ReportExportOptions;
+import com.jaspersoft.android.sdk.service.report.ReportFormat;
+import com.jaspersoft.android.sdk.service.report.ReportService;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EIntentService;
 import org.androidannotations.annotations.ServiceAction;
 import org.androidannotations.annotations.SystemService;
-import org.springframework.web.client.RestClientException;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -40,7 +53,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import roboguice.service.RoboIntentService;
+import javax.inject.Inject;
 
 /**
  * @author Andrew Tivodar
@@ -48,7 +61,7 @@ import roboguice.service.RoboIntentService;
  */
 
 @EIntentService
-public class SaveReportService extends RoboIntentService {
+public class SaveReportService extends IntentService {
 
     private static final int LOADING_NOTIFICATION_ID = 434;
     public static final String TAG = SaveReportService.class.getSimpleName();
@@ -57,7 +70,11 @@ public class SaveReportService extends RoboIntentService {
     protected SavedItemHelper savedItemHelper;
 
     @Inject
-    protected JsRestClient jsRestClient;
+    protected JasperRestClient mRestClient;
+    @Inject
+    protected ReportParamsCache mReportParamsCache;
+    @Inject
+    protected ReportParamsMapper mReportParamsMapper;
 
     @Inject
     protected Analytics analytics;
@@ -83,13 +100,19 @@ public class SaveReportService extends RoboIntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        GraphObject.Factory.from(this)
+                .getProfileComponent()
+                .inject(this);
+
         String action = intent.getAction();
         if (SaveReportService_.ACTION_CANCEL_SAVING.equals(action)) {
             cancelSavingReport(intent.getExtras());
             return super.onStartCommand(intent, flags, startId);
         }
 
-        Uri savedItemRecord = addSavedItemRecord(intent.getExtras());
+        Bundle extras = intent.getExtras();
+        ExportBundle bundle = extras.getParcelable(SaveReportService_.EXPORT_BUNDLE_EXTRA);
+        Uri savedItemRecord = addSavedItemRecord(bundle);
         mRecordUrisQe.add(savedItemRecord);
 
         notifyDownloadingCount();
@@ -102,8 +125,7 @@ public class SaveReportService extends RoboIntentService {
     }
 
     @ServiceAction
-    protected void saveReport(String savedReportName, String reportDescription, SaveItemFragment.OutputFormat outputFormat, File reportFile, String pageRange, String requestId) {
-
+    protected void saveReport(ExportBundle exportBundle) {
         mCurrent = mRecordUrisQe.peek();
         if (mRecordsToDel.contains(mCurrent)) {
             mCurrent = null;
@@ -112,27 +134,18 @@ public class SaveReportService extends RoboIntentService {
             return;
         }
 
-        notifyDownloadingName(savedReportName);
+        File reportFile = exportBundle.getFile();
+        String savedReportName = exportBundle.getLabel();
+
+        notifyDownloadingName(exportBundle.getLabel());
 
         try {
-            waitForExecutionBegin(requestId);
-
-            ExportExecution export;
-            try {
-                export = exportReport(requestId, outputFormat, pageRange);
-            } catch (RestClientException | IllegalStateException ex) {
-                export = exportReport(requestId, outputFormat, pageRange);
-            }
-
-            saveReport(reportFile, export.getId(), requestId);
-            if (SaveItemFragment.OutputFormat.HTML == outputFormat) {
-                saveAttachments(reportFile, export.getId(), requestId);
-            }
+            startExport(exportBundle);
             updateSavedItemRecordToDownloaded(mRecordUrisQe.peek());
 
             notifySaveResult(savedReportName, android.R.drawable.stat_sys_download_done, getString(R.string.sr_t_report_saved));
             analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.SAVED.getValue(), Analytics.EventLabel.DONE.getValue());
-        } catch (RestClientException | IllegalStateException ex) {
+        } catch (ServiceException | IOException ex) {
             notifySaveResult(savedReportName, android.R.drawable.ic_dialog_alert, getString(R.string.sdr_saving_error_msg));
             analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.SAVED.getValue(), Analytics.EventLabel.FAILED.getValue());
             savedItemHelper.deleteSavedItem(reportFile, mRecordUrisQe.peek());
@@ -144,15 +157,51 @@ public class SaveReportService extends RoboIntentService {
         }
     }
 
-    @ServiceAction
-    protected void cancelSaving(String itemUri, File reportFile) {
+    private void startExport(ExportBundle bundle) throws ServiceException, IOException {
+        String reportUri = bundle.getLabel();
+        String format = bundle.getFormat();
+        String range = bundle.getPageRange();
+        File file = bundle.getFile();
+
+        ReportFormat reportFormat = ReportFormat.valueOf(format);
+        PageRange pageRange = PageRange.parse(range);
+
+        List<ReportParameter> parameters = mReportParamsCache.get(reportUri);
+        List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> params =
+                mReportParamsMapper.legacyParamsToRetrofitted(parameters);
+
+        ReportService reportService = mRestClient.syncReportService();
+        ReportExecutionOptions execOptions = ReportExecutionOptions.builder()
+                .withInteractive(false)
+                .withFormat(reportFormat)
+                .withAttachmentPrefix("./")
+                .withPageRange(pageRange)
+                .withParams(params)
+                .build();
+        ReportExecution run = reportService.run(reportUri, execOptions);
+
+        ReportExportOptions exportOptions = ReportExportOptions.builder()
+                .withAttachmentPrefix("./")
+                .withFormat(reportFormat)
+                .withPageRange(pageRange)
+                .build();
+        ReportExport export = run.export(exportOptions);
+        ReportExportOutput output = export.download();
+
+        FileUtils.copyInputStreamToFile(output.getStream(), file);
+        if ("HTML".equals(format)) {
+            List<ReportAttachment> attachments = export.getAttachments();
+
+            for (ReportAttachment attachment : attachments) {
+                File attachmentFile = new File(file.getParentFile(), attachment.getFileName());
+                ResourceOutput resourceOutput = attachment.download();
+                FileUtils.copyInputStreamToFile(resourceOutput.getStream(), attachmentFile);
+            }
+        }
     }
 
-    private ExportExecution exportReport(String requestId, SaveItemFragment.OutputFormat outputFormat, String pageRange) {
-        ExportsRequest executionData = createReportExportRequest(outputFormat, pageRange);
-        ExportExecution export = jsRestClient.runExportForReport(requestId, executionData);
-        waitForExportDone(requestId, export.getId());
-        return export;
+    @ServiceAction
+    protected void cancelSaving(String itemUri, File reportFile) {
     }
 
     private PendingIntent getSavedItemIntent() {
@@ -173,38 +222,6 @@ public class SaveReportService extends RoboIntentService {
         return exportsRequest;
     }
 
-    private void waitForExecutionBegin(String reportExecutionId) {
-        ReportStatus reportStatus;
-        do {
-            if (mCurrent == null)
-                throw new OperationCanceledException("Saving canceled!");
-
-            sleep();
-            reportStatus = jsRestClient.runReportStatusCheck(reportExecutionId).getReportStatus();
-            if (reportStatus == ReportStatus.failed)
-                throw new IllegalStateException("Report execution failed!");
-            if (reportStatus == ReportStatus.cancelled)
-                throw new IllegalStateException("Report execution canceled!");
-        }
-        while (reportStatus != ReportStatus.ready && reportStatus != ReportStatus.execution);
-    }
-
-    private void waitForExportDone(String reportExecutionId, String exportId) {
-        ReportStatus reportStatus;
-        do {
-            if (mCurrent == null)
-                throw new OperationCanceledException("Saving canceled!");
-
-            sleep();
-            reportStatus = jsRestClient.runExportStatusCheck(reportExecutionId, exportId).getReportStatus();
-            if (reportStatus == ReportStatus.failed)
-                throw new IllegalStateException("Report export failed!");
-            if (reportStatus == ReportStatus.cancelled)
-                throw new IllegalStateException("Report export canceled!");
-        }
-        while (reportStatus != ReportStatus.ready);
-    }
-
     private void sleep() {
         try {
             TimeUnit.SECONDS.sleep(1);
@@ -220,43 +237,18 @@ public class SaveReportService extends RoboIntentService {
         return Integer.valueOf(last5Str);
     }
 
-    private void saveReport(File reportFile, String exportOutput, String executionId) throws RestClientException {
-        jsRestClient.saveExportOutputToFile(executionId, exportOutput, reportFile);
-    }
-
-    private void saveAttachments(File reportFile, String exportId, String executionId) {
-        ReportExecutionResponse executionMetadata = jsRestClient.runReportDetailsRequest(executionId);
-        if (executionMetadata.getExports().isEmpty()) return;
-
-        List<ReportOutputResource> attachments = null;
-        for (ExportExecution exportExecution : executionMetadata.getExports()) {
-            if (exportExecution.getId().equals(exportId)) {
-                attachments = exportExecution.getAttachments();
-            }
-        }
-
-        if (attachments == null) return;
-
-        for (ReportOutputResource attachment : attachments) {
-            String attachmentName = attachment.getFileName();
-            File attachmentFile = new File(reportFile.getParentFile(), attachmentName);
-
-            jsRestClient.saveExportAttachmentToFile(executionId, exportId, attachmentName, attachmentFile);
-        }
-    }
-
-    private Uri addSavedItemRecord(Bundle reportBundle) {
+    private Uri addSavedItemRecord(ExportBundle bundle) {
         Account currentAccount = JasperAccountManager.get(this).getActiveAccount();
 
-        String descriptionExtra = reportBundle.getString(SaveReportService_.REPORT_DESCRIPTION_EXTRA);
-        SaveItemFragment.OutputFormat outputFormatExtra = ((SaveItemFragment.OutputFormat) reportBundle.getSerializable(SaveReportService_.OUTPUT_FORMAT_EXTRA));
-        File reportFileExtra = ((File) reportBundle.getSerializable(SaveReportService_.REPORT_FILE_EXTRA));
-        String savedReportNameExtra = reportBundle.getString(SaveReportService_.SAVED_REPORT_NAME_EXTRA);
+        String descriptionExtra = bundle.getDescription();
+        String outputFormatExtra = bundle.getFormat();
+        File reportFileExtra = bundle.getFile();
+        String savedReportNameExtra =bundle.getLabel();
 
         SavedItems savedItemsEntry = new SavedItems();
         savedItemsEntry.setName(savedReportNameExtra);
         savedItemsEntry.setFilePath(reportFileExtra.getPath());
-        savedItemsEntry.setFileFormat(outputFormatExtra.toString());
+        savedItemsEntry.setFileFormat(outputFormatExtra);
         savedItemsEntry.setDescription(descriptionExtra);
         savedItemsEntry.setWstype(ResourceLookup.ResourceType.reportUnit.toString());
         savedItemsEntry.setCreationTime(new Date().getTime());

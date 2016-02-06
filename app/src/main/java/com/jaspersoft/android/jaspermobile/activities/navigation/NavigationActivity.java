@@ -58,6 +58,7 @@ import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragme
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog_;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
@@ -112,9 +113,11 @@ public class NavigationActivity extends RoboCastActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GraphObject.Factory.from(this)
-                .getProfileComponent()
-                .inject(this);
+        ProfileComponent profileComponent = GraphObject.Factory.from(this)
+                .getProfileComponent();
+        if (profileComponent != null) {
+            profileComponent.inject(this);
+        }
     }
 
     @Override
@@ -216,10 +219,12 @@ public class NavigationActivity extends RoboCastActivity {
 
     private void enableRecentlyViewedSection() {
         View recentlyView = findViewById(R.id.vg_recent);
-        if (mJasperServer.isProEdition()) {
-            recentlyView.setVisibility(View.VISIBLE);
-        } else {
-            recentlyView.setVisibility(View.GONE);
+        if (mJasperServer != null) {
+            if (mJasperServer.isProEdition()) {
+                recentlyView.setVisibility(View.VISIBLE);
+            } else {
+                recentlyView.setVisibility(View.GONE);
+            }
         }
     }
 

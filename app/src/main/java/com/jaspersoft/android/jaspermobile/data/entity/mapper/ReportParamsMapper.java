@@ -7,6 +7,7 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.service.data.dashboard.DashboardControlComponent;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -105,4 +106,21 @@ public class ReportParamsMapper {
         return parameters;
     }
 
+    public List<ReportParameter> adaptDashboardControlComponents(List<ReportParameter> reportParameters,
+                                                                 List<DashboardControlComponent> components) {
+        Map<String, Set<String>> map = legacyToMap(reportParameters);
+        List<ReportParameter> parameters = new ArrayList<>(reportParameters.size());
+        for (DashboardControlComponent component : components) {
+            if (component != null) {
+                Set<String> values = map.get(component.getControlId());
+                if (values != null) {
+                    ReportParameter reportParameter = new ReportParameter();
+                    reportParameter.setName(component.getComponentId());
+                    reportParameter.setValues(values);
+                    parameters.add(reportParameter);
+                }
+            }
+        }
+        return parameters;
+    }
 }

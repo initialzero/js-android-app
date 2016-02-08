@@ -39,7 +39,6 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Ambe
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.SavedValuesActivity_;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportViewActivity_;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
@@ -95,9 +94,6 @@ public class ResourceOpener {
                 break;
             case file:
                 showFile(resource);
-                break;
-            case reportOptions:
-                showReportOption(resource);
                 break;
             default:
                 showUnsupported();
@@ -165,10 +161,6 @@ public class ResourceOpener {
 
     private void showFile(ResourceLookup resource){
         FileViewerActivity_.intent(activity).resourceLookup(resource).start();
-    }
-
-    private void showReportOption(ResourceLookup resource){
-        SavedValuesActivity_.intent(activity).resourceLookup(resource).start();
     }
 
     private void showUnsupported(){

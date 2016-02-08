@@ -18,6 +18,7 @@ import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
+import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -39,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.jaspermobile.widget.PaginationBarView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -257,6 +259,19 @@ public class ReportVisualizeFragment extends BaseFragment
                 .setNegativeButtonText(R.string.ok)
                 .setTargetFragment(this)
                 .show();
+    }
+
+    @OptionsItem
+    final void saveReport() {
+        if (FileUtils.isExternalStorageWritable()) {
+            SaveReportActivity_.intent(this)
+                    .resource(resource)
+                    .pageCount(getPaginationTotalPages())
+                    .start();
+        } else {
+            Toast.makeText(getActivity(),
+                    R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void runReport() {

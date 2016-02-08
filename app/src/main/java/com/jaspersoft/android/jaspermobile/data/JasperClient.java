@@ -10,6 +10,7 @@ import com.jaspersoft.android.sdk.network.AuthorizedClient;
 import com.jaspersoft.android.sdk.network.Credentials;
 import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.network.SpringCredentials;
+import com.jaspersoft.android.sdk.service.report.ReportService;
 import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
@@ -45,6 +46,12 @@ public class JasperClient implements JasperRestClient {
         mProfile = profile;
         mCredentialsCache = credentialsCache;
         mServerCache = serverCache;
+    }
+
+    @Override
+    public ReportService syncReportService() {
+        AuthorizedClient client = createAuthorizedClient().toBlocking().first();
+        return ReportService.newService(client);
     }
 
     @Override

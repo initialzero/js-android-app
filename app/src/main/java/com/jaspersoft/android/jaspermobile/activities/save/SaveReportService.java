@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.activities.save;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -15,6 +16,7 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.data.CancelExportBundle;
 import com.jaspersoft.android.jaspermobile.data.ExportBundle;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ExportOperationCache;
@@ -103,6 +105,20 @@ public class SaveReportService extends IntentService {
         mRecordsToDel = new ArrayList<>();
     }
 
+    public static void start(Context context, ExportBundle bundle) {
+        SaveReportService_
+                .intent(context)
+                .saveReport(bundle)
+                .start();
+    }
+
+    public static void cancel(Context context, CancelExportBundle bundle) {
+        SaveReportService_
+                .intent(context)
+                .cancelSaving(bundle.getEntityId(), bundle.getFile())
+                .start();
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -124,11 +140,15 @@ public class SaveReportService extends IntentService {
         Bundle extras = intent.getExtras();
         ExportBundle bundle = extras.getParcelable(SaveReportService_.EXPORT_BUNDLE_EXTRA);
         Uri savedItemRecord = addSavedItemRecord(bundle);
-        mRecordUrisQe.add(savedItemRecord);
+        addRecord(savedItemRecord);
 
         notifyDownloadingCount();
 
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void addRecord(Uri savedItemRecord) {
+        mRecordUrisQe.add(savedItemRecord);
     }
 
     @Override
@@ -140,13 +160,17 @@ public class SaveReportService extends IntentService {
         mCurrent = mRecordUrisQe.peek();
         if (mRecordsToDel.contains(mCurrent)) {
             mCurrent = null;
-            mRecordUrisQe.poll();
+            removeRecord();
             mRecordsToDel.remove(mCurrent);
             return;
         }
 
         AsyncTask<ExportBundle, Void, Void> operation = exportReport(exportBundle);
         mExportOperationCache.add(mCurrent, operation);
+    }
+
+    private void removeRecord() {
+        mRecordUrisQe.poll();
     }
 
     private AsyncTask<ExportBundle, Void, Void> exportReport(final ExportBundle bundle) {
@@ -164,7 +188,11 @@ public class SaveReportService extends IntentService {
         File reportFile = exportBundle.getFile();
         String savedReportName = exportBundle.getLabel();
 
-        notifyDownloadingName(exportBundle.getLabel());
+        if (moreThanOneActiveExports()) {
+            notifyDownloadingCount();
+        } else {
+            notifyDownloadingName(savedReportName);
+        }
 
         try {
             startExport(exportBundle);
@@ -179,8 +207,12 @@ public class SaveReportService extends IntentService {
         } catch (OperationCanceledException ex) {
             savedItemHelper.deleteSavedItem(reportFile, mRecordUrisQe.peek());
         } finally {
-            mRecordUrisQe.poll();
-            notifyDownloadingCount();
+            removeRecord();
+            if (atLeastOneExportActive()) {
+                notifyDownloadingCount();
+            } else {
+                cancelDownloadingNotification();
+            }
         }
     }
 
@@ -317,8 +349,6 @@ public class SaveReportService extends IntentService {
     }
 
     private void notifyDownloadingName(String reportName) {
-        if (mRecordUrisQe.size() - mRecordsToDel.size() != 1) return;
-
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setContentText(getString(R.string.sdr_saving_msg))
@@ -329,18 +359,29 @@ public class SaveReportService extends IntentService {
     }
 
     private void notifyDownloadingCount() {
-        int pendingCount = mRecordUrisQe.size() - mRecordsToDel.size();
-        boolean atLeastOneExportLoading = pendingCount > 0;
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(android.R.drawable.stat_sys_download)
+                .setContentText(getString(R.string.sdr_saving_msg))
+                .setContentTitle(getString(R.string.sdr_saving_multiply_msg, getPendingCount()))
+                .setContentIntent(getSavedItemIntent());
 
-        if (atLeastOneExportLoading) {
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(android.R.drawable.stat_sys_download)
-                    .setContentText(getString(R.string.sdr_saving_msg))
-                    .setContentTitle(getString(R.string.sdr_saving_multiply_msg, pendingCount))
-                    .setContentIntent(getSavedItemIntent());
+        mNotificationManager.notify(LOADING_NOTIFICATION_ID, mBuilder.build());
+    }
 
-            mNotificationManager.notify(LOADING_NOTIFICATION_ID, mBuilder.build());
-        }
+    private boolean moreThanOneActiveExports() {
+        return getPendingCount() > 1;
+    }
+
+    private boolean atLeastOneExportActive() {
+        return getPendingCount() > 0;
+    }
+
+    private int getPendingCount() {
+        return mRecordUrisQe.size() - mRecordsToDel.size();
+    }
+
+    private void cancelDownloadingNotification() {
+        mNotificationManager.cancel(LOADING_NOTIFICATION_ID);
     }
 
     private void notifySaveResult(String reportName, int iconId, String message) {

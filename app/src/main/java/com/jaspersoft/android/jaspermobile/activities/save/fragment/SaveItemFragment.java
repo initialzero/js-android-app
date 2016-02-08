@@ -43,7 +43,7 @@ import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService_;
+import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService;
 import com.jaspersoft.android.jaspermobile.data.ExportBundle;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -189,9 +189,8 @@ public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogF
                 .setPageRange(pageRange)
                 .build();
 
-        SaveReportService_.intent(getActivity()).saveReport(bundle).start();
+        SaveReportService.start(getActivity(), bundle);
         Toast.makeText(getActivity().getApplicationContext(), getString(R.string.sdr_starting_downloading_msg), Toast.LENGTH_SHORT).show();
-        getActivity().finish();
     }
 
     @AfterViews

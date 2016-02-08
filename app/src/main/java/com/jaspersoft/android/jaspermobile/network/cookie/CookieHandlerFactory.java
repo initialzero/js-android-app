@@ -17,13 +17,13 @@ import javax.inject.Singleton;
  * @since 2.3
  */
 @Singleton
-public final class CookieStorageFactory {
+public final class CookieHandlerFactory {
     @Inject
-    public CookieStorageFactory() {
+    public CookieHandlerFactory() {
     }
 
     @NonNull
-    public CookieStorage newStore(@NonNull Context context) {
+    public CookieHandler newStore(@NonNull Context context) {
         WebViewCookieStore webViewCookieStore = createWebViewCookieStore(context);
         java.net.CookieStore cookieStore = new PersistentCookieStore(context);
 
@@ -32,10 +32,10 @@ public final class CookieStorageFactory {
 
         AppCookieStore appCookieStore = new AppCookieStore(webViewCookieStore, cookieStore, apacheStore);
 
-        CookieManager defaultCookieManager = new CookieManager(appCookieStore, CookiePolicy.ACCEPT_ALL);
+        CookieHandler defaultCookieManager = new CookieManager(appCookieStore, CookiePolicy.ACCEPT_ALL);
         CookieHandler.setDefault(defaultCookieManager);
 
-        return appCookieStore;
+        return defaultCookieManager;
     }
 
     private WebViewCookieStore createWebViewCookieStore(@NonNull Context context) {

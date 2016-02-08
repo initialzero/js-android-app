@@ -29,11 +29,12 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference;
-import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.sdk.network.Server;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -42,6 +43,8 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 import roboguice.fragment.provided.RoboPreferenceFragment;
 
@@ -61,7 +64,9 @@ import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PRE
 public class SettingsFragment extends RoboPreferenceFragment {
 
     @Inject
-    private JsRestClient mJsRestClient;
+    @Nullable
+    protected Server.Builder mServerConfig;
+
     @Bean
     protected DefaultPrefHelper defaultPrefHelper;
 
@@ -70,6 +75,10 @@ public class SettingsFragment extends RoboPreferenceFragment {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GraphObject.Factory.from(getContext())
+                .getProfileComponent()
+                .inject(this);
+
         addPreferencesFromResource(R.xml.preferences);
 
         sharedPreferences = getPreferenceScreen().getSharedPreferences();
@@ -110,7 +119,7 @@ public class SettingsFragment extends RoboPreferenceFragment {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 try {
                     int value = Integer.parseInt(String.valueOf(newValue));
-                    mJsRestClient.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(value));
+                    mServerConfig.withConnectionTimeOut(value, TimeUnit.SECONDS);
                     updateSummary(preference, newValue, R.string.st_summary_sec);
                     return true;
                 } catch (NumberFormatException ex) {
@@ -126,7 +135,7 @@ public class SettingsFragment extends RoboPreferenceFragment {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 try {
                     int value = Integer.parseInt(String.valueOf(newValue));
-                    mJsRestClient.setReadTimeout((int) TimeUnit.SECONDS.toMillis(value));
+                    mServerConfig.withReadTimeout(value, TimeUnit.SECONDS);
                     updateSummary(preference, newValue, R.string.st_summary_sec);
                     return true;
                 } catch (NumberFormatException ex) {

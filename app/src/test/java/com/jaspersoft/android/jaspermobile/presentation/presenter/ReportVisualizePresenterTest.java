@@ -25,7 +25,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.Visualiz
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewEvents;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
-import com.jaspersoft.android.jaspermobile.visualize.ReportData;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 
 import org.junit.Before;
@@ -81,7 +81,7 @@ public class ReportVisualizePresenterTest {
     @Mock
     ReportResourceModel mReportResourceModel;
     @Mock
-    ReportResource mReportResource;
+    ResourceLookup mReportResource;
 
     private ReportPageState fakeState;
 
@@ -272,17 +272,15 @@ public class ReportVisualizePresenterTest {
     public void on_resume_should_subscribe_to_execution_event() throws Exception {
         mFakeGetReportMetadataCase.setResource(mReportResource);
 
-        ReportData reportData = new ReportData();
-        ExecutionReferenceClickEvent event = new ExecutionReferenceClickEvent(reportData);
+        ExecutionReferenceClickEvent event = new ExecutionReferenceClickEvent("{}");
         when(mVisualizeEvents.executionReferenceClickEvent()).thenReturn(Observable.just(event));
 
         mReportVisualizePresenter.resume();
 
         verify(mView).showLoading();
-        verify(mResourceModelMapper).mapReportModel(mReportResource);
-        verify(mFakeGetReportMetadataCase).execute(eq(reportData), any(Subscriber.class));
+        verify(mFakeGetReportMetadataCase).execute(eq("{}"), any(Subscriber.class));
         verify(mView).hideLoading();
-        verify(mView).executeReport(mReportResourceModel);
+        verify(mView).executeReport(mReportResource);
     }
 
     @Test

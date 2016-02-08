@@ -43,7 +43,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.library.LibrarySearchableActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.SearchResult;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
@@ -77,6 +76,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Subscriber;
 import timber.log.Timber;
@@ -86,7 +86,7 @@ import timber.log.Timber;
  * @since 1.9
  */
 @EFragment(R.layout.fragment_refreshable_resource)
-public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class LibraryFragment extends RoboFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG = LibraryFragment.class.getSimpleName();
     public static final String ROOT_URI = "/";

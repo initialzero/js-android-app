@@ -7,7 +7,6 @@ import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.LoadFileRequest;
@@ -27,6 +26,7 @@ import java.util.Date;
 
 import javax.inject.Inject;
 
+import roboguice.fragment.RoboFragment;
 import rx.Subscriber;
 import timber.log.Timber;
 
@@ -35,7 +35,7 @@ import timber.log.Timber;
  * @since 2.3
  */
 @EFragment
-public abstract class FileLoadFragment extends RoboSpiceFragment {
+public abstract class FileLoadFragment extends RoboFragment {
 
     private static final String TEMP_FILE_NAME = "tempFile";
 

@@ -38,12 +38,6 @@ import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
-import com.octo.android.robospice.exception.NetworkException;
-import com.octo.android.robospice.exception.NoNetworkException;
-import com.octo.android.robospice.exception.RequestCancelledException;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
 
 import java.net.UnknownHostException;
 
@@ -70,9 +64,7 @@ public class RequestExceptionHandler {
         }
 
         int statusCode = extractStatusCode(exception);
-        if (statusCode == HttpStatus.UNAUTHORIZED.value() || statusCode == JasperAccountManager.TokenException.NO_PASSWORD_ERROR) {
-            showAuthErrorDialog(context);
-        } else if (statusCode == JasperAccountManager.TokenException.NO_ACCOUNTS_ERROR || statusCode == JasperAccountManager.TokenException.SERVER_UPDATED_ERROR) {
+        if (statusCode == JasperAccountManager.TokenException.NO_ACCOUNTS_ERROR || statusCode == JasperAccountManager.TokenException.SERVER_UPDATED_ERROR) {
             // do nothing, app will restart automatically
         } else {
             showCommonErrorMessage(context, exception);
@@ -136,19 +128,17 @@ public class RequestExceptionHandler {
      * Extracts HttpStatus code otherwise returns 0.
      */
     public static int extractStatusCode(@NonNull Throwable exception) {
-        if (exception instanceof NetworkException) {
+        if (exception instanceof JasperAccountManager.TokenException) {
+            return ((JasperAccountManager.TokenException) exception).getErrorCode();
+        } else {
             Throwable cause = exception.getCause();
-            if (cause instanceof HttpStatusCodeException) {
-                return ((HttpStatusCodeException) cause).getStatusCode().value();
-            }
+
             Throwable tokenCause = cause.getCause();
             if (tokenCause instanceof JasperAccountManager.TokenException) {
                 return ((JasperAccountManager.TokenException) tokenCause).getErrorCode();
             } else if (tokenCause instanceof UnknownHostException) {
                 return JasperAccountManager.TokenException.SERVER_NOT_FOUND;
             }
-        } else if (exception instanceof JasperAccountManager.TokenException) {
-            return ((JasperAccountManager.TokenException) exception).getErrorCode();
         }
         return 0;
     }
@@ -162,37 +152,22 @@ public class RequestExceptionHandler {
      */
     @Nullable
     private static String extractMessage(@NonNull Context context, @NonNull Throwable exception, int statusCode) {
-        if (statusCode == 0) {
-            if (exception instanceof NoNetworkException) {
-                return context.getString(R.string.no_network);
-            }
-            if (exception instanceof RequestCancelledException) {
-                return context.getString(R.string.request_was_cancelled_explicitly);
-            }
-            return null;
-        } else {
-            ExceptionRule rule = ExceptionRule.all().get(statusCode);
-            if (rule == null) {
-                if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
-                    return context.getString(R.string.r_error_server_not_found);
-                }
-
-                Throwable cause = exception.getCause();
-                if (cause == null) {
-                    return exception.getLocalizedMessage();
-                }
-
-                Throwable tokenCause = cause.getCause();
-                if (tokenCause instanceof JasperAccountManager.TokenException) {
-                    return tokenCause.getLocalizedMessage();
-                }
-
-                return exception.getLocalizedMessage();
-            } else {
-                int messageId = rule.getMessage();
-                return context.getString(messageId);
-            }
+        if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
+            return context.getString(R.string.r_error_server_not_found);
         }
+
+        Throwable cause = exception.getCause();
+        if (cause == null) {
+            return exception.getLocalizedMessage();
+        }
+
+        Throwable tokenCause = cause.getCause();
+        if (tokenCause instanceof JasperAccountManager.TokenException) {
+            return tokenCause.getLocalizedMessage();
+        }
+
+        return exception.getLocalizedMessage();
+
     }
 
     private static void showCommonErrorMessage(@NonNull Context context, @NonNull Throwable exception) {

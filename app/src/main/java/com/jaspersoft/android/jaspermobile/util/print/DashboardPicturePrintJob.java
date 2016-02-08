@@ -30,10 +30,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.print.PrintHelper;
 import android.webkit.WebView;
 
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-
-import javax.inject.Inject;
-
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;

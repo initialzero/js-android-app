@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.domain.interactor.report;
 
 import com.google.gson.Gson;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
+import com.jaspersoft.android.jaspermobile.data.entity.ReportData;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ResourceMapper;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
@@ -9,7 +10,6 @@ import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.resource.ResourceRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
-import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.data.repository.Resource;

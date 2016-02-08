@@ -42,9 +42,8 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService;
-import com.jaspersoft.android.jaspermobile.data.ExportBundle;
+import com.jaspersoft.android.jaspermobile.data.entity.ExportBundle;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
@@ -67,6 +66,7 @@ import java.io.File;
 
 import javax.inject.Inject;
 
+import roboguice.fragment.RoboFragment;
 import timber.log.Timber;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -77,7 +77,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
  */
 @EFragment(R.layout.save_report_layout)
 @OptionsMenu(R.menu.save_item_menu)
-public class SaveItemFragment extends RoboSpiceFragment implements NumberDialogFragment.NumberDialogClickListener {
+public class SaveItemFragment extends RoboFragment implements NumberDialogFragment.NumberDialogClickListener {
 
     public static final String TAG = SaveItemFragment.class.getSimpleName();
 

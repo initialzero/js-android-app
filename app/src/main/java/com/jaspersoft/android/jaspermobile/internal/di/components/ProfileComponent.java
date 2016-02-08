@@ -14,6 +14,7 @@ import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService;
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment;
 import com.jaspersoft.android.jaspermobile.activities.schedule.JobsFragment;
 import com.jaspersoft.android.jaspermobile.activities.schedule.ScheduleActivity;
+import com.jaspersoft.android.jaspermobile.activities.settings.fragment.SettingsFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity;
 import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog;
@@ -24,6 +25,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.Dashboar
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportRestViewerModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.FileResourceBinder;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberTwoDashboardExecutor;
@@ -75,4 +77,6 @@ public interface ProfileComponent {
     void inject(ReportCastActivity reportCastActivity);
     void inject(ResourcePresentationService resourcePresentationService);
     void inject(AmberTwoDashboardExecutor amberTwoDashboardExecutor);
+    void inject(FavoritesHelper favoritesHelper);
+    void inject(SettingsFragment settingsFragment);
 }

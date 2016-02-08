@@ -44,7 +44,6 @@ import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;

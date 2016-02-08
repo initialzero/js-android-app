@@ -30,23 +30,21 @@ import android.net.Uri;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
-import roboguice.RoboGuice;
-import roboguice.inject.RoboInjector;
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
@@ -58,16 +56,17 @@ public class FavoritesHelper {
     Context context;
 
     @Inject
-    JsRestClient jsRestClient;
-
-    @Inject
     protected Analytics analytics;
+    @Inject
+    protected Profile profile;
+
     private Toast mToast;
 
     @AfterInject
-    void injectRoboGuiceDependencies() {
-        final RoboInjector injector = RoboGuice.getInjector(context);
-        injector.injectMembersWithoutViews(this);
+    void init() {
+        GraphObject.Factory.from(context)
+                .getProfileComponent()
+                .inject(this);
         mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
     }
 
@@ -149,16 +148,13 @@ public class FavoritesHelper {
     }
 
     private boolean addToFavorites(ResourceLookup resource) {
-        JsServerProfile profile = jsRestClient.getServerProfile();
         Favorites favoriteEntry = new Favorites();
 
         favoriteEntry.setUri(resource.getUri());
         favoriteEntry.setTitle(resource.getLabel());
         favoriteEntry.setDescription(resource.getDescription());
         favoriteEntry.setWstype(resource.getResourceType().toString());
-        favoriteEntry.setUsername(profile.getUsername());
-        favoriteEntry.setOrganization(profile.getOrganization());
-        favoriteEntry.setAccountName(JasperAccountManager.get(context).getActiveAccount().name);
+        favoriteEntry.setAccountName(profile.getKey());
         favoriteEntry.setCreationTime(resource.getCreationDate());
 
         return context.getContentResolver().insert(JasperMobileDbProvider.FAVORITES_CONTENT_URI,

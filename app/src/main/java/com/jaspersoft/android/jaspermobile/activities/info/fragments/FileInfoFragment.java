@@ -25,10 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
-import com.jaspersoft.android.sdk.service.data.report.FileResource;
 
 import org.androidannotations.annotations.EFragment;
 

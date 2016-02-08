@@ -29,7 +29,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog;
-import com.octo.android.robospice.persistence.DurationInMillis;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
@@ -104,7 +103,7 @@ public class DefaultPrefHelper {
 
         if (repoCacheEnabled) {
             String value = preferences.getString(KEY_PREF_REPO_CACHE_EXPIRATION, DEFAULT_REPO_CACHE_EXPIRATION);
-            return Integer.parseInt(value) * DurationInMillis.ONE_HOUR;
+            return Integer.parseInt(value) * TimeUnit.HOURS.toMillis(1);
         } else {
             return -1;
         }

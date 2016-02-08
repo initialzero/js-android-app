@@ -54,15 +54,11 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetRootFol
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.LoadResourceInFileCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
-import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-
-import javax.inject.Inject;
 
 /**
  * @author Ivan Gadzhega
@@ -71,9 +67,6 @@ import javax.inject.Inject;
  */
 public class  JasperMobileModule extends AbstractModule {
     private final Context mContext;
-
-    @Inject
-    JsRestClientWrapper mJsRestClientWrapper;
 
     public JasperMobileModule(Application application) {
         super();
@@ -85,9 +78,6 @@ public class  JasperMobileModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(JsRestClientWrapper.class).toInstance(mJsRestClientWrapper);
-        bind(JsRestClient.class).toInstance(mJsRestClientWrapper.getClient());
-
         int animationSpeed = mContext.getResources().getInteger(
                 android.R.integer.config_longAnimTime);
         animationSpeed *= 1.5;

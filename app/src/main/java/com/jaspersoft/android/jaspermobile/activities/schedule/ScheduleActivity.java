@@ -37,7 +37,7 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OutputFormatDialogFragment;
@@ -83,7 +83,7 @@ import rx.subscriptions.CompositeSubscription;
  */
 @OptionsMenu(R.menu.report_add_schedule)
 @EActivity(R.layout.activity_schedule)
-public class ScheduleActivity extends RoboSpiceActivity implements DateDialogFragment.DateDialogClickListener,
+public class ScheduleActivity extends RoboToolbarActivity implements DateDialogFragment.DateDialogClickListener,
         OutputFormatDialogFragment.OutputFormatClickListener, ValueInputDialogFragment.ValueDialogCallback {
 
     private final static int JOB_NAME_CODE = 563;

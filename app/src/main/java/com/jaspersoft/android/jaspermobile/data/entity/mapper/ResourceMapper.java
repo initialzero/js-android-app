@@ -8,7 +8,6 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.data.report.FileResource;
 import com.jaspersoft.android.sdk.service.data.repository.Resource;
 
-import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,14 +58,13 @@ public class ResourceMapper {
             throws Exception {
         ResourceLookup lookup = new ResourceLookup();
         if ("file".equals(type)) {
-            // TODO remove reflection after model will be copy pasted from sources
             FileResource fileResource = (FileResource) resource;
             FileResource.Type fileType = fileResource.getType();
-            lookup = new FileLookup();
             String legacyFileType = fileType.name();
-            Field field = FileLookup.class.getDeclaredField("type");
-            field.setAccessible(true);
-            field.set(lookup, legacyFileType);
+
+            FileLookup fileLookup = new FileLookup();
+            fileLookup.setFileType(legacyFileType);
+            lookup = fileLookup;
         }
         toLegacyResource(resource, lookup);
         return lookup;

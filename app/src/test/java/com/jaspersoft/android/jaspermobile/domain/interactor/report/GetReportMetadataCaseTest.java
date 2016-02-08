@@ -4,12 +4,12 @@ import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.ResourceMapper;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.resource.ResourceRepository;
-import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
-import com.jaspersoft.android.sdk.service.data.report.ReportResource;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.data.repository.Resource;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 
@@ -40,6 +40,7 @@ public class GetReportMetadataCaseTest {
     private static final String REPORT_URI = "/my/uri";
     private static final Map<String, Set<String>> REPORT_PARAMS = Collections.emptyMap();
     private static final List<ReportParameter> LEGACY_REPORT_PARAMS = Collections.emptyList();
+    private static final String DATA = "{\"resource\": \"/my/uri\", }";
 
     @Mock
     ReportRepository mReportRepository;
@@ -54,9 +55,9 @@ public class GetReportMetadataCaseTest {
     ResourceRepository mResourceRepository;
     @Mock
     ReportParamsCache mReportParamsCache;
-
     @Mock
-    ReportData mReportData;
+    ResourceMapper mResourceMapper;
+
     @Mock
     Resource mReportResource;
 
@@ -73,7 +74,8 @@ public class GetReportMetadataCaseTest {
                 mResourceRepository,
                 mReportParamsCache,
                 mReportParamsMapper,
-                resourceMapper);
+                mResourceMapper
+        );
     }
 
     @Test
@@ -91,16 +93,14 @@ public class GetReportMetadataCaseTest {
     }
 
     private void performExecute() {
-        TestSubscriber<ReportResource> test = new TestSubscriber<>();
-        mGetReportMetadataCase.execute(mReportData, test);
+        TestSubscriber<ResourceLookup> test = new TestSubscriber<>();
+        mGetReportMetadataCase.execute(DATA, test);
         test.assertNoErrors();
     }
 
     private void setupMocks() {
         when(mResourceRepository.getResourceByType(anyString(), anyString()))
                 .thenReturn(Observable.just(mReportResource));
-        when(mReportData.getResource()).thenReturn(REPORT_URI);
-        when(mReportData.getParams()).thenReturn(REPORT_PARAMS);
         when(mReportParamsMapper.mapToLegacyParams(anyMap()))
                 .thenReturn(LEGACY_REPORT_PARAMS);
     }

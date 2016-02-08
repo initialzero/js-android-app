@@ -13,7 +13,6 @@ import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.LoadControlsForOptionCase;
@@ -29,6 +28,7 @@ import org.androidannotations.annotations.FragmentArg;
 
 import javax.inject.Inject;
 
+import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
 /**
@@ -36,7 +36,7 @@ import roboguice.inject.InjectView;
  * @since 2.2
  */
 @EFragment(R.layout.fragment_resource_info)
-public class SimpleInfoFragment extends RoboSpiceFragment {
+public class SimpleInfoFragment extends RoboFragment {
 
     public static final String TAG = ResourceInfoFragment.class.getSimpleName();
 

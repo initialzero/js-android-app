@@ -13,13 +13,11 @@ import com.jaspersoft.android.jaspermobile.data.cache.SecureStorage;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
-import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
-import com.jaspersoft.android.jaspermobile.network.cookie.CookieStorage;
-import com.jaspersoft.android.jaspermobile.network.cookie.CookieStorageFactory;
+import com.jaspersoft.android.jaspermobile.network.cookie.CookieHandlerFactory;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.sdk.network.Server;
 
-import java.net.CookieStore;
+import java.net.CookieHandler;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
@@ -48,14 +46,8 @@ public final class AppModule {
 
     @Provides
     @Singleton
-    CookieStorage provideSessionCache(CookieStorageFactory cookieStorageFactory, @ApplicationContext Context context) {
-        return cookieStorageFactory.newStore(context);
-    }
-
-    @Provides
-    @Singleton
-    CookieStore provideCookieStore(CookieStorage appCookieStore) {
-        return appCookieStore;
+    CookieHandler provideCookieHandler(CookieHandlerFactory cookieHandlerFactory, @ApplicationContext Context context) {
+        return cookieHandlerFactory.newStore(context);
     }
 
     @Provides
@@ -74,12 +66,6 @@ public final class AppModule {
     @Singleton
     AccountManager providesAccountManager(@ApplicationContext Context context) {
         return AccountManager.get(context);
-    }
-
-    @Provides
-    @Singleton
-    JsRestClientWrapper providesJsRestClientWrapper(@ApplicationContext Context context, CookieStorage cookieStore) {
-        return new JsRestClientWrapper(context, cookieStore);
     }
 
     @Provides

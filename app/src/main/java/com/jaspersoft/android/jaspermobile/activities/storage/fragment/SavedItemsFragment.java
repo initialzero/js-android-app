@@ -45,7 +45,7 @@ import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.data.CancelExportBundle;
+import com.jaspersoft.android.jaspermobile.data.entity.CancelExportBundle;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;

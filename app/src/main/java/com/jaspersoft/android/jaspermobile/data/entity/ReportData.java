@@ -22,23 +22,48 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.network;
+package com.jaspersoft.android.jaspermobile.data.entity;
 
-import android.content.Context;
+import com.google.gson.annotations.Expose;
 
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Tom Koptel
- * @since 1.9
+ * @since 2.0
  */
-public abstract class SimpleRequestListener<T> implements RequestListener<T> {
+public class ReportData {
+    @Expose
+    private String resource;
+    @Expose
+    private Map<String, Set<String>> params;
 
-    @Override
-    public void onRequestFailure(SpiceException spiceException) {
-        RequestExceptionHandler.handle(spiceException, getContext());
+    public String getResource() {
+        return resource;
     }
 
-    protected abstract Context getContext();
+    public Map<String, Set<String>> getParams() {
+        return params;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ReportData that = (ReportData) o;
+
+        if (resource != null ? !resource.equals(that.resource) : that.resource != null)
+            return false;
+        return params != null ? params.equals(that.params) : that.params == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = resource != null ? resource.hashCode() : 0;
+        result = 31 * result + (params != null ? params.hashCode() : 0);
+        return result;
+    }
 }

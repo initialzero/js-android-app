@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.network;
 
 import android.content.Context;
 
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 
 import java.io.IOException;
@@ -36,22 +35,16 @@ import java.net.HttpURLConnection;
  * @author Tom Koptel
  * @since 2.0
  */
-public class TokenImageDownloader extends BaseImageDownloader {
-    private static final String COOKIE_HEADER = "Cookie";
+public class AcceptJpegDownloader extends BaseImageDownloader {
     private static final String ACCEPT_HEADER = "Accept";
 
-    private final JasperAccountManager jasperAccountManager;
-
-    public TokenImageDownloader(Context context) {
+    public AcceptJpegDownloader(Context context) {
         super(context);
-        jasperAccountManager = JasperAccountManager.get(context);
     }
 
     @Override
     protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
         HttpURLConnection conn = super.createConnection(url, extra);
-        String token = jasperAccountManager.getActiveAuthToken();
-        conn.setRequestProperty(COOKIE_HEADER, token);
         conn.setRequestProperty(ACCEPT_HEADER, "image/jpeg");
         return conn;
     }

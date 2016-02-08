@@ -28,12 +28,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.ReportResource;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.process.BitmapProcessor;
@@ -45,10 +43,6 @@ import roboguice.RoboGuice;
  * @since 1.9
  */
 class ReportResourceBinder extends ResourceBinder {
-
-    @Inject
-    protected JsRestClient jsRestClient;
-
     private ImageView thumbnail;
 
     public ReportResourceBinder(Context context) {
@@ -96,5 +90,4 @@ class ReportResourceBinder extends ResourceBinder {
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .build();
     }
-
 }

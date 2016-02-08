@@ -2,11 +2,11 @@ package com.jaspersoft.android.jaspermobile.data.cache.report;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.LruCache;
 
 import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
-import com.octo.android.robospice.persistence.memory.LruCache;
 
 import java.util.HashMap;
 import java.util.Map;

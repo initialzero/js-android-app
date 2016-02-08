@@ -48,7 +48,6 @@ import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;

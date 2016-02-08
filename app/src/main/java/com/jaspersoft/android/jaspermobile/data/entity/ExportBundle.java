@@ -1,4 +1,4 @@
-package com.jaspersoft.android.jaspermobile.data;
+package com.jaspersoft.android.jaspermobile.data.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;

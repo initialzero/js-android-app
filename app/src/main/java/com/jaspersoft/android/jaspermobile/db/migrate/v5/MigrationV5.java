@@ -24,6 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.db.migrate.v5;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
@@ -34,8 +37,30 @@ import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
  */
 public final class MigrationV5 implements Migration {
 
+    private static final String EDITION_KEY = "EDITION_KEY";
+
+    private final AccountManager mAccountManager;
+
+    public MigrationV5(Context context) {
+        mAccountManager = AccountManager.get(context);
+    }
+
     @Override
-    public void migrate(SQLiteDatabase db) {
-        db.execSQL("ALTER TABLE saved_items ADD COLUMN downloaded NUMERIC DEFAULT 1");
+    public void migrate(SQLiteDatabase database) {
+        database.execSQL("ALTER TABLE saved_items ADD COLUMN downloaded NUMERIC DEFAULT 1");
+        migrateEditionInAccounts();
+    }
+
+    private void migrateEditionInAccounts() {
+        Account[] accounts = mAccountManager.getAccountsByType("com.jaspersoft");
+        for (Account account : accounts) {
+            adaptEdition(account);
+        }
+    }
+
+    private void adaptEdition(Account account) {
+        String edition = mAccountManager.getUserData(account, EDITION_KEY);
+        boolean isPro = "PRO".equals(edition);
+        mAccountManager.setUserData(account, EDITION_KEY, String.valueOf(isPro));
     }
 }

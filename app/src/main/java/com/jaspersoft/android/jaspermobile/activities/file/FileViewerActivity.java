@@ -9,7 +9,7 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.ResourceDetailsRequest;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
@@ -28,7 +28,7 @@ import javax.inject.Inject;
  * @since 2.3
  */
 @EActivity(R.layout.activity_file_viewer)
-public class FileViewerActivity extends RoboSpiceActivity {
+public class FileViewerActivity extends RoboToolbarActivity {
 
     @Extra
     protected ResourceLookup resourceLookup;

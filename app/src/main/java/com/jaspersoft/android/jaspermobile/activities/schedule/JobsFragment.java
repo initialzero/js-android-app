@@ -37,7 +37,6 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -64,6 +63,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 import rx.Subscriber;
 import rx.Subscription;
@@ -74,7 +74,7 @@ import rx.subscriptions.CompositeSubscription;
  * @since 2.3
  */
 @EFragment(R.layout.fragment_refreshable_resource)
-public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class JobsFragment extends RoboFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     @InjectView(android.R.id.list)
     protected JasperRecyclerView listView;

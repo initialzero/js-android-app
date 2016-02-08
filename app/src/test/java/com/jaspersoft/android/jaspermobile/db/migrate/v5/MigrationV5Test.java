@@ -63,7 +63,7 @@ public class MigrationV5Test {
         accountManager.setUserData(fakeAccount, VERSION_NAME_KEY, "5.6.1");
         accountManager.addAccountExplicitly(fakeAccount, null, null);
 
-        migrationV5 = new MigrationV5();
+        migrationV5 = new MigrationV5(RuntimeEnvironment.application);
     }
 
     // TODO Fix test by providing dump of database

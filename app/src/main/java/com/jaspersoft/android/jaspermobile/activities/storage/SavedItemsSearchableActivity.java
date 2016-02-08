@@ -28,7 +28,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
 
@@ -40,7 +40,7 @@ import org.androidannotations.annotations.Extra;
  * @since 1.9
  */
 @EActivity(R.layout.content_layout)
-public class SavedItemsSearchableActivity extends RoboSpiceActivity {
+public class SavedItemsSearchableActivity extends RoboToolbarActivity {
 
     @Extra
     String query;

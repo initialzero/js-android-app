@@ -16,7 +16,7 @@ import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 import com.jaspersoft.android.sdk.service.rx.repository.RxRepositoryService;
 
-import java.net.CookieManager;
+import java.net.CookieHandler;
 
 import javax.inject.Inject;
 
@@ -31,6 +31,7 @@ import rx.functions.Func1;
 @PerProfile
 public class JasperClient implements JasperRestClient {
     private final Server.Builder mServerBuilder;
+    private final CookieHandler mCookieHandler;
     private final Profile mProfile;
     private final CredentialsCache mCredentialsCache;
     private final JasperServerCache mServerCache;
@@ -38,11 +39,13 @@ public class JasperClient implements JasperRestClient {
     @Inject
     public JasperClient(
             Server.Builder serverBuilder,
+            CookieHandler cookieHandler,
             Profile profile,
             CredentialsCache credentialsCache,
             JasperServerCache serverCache
     ) {
         mServerBuilder = serverBuilder;
+        mCookieHandler = cookieHandler;
         mProfile = profile;
         mCredentialsCache = credentialsCache;
         mServerCache = serverCache;
@@ -105,7 +108,7 @@ public class JasperClient implements JasperRestClient {
                         .withOrganization(appCredentials.getOrganization())
                         .build();
                 AuthorizedClient authorizedClient = provideServer().newClient(credentials)
-                        .withCookieHandler(CookieManager.getDefault())
+                        .withCookieHandler(mCookieHandler)
                         .create();
                 return Observable.just(authorizedClient);
             }

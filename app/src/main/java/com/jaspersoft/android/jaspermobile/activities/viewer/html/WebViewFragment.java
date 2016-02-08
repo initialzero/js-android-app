@@ -37,13 +37,11 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -79,8 +77,6 @@ public class WebViewFragment extends RoboFragment {
     @InstanceState
     String currentUrl;
 
-    @Inject
-    protected JsRestClient jsRestClient;
     @Bean
     ScrollableTitleHelper scrollableTitleHelper;
     @Bean

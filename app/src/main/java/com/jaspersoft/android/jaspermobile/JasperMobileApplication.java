@@ -32,9 +32,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.DaggerAppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
-import com.jaspersoft.android.jaspermobile.legacy.JsRestClientWrapper;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
+import com.jaspersoft.android.jaspermobile.network.AcceptJpegDownloader;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -63,8 +61,6 @@ public class JasperMobileApplication extends MultiDexApplication implements Grap
 
     @Inject
     AppConfigurator appConfigurator;
-    @Inject
-    JsRestClientWrapper jsRestClient;
     @Bean
     SavedItemHelper savedItemHelper;
 
@@ -96,8 +92,6 @@ public class JasperMobileApplication extends MultiDexApplication implements Grap
     }
 
     public void initLegacyJsRestClient() {
-        JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
-
         // TODO make proper analytics activation during profile activation
 //        Account account = JasperAccountManager.get(this).getActiveAccount();
 //        if (account != null) {
@@ -116,7 +110,7 @@ public class JasperMobileApplication extends MultiDexApplication implements Grap
         //  ImageLoaderConfiguration.createDefault(this);
         // method.
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
-                .imageDownloader(new TokenImageDownloader(this))
+                .imageDownloader(new AcceptJpegDownloader(this))
                 .threadPriority(Thread.NORM_PRIORITY - 2)
                 .denyCacheImageMultipleSizesInMemory()
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())

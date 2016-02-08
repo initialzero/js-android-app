@@ -46,7 +46,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.InputControlsAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.ItemSpaceDecoration;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SaveReportOptionDialogFragment;
@@ -108,7 +108,7 @@ import timber.log.Timber;
  */
 @EActivity(R.layout.view_simple_list)
 @OptionsMenu(R.menu.input_control_menu)
-public class InputControlsActivity extends RoboSpiceActivity
+public class InputControlsActivity extends RoboToolbarActivity
         implements InputControlsAdapter.InputControlInteractionListener,
         DateDialogFragment.DateDialogClickListener,
         SimpleDialogFragment.SimpleDialogClickListener,

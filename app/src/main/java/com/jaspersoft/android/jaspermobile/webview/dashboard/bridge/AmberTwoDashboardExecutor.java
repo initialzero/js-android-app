@@ -24,15 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.GraphObject;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
 import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
@@ -45,6 +44,8 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 /**
  * @author Tom Koptel
  * @since 2.1
@@ -53,7 +54,13 @@ public final class AmberTwoDashboardExecutor extends AbstractDashboardExecutor {
     private final WebView webView;
     private final String uri;
 
+    @Inject
+    protected JasperServer appServer;
+
     private AmberTwoDashboardExecutor(WebView webView, ResourceLookup resource) {
+        GraphObject.Factory.from(webView.getContext())
+                .getProfileComponent()
+                .inject(this);
         this.webView = webView;
         this.uri = resource.getUri();
     }
@@ -73,15 +80,12 @@ public final class AmberTwoDashboardExecutor extends AbstractDashboardExecutor {
         InputStream stream = null;
         Context context = webView.getContext();
 
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(context, account);
-
         try {
             stream = context.getAssets().open("dashboard.html");
             StringWriter writer = new StringWriter();
             IOUtils.copy(stream, writer, "UTF-8");
 
-            VisualizeEndpoint endpoint = VisualizeEndpoint.forBaseUrl(accountServerData.getServerUrl())
+            VisualizeEndpoint endpoint = VisualizeEndpoint.forBaseUrl(appServer.getBaseUrl())
                     .optimized()
                     .showControls()
                     .build();
@@ -91,7 +95,7 @@ public final class AmberTwoDashboardExecutor extends AbstractDashboardExecutor {
             Template tmpl = Mustache.compiler().compile(writer.toString());
             String html = tmpl.execute(data);
 
-            webView.loadDataWithBaseURL(accountServerData.getServerUrl(), html, "text/html", "utf-8", null);
+            webView.loadDataWithBaseURL(appServer.getBaseUrl(), html, "text/html", "utf-8", null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

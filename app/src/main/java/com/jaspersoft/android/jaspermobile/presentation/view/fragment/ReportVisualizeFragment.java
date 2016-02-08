@@ -29,7 +29,6 @@ import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
 import com.jaspersoft.android.jaspermobile.presentation.contract.VisualizeReportContract;
-import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportVisualizePresenter;
@@ -384,14 +383,7 @@ public class ReportVisualizeFragment extends BaseFragment
     }
 
     @Override
-    public void executeReport(ReportResourceModel report) {
-        // TODO replace with view model counterpart after old rest client will be dropped
-        ResourceLookup lookup = new ResourceLookup();
-        lookup.setLabel(report.getLabel());
-        lookup.setDescription(report.getDescription());
-        lookup.setUri(report.getUri());
-        lookup.setResourceType(ResourceLookup.ResourceType.reportUnit);
-        lookup.setCreationDate(report.getCreationDateAsString());
+    public void executeReport(ResourceLookup lookup) {
         ReportVisualizeActivity_.intent(getActivity())
                 .resource(lookup)
                 .start();

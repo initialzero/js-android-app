@@ -1,10 +1,10 @@
 package com.jaspersoft.android.jaspermobile.presentation.contract;
 
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
-import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.view.LoadDataView;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 /**
  * @author Tom Koptel
@@ -49,7 +49,7 @@ public interface VisualizeReportContract {
 
         void showExternalLink(String externalLink);
 
-        void executeReport(ReportResourceModel reportModel);
+        void executeReport(ResourceLookup reportModel);
 
         void resetZoom();
 

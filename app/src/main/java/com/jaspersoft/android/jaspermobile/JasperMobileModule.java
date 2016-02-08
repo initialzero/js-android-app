@@ -40,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashbo
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardVisualizeParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetInputControlsValuesCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMetadataCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateInputControlsCase;
@@ -130,5 +131,6 @@ public class  JasperMobileModule extends AbstractModule {
         bind(GetDashboardVisualizeParamsCase.class).toProvider(Providers.<GetDashboardVisualizeParamsCase>of(null));
         bind(GetReportShowControlsPropertyCase.class).toProvider(Providers.<GetReportShowControlsPropertyCase>of(null));
         bind(ReportParamsMapper.class).toProvider(Providers.<ReportParamsMapper>of(null));
+        bind(GetReportMetadataCase.class).toProvider(Providers.<GetReportMetadataCase>of(null));
     }
 }

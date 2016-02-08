@@ -40,13 +40,15 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControl
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.ErrorSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardVisualizeParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMetadataCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
-import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberTwoDashboardExecutor;
@@ -81,8 +83,6 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
-    @Bean
-    protected HyperlinkHelper hyperlinkHelper;
     @Extra
     protected ResourceLookup resource;
 
@@ -98,6 +98,9 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Inject
     @Nullable
     GetDashboardVisualizeParamsCase mGetDashboardVisualizeParamsCase;
+    @Inject
+    @Nullable
+    GetReportMetadataCase mGetReportMetadataCase;
     @Inject
     @Nullable
     RequestExceptionHandler mExceptionHandler;
@@ -291,7 +294,20 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @UiThread
     @Override
     public void onReportExecution(String data) {
-        hyperlinkHelper.executeReport(data);
+        mGetReportMetadataCase.execute(data, new GenericSubscriber<>(new SimpleSubscriber<ResourceLookup>() {
+            @Override
+            public void onError(Throwable e) {
+                String message = RequestExceptionHandler.extractMessage(Amber2DashboardActivity.this, e);
+                showMessage(message);
+            }
+
+            @Override
+            public void onNext(ResourceLookup lookup) {
+                ReportVisualizeActivity_.intent(Amber2DashboardActivity.this)
+                        .resource(lookup)
+                        .start();
+            }
+        }));
     }
 
     @Override
@@ -347,6 +363,9 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     @Override
     public void finish() {
+        mGetDashboardControlsCase.unsubscribe();
+        mGetDashboardVisualizeParamsCase.unsubscribe();
+        mGetReportMetadataCase.unsubscribe();
         mFlushInputControlsCase.execute(resource.getUri());
         super.finish();
     }
@@ -364,7 +383,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     }
 
     private void applyParams() {
-        mGetDashboardVisualizeParamsCase.execute(resource.getUri(), new SimpleSubscriber<String>() {
+        mGetDashboardVisualizeParamsCase.execute(resource.getUri(), new GenericSubscriber<>(new SimpleSubscriber<String>() {
             @Override
             public void onStart() {
                 showLoading();
@@ -384,7 +403,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
             public void onError(Throwable e) {
                 super.onError(e);
             }
-        });
+        }));
     }
 
     private void showMenuItems() {
@@ -405,5 +424,17 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     private void hideLoading() {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
+    private final class GenericSubscriber<R> extends ErrorSubscriber<R> {
+        private GenericSubscriber(SimpleSubscriber<R> delegate) {
+            super(delegate);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            String message = RequestExceptionHandler.extractMessage(Amber2DashboardActivity.this, e);
+            showMessage(message);
+        }
     }
 }

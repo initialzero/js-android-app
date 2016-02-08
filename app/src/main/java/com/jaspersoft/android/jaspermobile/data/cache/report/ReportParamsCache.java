@@ -15,4 +15,6 @@ public interface ReportParamsCache {
     List<ReportParameter> get(String uri);
 
     void evict(String reportUri);
+
+    boolean contains(String reportUri);
 }

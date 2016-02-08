@@ -14,7 +14,6 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualize
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.contract.VisualizeReportContract;
-import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ResourceModelMapper;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExecutionReferenceClickEvent;
@@ -28,8 +27,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.Visualiz
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewErrorEvent;
-import com.jaspersoft.android.jaspermobile.visualize.ReportData;
-import com.jaspersoft.android.sdk.service.data.report.ReportResource;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.Collections;
 import java.util.Map;
@@ -435,18 +433,17 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
         );
     }
 
-    private void loadReportMetadata(ReportData reportData) {
+    private void loadReportMetadata(String reportData) {
         getView().showLoading();
-        mGetReportMetadataCase.execute(reportData, new ErrorSubscriber<>(new SimpleSubscriber<ReportResource>() {
+        mGetReportMetadataCase.execute(reportData, new ErrorSubscriber<>(new SimpleSubscriber<ResourceLookup>() {
             @Override
             public void onCompleted() {
                 getView().hideLoading();
             }
 
             @Override
-            public void onNext(ReportResource item) {
-                ReportResourceModel model = mResourceModelMapper.mapReportModel(item);
-                getView().executeReport(model);
+            public void onNext(ResourceLookup lookup) {
+                getView().executeReport(lookup);
             }
         }));
     }

@@ -72,8 +72,8 @@ public class GetReportMetadataCaseTest {
                 FakePostExecutionThread.create(),
                 mResourceRepository,
                 mReportParamsCache,
-                mReportParamsMapper
-        );
+                mReportParamsMapper,
+                resourceMapper);
     }
 
     @Test

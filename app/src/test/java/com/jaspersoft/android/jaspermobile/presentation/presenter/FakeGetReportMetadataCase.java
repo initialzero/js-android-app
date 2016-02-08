@@ -16,7 +16,7 @@ public class FakeGetReportMetadataCase extends GetReportMetadataCase {
     private ReportResource mResource;
 
     protected FakeGetReportMetadataCase() {
-        super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null);
+        super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null, null, resourceMapper);
     }
 
     public void setResource(ReportResource resource) {

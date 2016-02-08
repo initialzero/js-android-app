@@ -109,8 +109,11 @@ public final class InMemoryControlsRepository implements ControlsRepository {
                                         @Override
                                         public void call(List<com.jaspersoft.android.sdk.client.oxm.control.InputControl> inputControls) {
                                             mControlsCache.put(reportUri, inputControls);
-                                            List<ReportParameter> parameters = mReportParamsMapper.legacyControlsToParams(inputControls);
-                                            mReportParamsCache.put(reportUri, parameters);
+                                            boolean containsParams = mReportParamsCache.contains(reportUri);
+                                            if (!containsParams) {
+                                                List<ReportParameter> parameters = mReportParamsMapper.legacyControlsToParams(inputControls);
+                                                mReportParamsCache.put(reportUri, parameters);
+                                            }
                                         }
                                     });
                         }

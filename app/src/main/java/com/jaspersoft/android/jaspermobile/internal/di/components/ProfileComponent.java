@@ -26,6 +26,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportRe
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.FileResourceBinder;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberTwoDashboardExecutor;
 
 import dagger.Subcomponent;
 
@@ -73,4 +74,5 @@ public interface ProfileComponent {
     void inject(SaveReportService saveReportService);
     void inject(ReportCastActivity reportCastActivity);
     void inject(ResourcePresentationService resourcePresentationService);
+    void inject(AmberTwoDashboardExecutor amberTwoDashboardExecutor);
 }

@@ -2,22 +2,20 @@ package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.visualize.ReportData;
-
 /**
  * @author Tom Koptel
  * @since 2.3
  */
 public final class ExecutionReferenceClickEvent {
     @NonNull
-    private final ReportData mReportData;
+    private final String mReportData;
 
-    public ExecutionReferenceClickEvent(@NonNull ReportData reportData) {
+    public ExecutionReferenceClickEvent(@NonNull String reportData) {
         mReportData = reportData;
     }
 
     @NonNull
-    public ReportData getReportData() {
+    public String getReportData() {
         return mReportData;
     }
 }

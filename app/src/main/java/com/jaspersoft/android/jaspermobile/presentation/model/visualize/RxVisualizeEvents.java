@@ -1,7 +1,5 @@
 package com.jaspersoft.android.jaspermobile.presentation.model.visualize;
 
-import com.google.gson.Gson;
-import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
@@ -71,8 +69,7 @@ public final class RxVisualizeEvents implements VisualizeEvents {
 
             @Override
             public void onReportExecutionClick(String data) {
-                ReportData reportData = new Gson().fromJson(data, ReportData.class);
-                mExecutionReferenceClickEvent.onNext(new ExecutionReferenceClickEvent(reportData));
+                mExecutionReferenceClickEvent.onNext(new ExecutionReferenceClickEvent(data));
             }
 
             @Override

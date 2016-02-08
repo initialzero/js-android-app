@@ -38,6 +38,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.domain.SearchResult;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -244,7 +245,7 @@ public class RecentFragment extends RoboSpiceFragment
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class GetResourceLookupsListener extends Subscriber<List<ResourceLookup>> {
+    private class GetResourceLookupsListener extends Subscriber<SearchResult> {
         @Override
         public void onCompleted() {
             setRefreshState(false);
@@ -259,8 +260,8 @@ public class RecentFragment extends RoboSpiceFragment
 
 
         @Override
-        public void onNext(List<ResourceLookup> resourceLookups) {
-            addData(resourceLookups);
+        public void onNext(SearchResult searchResult) {
+            addData(searchResult.getLookups());
             setRefreshState(false);
             showEmptyText(R.string.resources_not_found);
         }

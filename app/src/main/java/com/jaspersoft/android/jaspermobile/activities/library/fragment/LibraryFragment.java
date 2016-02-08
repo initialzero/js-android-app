@@ -45,6 +45,7 @@ import com.jaspersoft.android.jaspermobile.activities.library.LibrarySearchableA
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.SearchResult;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
@@ -398,7 +399,7 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
     // Inner classes
     //---------------------------------------------------------------------
 
-    private class GetResourceLookupsListener extends Subscriber<List<ResourceLookup>> {
+    private class GetResourceLookupsListener extends Subscriber<SearchResult> {
         @Override
         public void onCompleted() {
             setRefreshState(false);
@@ -412,14 +413,14 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         }
 
         @Override
-        public void onNext(List<ResourceLookup> resourceLookups) {
-            mHasNextPage = !resourceLookups.isEmpty();
-            addData(resourceLookups);
+        public void onNext(SearchResult result) {
+            mHasNextPage = !result.isReachedEnd();
+            addData(result.getLookups());
             showEmptyTextIfNoItems(R.string.resources_not_found);
         }
     }
 
-    private class GetResourceMetadataListener extends Subscriber<List<ResourceLookup>> {
+    private class GetResourceMetadataListener extends Subscriber<SearchResult> {
         private String mResourceQuery;
 
         public GetResourceMetadataListener(String mResourceQuery) {
@@ -445,7 +446,8 @@ public class LibraryFragment extends RoboSpiceFragment implements SwipeRefreshLa
         }
 
         @Override
-        public void onNext(List<ResourceLookup> resourceLookupsList) {
+        public void onNext(SearchResult searchResult) {
+            List<ResourceLookup> resourceLookupsList = searchResult.getLookups();
             if (resourceLookupsList.isEmpty()) {
                 Toast.makeText(getActivity(), "Can not find " + "\"" + mResourceQuery + "\"", Toast.LENGTH_SHORT).show();
             } else {

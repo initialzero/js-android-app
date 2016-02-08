@@ -2,8 +2,8 @@ package com.jaspersoft.android.jaspermobile.domain.repository.resource;
 
 import android.support.annotation.NonNull;
 
+import com.jaspersoft.android.jaspermobile.domain.SearchResult;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.service.data.report.ResourceOutput;
 import com.jaspersoft.android.sdk.service.data.repository.Resource;
@@ -24,7 +24,7 @@ public interface ResourceRepository {
     Observable<ResourceOutput> getResourceContent(@NonNull String resourceUri);
 
     @NonNull
-    Observable<List<ResourceLookup>> searchResources(@NonNull ResourceLookupSearchCriteria criteria);
+    Observable<SearchResult> searchResources(@NonNull ResourceLookupSearchCriteria criteria);
 
     @NonNull
     Observable<List<FolderDataResponse>> getRootRepositories();

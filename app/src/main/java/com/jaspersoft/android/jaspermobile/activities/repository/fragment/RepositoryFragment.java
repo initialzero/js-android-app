@@ -41,6 +41,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
+import com.jaspersoft.android.jaspermobile.domain.SearchResult;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetRootFoldersCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
@@ -378,11 +379,11 @@ public class RepositoryFragment extends RoboSpiceFragment implements SwipeRefres
         }
     }
 
-    private class GetResourceLookupsListener extends GenericSubscriber<List<ResourceLookup>> {
+    private class GetResourceLookupsListener extends GenericSubscriber<SearchResult> {
         @Override
-        public void onNext(List<ResourceLookup> resourceLookupsList) {
-            mHasNextPage = !resourceLookupsList.isEmpty();
-            addData(resourceLookupsList);
+        public void onNext(SearchResult searchResult) {
+            mHasNextPage = !searchResult.isReachedEnd();
+            addData(searchResult.getLookups());
             setRefreshState(false);
             showEmptyText(R.string.resources_not_found);
         }

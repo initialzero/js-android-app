@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.CriteriaMapper;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ResourceMapper;
+import com.jaspersoft.android.jaspermobile.domain.SearchResult;
 import com.jaspersoft.android.jaspermobile.domain.repository.resource.ResourceRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
@@ -37,7 +38,7 @@ public final class InMemoryResourceRepository implements ResourceRepository {
     private Observable<Resource> mGetResourceDetailsAction;
     private Observable<ResourceOutput> mGetFileContentAction;
     private Observable<List<FolderDataResponse>> mGetRootRepositoriesAction;
-    private Observable<List<ResourceLookup>> mSearchAction;
+    private Observable<SearchResult> mSearchAction;
 
     @Inject
     public InMemoryResourceRepository(
@@ -85,7 +86,7 @@ public final class InMemoryResourceRepository implements ResourceRepository {
 
     @NonNull
     @Override
-    public Observable<List<ResourceLookup>> searchResources(@NonNull final ResourceLookupSearchCriteria criteria) {
+    public Observable<SearchResult> searchResources(@NonNull final ResourceLookupSearchCriteria criteria) {
         if (mSearchAction == null) {
             mSearchAction = mRestClient.repositoryService()
                     .flatMap(new Func1<RxRepositoryService, Observable<List<Resource>>>() {
@@ -95,10 +96,16 @@ public final class InMemoryResourceRepository implements ResourceRepository {
                             return service.search(searchCriteria).nextLookup();
                         }
                     })
-                    .map(new Func1<List<Resource>, List<ResourceLookup>>() {
+                    .map(new Func1<List<Resource>, SearchResult>() {
                         @Override
-                        public List<ResourceLookup> call(List<Resource> resources) {
-                            return mResourceMapper.toLegacyResources(resources);
+                        public SearchResult call(List<Resource> resources) {
+                            int limit = criteria.getLimit();
+                            int searchCount = resources.size();
+                            boolean hasReachedEnd = searchCount < limit;
+
+                            List<ResourceLookup> lookups = mResourceMapper.toLegacyResources(resources);
+                            SearchResult searchResult = new SearchResult(lookups, hasReachedEnd);
+                            return searchResult;
                         }
                     }).doOnTerminate(new Action0() {
                         @Override

@@ -12,6 +12,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.network.entity.control.InputControl;
+import com.jaspersoft.android.sdk.service.data.dashboard.DashboardControlComponent;
 import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 
 import java.util.Collections;
@@ -40,6 +41,7 @@ public final class InMemoryControlsRepository implements ControlsRepository {
     private Observable<List<com.jaspersoft.android.sdk.client.oxm.control.InputControl>> mListInputControlsAction;
     private Observable<List<InputControlState>> mValidateControlsValuesAction;
     private Observable<List<InputControlState>> mListControlsValuesAction;
+    private Observable<List<DashboardControlComponent>> mListDashboardControlsComponentsAction;
 
     @Inject
     public InMemoryControlsRepository(JasperRestClient restClient,
@@ -200,6 +202,26 @@ public final class InMemoryControlsRepository implements ControlsRepository {
             }).cache();
         }
         return mListControlsValuesAction;
+    }
+
+    @NonNull
+    @Override
+    public Observable<List<DashboardControlComponent>> listDashboardControlComponents(@NonNull final String dashboardUri) {
+        if (mListDashboardControlsComponentsAction == null) {
+            mListDashboardControlsComponentsAction = mRestClient.filtersService()
+                    .flatMap(new Func1<RxFiltersService, Observable<List<DashboardControlComponent>>>() {
+                        @Override
+                        public Observable<List<DashboardControlComponent>> call(RxFiltersService service) {
+                            return service.listDashboardControlComponents(dashboardUri);
+                        }
+                    }).doOnTerminate(new Action0() {
+                        @Override
+                        public void call() {
+                            mListDashboardControlsComponentsAction = null;
+                        }
+                    }).cache();
+        }
+        return mListDashboardControlsComponentsAction;
     }
 
     @Override

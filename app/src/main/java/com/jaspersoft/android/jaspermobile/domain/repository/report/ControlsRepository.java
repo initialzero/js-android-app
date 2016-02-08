@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
+import com.jaspersoft.android.sdk.service.data.dashboard.DashboardControlComponent;
 
 import java.util.List;
 
@@ -25,6 +26,9 @@ public interface ControlsRepository {
 
     @NonNull
     Observable<List<InputControlState>> listControlValues(@NonNull String reportUri);
+
+    @NonNull
+    Observable<List<DashboardControlComponent>> listDashboardControlComponents(@NonNull String dashboardUri);
 
     void flushControls(@NonNull String reportUri);
 }

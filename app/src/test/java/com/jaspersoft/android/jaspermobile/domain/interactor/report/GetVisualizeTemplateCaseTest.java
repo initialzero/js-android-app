@@ -10,11 +10,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Collections;
+import java.util.Map;
+
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -43,12 +46,13 @@ public class GetVisualizeTemplateCaseTest {
 
     @Test
     public void testBuildUseCaseObservable() throws Exception {
-        when(mVisualizeTemplateRepository.get(any(Profile.class), anyDouble()))
+        when(mVisualizeTemplateRepository.get(any(Profile.class), anyMap()))
                 .thenReturn(Observable.just(new VisualizeTemplate("content", "url")));
 
         TestSubscriber<VisualizeTemplate> test = new TestSubscriber<>();
-        mGetVisualizeTemplateCase.execute(10.1, test);
+        Map<String, Object> params = Collections.emptyMap();
+        mGetVisualizeTemplateCase.execute(params, test);
 
-        verify(mVisualizeTemplateRepository).get(fakeProfile, 10.1);
-    }
+        verify(mVisualizeTemplateRepository).get(fakeProfile, params);
+}
 }

@@ -8,7 +8,7 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractUseCase;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 
@@ -25,7 +25,7 @@ import rx.functions.Func0;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
+@PerProfile
 public class GetVisualizeExecOptionsCase extends AbstractUseCase<VisualizeExecOptions.Builder, String> {
 
     private final Profile mProfile;

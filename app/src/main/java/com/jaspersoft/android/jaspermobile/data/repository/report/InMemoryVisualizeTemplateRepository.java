@@ -51,7 +51,7 @@ public final class InMemoryVisualizeTemplateRepository implements VisualizeTempl
     }
 
     @Override
-    public Observable<VisualizeTemplate> get(final Profile profile, final double diagonal) {
+    public Observable<VisualizeTemplate> get(final Profile profile, final Map<String, ?> clientParams) {
         Observable<VisualizeTemplate> memorySource = Observable.defer(new Func0<Observable<VisualizeTemplate>>() {
             @Override
             public Observable<VisualizeTemplate> call() {
@@ -85,12 +85,11 @@ public final class InMemoryVisualizeTemplateRepository implements VisualizeTempl
                             .build();
                     String visualizeUrl = visualizeEndpoint.createUri();
 
-                    double initialScale = diagonal / 10.1;
-
                     Map<String, Object> data = new HashMap<>();
                     data.put("visualize_url", visualizeUrl);
-                    data.put("initial_scale", initialScale);
                     data.put("optimized", optimized);
+                    data.putAll(clientParams);
+
                     Template tmpl = Mustache.compiler().compile(writer.toString());
                     String html = tmpl.execute(data);
 

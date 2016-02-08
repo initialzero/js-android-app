@@ -18,6 +18,9 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.multidex.ShadowMultiDex;
 
+import java.util.Collections;
+import java.util.Map;
+
 import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
@@ -92,7 +95,8 @@ public class InMemoryVisualizeTemplateRepositoryTest {
     @NonNull
     private TestSubscriber<VisualizeTemplate> getOperation() {
         TestSubscriber<VisualizeTemplate> test = new TestSubscriber<>();
-        mInMemoryVisualizeTemplateRepository.get(fakeProfile, 10.1).subscribe(test);
+        Map<String, Object> params = Collections.emptyMap();
+        mInMemoryVisualizeTemplateRepository.get(fakeProfile, params).subscribe(test);
         return test;
     }
 }

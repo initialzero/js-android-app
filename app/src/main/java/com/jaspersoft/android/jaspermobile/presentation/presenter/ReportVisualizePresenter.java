@@ -31,6 +31,9 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewE
 import com.jaspersoft.android.jaspermobile.visualize.ReportData;
 import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 
+import java.util.Collections;
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -158,7 +161,9 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
 
     @VisibleForTesting
     void loadVisualizeTemplate() {
-        mGetVisualizeTemplateCase.execute(mScreenDiagonal, new ErrorSubscriber<>(
+        double scale = mScreenDiagonal / 10.1;
+        Map<String, Double> clientParams = Collections.singletonMap("initial_scale", scale);
+        mGetVisualizeTemplateCase.execute(clientParams, new ErrorSubscriber<>(
                 new SimpleSubscriber<VisualizeTemplate>() {
                     @Override
                     public void onNext(VisualizeTemplate template) {

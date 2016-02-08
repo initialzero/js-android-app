@@ -32,6 +32,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Collections;
+import java.util.Map;
+
 import rx.Observable;
 import rx.Subscriber;
 
@@ -132,7 +135,9 @@ public class ReportVisualizePresenterTest {
 
         mReportVisualizePresenter.init();
 
-        verify(mGetVisualizeTemplateCase).execute(eq(SCREEN_DIAGONAL), any(Subscriber.class));
+        double scale = SCREEN_DIAGONAL / 10.1;
+        Map<String, Double> clientParams = Collections.singletonMap("initial_scale", scale);
+        verify(mGetVisualizeTemplateCase).execute(eq(clientParams), any(Subscriber.class));
 
         verify(fakeState).setControlsPageShown(true);
         verify(mView).setFilterActionVisibility(false);
@@ -402,7 +407,7 @@ public class ReportVisualizePresenterTest {
         }
 
         @Override
-        protected Observable<VisualizeTemplate> buildUseCaseObservable(Double diagonal) {
+        protected Observable<VisualizeTemplate> buildUseCaseObservable(Map<String, ?> params) {
             return Observable.just(VIS_TEMPLATE);
         }
     }

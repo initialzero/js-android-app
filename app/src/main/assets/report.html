@@ -24,14 +24,21 @@
 
 <head xmlns="http://www.w3.org/1999/html">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    {{#width}}
+    <meta name="viewport" content="width={{width}}, minimum-scale=0.1, maximum-scale=3, user-scalable=yes">
+    {{/width}}
+
+    {{#initial_scale}}
     <meta name="viewport" content="target-densitydpi=device-dpi, initial-scale={{initial_scale}}, width=device-width, minimum-scale=0.1, maximum-scale=3, user-scalable=yes">
+    {{/initial_scale}}
+
     <title>TIBCO Jaspersoft</title>
     <script type="text/javascript" src="{{visualize_url}}"></script>
     {{#optimized}}
-        <script data-main="**injection**report-android-mobilejs-sdk.js" type="text/javascript" src="**injection**require.min.js"></script>
+    <script data-main="**injection**report-android-mobilejs-sdk.js" type="text/javascript" src="**injection**require.min.js"></script>
     {{/optimized}}
     {{^optimized}}
-        <script type="text/javascript" src="**injection**report-android-mobilejs-sdk.js"></script>
+    <script type="text/javascript" src="**injection**report-android-mobilejs-sdk.js"></script>
     {{/optimized}}
 </head>
 <body>

@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.util.cast;
 
-import android.accounts.Account;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -35,7 +34,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.NotificationCompat;
-import android.text.TextUtils;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -43,16 +41,21 @@ import android.widget.ProgressBar;
 
 import com.google.android.gms.cast.CastPresentation;
 import com.google.android.gms.cast.CastRemoteDisplayLocalService;
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
-import com.jaspersoft.android.jaspermobile.util.VisualizeEndpoint;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.ErrorWebViewClientListener;
@@ -69,19 +72,14 @@ import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
 import com.jaspersoft.android.jaspermobile.widget.ScrollComputableWebView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.samskivert.mustache.Mustache;
-import com.samskivert.mustache.Template;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
-import roboguice.RoboGuice;
+import javax.inject.Inject;
+
+import timber.log.Timber;
 
 /**
  * @author Andrew Tivodar
@@ -95,10 +93,13 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     public final static int PRESENTING = 3;
 
     @Inject
-    private ReportParamsStorage paramsStorage;
-
+    protected ReportParamsStorage paramsStorage;
     @Inject
     protected Analytics analytics;
+    @Inject
+    protected GetVisualizeTemplateCase mGetVisualizeTemplateCase;
+    @Inject
+    protected GetVisualizeExecOptionsCase mGetVisualizeExecOptionsCase;
 
     private ReportPresentation mPresentation;
     private String mCastDeviceName;
@@ -109,8 +110,14 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     @Override
     public void onCreate() {
         super.onCreate();
-        RoboGuice.getInjector(getApplicationContext()).injectMembersWithoutViews(this);
-        mReportPresentationListeners = new ArrayList<>();
+        GraphObject graph = GraphObject.Factory.from(this);
+        ProfileComponent profileComponent = graph.getProfileComponent();
+        if (profileComponent == null) {
+            onDismissPresentation();
+        } else {
+            profileComponent.inject(this);
+            mReportPresentationListeners = new ArrayList<>();
+        }
     }
 
     @Override
@@ -128,6 +135,12 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
     @Override
     public void onDismissPresentation() {
+        if (mGetVisualizeTemplateCase != null) {
+            mGetVisualizeTemplateCase.unsubscribe();
+        }
+        if (mGetVisualizeExecOptionsCase != null) {
+            mGetVisualizeExecOptionsCase.unsubscribe();
+        }
         if (mPresentation != null) {
             clearReportParams();
             resetPresentation();
@@ -353,7 +366,6 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         private ScrollComputableWebView webView;
         private ProgressBar progressState;
 
-        private AccountServerData accountServerData;
         private int mPageCount;
         private int mCurrentPage;
 
@@ -370,9 +382,6 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             webView = (ScrollComputableWebView) findViewById(R.id.reportCastWebView);
             progressState = (ProgressBar) findViewById(R.id.progressLoading);
 
-            Account account = JasperAccountManager.get(getContext()).getActiveAccount();
-            accountServerData = AccountServerData.get(getContext(), account);
-
             prepareReportCasting();
         }
 
@@ -386,33 +395,46 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         //---------------------------------------------------------------------
 
         private void castReport(String reportUri, String params) {
-            String organization = TextUtils.isEmpty(accountServerData.getOrganization())
-                    ? "" : accountServerData.getOrganization();
+            mGetVisualizeExecOptionsCase.execute(reportUri, new SimpleSubscriber<VisualizeExecOptions.Builder>() {
+                @Override
+                public void onError(Throwable e) {
+                    Timber.e(e, "GetVisualizeExecOptionsCase failed");
+                    String message = RequestExceptionHandler.extractMessage(ResourcePresentationService.this, e);
+                    handleError(message);
+                }
 
-            StringBuilder builder = new StringBuilder();
-            builder.append("javascript:MobileReport.configure")
-                    .append("({ \"auth\": ")
-                    .append("{")
-                    .append("\"username\": \"%s\",")
-                    .append("\"password\": \"%s\",")
-                    .append("\"organization\": \"%s\"")
-                    .append("}, ")
-                    .append("\"diagonal\": %s ")
-                    .append("})")
-                    .append(".run({")
-                    .append("\"uri\": \"%s\",")
-                    .append("\"params\": %s")
-                    .append("})");
-            final String executeScript = String.format(builder.toString(),
-                    accountServerData.getUsername(),
-                    accountServerData.getPassword(),
-                    organization,
-                    ScreenUtil_.getInstance_(getContext()).getDiagonal(),
-                    reportUri,
-                    params
-            );
+                @Override
+                public void onNext(VisualizeExecOptions.Builder item) {
+                    double diagonal = ScreenUtil_.getInstance_(getContext()).getDiagonal();
+                    VisualizeExecOptions options = item.setDiagonal(diagonal).build();
 
-            webView.loadUrl(executeScript);
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("javascript:MobileReport.configure")
+                            .append("({ \"auth\": ")
+                            .append("{")
+                            .append("\"username\": \"%s\",")
+                            .append("\"password\": \"%s\",")
+                            .append("\"organization\": \"%s\"")
+                            .append("}, ")
+                            .append("\"diagonal\": %s ")
+                            .append("})")
+                            .append(".run({")
+                            .append("\"uri\": \"%s\",")
+                            .append("\"params\": %s")
+                            .append("})");
+
+                    AppCredentials credentials = options.getAppCredentials();
+                    final String executeScript = String.format(builder.toString(),
+                            credentials.getUsername(),
+                            credentials.getPassword(),
+                            credentials.getOrganization(),
+                            ScreenUtil_.getInstance_(getContext()).getDiagonal(),
+                            options.getUri(),
+                            options.getParams()
+                    );
+                    webView.loadUrl(executeScript);
+                }
+            });
         }
 
         private void applyParams(String params) {
@@ -503,41 +525,22 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         }
 
         private void loadVisualize() {
-            // TODO fix template loading
-//            ServerRelease release = ServerRelease.parseVersion(accountServerData.getVersionName());
-            // For JRS 6.0 and 6.0.1 we are fixing regression by removing optimization flag
-//            boolean optimized = !(release.code() >= ServerRelease.AMBER.code() && release.code() <= ServerRelease.AMBER_MR1.code());
-            boolean optimized = false;
-
-            InputStream stream = null;
-            try {
-                stream = getContext().getAssets().open("report_cast.html");
-                StringWriter writer = new StringWriter();
-                IOUtils.copy(stream, writer, "UTF-8");
-
-                String baseUrl = accountServerData.getServerUrl();
-                VisualizeEndpoint visualizeEndpoint = VisualizeEndpoint.forBaseUrl(baseUrl)
-                        .setOptimized(optimized)
-                        .build();
-                String visualizeUrl = visualizeEndpoint.createUri();
-
-                double width = ScreenUtil_.getInstance_(getContext()).getWidth() * 1.5;
-
-                Map<String, Object> data = new HashMap<String, Object>();
-                data.put("visualize_url", visualizeUrl);
-                data.put("width", width);
-                data.put("optimized", optimized);
-                Template tmpl = Mustache.compiler().compile(writer.toString());
-                String html = tmpl.execute(data);
-
-                webView.loadDataWithBaseURL(accountServerData.getServerUrl(), html, "text/html", "utf-8", null);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } finally {
-                if (stream != null) {
-                    IOUtils.closeQuietly(stream);
+            double width = ScreenUtil_.getInstance_(getContext()).getWidth() * 1.5;
+            Map<String, Double> clientParams = Collections.singletonMap("width", width);
+            mGetVisualizeTemplateCase.execute(clientParams, new SimpleSubscriber<VisualizeTemplate>() {
+                @Override
+                public void onError(Throwable e) {
+                    Timber.e(e, "GetVisualizeTemplateCase failed");
+                    String message = RequestExceptionHandler.extractMessage(ResourcePresentationService.this, e);
+                    handleError(message);
                 }
-            }
+
+                @Override
+                public void onNext(VisualizeTemplate template) {
+                    webView.loadDataWithBaseURL(template.getServerUrl(), template.getContent(), "text/html", "utf-8", null);
+                }
+            });
+
         }
 
         protected void resetZoom() {

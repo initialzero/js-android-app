@@ -8,6 +8,8 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.VisualizeTemplateRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import rx.Observable;
@@ -17,7 +19,7 @@ import rx.Observable;
  * @since 2.3
  */
 @PerProfile
-public class GetVisualizeTemplateCase extends AbstractUseCase<VisualizeTemplate, Double> {
+public class GetVisualizeTemplateCase extends AbstractUseCase<VisualizeTemplate, Map<String, ?>> {
 
     private final VisualizeTemplateRepository mVisualizeTemplateRepository;
     private final Profile mProfile;
@@ -33,7 +35,7 @@ public class GetVisualizeTemplateCase extends AbstractUseCase<VisualizeTemplate,
     }
 
     @Override
-    protected Observable<VisualizeTemplate> buildUseCaseObservable(Double diagonal) {
-        return mVisualizeTemplateRepository.get(mProfile, diagonal);
+    protected Observable<VisualizeTemplate> buildUseCaseObservable(Map<String, ?> clientParams) {
+        return mVisualizeTemplateRepository.get(mProfile, clientParams);
     }
 }

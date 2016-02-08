@@ -33,12 +33,14 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardVisualizeParamsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetInputControlsValuesCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.DeleteReportOptionCase;
@@ -126,5 +128,7 @@ public class  JasperMobileModule extends AbstractModule {
         bind(JasperServer.class).toProvider(Providers.<JasperServer>of(null));
         bind(JasperResourceConverter.class).toProvider(Providers.<JasperResourceConverter>of(null));
         bind(GetDashboardVisualizeParamsCase.class).toProvider(Providers.<GetDashboardVisualizeParamsCase>of(null));
+        bind(GetReportShowControlsPropertyCase.class).toProvider(Providers.<GetReportShowControlsPropertyCase>of(null));
+        bind(ReportParamsMapper.class).toProvider(Providers.<ReportParamsMapper>of(null));
     }
 }

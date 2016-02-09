@@ -24,6 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository.profile;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.OnAccountsUpdateListener;
+
 import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
@@ -37,6 +41,10 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.MainThreadSubscription;
+
 /**
  * Implementation of repo pattern for {@link Profile}
  *
@@ -46,6 +54,7 @@ import javax.inject.Singleton;
 @Singleton
 public final class ProfileDataRepository implements ProfileRepository {
 
+    private final AccountManager mAccountManager;
     /**
      * Injected by {@link CacheModule#providesProfileAccountCache(AccountProfileCache)}}
      */
@@ -56,8 +65,12 @@ public final class ProfileDataRepository implements ProfileRepository {
     private final ActiveProfileCache mPrefActiveCache;
 
     @Inject
-    public ProfileDataRepository(ProfileCache accountProfileCache,
-                                 ActiveProfileCache preferencesProfileCache) {
+    public ProfileDataRepository(
+            AccountManager accountManager,
+            ProfileCache accountProfileCache,
+            ActiveProfileCache preferencesProfileCache
+    ) {
+        mAccountManager = accountManager;
         mAccountCache = accountProfileCache;
         mPrefActiveCache = preferencesProfileCache;
     }
@@ -84,8 +97,31 @@ public final class ProfileDataRepository implements ProfileRepository {
      * {@inheritDoc}
      */
     @Override
-    public List<Profile> listProfiles() {
-        return mAccountCache.getAll();
+    public Observable<List<Profile>> listProfiles() {
+        return Observable.create(new Observable.OnSubscribe<List<Profile>>() {
+            @Override
+            public void call(final Subscriber<? super List<Profile>> subscriber) {
+                final OnAccountsUpdateListener listener = new OnAccountsUpdateListener() {
+                    @Override
+                    public void onAccountsUpdated(Account[] accounts) {
+                        try {
+                            List<Profile> profiles = mAccountCache.getAll();
+                            subscriber.onNext(profiles);
+                        } catch (Exception ex) {
+                            subscriber.onError(ex);
+                        }
+                    }
+                };
+
+                mAccountManager.addOnAccountsUpdatedListener(listener, null, true);
+
+                subscriber.add(new MainThreadSubscription() {
+                    @Override protected void onUnsubscribe() {
+                        mAccountManager.removeOnAccountsUpdatedListener(listener);
+                    }
+                });
+            }
+        });
     }
 
     /**

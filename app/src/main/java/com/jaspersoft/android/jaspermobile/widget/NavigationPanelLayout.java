@@ -264,7 +264,7 @@ public class NavigationPanelLayout extends RelativeLayout {
         boolean hasProfiles = !profiles.isEmpty();
         footerDivider.setVisibility(hasProfiles ? VISIBLE : GONE);
 
-        mProfilesAdapter.addProfiles(profiles);
+        mProfilesAdapter.setProfiles(profiles);
     }
 
     public void setActiveProfile(@Nullable ProfileViewModel profile) {
@@ -334,7 +334,8 @@ public class NavigationPanelLayout extends RelativeLayout {
     private static class ProfilesAdapter extends BaseAdapter {
         private final List<ProfileViewModel> mProfiles = new ArrayList<>();
 
-        public void addProfiles(List<ProfileViewModel> profiles) {
+        public void setProfiles(List<ProfileViewModel> profiles) {
+            mProfiles.clear();
             mProfiles.addAll(profiles);
             notifyDataSetChanged();
         }

@@ -16,7 +16,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.functions.Func0;
+import rx.functions.Func1;
 
 /**
  * @author Tom Koptel
@@ -41,10 +41,10 @@ public class GetProfilesUseCase extends AbstractSimpleUseCase<List<ProfileMetada
 
     @Override
     protected Observable<List<ProfileMetadata>> buildUseCaseObservable() {
-        return Observable.defer(new Func0<Observable<List<ProfileMetadata>>>() {
+        Observable<List<Profile>> listProfiles = mProfileRepository.listProfiles();
+        return listProfiles.flatMap(new Func1<List<Profile>, Observable<List<ProfileMetadata>>>() {
             @Override
-            public Observable<List<ProfileMetadata>> call() {
-                List<Profile> profiles = mProfileRepository.listProfiles();
+            public Observable<List<ProfileMetadata>> call(List<Profile> profiles) {
                 Profile activeProfile = mProfileRepository.getActiveProfile();
 
                 List<ProfileMetadata> metadataList = new ArrayList<>(profiles.size());

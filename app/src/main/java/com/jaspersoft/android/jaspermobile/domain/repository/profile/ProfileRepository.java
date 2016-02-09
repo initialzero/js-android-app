@@ -29,6 +29,8 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 import java.util.List;
 
+import rx.Observable;
+
 /**
  * Abstraction around profile CRUD operations.
  * Additionally supports activation of {@link Profile}
@@ -59,7 +61,7 @@ public interface ProfileRepository {
      *
      * @return list of profiles
      */
-    List<Profile> listProfiles();
+    Observable<List<Profile>> listProfiles();
 
     /**
      * Provides currently activated profile

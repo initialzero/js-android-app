@@ -28,7 +28,6 @@ import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ReportRestViewerComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;

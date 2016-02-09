@@ -22,9 +22,8 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.navigation;
+package com.jaspersoft.android.jaspermobile.presentation.view.activity;
 
-import android.accounts.Account;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -44,23 +43,23 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.CastActivity;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.activities.schedule.JobsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog_;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.NavigationActivityComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.NavigationActivityModule;
+import com.jaspersoft.android.jaspermobile.presentation.contract.NavigationContract;
+import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
+import com.jaspersoft.android.jaspermobile.presentation.presenter.NavigationPresenter;
 import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
 
@@ -71,6 +70,8 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 /**
@@ -80,7 +81,7 @@ import javax.inject.Inject;
  * @since 1.0
  */
 @EActivity(R.layout.activity_navigation)
-public class NavigationActivity extends CastActivity {
+public class NavigationActivity extends CastActivity implements HasComponent<NavigationActivityComponent>, NavigationContract.View {
 
     private static final int NEW_ACCOUNT = 20;
 
@@ -90,8 +91,13 @@ public class NavigationActivity extends CastActivity {
     protected NavigationPanelLayout navigationPanelLayout;
 
     @Inject
-    @Nullable
     protected JasperServer mJasperServer;
+    @Inject
+    protected Analytics mAnalytics;
+    @Inject
+    protected NavigationPresenter mNavigationPresenter;
+    @Inject
+    protected NavigationContract.ActionListener mActionListener;
 
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -101,23 +107,13 @@ public class NavigationActivity extends CastActivity {
     @InstanceState
     protected boolean customToolbarDisplayEnabled = true;
 
-    @AfterViews
-    final void setupNavigation() {
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.app_label);
-        }
-        setupNavDrawer();
-        setupNavPanel();
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ProfileComponent profileComponent = GraphObject.Factory.from(this)
-                .getProfileComponent();
-        if (profileComponent != null) {
-            profileComponent.inject(this);
-        }
+        getComponent().inject(this);
+        mNavigationPresenter.injectView(this);
+        mActionListener.loadActiveProfile();
+        mActionListener.loadProfiles();
     }
 
     @Override
@@ -133,6 +129,15 @@ public class NavigationActivity extends CastActivity {
         }
     }
 
+    @AfterViews
+    final void setupNavigation() {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.app_label);
+        }
+        setupNavDrawer();
+        setupNavPanel();
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -140,15 +145,31 @@ public class NavigationActivity extends CastActivity {
         navigateToCurrentSelection();
     }
 
-    // TODO handle on accounts changed event
-    protected void onAccountsChanged() {
-        navigationPanelLayout.notifyAccountChange();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mNavigationPresenter.destroy();
     }
 
-    // TODO handle on active account changed event
-    protected void onActiveAccountChanged() {
-        navigateToCurrentSelection();
-        enableRecentlyViewedSection();
+    @Override
+    public NavigationActivityComponent getComponent() {
+        return getProfileComponent()
+                .plusNavigationPage(new NavigationActivityModule(this));
+    }
+
+    @Override
+    public void toggleRecentlyViewedNavigation(boolean visibility) {
+
+    }
+
+    @Override
+    public void showActiveProfile(ProfileViewModel activeProfile) {
+        navigationPanelLayout.setActiveProfile(activeProfile);
+    }
+
+    @Override
+    public void showProfiles(List<ProfileViewModel> profiles) {
+        navigationPanelLayout.loadProfiles(profiles);
     }
 
     @Override
@@ -188,7 +209,7 @@ public class NavigationActivity extends CastActivity {
     @OnActivityResult(NEW_ACCOUNT)
     final void newAccountAction(int resultCode) {
         if (resultCode == Activity.RESULT_OK) {
-            onActiveAccountChanged();
+            // TODO on new account
         }
     }
 
@@ -263,8 +284,9 @@ public class NavigationActivity extends CastActivity {
             }
 
             @Override
-            public void onProfileChange(Account account) {
-                activateAccount(account);
+            public void onActiveProfileChange(ProfileViewModel profile) {
+                mActionListener.activateProfile(profile);
+                drawerLayout.closeDrawer(navigationPanelLayout);
             }
         });
     }
@@ -323,15 +345,6 @@ public class NavigationActivity extends CastActivity {
         }
     }
 
-    private void activateAccount(@NonNull Account account) {
-        JasperAccountManager.get(this).activateAccount(account);
-
-        onActiveAccountChanged();
-        onAccountsChanged();
-
-        drawerLayout.closeDrawer(navigationPanelLayout);
-    }
-
     private void commitContent(@NonNull Fragment directFragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction
@@ -353,5 +366,4 @@ public class NavigationActivity extends CastActivity {
                     Toast.LENGTH_SHORT).show();
         }
     }
-
 }

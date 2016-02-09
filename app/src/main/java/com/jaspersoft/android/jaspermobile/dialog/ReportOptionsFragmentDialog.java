@@ -40,7 +40,6 @@ import android.widget.ProgressBar;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -68,13 +67,10 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
     private static final String REPORT_URI_ARG = "report_uri";
 
     @Inject
-    @Nullable
     protected GetReportOptionsCase mGetReportOptionsCase;
     @Inject
-    @Nullable
     protected Analytics analytics;
     @Inject
-    @Nullable
     protected ReportParamsStorage mParamsStorage;
 
     private String reportUri;

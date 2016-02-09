@@ -41,7 +41,6 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.library.LibrarySearchableActivity_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.SearchResult;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
@@ -118,11 +117,9 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
     @Inject
     protected Analytics analytics;
     @Inject
-    @Nullable
     protected JasperResourceConverter jasperResourceConverter;
 
     @Inject
-    @Nullable
     protected SearchResourcesCase mSearchResourcesCase;
 
     @InstanceState

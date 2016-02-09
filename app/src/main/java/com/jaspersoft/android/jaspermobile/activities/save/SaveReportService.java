@@ -15,7 +15,7 @@ import android.support.v4.os.AsyncTaskCompat;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ExportOperationCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;

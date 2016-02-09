@@ -3,7 +3,6 @@ package com.jaspersoft.android.jaspermobile;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 
@@ -18,7 +17,6 @@ public interface GraphObject {
 
     void setProfileComponent(@NonNull ProfileComponent profileComponent);
 
-    @Nullable
     ProfileComponent getProfileComponent();
 
     class Factory {

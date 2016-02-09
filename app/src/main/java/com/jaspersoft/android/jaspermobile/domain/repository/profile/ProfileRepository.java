@@ -27,6 +27,8 @@ package com.jaspersoft.android.jaspermobile.domain.repository.profile;
 import com.jaspersoft.android.jaspermobile.data.repository.profile.ProfileDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
+import java.util.List;
+
 /**
  * Abstraction around profile CRUD operations.
  * Additionally supports activation of {@link Profile}
@@ -51,4 +53,18 @@ public interface ProfileRepository {
      * @param profile target {@link Profile} we would like to activate
      */
     Profile activate(Profile profile);
+
+    /**
+     * List all system registered profiles
+     *
+     * @return list of profiles
+     */
+    List<Profile> listProfiles();
+
+    /**
+     * Provides currently activated profile
+     *
+     * @return active profile
+     */
+    Profile getActiveProfile();
 }

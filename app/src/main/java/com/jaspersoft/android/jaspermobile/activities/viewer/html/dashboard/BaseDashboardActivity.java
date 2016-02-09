@@ -40,8 +40,7 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.internal.di.components.DashboardActivityComponent;
@@ -82,10 +81,8 @@ public abstract class BaseDashboardActivity extends ToolbarActivity
     private JasperChromeClientListenerImpl chromeClientListener;
 
     @Inject
-    @Nullable
     Analytics analytics;
     @Inject
-    @Nullable
     ResourcePrintJob mResourcePrintJob;
 
     @Override

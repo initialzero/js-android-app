@@ -7,8 +7,7 @@ import android.support.v7.app.ActionBar;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.ResourceDetailsRequest;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
@@ -33,7 +32,6 @@ public class FileViewerActivity extends ToolbarActivity {
     protected ResourceLookup resourceLookup;
 
     @Inject
-    @Nullable
     protected GetResourceDetailsByTypeCase mGetResourceDetailsByTypeCase;
 
     @Override

@@ -3,7 +3,8 @@ package com.jaspersoft.android.jaspermobile.presentation.navigation;
 import android.content.Context;
 import android.content.Intent;
 
-import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
+
 
 /**
  * @author Tom Koptel

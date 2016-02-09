@@ -1,12 +1,13 @@
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
+import android.support.annotation.Nullable;
+
 import com.jaspersoft.android.jaspermobile.data.ComponentManager;
-import com.jaspersoft.android.jaspermobile.presentation.navigation.SignUpPage;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.MainPage;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Page;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.PageFactory;
+import com.jaspersoft.android.jaspermobile.presentation.navigation.SignUpPage;
 
 import org.junit.Before;
 import org.junit.Test;

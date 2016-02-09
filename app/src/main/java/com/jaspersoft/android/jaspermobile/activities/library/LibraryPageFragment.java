@@ -39,7 +39,7 @@ import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryCo
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibrarySearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibrarySearchFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.VoiceRecognitionHelper;

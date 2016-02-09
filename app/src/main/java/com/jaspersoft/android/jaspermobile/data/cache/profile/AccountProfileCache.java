@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToS
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -80,9 +81,17 @@ public final class AccountProfileCache implements ProfileCache {
      */
     @Override
     public boolean hasProfile(@NonNull Profile profile) {
+        String accountType = mAccountDataMapper.getAccountType();
         Account accountProfile = mAccountDataMapper.transform(profile);
-        Account[] accounts = mAccountManager.getAccountsByType(accountProfile.type);
+        Account[] accounts = mAccountManager.getAccountsByType(accountType);
         Set<Account> accountsSet = new HashSet<>(Arrays.asList(accounts));
         return accountsSet.contains(accountProfile);
+    }
+
+    @Override
+    public List<Profile> getAll() {
+        String accountType = mAccountDataMapper.getAccountType();
+        Account[] accounts = mAccountManager.getAccountsByType(accountType);
+        return mAccountDataMapper.transform(accounts);
     }
 }

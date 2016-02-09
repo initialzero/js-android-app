@@ -30,6 +30,6 @@ public interface AppComponent {
     void inject(JasperMobileApplication application);
 
     AuthenticatorActivityComponent plus(ActivityModule activityModule);
-    ProfileComponent plus(ProfileModule profileModule);
     StartupActivityComponent plus(StartupActivityModule startupActivityModule);
+    ProfileComponent plus(ProfileModule profileModule);
 }

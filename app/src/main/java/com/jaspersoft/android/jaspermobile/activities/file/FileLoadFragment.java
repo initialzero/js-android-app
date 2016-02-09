@@ -2,10 +2,10 @@ package com.jaspersoft.android.jaspermobile.activities.file;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.LoadFileRequest;
@@ -39,13 +39,10 @@ public abstract class FileLoadFragment extends BaseFragment {
     private static final String TEMP_FILE_NAME = "tempFile";
 
     @Inject
-    @Nullable
     protected LoadResourceInFileCase mLoadResourceInFileCase;
     @Inject
-    @Nullable
     protected JasperServer mServer;
     @Inject
-    @Nullable
     protected Profile mProfile;
 
     @Bean

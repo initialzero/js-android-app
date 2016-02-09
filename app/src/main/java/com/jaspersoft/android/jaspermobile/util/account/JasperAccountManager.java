@@ -34,7 +34,7 @@ import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
-import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import java.io.IOException;

@@ -46,7 +46,7 @@ subprojects {
     ext.androidTargetSdkVersion = 23;
 
     ext.jasperSdkVersion = '1.11';
-    ext.daggerVersion = '2.0.2';
+    ext.daggerVersion = '2.1-SNAPSHOT';
 
     ext.fabricToolsVersion = '1.21.2';
     ext.dexCountToolsVersion = '0.3.0';
@@ -63,6 +63,8 @@ subprojects {
         maven { url 'http://jaspersoft.artifactoryonline.com/jaspersoft/jaspersoft-mobile-sdk' }
 
         maven { url "file://${System.getenv("ANDROID_HOME")}/extras/android/m2repository" }
+
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 }
 

@@ -151,7 +151,6 @@ android {
         arguments {
             androidManifestFile variant.outputs[0]?.processResources?.manifestFile
             resourcePackageName PACKAGE_NAME
-            guiceAnnotationDatabasePackageName "com.jaspersoft.android.jaspermobile"
             logLevel "WARN"
         }
     }

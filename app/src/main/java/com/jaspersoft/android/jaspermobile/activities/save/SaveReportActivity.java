@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.save;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment;
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment_;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;

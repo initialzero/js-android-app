@@ -37,8 +37,7 @@ import android.widget.TextView;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.FilterableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.SingleSelectIcAdapter;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -67,7 +66,6 @@ public class SingleSelectActivity extends ToolbarActivity implements SearchView.
     public static final String SELECT_IC_ARG = "select_input_control_id";
 
     @Inject
-    @Nullable
     protected ReportParamsStorage paramsStorage;
 
     @Extra

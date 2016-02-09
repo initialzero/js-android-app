@@ -41,7 +41,7 @@ import android.widget.TextView;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
@@ -106,10 +106,8 @@ public class FavoritesFragment extends BaseFragment
     MenuItem sortAction;
 
     @Inject
-    @com.jaspersoft.android.jaspermobile.activities.robospice.Nullable
     protected Analytics analytics;
     @Inject
-    @com.jaspersoft.android.jaspermobile.activities.robospice.Nullable
     protected JasperResourceConverter jasperResourceConverter;
 
     @Bean

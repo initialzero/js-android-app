@@ -9,12 +9,10 @@ import com.jaspersoft.android.jaspermobile.activities.info.fragments.ResourceInf
 import com.jaspersoft.android.jaspermobile.activities.info.fragments.SimpleInfoFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryFragment;
-import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity;
 import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment;
 import com.jaspersoft.android.jaspermobile.activities.recent.fragment.RecentFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryFragment;
-import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService;
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment;
 import com.jaspersoft.android.jaspermobile.activities.schedule.JobsFragment;
@@ -28,6 +26,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.DashboardModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.NavigationActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportRestViewerModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
@@ -36,7 +35,6 @@ import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.FileResourceBinder;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberTwoDashboardExecutor;
-import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
 
 import dagger.Subcomponent;
 
@@ -61,6 +59,10 @@ public interface ProfileComponent {
     DashboardActivityComponent plusDashboardPage(ActivityModule activityModule,
                                                 DashboardModule dashboardModule);
 
+    NavigationActivityComponent plusNavigationPage(NavigationActivityModule module);
+
+    BaseActivityComponent plusBase(ActivityModule activityModule);
+
     /**
      * TODO remove one after architecture will be revised
      * Hardcoded injections.
@@ -80,7 +82,6 @@ public interface ProfileComponent {
     void inject(FavoritesFragment favoritesFragment);
     void inject(RecentFragment recentFragment);
     void inject(SavedItemsFragment savedItemsFragment);
-    void inject(NavigationActivity navigationActivity);
     void inject(SaveReportService saveReportService);
     void inject(ReportCastActivity reportCastActivity);
     void inject(ResourcePresentationService resourcePresentationService);
@@ -93,6 +94,4 @@ public interface ProfileComponent {
     void inject(RecentPageFragment recentPageFragment);
     void inject(SavedReportsFragment savedReportsFragment);
     void inject(FavoritesPageFragment favoritesPageFragment);
-    void inject(NavigationPanelLayout navigationPanelLayout);
-    void inject(ToolbarActivity toolbarActivity);
 }

@@ -32,6 +32,8 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.repository.profile.ProfileRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.CacheModule;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -76,5 +78,21 @@ public final class ProfileDataRepository implements ProfileRepository {
     public Profile activate(final Profile profile) {
         mPrefActiveCache.put(profile);
         return profile;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Profile> listProfiles() {
+        return mAccountCache.getAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Profile getActiveProfile() {
+        return mPrefActiveCache.get();
     }
 }

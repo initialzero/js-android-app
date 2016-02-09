@@ -1,9 +1,9 @@
 package com.jaspersoft.android.jaspermobile.data;
 
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import com.jaspersoft.android.jaspermobile.GraphObject;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;

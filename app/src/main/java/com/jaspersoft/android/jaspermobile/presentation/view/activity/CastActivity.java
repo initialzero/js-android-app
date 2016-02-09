@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.robospice;
+package com.jaspersoft.android.jaspermobile.presentation.view.activity;
 
 import android.app.Notification;
 import android.app.PendingIntent;

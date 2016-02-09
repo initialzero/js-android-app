@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.LoadControlsForOptionCase;
@@ -40,23 +39,17 @@ public class SimpleInfoFragment extends BaseFragment {
     protected JasperResource jasperResource;
 
     @Inject
-    @Nullable
     protected Analytics analytics;
     @Inject
-    @Nullable
     protected JasperServer mJasperServer;
     @Inject
-    @Nullable
     protected JasperResourceConverter mJasperResourceConverter;
 
     @Inject
-    @Nullable
     protected GetResourceDetailsByTypeCase mGetResourceDetailsByTypeCase;
     @Inject
-    @Nullable
     protected GetReportOptionsCase mGetReportOptionsCase;
     @Inject
-    @Nullable
     protected LoadControlsForOptionCase mLoadControlsForOptionCase;
 
     protected ImageView toolbarImage;

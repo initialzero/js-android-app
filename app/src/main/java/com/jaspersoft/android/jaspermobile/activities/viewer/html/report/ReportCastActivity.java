@@ -41,8 +41,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.CastActivity;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.CastActivity;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
@@ -122,13 +121,10 @@ public class ReportCastActivity extends CastActivity
     protected Boolean mHasControls;
 
     @Inject
-    @Nullable
     protected ReportParamsStorage paramsStorage;
     @Inject
-    @Nullable
     protected GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     @Inject
-    @Nullable
     protected ReportParamsMapper mReportParamsMapper;
 
     private ResourcePresentationService mResourcePresentationService;

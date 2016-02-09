@@ -35,8 +35,7 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
@@ -79,13 +78,10 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
     protected TextView message;
 
     @Inject
-    @Nullable
     protected Analytics analytics;
     @Inject
-    @Nullable
     protected JasperRestClient mRestClient;
     @Inject
-    @Nullable
     protected JasperResourceConverter jasperResourceConverter;
 
     private JasperResourceAdapter mAdapter;

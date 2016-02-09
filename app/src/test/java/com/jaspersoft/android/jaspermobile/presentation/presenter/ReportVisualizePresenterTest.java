@@ -9,8 +9,6 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualize
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.contract.VisualizeReportContract;
-import com.jaspersoft.android.jaspermobile.presentation.model.ReportResourceModel;
-import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ResourceModelMapper;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExecutionReferenceClickEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExternalReferenceClickEvent;
@@ -77,10 +75,6 @@ public class ReportVisualizePresenterTest {
     WebViewEvents mWebViewEvents;
 
     @Mock
-    ResourceModelMapper mResourceModelMapper;
-    @Mock
-    ReportResourceModel mReportResourceModel;
-    @Mock
     ResourceLookup mReportResource;
 
     private ReportPageState fakeState;
@@ -95,7 +89,6 @@ public class ReportVisualizePresenterTest {
                 REPORT_URI,
                 FakePostExecutionThread.create(),
                 mExceptionHandler,
-                mResourceModelMapper,
                 mGetReportShowControlsPropertyCase,
                 mGetVisualizeTemplateCase,
                 mGetJsonParamsCase,
@@ -364,9 +357,6 @@ public class ReportVisualizePresenterTest {
         mGetJsonParamsCase = spy(new FakeGetVisualizeExecOptionsCase());
         mFakeFlushInputControlsCase = spy(new FakeFlushInputControlsCase());
         mFakeGetReportMetadataCase = spy(new FakeGetReportMetadataCase());
-
-        when(mResourceModelMapper.mapReportModel(any(ReportResource.class)))
-                .thenReturn(mReportResourceModel);
 
         fakeState.setControlsPageShown(false);
         when(mView.getState()).thenReturn(fakeState);

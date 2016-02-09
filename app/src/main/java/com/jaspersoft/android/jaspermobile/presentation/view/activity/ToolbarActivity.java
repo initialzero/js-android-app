@@ -22,20 +22,18 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.robospice;
+package com.jaspersoft.android.jaspermobile.presentation.view.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -46,7 +44,7 @@ import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 
 import org.androidannotations.api.ViewServer;
 
@@ -59,7 +57,7 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-public class ToolbarActivity extends AppCompatActivity {
+public class ToolbarActivity extends BaseActivity {
 
     private static final String TAG = ToolbarActivity.class.getSimpleName();
     private static final int SECURITY_PROVIDER_DIALOG_REQUEST_CODE = 1123;
@@ -123,9 +121,10 @@ public class ToolbarActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        getProfileComponent().inject(this);
+        getProfileComponent()
+                .plusBase(new ActivityModule(this))
+                .inject(this);
 
-        disableScreenCapturing();
         setScreenName();
         addToolbar();
         Timber.tag(TAG);
@@ -220,15 +219,6 @@ public class ToolbarActivity extends AppCompatActivity {
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
-
-    private void disableScreenCapturing() {
-        boolean isScreenCaptureEnable = DefaultPrefHelper_.getInstance_(this).isScreenCapturingEnabled();
-
-        if (!isScreenCaptureEnable) {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,
-                    WindowManager.LayoutParams.FLAG_SECURE);
-        }
-    }
 
     private void addToolbar() {
         TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.windowToolbar});

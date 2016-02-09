@@ -43,7 +43,10 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.multidex.ShadowMultiDex;
 
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 
 /**
  * @author Tom Koptel
@@ -83,15 +86,28 @@ public class AccountProfileCacheTest {
 
     @Test
     public void testHasProfile() throws Exception {
+        givenRegisteredAccount("name");
+        assertThat("Cache should contain profile with key: 'name'",
+                cacheUnderTest.hasProfile(fakeProfile)
+        );
+    }
+
+    @Test
+    public void testListAllProfiles() throws Exception {
+        givenRegisteredAccount("name1");
+        givenRegisteredAccount("name2");
+
+        List<Profile> profiles = cacheUnderTest.getAll();
+        assertThat(profiles, hasItems(Profile.create("name1"), Profile.create("name2")));
+    }
+
+    private void givenRegisteredAccount(String name) {
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
         assertThat("Failed precondition. Account was not add",
-                accountManager.addAccountExplicitly(new Account("name", FakeAccount.TYPE), null, null)
+                accountManager.addAccountExplicitly(new Account(name, FakeAccount.TYPE), null, null)
         );
         assertThat("Failed precondition. Account was add but missing",
                 accountManager.getAccountsByType(FakeAccount.TYPE).length > 0
-        );
-        assertThat("Cache should contain profile with key: 'name'",
-                cacheUnderTest.hasProfile(fakeProfile)
         );
     }
 }

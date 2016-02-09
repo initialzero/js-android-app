@@ -44,8 +44,7 @@ import android.widget.Spinner;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.InputControlsAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.ItemSpaceDecoration;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SaveReportOptionDialogFragment;
@@ -117,28 +116,20 @@ public class InputControlsActivity extends ToolbarActivity
     public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
 
     @Inject
-    @Nullable
     protected ReportParamsStorage paramsStorage;
     @Inject
-    @Nullable
     protected JasperServer mJasperServer;
     @Inject
-    @Nullable
     protected GetInputControlsValuesCase mGetInputControlsValuesCase;
     @Inject
-    @Nullable
     protected ValidateInputControlsCase mValidateInputControlsCase;
     @Inject
-    @Nullable
     protected GetReportOptionsCase mGetReportOptionsCase;
     @Inject
-    @Nullable
     protected SaveReportOptionsCase mSaveReportOptionsCase;
     @Inject
-    @Nullable
     protected GetReportOptionValuesCase mGetReportOptionValuesCase;
     @Inject
-    @Nullable
     protected DeleteReportOptionCase mDeleteReportOptionCase;
 
     @ViewById(R.id.btnApplyParams)

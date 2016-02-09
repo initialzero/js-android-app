@@ -6,10 +6,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.ResourceDetailsRequest;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
@@ -28,7 +27,7 @@ import javax.inject.Inject;
  * @since 2.3
  */
 @EActivity(R.layout.activity_file_viewer)
-public class FileViewerActivity extends RoboToolbarActivity {
+public class FileViewerActivity extends ToolbarActivity {
 
     @Extra
     protected ResourceLookup resourceLookup;
@@ -40,9 +39,7 @@ public class FileViewerActivity extends RoboToolbarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GraphObject.Factory.from(this)
-                .getProfileComponent()
-                .inject(this);
+        getProfileComponent().inject(this);
 
         showFileTitle();
         if (savedInstanceState == null) {

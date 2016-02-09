@@ -29,7 +29,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
 
 import org.androidannotations.annotations.EFragment;
@@ -78,7 +78,7 @@ public class RepositoryControllerFragment extends ControllerFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+        ((ToolbarActivity) getActivity()).setCustomToolbarView(null);
         getArguments().putString(PREF_TAG_KEY, prefTag != null ? prefTag : PREF_TAG);
     }
 

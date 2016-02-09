@@ -41,7 +41,7 @@ import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.internal.di.components.DashboardActivityComponent;
@@ -67,7 +67,7 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 2.0
  */
-public abstract class BaseDashboardActivity extends RoboToolbarActivity
+public abstract class BaseDashboardActivity extends ToolbarActivity
         implements JasperWebViewClientListener, DefaultUrlPolicy.SessionListener {
     public final static String RESOURCE_EXTRA = "resource";
 

@@ -34,11 +34,9 @@ import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 
 import javax.inject.Inject;
-
-import roboguice.RoboGuice;
-import roboguice.fragment.RoboFragment;
 
 import static com.jaspersoft.android.jaspermobile.util.ViewType.GRID;
 import static com.jaspersoft.android.jaspermobile.util.ViewType.LIST;
@@ -47,7 +45,7 @@ import static com.jaspersoft.android.jaspermobile.util.ViewType.LIST;
  * @author Tom Koptel
  * @since 1.9
  */
-public abstract class ControllerFragment extends RoboFragment {
+public abstract class ControllerFragment extends BaseFragment {
     protected final static String PREF_TAG_KEY = "prefTag";
 
     private MenuItem switchLayoutMenuItem;
@@ -59,8 +57,7 @@ public abstract class ControllerFragment extends RoboFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        RoboGuice.getInjector(getActivity()).injectMembersWithoutViews(this);
-
+        getProfileComponent().inject(this);
         restoreSavedInstanceState(savedInstanceState);
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);

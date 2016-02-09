@@ -34,13 +34,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
@@ -63,8 +63,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.RoboFragment;
-import roboguice.inject.InjectView;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -74,13 +72,10 @@ import rx.subscriptions.CompositeSubscription;
  * @since 2.3
  */
 @EFragment(R.layout.fragment_refreshable_resource)
-public class JobsFragment extends RoboFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    @InjectView(android.R.id.list)
     protected JasperRecyclerView listView;
-    @InjectView(R.id.refreshLayout)
     protected SwipeRefreshLayout swipeRefreshLayout;
-    @InjectView(android.R.id.empty)
     protected TextView message;
 
     @Inject
@@ -102,10 +97,7 @@ public class JobsFragment extends RoboFragment implements SwipeRefreshLayout.OnR
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        GraphObject.Factory.from(getContext())
-                .getProfileComponent()
-                .inject(this);
+        getProfileComponent().inject(this);
 
         mCompositeSubscription = new CompositeSubscription();
 
@@ -113,12 +105,16 @@ public class JobsFragment extends RoboFragment implements SwipeRefreshLayout.OnR
             analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.JOBS.getValue());
         }
 
-        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+        ((ToolbarActivity) getActivity()).setCustomToolbarView(null);
     }
 
     @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        listView = (JasperRecyclerView) view.findViewById(android.R.id.list);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refreshLayout);
+        message = (TextView) view.findViewById(android.R.id.empty);
 
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(

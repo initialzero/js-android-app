@@ -39,7 +39,15 @@ public abstract class Presenter<View> {
         return mView;
     }
 
-    public abstract void resume();
-    public abstract void pause();
-    public abstract void destroy();
+    public void resume() {
+
+    }
+
+    public void pause() {
+
+    }
+
+    public void destroy() {
+
+    }
 }

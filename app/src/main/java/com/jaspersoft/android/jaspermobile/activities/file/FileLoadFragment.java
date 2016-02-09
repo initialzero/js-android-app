@@ -3,7 +3,6 @@ package com.jaspersoft.android.jaspermobile.activities.file;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
@@ -13,6 +12,7 @@ import com.jaspersoft.android.jaspermobile.domain.LoadFileRequest;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.LoadResourceInFileCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
 
@@ -26,7 +26,6 @@ import java.util.Date;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.RoboFragment;
 import rx.Subscriber;
 import timber.log.Timber;
 
@@ -35,7 +34,7 @@ import timber.log.Timber;
  * @since 2.3
  */
 @EFragment
-public abstract class FileLoadFragment extends RoboFragment {
+public abstract class FileLoadFragment extends BaseFragment {
 
     private static final String TEMP_FILE_NAME = "tempFile";
 
@@ -63,9 +62,7 @@ public abstract class FileLoadFragment extends RoboFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GraphObject.Factory.from(getContext())
-                .getProfileComponent()
-                .inject(this);
+        getProfileComponent().inject(this);
     }
 
     @Override

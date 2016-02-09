@@ -32,19 +32,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
-import org.roboguice.shaded.goole.common.collect.Lists;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import roboguice.RoboGuice;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func0;
@@ -59,7 +55,6 @@ import timber.log.Timber;
  */
 public class JasperAccountManager {
 
-    @Inject
     protected Analytics analytics;
 
     private final Context mContext;
@@ -69,7 +64,6 @@ public class JasperAccountManager {
     JasperAccountManager(Context context,
                          AccountManager delegateManager,
                          ActiveAccountStorage accountCache) {
-        RoboGuice.getInjector(context.getApplicationContext()).injectMembersWithoutViews(this);
         mContext = context;
         mDelegateManager = delegateManager;
         mAccountCache = accountCache;
@@ -130,7 +124,7 @@ public class JasperAccountManager {
     public boolean isActiveAccountRegistered() {
         Account account = getActiveAccount();
         Account[] accounts = getAccounts();
-        return Lists.newArrayList(accounts).contains(account);
+        return Arrays.asList(accounts).contains(account);
     }
 
     public void activateAccount(Account account) {

@@ -50,8 +50,8 @@ import com.jaspersoft.android.jaspermobile.activities.favorites.FavoritesPageFra
 import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment_;
+import com.jaspersoft.android.jaspermobile.activities.robospice.CastActivity;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
 import com.jaspersoft.android.jaspermobile.activities.schedule.JobsFragment_;
 import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
@@ -80,7 +80,7 @@ import javax.inject.Inject;
  * @since 1.0
  */
 @EActivity(R.layout.activity_navigation)
-public class NavigationActivity extends RoboCastActivity {
+public class NavigationActivity extends CastActivity {
 
     private static final int NEW_ACCOUNT = 20;
 
@@ -140,12 +140,12 @@ public class NavigationActivity extends RoboCastActivity {
         navigateToCurrentSelection();
     }
 
-    @Override
+    // TODO handle on accounts changed event
     protected void onAccountsChanged() {
         navigationPanelLayout.notifyAccountChange();
     }
 
-    @Override
+    // TODO handle on active account changed event
     protected void onActiveAccountChanged() {
         navigateToCurrentSelection();
         enableRecentlyViewedSection();

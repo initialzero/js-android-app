@@ -27,12 +27,12 @@ package com.jaspersoft.android.jaspermobile.util.feedback;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 
-import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
 
 /**
  * @author Tom Koptel

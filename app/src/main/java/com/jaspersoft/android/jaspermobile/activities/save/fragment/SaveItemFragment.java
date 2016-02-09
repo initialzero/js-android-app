@@ -39,13 +39,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService;
 import com.jaspersoft.android.jaspermobile.data.entity.ExportBundle;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
@@ -66,7 +66,6 @@ import java.io.File;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.RoboFragment;
 import timber.log.Timber;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -77,7 +76,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
  */
 @EFragment(R.layout.save_report_layout)
 @OptionsMenu(R.menu.save_item_menu)
-public class SaveItemFragment extends RoboFragment implements NumberDialogFragment.NumberDialogClickListener {
+public class SaveItemFragment extends BaseFragment implements NumberDialogFragment.NumberDialogClickListener {
 
     public static final String TAG = SaveItemFragment.class.getSimpleName();
 
@@ -109,7 +108,6 @@ public class SaveItemFragment extends RoboFragment implements NumberDialogFragme
     MenuItem saveAction;
 
     @Inject
-    @com.jaspersoft.android.jaspermobile.activities.robospice.Nullable
     protected Profile mProfile;
 
     private int mFromPage;
@@ -124,10 +122,7 @@ public class SaveItemFragment extends RoboFragment implements NumberDialogFragme
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        GraphObject.Factory.from(getContext())
-                .getProfileComponent()
-                .inject(this);
+        getProfileComponent().inject(this);
 
         hasOptionsMenu();
 

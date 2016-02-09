@@ -1,7 +1,9 @@
 package com.jaspersoft.android.jaspermobile;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
+import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 
@@ -11,14 +13,17 @@ import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileCompone
  */
 public interface GraphObject {
 
+    @NonNull
     AppComponent getComponent();
 
-    void setProfileComponent(ProfileComponent profileComponent);
+    void setProfileComponent(@NonNull ProfileComponent profileComponent);
 
+    @Nullable
     ProfileComponent getProfileComponent();
 
     class Factory {
-        public static GraphObject from(Context context) {
+        @NonNull
+        public static GraphObject from(@NonNull Context context) {
             return (GraphObject) context.getApplicationContext();
         }
     }

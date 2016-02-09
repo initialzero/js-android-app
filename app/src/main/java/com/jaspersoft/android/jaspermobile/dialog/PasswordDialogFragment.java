@@ -29,6 +29,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -48,7 +49,6 @@ import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 
-import roboguice.fragment.RoboDialogFragment;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
@@ -59,7 +59,7 @@ import rx.functions.Func1;
  * @since 1.9
  */
 @EFragment
-public class PasswordDialogFragment extends RoboDialogFragment implements DialogInterface.OnShowListener {
+public class PasswordDialogFragment extends DialogFragment implements DialogInterface.OnShowListener {
 
     private static final String TAG = PasswordDialogFragment.class.getSimpleName();
 

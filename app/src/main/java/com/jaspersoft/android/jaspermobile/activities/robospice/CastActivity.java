@@ -55,7 +55,7 @@ import org.androidannotations.annotations.OptionsMenuItem;
  */
 @EActivity
 @OptionsMenu(R.menu.cast_menu)
-public abstract class RoboCastActivity extends RoboToolbarActivity {
+public abstract class CastActivity extends ToolbarActivity {
 
     @OptionsMenuItem(R.id.castReport)
     protected MenuItem castAction;
@@ -176,7 +176,7 @@ public abstract class RoboCastActivity extends RoboToolbarActivity {
 
         @Override
         public void onRemoteDisplaySessionError(Status status) {
-            Toast.makeText(RoboCastActivity.this, "Error casting " + status, Toast.LENGTH_SHORT).show();
+            Toast.makeText(CastActivity.this, "Error casting " + status, Toast.LENGTH_SHORT).show();
         }
     }
 }

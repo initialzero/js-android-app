@@ -38,6 +38,7 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
@@ -50,8 +51,6 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
-import roboguice.fragment.RoboFragment;
-
 /**
  * This fragment should be removed. We won`t utilize it in future.
  *
@@ -60,7 +59,7 @@ import roboguice.fragment.RoboFragment;
  */
 @Deprecated
 @EFragment(R.layout.html_viewer_layout)
-public class WebViewFragment extends RoboFragment {
+public class WebViewFragment extends BaseFragment {
 
     public static final String TAG = WebViewFragment.class.getSimpleName();
 

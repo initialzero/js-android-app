@@ -3,7 +3,7 @@ package com.jaspersoft.android.jaspermobile.presentation.view.activity;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportVisualizeFragment;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportVisualizeFragment_;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -18,7 +18,7 @@ import org.androidannotations.annotations.Extra;
  * @since 2.3
  */
 @EActivity(R.layout.report_viewer_layout)
-public class ReportVisualizeActivity extends RoboToolbarActivity {
+public class ReportVisualizeActivity extends ToolbarActivity {
     @Extra
     protected ResourceLookup resource;
     @Bean

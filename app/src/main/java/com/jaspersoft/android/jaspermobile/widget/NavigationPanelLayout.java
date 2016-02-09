@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.widget;
 
 import android.accounts.Account;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -40,9 +41,10 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
 import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
@@ -54,7 +56,8 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
 
-import roboguice.RoboGuice;
+import javax.inject.Inject;
+
 import timber.log.Timber;
 
 /**
@@ -126,7 +129,9 @@ public class NavigationPanelLayout extends RelativeLayout {
 
     @AfterViews
     final void initNavigationLayout() {
-        RoboGuice.getInjector(getContext()).injectMembersWithoutViews(this);
+        ProfileComponent profileComponent = ComponentProviderDelegate.INSTANCE
+                .getProfileComponent((Activity) getContext());
+        profileComponent.inject(this);
 
         Timber.tag(TAG);
         isShowingMenu = true;

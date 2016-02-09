@@ -28,13 +28,12 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
-
-import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -174,13 +174,9 @@ android {
         compile 'com.google.android.gms:play-services-analytics:8.3.0'
         compile 'com.google.android.gms:play-services-cast:8.3.0'
 
-        compile "org.roboguice:roboguice:3.0.1"
-        provided "org.roboguice:roboblender:3.0.1"
-
-        compile("com.google.dagger:dagger:${daggerVersion}") {
-            exclude group: "javax.inject"
-        }
+        compile("com.google.dagger:dagger:${daggerVersion}")
         apt "com.google.dagger:dagger-compiler:${daggerVersion}"
+
         provided "javax.annotation:jsr250-api:1.0"
 
         compile("org.androidannotations:androidannotations-api:3.2")

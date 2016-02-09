@@ -34,10 +34,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OutputFormatDialogFragment;
@@ -83,7 +81,7 @@ import rx.subscriptions.CompositeSubscription;
  */
 @OptionsMenu(R.menu.report_add_schedule)
 @EActivity(R.layout.activity_schedule)
-public class ScheduleActivity extends RoboToolbarActivity implements DateDialogFragment.DateDialogClickListener,
+public class ScheduleActivity extends ToolbarActivity implements DateDialogFragment.DateDialogClickListener,
         OutputFormatDialogFragment.OutputFormatClickListener, ValueInputDialogFragment.ValueDialogCallback {
 
     private final static int JOB_NAME_CODE = 563;
@@ -95,10 +93,8 @@ public class ScheduleActivity extends RoboToolbarActivity implements DateDialogF
     protected JasperResource jasperResource;
 
     @Inject
-    @Nullable
     protected Analytics analytics;
     @Inject
-    @Nullable
     protected JasperRestClient mRestClient;
 
     @ViewById(R.id.scheduleName)
@@ -123,9 +119,7 @@ public class ScheduleActivity extends RoboToolbarActivity implements DateDialogF
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GraphObject.Factory.from(this)
-                .getProfileComponent()
-                .inject(this);
+        getProfileComponent().inject(this);
 
         mCompositeSubscription = new CompositeSubscription();
 

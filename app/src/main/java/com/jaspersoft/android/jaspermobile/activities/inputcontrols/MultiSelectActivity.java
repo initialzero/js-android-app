@@ -40,14 +40,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.FilterableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.MultiSelectAvailableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.MultiSelectSelectedAdapter;
 import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -66,15 +64,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import timber.log.Timber;
-
 /**
  * @author Andrew Tivodar
  * @since 2.2
  */
 @EActivity(R.layout.activity_multi_select)
 @OptionsMenu({R.menu.multi_select_menu, R.menu.search_menu})
-public class MultiSelectActivity extends RoboToolbarActivity implements SearchView.OnQueryTextListener {
+public class MultiSelectActivity extends ToolbarActivity implements SearchView.OnQueryTextListener {
 
     public static final String SELECT_IC_ARG = "select_input_control_id";
     private final static int TAB_COUNT = 2;
@@ -110,14 +106,7 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
 
     @AfterViews
     protected void init() {
-        ProfileComponent profileComponent = GraphObject.Factory.from(this)
-                .getProfileComponent();
-        if (profileComponent == null) {
-            Timber.w("Report component was garbage collected");
-            finish();
-            return;
-        }
-        profileComponent
+       getProfileComponent()
                 .plusControlsPage(
                         new ActivityModule(this),
                         new ReportModule(reportUri)

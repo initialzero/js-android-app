@@ -15,8 +15,6 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
-import roboguice.inject.InjectView;
-
 /**
  * @author Andrew Tivodar
  * @since 2.3
@@ -24,9 +22,7 @@ import roboguice.inject.InjectView;
 @EFragment(R.layout.fragment_html_open)
 public class HtmlFileViewFragment extends FileLoadFragment {
 
-    @InjectView(R.id.resourceView)
     protected WebView resourceView;
-    @InjectView(R.id.error_text)
     protected TextView errorText;
 
     @Override
@@ -38,6 +34,9 @@ public class HtmlFileViewFragment extends FileLoadFragment {
     @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        resourceView = (WebView) view.findViewById(R.id.resourceView);
+        errorText = (TextView) view.findViewById(R.id.error_text);
 
         ProgressDialogFragment.builder(getFragmentManager())
                 .setLoadingMessage(R.string.loading_msg)

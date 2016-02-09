@@ -30,7 +30,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
@@ -43,7 +43,7 @@ import org.androidannotations.annotations.RootContext;
 public class ScrollableTitleHelper {
 
     @RootContext
-    protected RoboToolbarActivity activity;
+    protected ToolbarActivity activity;
     private TextView titleView;
 
     public void injectTitle(CharSequence title) {

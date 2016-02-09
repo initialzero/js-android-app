@@ -24,15 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.activities.robospice;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.OnAccountsUpdateListener;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -43,25 +40,18 @@ import android.widget.FrameLayout;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
-import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 import org.androidannotations.api.ViewServer;
 
-import roboguice.RoboGuice;
-import roboguice.activity.RoboActionBarActivity;
+import javax.inject.Inject;
+
 import timber.log.Timber;
 
 /**
@@ -69,10 +59,9 @@ import timber.log.Timber;
  * @author Tom Koptel
  * @since 2.0
  */
-public class RoboToolbarActivity extends RoboActionBarActivity {
+public class ToolbarActivity extends AppCompatActivity {
 
-    private static final String TAG = RoboToolbarActivity.class.getSimpleName();
-    private static final int AUTHORIZE_CODE = 10;
+    private static final String TAG = ToolbarActivity.class.getSimpleName();
     private static final int SECURITY_PROVIDER_DIALOG_REQUEST_CODE = 1123;
     private static final String CLOSE_APP_REQUEST_CODE = "close_app";
 
@@ -82,9 +71,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     private ViewGroup contentLayout;
 
     private boolean mSecureProviderDialogShown;
-    private JasperAccountManager mJasperAccountManager;
-    private JasperAccountsStatus mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
-
     private boolean windowToolbar;
 
     @Inject
@@ -92,15 +78,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     @Inject
     protected Analytics analytics;
 
-    private final OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
-        @Override
-        public void onAccountsUpdated(Account[] allAccounts) {
-            Timber.d("Accounts list was changed...");
-            mJasperAccountsStatus = JasperAccountsStatus.ANY_ACCOUNT_CHANGED;
-            defineJasperAccountsState();
-            updateActiveAccount();
-        }
-    };
 
     public boolean isDevMode() {
         return BuildConfig.DEBUG && BuildConfig.FLAVOR.equals("dev");
@@ -142,26 +119,14 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        RoboGuice.getInjector(this).injectMembersWithoutViews(this);
-
-        // Close activity if flag CLOSE_APP_REQUEST_CODE is active
-        if (getIntent().getBooleanExtra(CLOSE_APP_REQUEST_CODE, false)) {
-            finish();
-        }
-
-        setScreenName();
-
-        // Lets update Security provider
-        mSecurityProviderUpdater.update(this, new ProviderInstallListener());
-
-        // Lets check account to be properly setup
-        mJasperAccountManager = JasperAccountManager.get(this);
-//        defineJasperAccountsState();
-//        updateActiveAccount();
-//        handleActiveAccountState();
-        disableScreenCapturing();
+        closeAppIfNeed();
 
         super.onCreate(savedInstanceState);
+
+        getProfileComponent().inject(this);
+
+        disableScreenCapturing();
+        setScreenName();
         addToolbar();
         Timber.tag(TAG);
 
@@ -169,47 +134,29 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         if (isDevMode()) {
             ViewServer.get(this).addWindow(this);
         }
+    }
 
-        if (GraphObject.Factory.from(this).getProfileComponent() == null) {
-            ActiveProfileCache activeProfileCache = new PreferencesActiveProfileCache(this);
-            Profile profile = activeProfileCache.get();
-            if (profile == null) {
-                startActivity(new Intent(this, AuthenticatorActivity.class));
-                finish();
-            } else {
-                setupProfileModule(profile);
-            }
+    private void closeAppIfNeed() {
+        if (getIntent().getBooleanExtra(CLOSE_APP_REQUEST_CODE, false)) {
+            finish();
         }
+    }
+
+    protected ProfileComponent getProfileComponent() {
+        GraphObject graphObject = GraphObject.Factory.from(this);
+        return graphObject.getProfileComponent();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == AUTHORIZE_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                String profileName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-                Profile profile = Profile.create(profileName);
-
-                setupProfileModule(profile);
-
-                onActiveAccountChanged();
-            } else {
-                finish();
-            }
-        } else if (requestCode == SECURITY_PROVIDER_DIALOG_REQUEST_CODE) {
+        if (requestCode == SECURITY_PROVIDER_DIALOG_REQUEST_CODE) {
             // Adding a fragment via GoogleApiAvailability.showErrorDialogFragment
             // before the instance state is restored throws an error. So instead,
             // set a flag here, which will cause the fragment to delay until
             // onPostResume.
             mSecureProviderDialogShown = true;
         }
-    }
-
-    private void setupProfileModule(Profile profile) {
-        GraphObject graphObject = GraphObject.Factory.from(this);
-        ProfileComponent profileComponent = graphObject.getComponent()
-                .plus(new ProfileModule(profile));
-        graphObject.setProfileComponent(profileComponent);
     }
 
     @Override
@@ -219,11 +166,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
             ViewServer.get(this).setFocusedWindow(this);
         }
         trackScreenView();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @Override
@@ -279,7 +221,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void disableScreenCapturing(){
+    private void disableScreenCapturing() {
         boolean isScreenCaptureEnable = DefaultPrefHelper_.getInstance_(this).isScreenCapturingEnabled();
 
         if (!isScreenCaptureEnable) {
@@ -304,102 +246,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         super.setContentView(baseView);
     }
 
-    private void defineJasperAccountsState() {
-        Account[] accounts = mJasperAccountManager.getAccounts();
-        Account currentAccount = mJasperAccountManager.getActiveAccount();
-
-        if (accounts.length == 0) {
-            mJasperAccountsStatus = JasperAccountsStatus.NO_ACCOUNTS;
-        } else if (currentAccount != null) {
-            if (!mJasperAccountManager.isActiveAccountRegistered()) {
-                mJasperAccountsStatus = JasperAccountsStatus.ACTIVE_ACCOUNT_CHANGED;
-            }
-        } else {
-            mJasperAccountsStatus = JasperAccountsStatus.NO_ACTIVE_ACCOUNT;
-        }
-    }
-
-    private void updateActiveAccount() {
-        if (mJasperAccountsStatus == JasperAccountsStatus.NO_CHANGES)
-            return;
-
-        switch (mJasperAccountsStatus) {
-            case NO_ACCOUNTS:
-                Timber.d("We have found no accounts. send user to account page.");
-                Timber.d("Try to remove active account...");
-                mJasperAccountManager.deactivateAccount();
-                break;
-
-            case ACTIVE_ACCOUNT_CHANGED:
-                Timber.d("Previous active account has been removed");
-                Timber.d("Try to activate first account");
-                mJasperAccountManager.activateFirstAccount();
-                break;
-
-            case NO_ACTIVE_ACCOUNT:
-                Timber.d("Try to activate first account");
-                mJasperAccountManager.activateFirstAccount();
-                break;
-        }
-    }
-
-    private void handleActiveAccountState() {
-        if (mJasperAccountsStatus == JasperAccountsStatus.NO_CHANGES)
-            return;
-
-        switch (mJasperAccountsStatus) {
-            case NO_ACCOUNTS:
-                Timber.d("Send user to account page.");
-                startActivityForResult(new Intent(this, AuthenticatorActivity.class), AUTHORIZE_CODE);
-                break;
-        }
-        mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
-    }
-
-    /**
-     * Flow description can be found here <img src="http://code2flow.com/RXAXPt.png"/>
-     */
-    private void updateAccountDependentUi() {
-        if (mJasperAccountsStatus == JasperAccountsStatus.NO_CHANGES)
-            return;
-
-        switch (mJasperAccountsStatus) {
-            case NO_ACCOUNTS:
-                restartApp();
-                break;
-
-            case ANY_ACCOUNT_CHANGED:
-                onAccountsChanged();
-                break;
-
-            case ACTIVE_ACCOUNT_CHANGED:
-                onActiveAccountChanged();
-                onAccountsChanged();
-                break;
-        }
-        mJasperAccountsStatus = JasperAccountsStatus.NO_CHANGES;
-    }
-
-    private void restartApp() {
-        Intent i = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(i);
-    }
-
-    private void closeApp() {
-        Intent i = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        i.putExtra(CLOSE_APP_REQUEST_CODE, true);
-        startActivity(i);
-    }
-
-    protected void onActiveAccountChanged() {
-        restartApp();
-    }
-
-    protected void onAccountsChanged() {
-    }
-
     protected String getScreenName() {
         return null;
     }
@@ -418,10 +264,6 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
         }
     }
 
-    public enum JasperAccountsStatus {
-        NO_CHANGES, ANY_ACCOUNT_CHANGED, NO_ACTIVE_ACCOUNT, ACTIVE_ACCOUNT_CHANGED, NO_ACCOUNTS
-    }
-
     private class ProviderInstallListener implements ProviderInstaller.ProviderInstallListener {
         @Override
         public void onProviderInstalled() {
@@ -435,7 +277,7 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
                 // Recoverable error. Show a dialog prompting the user to
                 // install/update/enable Google Play services.
                 googleApiAvailability.showErrorDialogFragment(
-                        RoboToolbarActivity.this,
+                        ToolbarActivity.this,
                         errorCode,
                         SECURITY_PROVIDER_DIALOG_REQUEST_CODE,
                         new DialogInterface.OnCancelListener() {
@@ -449,7 +291,13 @@ public class RoboToolbarActivity extends RoboActionBarActivity {
                 // Google Play services is not available.
                 closeApp();
             }
+        }
 
+        private void closeApp() {
+            Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.putExtra(CLOSE_APP_REQUEST_CODE, true);
+            startActivity(intent);
         }
     }
 }

@@ -18,6 +18,7 @@ package com.jaspersoft.android.jaspermobile.internal.di.modules.activity;
 import android.app.Activity;
 import android.content.Context;
 
+import com.jaspersoft.android.jaspermobile.data.ComponentManager;
 import com.jaspersoft.android.jaspermobile.internal.di.ActivityContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
@@ -49,5 +50,11 @@ public class ActivityModule {
     @ActivityContext
     Context context() {
         return activity;
+    }
+
+    @Provides
+    @PerActivity
+    ComponentManager providesComponentManager() {
+        return ComponentManager.Factory.from(activity);
     }
 }

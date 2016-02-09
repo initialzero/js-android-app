@@ -36,7 +36,6 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 
-import roboguice.RoboGuice;
 
 /**
  * @author Tom Koptel
@@ -47,7 +46,6 @@ class ReportResourceBinder extends ResourceBinder {
 
     public ReportResourceBinder(Context context) {
         super(context);
-        RoboGuice.getInjector(context).injectMembersWithoutViews(this);
     }
 
     @Override

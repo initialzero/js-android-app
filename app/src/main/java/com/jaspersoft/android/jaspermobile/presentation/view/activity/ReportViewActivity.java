@@ -28,7 +28,7 @@ import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ReportRestViewerComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
@@ -47,7 +47,7 @@ import org.androidannotations.annotations.Extra;
  * @since 2.3
  */
 @EActivity(R.layout.report_viewer_layout)
-public class ReportViewActivity extends RoboToolbarActivity implements HasComponent<ReportRestViewerComponent> {
+public class ReportViewActivity extends ToolbarActivity implements HasComponent<ReportRestViewerComponent> {
     @Extra
     protected ResourceLookup resource;
     @Bean

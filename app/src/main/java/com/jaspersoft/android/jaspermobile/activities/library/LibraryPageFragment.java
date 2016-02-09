@@ -33,15 +33,15 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibrarySearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibrarySearchFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.activities.robospice.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.VoiceRecognitionHelper;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
@@ -59,7 +59,7 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.ArrayList;
 
-import roboguice.fragment.RoboFragment;
+import javax.inject.Inject;
 
 
 /**
@@ -68,7 +68,7 @@ import roboguice.fragment.RoboFragment;
  */
 @OptionsMenu({R.menu.sort_menu, R.menu.am_voice_command})
 @EFragment(R.layout.content_layout)
-public class LibraryPageFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener {
+public class LibraryPageFragment extends BaseFragment implements SortDialogFragment.SortDialogClickListener {
 
     private static final int VOICE_COMMAND = 132;
 
@@ -90,8 +90,9 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        getProfileComponent().inject(this);
 
+        setHasOptionsMenu(true);
         analytics.setScreenName(Analytics.ScreenName.LIBRARY.getValue());
     }
 
@@ -125,10 +126,10 @@ public class LibraryPageFragment extends RoboFragment implements SortDialogFragm
         boolean filterViewInitialized = filterTitleView.init(libraryResourceFilter);
         if (filterViewInitialized) {
             filterTitleView.setFilterSelectedListener(new FilterChangeListener());
-            ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
-            ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
+            ((ToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
+            ((ToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
         } else {
-            ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+            ((ToolbarActivity) getActivity()).setCustomToolbarView(null);
         }
     }
 

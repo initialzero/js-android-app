@@ -4,11 +4,11 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.auth.JasperAuthenticator;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.StartupActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.CacheModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.ConstantsModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.RepoModule;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.BaseActivity;
 
 import javax.inject.Singleton;
 
@@ -26,10 +26,10 @@ import dagger.Component;
         ConstantsModule.class,
 })
 public interface AppComponent {
-    void inject(BaseActivity baseActivity);
     void inject(JasperAuthenticator authenticator);
     void inject(JasperMobileApplication application);
 
     AuthenticatorActivityComponent plus(ActivityModule activityModule);
     ProfileComponent plus(ProfileModule profileModule);
+    StartupActivityComponent plus(StartupActivityModule startupActivityModule);
 }

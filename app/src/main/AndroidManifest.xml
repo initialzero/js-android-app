@@ -46,12 +46,6 @@
         android:theme="@style/Theme.JasperMobile"
         android:allowBackup="false"
         android:largeHeap="true">
-        <meta-data
-            android:name="roboguice.modules"
-            android:value="com.jaspersoft.android.jaspermobile.JasperMobileModule" />
-        <meta-data
-            android:name="roboguice.annotations.packages"
-            android:value="com.jaspersoft.android.jaspermobile" />
 
         <meta-data
             android:name="com.google.android.gms.analytics.globalConfigResource"
@@ -63,13 +57,16 @@
 
         <!-- Main activity -->
         <activity
-            android:name=".activities.navigation.NavigationActivity_">
+            android:theme="@style/Theme.Transparent"
+            android:name=".presentation.view.activity.StartupActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".activities.navigation.NavigationActivity_"/>
 
         <!-- Activity that allows to specify the report options before running it -->
         <activity
@@ -216,10 +213,6 @@
         </receiver>
 
         <!-- Service used to manage the cache and provide web service result to an activity -->
-        <service
-            android:name=".network.AppSpiceService"
-            android:exported="false" />
-
         <service android:name="com.google.android.gms.analytics.AnalyticsService"
             android:enabled="true"
             android:exported="false"/>

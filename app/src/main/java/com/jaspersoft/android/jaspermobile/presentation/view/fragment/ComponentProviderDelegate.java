@@ -1,13 +1,12 @@
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
 import android.app.Activity;
-import android.content.Intent;
 
 import com.jaspersoft.android.jaspermobile.GraphObject;
-import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.presentation.navigation.MainPage;
+import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 
 /**
  * @author Tom Koptel
@@ -25,11 +24,9 @@ public enum ComponentProviderDelegate {
         GraphObject graphObject = GraphObject.Factory.from(activity);
         ProfileComponent profileComponent = graphObject.getProfileComponent();
         if (profileComponent == null) {
-            NavigationActivity_.intent(activity)
-                    .currentSelection(R.id.vg_saved_items)
-                    .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    .start();
-            activity.finish();
+            Navigator navigator = new Navigator(activity);
+            MainPage mainPage = new MainPage(activity);
+            navigator.navigate(mainPage, true);
         }
         return profileComponent;
     }

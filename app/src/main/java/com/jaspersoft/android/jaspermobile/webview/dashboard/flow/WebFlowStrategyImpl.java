@@ -24,12 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.webview.dashboard.flow;
 
-import android.accounts.Account;
-import android.content.Context;
 import android.webkit.WebView;
 
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 /**
@@ -37,23 +34,20 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
  * @since 2.0
  */
 class WebFlowStrategyImpl implements WebFlowStrategy {
-    private final AccountServerData mServerData;
     protected final String mUri;
+    private final JasperServer mServer;
     protected final WebFlow mWebFlow;
 
-    public WebFlowStrategyImpl(Context context, WebFlow webFlow, ResourceLookup resource) {
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(context, account);
+    public WebFlowStrategyImpl(JasperServer server, WebFlow webFlow, ResourceLookup resource) {
+        mServer = server;
         mWebFlow = webFlow;
-        mServerData = accountServerData;
         mUri = resource.getUri();
     }
 
     @Override
     public void load(WebView webView) {
-        String serverUrl = mServerData.getServerUrl();
+        String serverUrl = mServer.getBaseUrl();
         String flow = serverUrl + mWebFlow.getFlowUri() + mUri;
         webView.loadUrl(flow);
     }
-
 }

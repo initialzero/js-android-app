@@ -44,9 +44,9 @@ import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
@@ -54,6 +54,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualize
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
@@ -100,6 +101,8 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     protected GetVisualizeTemplateCase mGetVisualizeTemplateCase;
     @Inject
     protected GetVisualizeExecOptionsCase mGetVisualizeExecOptionsCase;
+    @Inject
+    protected JasperServer mServer;
 
     private ReportPresentation mPresentation;
     private String mCastDeviceName;
@@ -501,7 +504,8 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             JasperChromeClientListenerImpl chromeClientListener = new JasperChromeClientListenerImpl(new ProgressBar(getContext()));
 
             DefaultUrlPolicy.SessionListener sessionListener = DefaultSessionListener.from(null);
-            UrlPolicy defaultPolicy = DefaultUrlPolicy.from(getContext()).withSessionListener(sessionListener);
+            UrlPolicy defaultPolicy = new DefaultUrlPolicy(mServer.getBaseUrl())
+                    .withSessionListener(sessionListener);
 
             SystemChromeClient systemChromeClient = new SystemChromeClient.Builder(getContext())
                     .withDelegateListener(chromeClientListener)

@@ -31,18 +31,14 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.EBean;
-import org.androidannotations.annotations.RootContext;
 
 import javax.inject.Inject;
 
@@ -50,24 +46,23 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 1.9
  */
-@EBean
+@PerProfile
 public class FavoritesHelper {
-    @RootContext
-    Context context;
+    private final Context context;
+    private final Analytics analytics;
+    private final Profile profile;
+    private final Toast toast;
 
     @Inject
-    protected Analytics analytics;
-    @Inject
-    protected Profile profile;
-
-    private Toast mToast;
-
-    @AfterInject
-    void init() {
-        GraphObject.Factory.from(context)
-                .getProfileComponent()
-                .inject(this);
-        mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
+    public FavoritesHelper(
+            @ApplicationContext Context context,
+            Analytics analytics,
+            Profile profile
+    ) {
+        this.context = context;
+        this.analytics = analytics;
+        this.profile = profile;
+        this.toast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
     }
 
     public void switchFavoriteState(ResourceLookup resource, MenuItem favoriteIcon) {
@@ -113,7 +108,7 @@ public class FavoritesHelper {
 
         //Add account name to WHERE params
         selection.append(FavoritesTable.ACCOUNT_NAME + " =?");
-        selectionArgs[0] = JasperAccountManager.get(context).getActiveAccount().name;
+        selectionArgs[0] = profile.getKey();
 
         //Add and to WHERE params
         selection.append(" AND ");
@@ -178,12 +173,12 @@ public class FavoritesHelper {
             }
         }
 
-        mToast.setText(context.getString(messageId));
-        mToast.show();
+        toast.setText(context.getString(messageId));
+        toast.show();
     }
 
     public Toast getToast() {
-        return mToast;
+        return toast;
     }
 
     private void updateFavoriteIconState(MenuItem favoriteAction, boolean isFavorite) {

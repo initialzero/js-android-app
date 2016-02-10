@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.bridge;
 
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.flow.WebFlowFactory;
@@ -37,26 +38,28 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
  */
 public final class AmberDashboardExecutor extends AbstractDashboardExecutor {
     private final WebView webView;
+    private final JasperServer mServer;
     private final ResourceLookup resource;
 
-    private AmberDashboardExecutor(WebView webView, ResourceLookup resource) {
+    private AmberDashboardExecutor(WebView webView, JasperServer server, ResourceLookup resource) {
         this.webView = webView;
+        mServer = server;
         this.resource = resource;
     }
 
-    public static DashboardExecutor newInstance(WebView webView, ResourceLookup resource) {
+    public static DashboardExecutor newInstance(WebView webView, JasperServer server, ResourceLookup resource) {
         if (webView == null) {
             throw new IllegalArgumentException("WebView should not be null");
         }
         if (resource == null) {
             throw new IllegalArgumentException("ResourceLookup should not be null");
         }
-        return new AmberDashboardExecutor(webView, resource);
+        return new AmberDashboardExecutor(webView, server, resource);
     }
 
     @Override
     void doPreparation() {
-        WebFlowFactory.getInstance(webView.getContext())
+        new WebFlowFactory(mServer)
                 .createFlow(resource)
                 .load(webView);
     }

@@ -30,29 +30,29 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
+
+import javax.inject.Inject;
 
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
+@PerProfile
 public final class FeedbackSender {
     private static final String MESSAGE_TYPE = "message/rfc822";
     private final Context mContext;
     private final Message mFeedback;
 
-    @VisibleForTesting
-    FeedbackSender(Context context, Message feedbackMessage) {
+    @Inject
+    public FeedbackSender(
+            @ApplicationContext Context context,
+            Message feedbackMessage
+    ) {
         mContext = context;
         mFeedback = feedbackMessage;
-    }
-
-    public static FeedbackSender get(Context context) {
-        ServerInfoProvider serverInfoProvider = new InfoProvider(context);
-        Message feedback = new Message(context, serverInfoProvider);
-        return new FeedbackSender(context, feedback);
     }
 
     /**

@@ -35,10 +35,10 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;

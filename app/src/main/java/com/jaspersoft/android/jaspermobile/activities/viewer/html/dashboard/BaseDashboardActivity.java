@@ -40,13 +40,14 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.internal.di.components.DashboardActivityComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.DashboardModule;
-import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
@@ -56,6 +57,7 @@ import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
 import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import javax.inject.Inject;
@@ -77,13 +79,18 @@ public abstract class BaseDashboardActivity extends ToolbarActivity
     protected ResourceLookup resource;
     private MenuItem favoriteAction;
 
-    private FavoritesHelper_ favoritesHelper;
     private JasperChromeClientListenerImpl chromeClientListener;
 
     @Inject
     Analytics analytics;
     @Inject
     ResourcePrintJob mResourcePrintJob;
+    @Inject
+    JasperServer mServer;
+    @Inject
+    ScriptTagFactory mScriptTagFactory;
+    @Inject
+    FavoritesHelper favoritesHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,14 +106,12 @@ public abstract class BaseDashboardActivity extends ToolbarActivity
             resource = extras.getParcelable(RESOURCE_EXTRA);
         }
 
-        favoritesHelper = FavoritesHelper_.getInstance_(this);
-
         webView = (WebView) findViewById(R.id.webView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         emptyView = (TextView) findViewById(android.R.id.empty);
 
-        initWebView();
         getComponent().inject(this);
+        initWebView();
     }
 
     public DashboardActivityComponent getComponent() {
@@ -236,7 +241,8 @@ public abstract class BaseDashboardActivity extends ToolbarActivity
     private void initWebView() {
         chromeClientListener = new JasperChromeClientListenerImpl(progressBar);
 
-        UrlPolicy defaultPolicy = DefaultUrlPolicy.from(this).withSessionListener(this);
+        UrlPolicy defaultPolicy = new DefaultUrlPolicy(mServer.getBaseUrl())
+                .withSessionListener(this);
 
         SystemChromeClient systemChromeClient = new SystemChromeClient.Builder(this)
                 .withDelegateListener(chromeClientListener)

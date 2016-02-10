@@ -42,14 +42,9 @@ final class ComponentManagerImpl implements ComponentManager {
     }
 
     @Override
-    public void setupActiveProfile() {
-        Profile activeProfile = getActiveProfile();
-
-        if (activeProfile == null) {
-            throw new IllegalStateException("There is no active profile impossible to setup profile component");
-        }
-
-        setupProfile(activeProfile);
+    public void setupActiveProfile(Profile profile) {
+        mActiveProfileCache.put(profile);
+        setupProfile(profile);
     }
 
     private void tryToSetupActiveProfile(Callback callback) {

@@ -98,22 +98,16 @@ public class ComponentManagerTest {
 
         whenSetupActiveProfile();
 
+        thenShouldWriteToActiveCache();
         thenProfileComponentInitialized();
     }
 
-    @Test
-    public void should_throw_illegal_state_exception_if_active_profile_missing() throws Exception {
-        expected.expect(IllegalStateException.class);
-        expected.expectMessage("There is no active profile impossible to setup profile component");
-
-        givenAppComponent();
-        givenNoActiveProfile();
-
-        whenSetupActiveProfile();
+    private void whenSetupActiveProfile() {
+        mComponentManager.setupActiveProfile(fakeProfile);
     }
 
-    private void whenSetupActiveProfile() {
-        mComponentManager.setupActiveProfile();
+    private void thenShouldWriteToActiveCache() {
+        verify(mActiveProfileCache).put(fakeProfile);
     }
 
     private void givenNoActiveProfile() {

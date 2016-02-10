@@ -84,6 +84,8 @@ public class RecentFragment extends BaseFragment
     protected JasperResourceConverter jasperResourceConverter;
     @Inject
     protected SearchResourcesCase mSearchResourcesCase;
+    @Inject
+    protected FavoritesHelper favoritesHelper;
 
     @FragmentArg
     protected ViewType viewType;
@@ -92,8 +94,7 @@ public class RecentFragment extends BaseFragment
     protected RecentlyViewedResourceFilter recentlyViewedResourceFilter;
     @Bean
     protected ResourceOpener resourceOpener;
-    @Bean
-    protected FavoritesHelper favoritesHelper;
+
 
     private JasperResourceAdapter mAdapter;
     private HashMap<String, ResourceLookup> mResourceLookupHashMap;

@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.data.ComponentManager;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.MainPage;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Page;
@@ -41,6 +42,7 @@ public class StartupPresenterTest {
 
     private StartupPresenter mStartupPresenter;
     private FakeComponentManager fakeComponentManager;
+    private final Profile fakeProfile = Profile.create("fake");
 
     @Before
     public void setUp() throws Exception {
@@ -86,11 +88,16 @@ public class StartupPresenterTest {
 
         whenSetupActiveProfile();
 
+        thenActivatesProfile();
         thenNavigatesToMainPage();
     }
 
+    private void thenActivatesProfile() {
+        verify(fakeComponentManager).setupActiveProfile(fakeProfile);
+    }
+
     private void whenSetupActiveProfile() {
-        mStartupPresenter.setupNewProfile();
+        mStartupPresenter.setupNewProfile(fakeProfile);
     }
 
     private void thenSetupsProfileComponent() {
@@ -138,7 +145,7 @@ public class StartupPresenterTest {
         }
 
         @Override
-        public void setupActiveProfile() {
+        public void setupActiveProfile(Profile profile) {
         }
     }
 }

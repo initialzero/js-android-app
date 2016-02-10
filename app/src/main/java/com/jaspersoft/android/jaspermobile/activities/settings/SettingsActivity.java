@@ -27,8 +27,8 @@ package com.jaspersoft.android.jaspermobile.activities.settings;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.fragment.SettingsFragment_;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 
 import org.androidannotations.annotations.EActivity;
 

@@ -29,9 +29,11 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import java.io.IOException;
 
@@ -52,8 +54,14 @@ public final class AccountUtil {
     }
 
     public AccountUtil removeAllAccounts() {
-        JasperAccountManager managerUtil = JasperAccountManager.get(mContext);
-        Account[] accounts = managerUtil.getAccounts();
+        removeAllJasperAccounts();
+        deactivateAccount();
+        return this;
+    }
+
+    private void removeAllJasperAccounts() {
+        AccountManager managerUtil = AccountManager.get(mContext);
+        Account[] accounts = managerUtil.getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
         if (accounts.length > 0) {
             for (Account account : accounts) {
                 AccountManagerFuture<Boolean> result = AccountManager.get(mContext).removeAccount(account, null, null);
@@ -68,8 +76,11 @@ public final class AccountUtil {
                 }
             }
         }
-        JasperAccountManager.get(mContext).deactivateAccount();
-        return this;
+    }
+
+    private void deactivateAccount() {
+        SharedPreferences pref = mContext.getSharedPreferences("JasperAccountManager", Activity.MODE_PRIVATE);
+        pref.edit().clear().apply();
     }
 
 }

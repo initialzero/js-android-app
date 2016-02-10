@@ -44,7 +44,6 @@ import android.widget.Spinner;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.InputControlsAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.ItemSpaceDecoration;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SaveReportOptionDialogFragment;
@@ -64,6 +63,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.SaveR
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.IcDateHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;

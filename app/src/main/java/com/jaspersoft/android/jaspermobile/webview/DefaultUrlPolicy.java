@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.webview;
 
-import android.accounts.Account;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -33,30 +32,19 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 public class DefaultUrlPolicy implements UrlPolicy {
-    private final Context context;
 
-    private String serverUrl;
+    private final String serverUrl;
     private SessionListener sessionListener;
 
-    private DefaultUrlPolicy(Context context) {
-        this.context = context;
-        this.sessionListener = new EmptySessionListener();
-
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(context, account);
-        this.serverUrl = serverData.getServerUrl();
-    }
-
-    public static DefaultUrlPolicy from(Context context) {
-        return new DefaultUrlPolicy(context);
+    public DefaultUrlPolicy(String serverUrl) {
+        this.sessionListener = SessionListener.NULL;
+        this.serverUrl = serverUrl;
     }
 
     public DefaultUrlPolicy withSessionListener(SessionListener sessionListener) {
@@ -78,26 +66,32 @@ public class DefaultUrlPolicy implements UrlPolicy {
                 return true;
             }
         }
+        Context context = view.getContext();
+        if (context != null) {
+            showExternalLink(context, url);
+        }
+        return true;
+    }
 
-        // Otherwise, the link is not for us, so launch another Activity that handles URLs
+    private void showExternalLink(Context context, String url) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         try {
             context.startActivity(intent);
         } catch (ActivityNotFoundException e) {
             // show notification if no app available to open selected format
             Toast.makeText(context,
-                    context.getString(R.string.sdr_t_no_app_available, "view"), Toast.LENGTH_SHORT).show();
-        }
-        return true;
-    }
-
-    private static class EmptySessionListener implements SessionListener {
-        @Override
-        public void onSessionExpired() {
+                    context.getString(R.string.sdr_t_no_app_available, "view"),
+                    Toast.LENGTH_SHORT
+            ).show();
         }
     }
 
-    public static interface SessionListener {
+    public interface SessionListener {
+        SessionListener NULL = new SessionListener() {
+            @Override
+            public void onSessionExpired() {
+            }
+        };
         void onSessionExpired();
     }
 }

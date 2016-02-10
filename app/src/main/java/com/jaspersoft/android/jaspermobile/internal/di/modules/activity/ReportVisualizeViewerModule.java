@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.util.DisplayMetrics;
 import android.webkit.WebView;
 
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.contract.VisualizeReportContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeComponent;
@@ -56,7 +57,7 @@ public final class ReportVisualizeViewerModule extends ReportModule {
 
     @Provides
     @PerActivity
-    VisualizeViewModel provideVisualizeViewModel() {
+    VisualizeViewModel provideVisualizeViewModel(JasperServer server) {
         SystemChromeClient defaultChromeClient = new SystemChromeClient.Builder(mWebView.getContext())
                 .build();
 
@@ -69,7 +70,7 @@ public final class ReportVisualizeViewerModule extends ReportModule {
                 .withChromeClient(defaultChromeClient)
                 .withWebClient(defaultWebViewClient);
 
-        WebViewConfiguration configuration = new WebViewConfiguration(mWebView);
+        WebViewConfiguration configuration = new WebViewConfiguration(mWebView, server.getBaseUrl());
         configuration.setSystemChromeClient(defaultChromeClient);
         configuration.setSystemWebViewClient(defaultWebViewClient);
         return VisualizeViewModel.newModel(configuration);

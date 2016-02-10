@@ -55,7 +55,6 @@ import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
-import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -121,6 +120,8 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
 
     @Inject
     protected SearchResourcesCase mSearchResourcesCase;
+    @Inject
+    protected FavoritesHelper favoritesHelper;
 
     @InstanceState
     protected boolean mLoading;
@@ -135,10 +136,6 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
     protected DefaultPrefHelper prefHelper;
     @Bean
     protected ResourceOpener resourceOpener;
-    @Bean
-    protected FavoritesHelper favoritesHelper;
-    @Bean
-    protected InfoProvider infoProvider;
 
     private JasperResourceAdapter mAdapter;
     private HashMap<String, ResourceLookup> mResourceLookupHashMap;

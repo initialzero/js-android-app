@@ -24,10 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.webview.dashboard.flow;
 
-import android.content.Context;
-
-import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
@@ -36,19 +33,15 @@ import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
  * @since 2.0
  */
 public final class WebFlowFactory {
-    private final Context mContext;
+    private final JasperServer mServer;
 
-    private WebFlowFactory(Context context) {
-        mContext = context;
-    }
-
-    public static WebFlowFactory getInstance(Context context) {
-        return new WebFlowFactory(context);
+    public WebFlowFactory(JasperServer server) {
+        mServer = server;
     }
 
     public WebFlowStrategy createFlow(ResourceLookup resource) {
-        ServerInfoProvider infoProvider = new InfoProvider(mContext);
-        return createFlow(infoProvider.getVersion(), resource);
+        ServerVersion serverVersion = ServerVersion.valueOf(mServer.getVersion());
+        return createFlow(serverVersion, resource);
     }
 
     /**
@@ -70,6 +63,6 @@ public final class WebFlowFactory {
             }
         }
 
-        return new WebFlowStrategyImpl(mContext, webFlow, resource);
+        return new WebFlowStrategyImpl(mServer, webFlow, resource);
     }
 }

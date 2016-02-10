@@ -98,6 +98,8 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
     protected NavigationPresenter mNavigationPresenter;
     @Inject
     protected NavigationContract.ActionListener mActionListener;
+    @Inject
+    protected FeedbackSender mFeedbackSender;
 
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -359,7 +361,7 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
     }
 
     private void sendFeedback() {
-        boolean sendTaskWasInitiated = FeedbackSender.get(this).initiate();
+        boolean sendTaskWasInitiated = mFeedbackSender.initiate();
         if (!sendTaskWasInitiated) {
             Toast.makeText(this,
                     getString(R.string.sdr_t_no_app_available, "email"),

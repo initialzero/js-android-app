@@ -24,9 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
-import android.accounts.Account;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.webkit.WebView;
@@ -34,13 +33,8 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.EBean;
-import org.androidannotations.annotations.RootContext;
+import static com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy.SessionListener;
 
 /**
  * Use {@link com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy} together with {@link com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient}
@@ -48,20 +42,15 @@ import org.androidannotations.annotations.RootContext;
  * @author Tom Koptel
  * @since 1.9
  */
-@Deprecated
-@EBean
+
 public class JSWebViewClient extends WebViewClient {
-    @RootContext
-    protected Activity activity;
 
-    private String serverUrl;
-    private DefaultUrlPolicy.SessionListener sessionListener;
+    private final String serverUrl;
+    private SessionListener sessionListener;
 
-    @AfterInject
-    final void initServerUrl() {
-        Account account = JasperAccountManager.get(activity).getActiveAccount();
-        AccountServerData serverData = AccountServerData.get(activity, account);
-        serverUrl = serverData.getServerUrl();
+    public JSWebViewClient(String serverUrl) {
+        this.serverUrl = serverUrl;
+        this.sessionListener = SessionListener.NULL;
     }
 
     @Override
@@ -79,20 +68,20 @@ public class JSWebViewClient extends WebViewClient {
             }
         }
 
-        // Otherwise, the link is not for us, so launch another Activity that handles URLs
+        Context context = view.getContext();
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         try {
-            activity.startActivity(intent);
+            context.startActivity(intent);
         } catch (ActivityNotFoundException e) {
             // show notification if no app available to open selected format
-            Toast.makeText(activity,
-                    activity.getString(R.string.sdr_t_no_app_available, "view"), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,
+                    context.getString(R.string.sdr_t_no_app_available, "view"),
+                    Toast.LENGTH_SHORT).show();
         }
         return true;
     }
 
-    public void setSessionListener(DefaultUrlPolicy.SessionListener sessionListener) {
+    public void setSessionListener(SessionListener sessionListener) {
         this.sessionListener = sessionListener;
     }
-
 }

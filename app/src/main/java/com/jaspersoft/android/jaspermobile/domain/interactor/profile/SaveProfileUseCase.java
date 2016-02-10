@@ -108,7 +108,6 @@ public class SaveProfileUseCase extends AbstractUseCase<Profile, ProfileForm> {
                     mProfileRepository.saveProfile(profile);
                     mJasperServerRepository.saveServer(profile, server);
                     mCredentialsDataRepository.saveCredentials(profile, credentials);
-                    mProfileRepository.activate(profile);
 
                     return Observable.just(profile);
                 } catch (Exception e) {

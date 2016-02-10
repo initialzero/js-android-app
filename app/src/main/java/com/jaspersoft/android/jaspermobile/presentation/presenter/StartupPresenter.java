@@ -1,9 +1,10 @@
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 import com.jaspersoft.android.jaspermobile.data.ComponentManager;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.contract.StartupContract;
+import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Page;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.PageFactory;
 
@@ -50,14 +51,14 @@ public class StartupPresenter extends Presenter<StartupContract.View> implements
         });
     }
 
+    @Override
+    public void setupNewProfile(Profile profile) {
+        mComponentManager.setupActiveProfile(profile);
+        navigateToMainPage();
+    }
+
     private void navigateToMainPage() {
         Page mainPage = mPageFactory.createMainPage();
         mNavigator.navigate(mainPage, true);
-    }
-
-    @Override
-    public void setupNewProfile() {
-        mComponentManager.setupActiveProfile();
-        navigateToMainPage();
     }
 }

@@ -38,6 +38,7 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -50,6 +51,8 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
+
+import javax.inject.Inject;
 
 /**
  * This fragment should be removed. We won`t utilize it in future.
@@ -78,22 +81,27 @@ public class WebViewFragment extends BaseFragment {
 
     @Bean
     ScrollableTitleHelper scrollableTitleHelper;
-    @Bean
-    JSWebViewClient jsWebViewClient;
+
+    @Inject
+    JasperServer mServer;
 
     private OnWebViewCreated onWebViewCreated;
     private JSWebView webView;
+    private JSWebViewClient jsWebViewClient;
 
     @Override
     public void onStart() {
         super.onStart();
         setHasOptionsMenu(true);
+        getProfileComponent().inject(this);
     }
 
     @AfterViews
     final void init() {
         initWebView();
         scrollableTitleHelper.injectTitle(resourceLabel);
+
+        jsWebViewClient = new JSWebViewClient(mServer.getBaseUrl());
         jsWebViewClient.setSessionListener(DefaultSessionListener.from(getActivity()));
     }
 

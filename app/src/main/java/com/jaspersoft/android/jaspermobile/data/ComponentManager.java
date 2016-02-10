@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 
 /**
  * @author Tom Koptel
@@ -15,7 +16,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveP
 public interface ComponentManager {
     void setupProfileComponent(@Nullable Callback callback);
 
-    void setupActiveProfile();
+    void setupActiveProfile(Profile profile);
 
     class Factory {
         public static ComponentManager from(@NonNull Context context) {

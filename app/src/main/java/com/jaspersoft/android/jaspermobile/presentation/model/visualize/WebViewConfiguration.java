@@ -11,11 +11,13 @@ import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
  */
 public final class WebViewConfiguration {
     private final WebView mWebView;
+    private final String mServerUrl;
     private SystemWebViewClient mSystemWebViewClient;
     private SystemChromeClient mSystemChromeClient;
 
-    public WebViewConfiguration(WebView webView) {
+    public WebViewConfiguration(WebView webView, String serverUrl) {
         mWebView = webView;
+        mServerUrl = serverUrl;
     }
 
     public WebView getWebView() {
@@ -36,5 +38,9 @@ public final class WebViewConfiguration {
 
     public void setSystemChromeClient(SystemChromeClient systemChromeClient) {
         mSystemChromeClient = systemChromeClient;
+    }
+
+    public String getServerUrl() {
+        return mServerUrl;
     }
 }

@@ -29,8 +29,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,25 +58,33 @@ import static org.robolectric.Shadows.shadowOf;
 @Config(manifest = Config.NONE, sdk = 21, constants = BuildConfig.class, shadows = {ShadowMultiDex.class})
 public class FeedbackMessageTest {
     @Mock
-    ServerInfoProvider serverInfoProvider;
+    JasperServer mServer;
     Message feedbackMessage;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        feedbackMessage = new Message(RuntimeEnvironment.application, serverInfoProvider);
+        feedbackMessage = new Message(RuntimeEnvironment.application, mServer);
     }
 
     @Test
     public void shouldCreateValidFeedbackMessage() {
         mockPackageManager();
 
-        when(serverInfoProvider.getVersion()).thenReturn(ServerVersion.v6_1);
-        when(serverInfoProvider.isProEdition()).thenReturn(false);
+        givenServerVersion("6.1");
+        givenServerEditionCE();
 
         String message = feedbackMessage.create();
 
         assertThat(message, is(notNullValue()));
+    }
+
+    private void givenServerEditionCE() {
+        when(mServer.isProEdition()).thenReturn(false);
+    }
+
+    private void givenServerVersion(String version) {
+        when(mServer.getVersion()).thenReturn(version);
     }
 
     @Test
@@ -99,14 +106,14 @@ public class FeedbackMessageTest {
 
     @Test
     public void shouldGenerateJrsVersionInfo() {
-        when(serverInfoProvider.getVersion()).thenReturn(ServerVersion.v6_1);
+        givenServerVersion("6.1");
         String message = feedbackMessage.generateServerVersion();
         assertThat(message, containsString("JRS version: 6.1"));
     }
 
     @Test
     public void shouldGenerateJrsEditionInfo() {
-        when(serverInfoProvider.isProEdition()).thenReturn(false);
+        givenServerEditionCE();
         String message = feedbackMessage.generateServerEdition();
         assertThat(message, containsString("JRS edition: CE"));
     }

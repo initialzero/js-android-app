@@ -206,7 +206,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardTrigger = JsDashboardTrigger.with(webView);
-        mDashboardExecutor = AmberTwoDashboardExecutor.newInstance(webView, resource);
+        mDashboardExecutor = AmberTwoDashboardExecutor.newInstance(webView, mServer, resource);
         mWebInterface = DashboardWebInterface.from(this);
         WebViewEnvironment.configure(webView)
                 .withWebInterface(mWebInterface);

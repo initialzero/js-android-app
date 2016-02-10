@@ -20,6 +20,7 @@ import com.jaspersoft.android.jaspermobile.activities.schedule.ScheduleActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.fragment.SettingsFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsFragment;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity;
 import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
@@ -31,10 +32,13 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportMo
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportRestViewerModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
 import com.jaspersoft.android.jaspermobile.util.ControllerFragment;
-import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
+import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
+import com.jaspersoft.android.jaspermobile.util.filtering.FavoritesResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.filtering.RecentlyViewedResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.FileResourceBinder;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberTwoDashboardExecutor;
 
 import dagger.Subcomponent;
 
@@ -85,8 +89,6 @@ public interface ProfileComponent {
     void inject(SaveReportService saveReportService);
     void inject(ReportCastActivity reportCastActivity);
     void inject(ResourcePresentationService resourcePresentationService);
-    void inject(AmberTwoDashboardExecutor amberTwoDashboardExecutor);
-    void inject(FavoritesHelper favoritesHelper);
     void inject(SettingsFragment settingsFragment);
     void inject(ControllerFragment controllerFragment);
     void inject(LibraryPageFragment libraryPageFragment);
@@ -94,4 +96,10 @@ public interface ProfileComponent {
     void inject(RecentPageFragment recentPageFragment);
     void inject(SavedReportsFragment savedReportsFragment);
     void inject(FavoritesPageFragment favoritesPageFragment);
+    void inject(WebViewFragment webViewFragment);
+    void inject(FavoritesResourceFilter filter);
+    void inject(LibraryResourceFilter filter);
+    void inject(RecentlyViewedResourceFilter filter);
+    void inject(RepositoryResourceFilter filter);
+    void inject(ResourceOpener resourceOpener);
 }

@@ -36,23 +36,17 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
-import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
-import rx.functions.Func1;
 
 /**
  * @author Tom Koptel
@@ -64,13 +58,9 @@ public class PasswordDialogFragment extends DialogFragment implements DialogInte
     private static final String TAG = PasswordDialogFragment.class.getSimpleName();
 
     private EditText passwordField;
-    private JasperAccountManager mJasperManager;
     private Subscription mLoginSubscription;
     private Observable<String> mLoginOperation;
     private Toast mToast;
-
-    @Bean
-    InfoProvider mInfoProvider;
 
     //---------------------------------------------------------------------
     // Static methods
@@ -94,7 +84,6 @@ public class PasswordDialogFragment extends DialogFragment implements DialogInte
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         mToast = Toast.makeText(getActivity(), "", Toast.LENGTH_LONG);
-        mJasperManager = JasperAccountManager.get(getActivity());
     }
 
     @NonNull
@@ -103,19 +92,20 @@ public class PasswordDialogFragment extends DialogFragment implements DialogInte
         LayoutInflater inflater = LayoutInflater.from(getActivity());
 
         View dialogView = inflater.inflate(R.layout.dialog_password, null);
-        String alias = mInfoProvider.getAlias();
-        String username = mInfoProvider.getUsername();
-        String organization = mInfoProvider.getOrganization();
+        // TODO fix credentials injection
+//        String alias = mInfoProvider.getAlias();
+//        String username = mInfoProvider.getUsername();
+//        String organization = mInfoProvider.getOrganization();
+//
+//        ((TextView) dialogView.findViewById(R.id.tv_alias)).setText(alias);
+//        ((TextView) dialogView.findViewById(R.id.tv_username)).setText(username);
 
-        ((TextView) dialogView.findViewById(R.id.tv_alias)).setText(alias);
-        ((TextView) dialogView.findViewById(R.id.tv_username)).setText(username);
-
-        TextView organizationField = (TextView) dialogView.findViewById(R.id.tv_organization);
-        organizationField.setText(organization);
-        if (TextUtils.isEmpty(organization)) {
-            dialogView.findViewById(R.id.tv_organization_hint).setVisibility(View.GONE);
-            organizationField.setVisibility(View.GONE);
-        }
+//        TextView organizationField = (TextView) dialogView.findViewById(R.id.tv_organization);
+//        organizationField.setText(organization);
+//        if (TextUtils.isEmpty(organization)) {
+//            dialogView.findViewById(R.id.tv_organization_hint).setVisibility(View.GONE);
+//            organizationField.setVisibility(View.GONE);
+//        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.h_ad_title_server_sign_in)
@@ -165,16 +155,18 @@ public class PasswordDialogFragment extends DialogFragment implements DialogInte
     }
 
     private Observable<String> createLoginOperation(String password) {
-        Observable<Boolean> updatePasswordOperation = mJasperManager.updateActiveAccountPassword(password);
-        final Observable<String> loginOperation = mJasperManager.getActiveAuthTokenObservable();
-        return updatePasswordOperation
-                .concatMap(new Func1<Boolean, Observable<String>>() {
-                    @Override
-                    public Observable<String> call(Boolean aBoolean) {
-                        return loginOperation;
-                    }
-                })
-                .compose(RxTransformers.<String>applySchedulers());
+        // TODO fix password dialog
+//        Observable<Boolean> updatePasswordOperation = mJasperManager.updateActiveAccountPassword(password);
+//        final Observable<String> loginOperation = mJasperManager.getActiveAuthTokenObservable();
+//        return updatePasswordOperation
+//                .concatMap(new Func1<Boolean, Observable<String>>() {
+//                    @Override
+//                    public Observable<String> call(Boolean aBoolean) {
+//                        return loginOperation;
+//                    }
+//                })
+//                .compose(RxTransformers.<String>applySchedulers());
+        return Observable.empty();
     }
 
     private Subscription subscribeToLogin(Observable<String> loginOperation) {

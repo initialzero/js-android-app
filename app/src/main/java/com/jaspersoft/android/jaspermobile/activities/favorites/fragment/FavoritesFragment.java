@@ -41,14 +41,14 @@ import android.widget.TextView;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.FavoritesResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
@@ -109,6 +109,8 @@ public class FavoritesFragment extends BaseFragment
     protected Analytics analytics;
     @Inject
     protected JasperResourceConverter jasperResourceConverter;
+    @Inject
+    protected Profile mProfile;
 
     @Bean
     ResourceOpener resourceOpener;
@@ -244,7 +246,7 @@ public class FavoritesFragment extends BaseFragment
 
         //Add server profile id and username to WHERE params
         selection.append(FavoritesTable.ACCOUNT_NAME + " =?");
-        selectionArgs.add(JasperAccountManager.get(getActivity()).getActiveAccount().name);
+        selectionArgs.add(mProfile.getKey());
 
         //Add filtration to WHERE params
         selection.append(" AND (");

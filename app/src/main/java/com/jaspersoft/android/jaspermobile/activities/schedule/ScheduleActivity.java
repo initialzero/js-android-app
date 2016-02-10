@@ -35,12 +35,12 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OutputFormatDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ValueInputDialogFragment;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
 import com.jaspersoft.android.jaspermobile.widget.DateTimeView;

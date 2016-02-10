@@ -38,6 +38,7 @@ import android.widget.TextView;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.SearchResult;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetRootFoldersCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
@@ -51,7 +52,6 @@ import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilt
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
-import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -107,6 +107,10 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
     protected GetRootFoldersCase mGetRootFoldersCase;
     @Inject
     protected JasperResourceConverter jasperResourceConverter;
+    @Inject
+    protected FavoritesHelper favoritesHelper;
+    @Inject
+    protected JasperServer mServer;
 
     @InstanceState
     @FragmentArg
@@ -139,10 +143,6 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
     protected DefaultPrefHelper prefHelper;
     @Bean
     protected ResourceOpener resourceOpener;
-    @Bean
-    protected FavoritesHelper favoritesHelper;
-    @Bean
-    protected InfoProvider infoProvider;
 
     private JasperResourceAdapter mAdapter;
     private HashMap<String, ResourceLookup> mResourceLookupHashMap;
@@ -334,7 +334,7 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
 
     private void loadPage() {
         boolean isRoot = TextUtils.isEmpty(resourceUri);
-        boolean isProJrs = infoProvider.isProEdition();
+        boolean isProJrs = mServer.isProEdition();
         if (isRoot && isProJrs) {
             loadRootFolders();
         } else {

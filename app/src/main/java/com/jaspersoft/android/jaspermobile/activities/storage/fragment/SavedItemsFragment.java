@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.storage.fragment;
 
-import android.accounts.Account;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.database.Cursor;
@@ -46,10 +45,10 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtm
 import com.jaspersoft.android.jaspermobile.data.entity.CancelExportBundle;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
@@ -89,6 +88,8 @@ public class SavedItemsFragment extends BaseFragment
 
     @Inject
     protected Analytics analytics;
+    @Inject
+    protected Profile mProfile;
     @Inject
     protected JasperResourceConverter jasperResourceConverter;
 
@@ -245,7 +246,6 @@ public class SavedItemsFragment extends BaseFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int code, Bundle bundle) {
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
         StringBuilder selection = new StringBuilder("");
         ArrayList<String> selectionArgs = new ArrayList<String>();
 
@@ -259,7 +259,7 @@ public class SavedItemsFragment extends BaseFragment
 
         //Add server profile id to WHERE params
         selection.append(SavedItemsTable.ACCOUNT_NAME + " =?");
-        selectionArgs.add(account.name);
+        selectionArgs.add(mProfile.getKey());
 
         // Close select brackets
         selection.append(")");

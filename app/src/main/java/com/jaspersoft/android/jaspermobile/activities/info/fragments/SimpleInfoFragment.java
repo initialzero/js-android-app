@@ -16,6 +16,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetRe
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.LoadControlsForOptionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsByTypeCase;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinder;
@@ -44,6 +45,8 @@ public class SimpleInfoFragment extends BaseFragment {
     protected JasperServer mJasperServer;
     @Inject
     protected JasperResourceConverter mJasperResourceConverter;
+    @Inject
+    protected FavoritesHelper favoriteHelper;
 
     @Inject
     protected GetResourceDetailsByTypeCase mGetResourceDetailsByTypeCase;

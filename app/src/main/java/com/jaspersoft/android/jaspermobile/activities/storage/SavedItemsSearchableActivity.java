@@ -28,9 +28,9 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;

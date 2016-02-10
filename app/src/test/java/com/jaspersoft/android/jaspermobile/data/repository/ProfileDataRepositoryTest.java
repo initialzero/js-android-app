@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.data.repository;
 
+import android.accounts.AccountManager;
+
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
 import com.jaspersoft.android.jaspermobile.data.repository.profile.ProfileDataRepository;
@@ -33,8 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import rx.observers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -51,7 +51,8 @@ public class ProfileDataRepositoryTest {
     ProfileCache mAccountCache;
     @Mock
     ActiveProfileCache mPreferencesCache;
-
+    @Mock
+    AccountManager mAccountManager;
 
     ProfileDataRepository repositoryUnderTest;
     Profile fakeProfile;
@@ -60,7 +61,7 @@ public class ProfileDataRepositoryTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         fakeProfile = Profile.create("any");
-        repositoryUnderTest = new ProfileDataRepository(mAccountCache, mPreferencesCache);
+        repositoryUnderTest = new ProfileDataRepository(mAccountManager, mAccountCache, mPreferencesCache);
 
         when(mAccountCache.put(any(Profile.class))).thenReturn(fakeProfile);
     }

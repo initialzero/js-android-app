@@ -29,6 +29,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
@@ -39,19 +40,20 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Ambe
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportViewActivity_;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
 import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
-import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
+
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
@@ -62,14 +64,23 @@ public class ResourceOpener {
 
     @RootContext
     FragmentActivity activity;
-    @Bean
-    InfoProvider mInfoProvider;
+    @Inject
+    JasperServer mServer;
 
     ResourceFilter resourceFilter;
+    private ServerVersion mServerVersion;
+    private boolean mIsPro;
 
     @AfterInject
     final void init() {
+        GraphObject.Factory.from(activity)
+                .getProfileComponent()
+                .inject(this);
         resourceFilter = RepositoryResourceFilter_.getInstance_(activity);
+
+        String version = mServer.getVersion();
+        mServerVersion = ServerVersion.valueOf(version);
+        mIsPro = mServer.isProEdition();
     }
 
     public void openResource(Fragment fragment, ResourceLookup resource) {
@@ -120,8 +131,8 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        boolean isRestEngine = mInfoProvider.getVersion().lessThan(ServerVersion.v6);
-        boolean isCeJrs = !mInfoProvider.isProEdition();
+        boolean isRestEngine = mServerVersion.lessThan(ServerVersion.v6);
+        boolean isCeJrs = !mIsPro;
         if (isCeJrs || isRestEngine) {
             ReportViewActivity_.intent(activity)
                     .resource(resource).start();
@@ -139,7 +150,7 @@ public class ResourceOpener {
     private void runDashboard(ResourceLookup resource) {
         boolean isLegacyDashboard = (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard);
 
-        ServerVersion version = mInfoProvider.getVersion();
+        ServerVersion version = mServerVersion;
         boolean isLegacyEngine = version.lessThan(ServerVersion.v6);
         boolean isFlowEngine = version.greaterThanOrEquals(ServerVersion.v6) && version.lessThan(ServerVersion.v6_1);
         boolean isVisualizeEngine = version.greaterThanOrEquals(ServerVersion.v6_1);

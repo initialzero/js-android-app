@@ -24,23 +24,20 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
+import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AuthenticatorActivityComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.AuthenticatorModule;
 import com.jaspersoft.android.jaspermobile.presentation.contract.AuthenticationContract;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
@@ -51,6 +48,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * @author Tom Koptel
@@ -79,11 +77,12 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
 
     @Inject
     AuthenticationPresenter mPresenter;
-    /**
-     * Injected through {@link AuthenticatorModule#provideActionListener(AuthenticationPresenter)}
-     */
     @Inject
     AuthenticationContract.Action mProfileActionListener;
+
+    @Inject
+    @Named("accountType")
+    String accountType;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -216,18 +215,15 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
 
     @Override
     public void navigateToApp(Profile profile) {
-        GraphObject graphObject = GraphObject.Factory.from(getContext());
-        ProfileComponent profileComponent = graphObject.getComponent()
-                .plus(new ProfileModule(profile));
-        graphObject.setProfileComponent(profileComponent);
+        Bundle data = new Bundle();
+        data.putString(AccountManager.KEY_ACCOUNT_NAME, profile.getKey());
+        data.putString(AccountManager.KEY_ACCOUNT_TYPE, accountType);
 
-        Toast.makeText(getActivity(),
-                getString(R.string.success_add_account, profile.getKey()),
-                Toast.LENGTH_SHORT).show();
+        Intent resultIntent = new Intent();
+        resultIntent.putExtras(data);
 
-        NavigationActivity_.intent(getContext())
-                .flags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .start();
+        getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
+        getActivity().setResult(Activity.RESULT_OK, resultIntent);
         getActivity().finish();
     }
 

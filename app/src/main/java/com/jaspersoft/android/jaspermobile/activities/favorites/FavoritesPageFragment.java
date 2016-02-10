@@ -28,13 +28,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.favorites.fragment.FavoritesSearchFragment_;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 
@@ -42,14 +42,14 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 
-import roboguice.fragment.RoboFragment;
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment(R.layout.content_layout)
-public class FavoritesPageFragment extends RoboFragment {
+public class FavoritesPageFragment extends BaseFragment {
 
     private FavoritesControllerFragment favoritesController;
     @Inject
@@ -65,6 +65,7 @@ public class FavoritesPageFragment extends RoboFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        getProfileComponent().inject(this);
 
         if (savedInstanceState == null) {
             sortOptions.putOrder(SortOrder.LABEL);

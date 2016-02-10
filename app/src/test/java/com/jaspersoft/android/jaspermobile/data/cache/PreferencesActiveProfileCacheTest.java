@@ -87,4 +87,13 @@ public class PreferencesActiveProfileCacheTest {
                 cacheUnderTest.hasProfile()
         );
     }
+
+    @Test
+    public void testClear() throws Exception {
+        store.edit().putString("ACCOUNT_NAME_KEY", "name").apply();
+        cacheUnderTest.clear();
+        assertThat("Should not contain profile, as soon as preferences has key",
+                !cacheUnderTest.hasProfile()
+        );
+    }
 }

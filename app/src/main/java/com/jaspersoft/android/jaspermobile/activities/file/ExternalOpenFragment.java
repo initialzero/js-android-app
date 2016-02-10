@@ -19,8 +19,6 @@ import org.androidannotations.annotations.EFragment;
 import java.io.File;
 import java.util.List;
 
-import roboguice.inject.InjectView;
-
 /**
  * @author Andrew Tivodar
  * @since 2.3
@@ -28,16 +26,17 @@ import roboguice.inject.InjectView;
 @EFragment(R.layout.fragment_file_open)
 public class ExternalOpenFragment extends FileLoadFragment {
 
-    @InjectView(R.id.btnTryToOpen)
     protected Button tryToOpen;
-    @InjectView(android.R.id.message)
     protected TextView messageView;
 
     @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        tryToOpen.setOnClickListener(new TryAgainClickListener());
 
+        tryToOpen = (Button) view.findViewById(R.id.btnTryToOpen);
+        messageView = (TextView) view.findViewById(android.R.id.message);
+
+        tryToOpen.setOnClickListener(new TryAgainClickListener());
         tryToShowFile();
     }
 

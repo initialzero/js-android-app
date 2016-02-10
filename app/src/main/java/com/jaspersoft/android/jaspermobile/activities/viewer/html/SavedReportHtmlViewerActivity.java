@@ -28,8 +28,8 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 
 import org.androidannotations.annotations.Bean;
@@ -49,7 +49,7 @@ import java.io.File;
 
 @EActivity
 @OptionsMenu(R.menu.saved_report)
-public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
+public class SavedReportHtmlViewerActivity extends ToolbarActivity
         implements WebViewFragment.OnWebViewCreated, DeleteDialogFragment.DeleteDialogClickListener {
 
     @Extra

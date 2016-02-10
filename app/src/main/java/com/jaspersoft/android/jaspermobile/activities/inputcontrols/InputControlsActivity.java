@@ -41,12 +41,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.InputControlsAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.ItemSpaceDecoration;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SaveReportOptionDialogFragment;
@@ -63,10 +60,10 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.Delet
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionValuesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.SaveReportOptionsCase;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.IcDateHelper;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
@@ -108,7 +105,7 @@ import timber.log.Timber;
  */
 @EActivity(R.layout.view_simple_list)
 @OptionsMenu(R.menu.input_control_menu)
-public class InputControlsActivity extends RoboToolbarActivity
+public class InputControlsActivity extends ToolbarActivity
         implements InputControlsAdapter.InputControlInteractionListener,
         DateDialogFragment.DateDialogClickListener,
         SimpleDialogFragment.SimpleDialogClickListener,
@@ -119,28 +116,20 @@ public class InputControlsActivity extends RoboToolbarActivity
     public static final String RESULT_SAME_PARAMS = "ReportOptionsActivity.SAME_PARAMS";
 
     @Inject
-    @Nullable
     protected ReportParamsStorage paramsStorage;
     @Inject
-    @Nullable
     protected JasperServer mJasperServer;
     @Inject
-    @Nullable
     protected GetInputControlsValuesCase mGetInputControlsValuesCase;
     @Inject
-    @Nullable
     protected ValidateInputControlsCase mValidateInputControlsCase;
     @Inject
-    @Nullable
     protected GetReportOptionsCase mGetReportOptionsCase;
     @Inject
-    @Nullable
     protected SaveReportOptionsCase mSaveReportOptionsCase;
     @Inject
-    @Nullable
     protected GetReportOptionValuesCase mGetReportOptionValuesCase;
     @Inject
-    @Nullable
     protected DeleteReportOptionCase mDeleteReportOptionCase;
 
     @ViewById(R.id.btnApplyParams)
@@ -172,14 +161,7 @@ public class InputControlsActivity extends RoboToolbarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ProfileComponent profileComponent = GraphObject.Factory.from(this)
-                .getProfileComponent();
-        if (profileComponent == null) {
-            Timber.w("Profile component was garbage collected");
-            finish();
-            return;
-        }
-        profileComponent
+        getProfileComponent()
                 .plusControlsPage(
                         new ActivityModule(this),
                         new ReportModule(reportUri)

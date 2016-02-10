@@ -5,9 +5,13 @@ import android.app.Application;
 import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.AppConfigurator;
+import com.jaspersoft.android.jaspermobile.AppConfiguratorImpl;
 import com.jaspersoft.android.jaspermobile.BackgroundThread;
 import com.jaspersoft.android.jaspermobile.JasperAnalytics;
+import com.jaspersoft.android.jaspermobile.JasperSecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.UIThread;
+import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.data.cache.SecureCache;
 import com.jaspersoft.android.jaspermobile.data.cache.SecureStorage;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
@@ -72,6 +76,18 @@ public final class AppModule {
     @Singleton
     Analytics providesAnalytics(@ApplicationContext Context context) {
         return new JasperAnalytics(context);
+    }
+
+    @Provides
+    @Singleton
+    SecurityProviderUpdater providesSecurityProviderUpdater() {
+        return new JasperSecurityProviderUpdater();
+    }
+
+    @Provides
+    @Singleton
+    AppConfigurator providesAppConfigurator() {
+        return new AppConfiguratorImpl();
     }
 
     @Provides

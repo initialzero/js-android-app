@@ -28,6 +28,8 @@ import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
+import java.util.List;
+
 /**
  * Abstraction around profile cache
  * <br/>
@@ -52,4 +54,6 @@ public interface ProfileCache {
      * @return flag that speaks about either profile in cache or not
      */
     boolean hasProfile(@NonNull Profile profile);
+
+    List<Profile> getAll();
 }

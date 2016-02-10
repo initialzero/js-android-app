@@ -38,17 +38,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboCastActivity;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.CastActivity;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.widget.AbstractPaginationView;
@@ -85,7 +83,7 @@ import timber.log.Timber;
  */
 @OptionsMenu({R.menu.webview_menu, R.menu.report_filter_manager_menu})
 @EActivity(R.layout.activity_cast_report)
-public class ReportCastActivity extends RoboCastActivity
+public class ReportCastActivity extends CastActivity
         implements
         ReportView,
         ResourcePresentationService.ResourcePresentationCallback,
@@ -123,13 +121,10 @@ public class ReportCastActivity extends RoboCastActivity
     protected Boolean mHasControls;
 
     @Inject
-    @Nullable
     protected ReportParamsStorage paramsStorage;
     @Inject
-    @Nullable
     protected GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     @Inject
-    @Nullable
     protected ReportParamsMapper mReportParamsMapper;
 
     private ResourcePresentationService mResourcePresentationService;
@@ -138,10 +133,7 @@ public class ReportCastActivity extends RoboCastActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        GraphObject.Factory.from(this)
-                .getProfileComponent()
-                .inject(this);
+        getProfileComponent().inject(this);
 
         mResourcePresentationService = (ResourcePresentationService) ResourcePresentationService.getInstance();
         mTimer = new Timer();

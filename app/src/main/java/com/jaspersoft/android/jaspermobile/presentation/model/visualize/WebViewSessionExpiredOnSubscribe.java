@@ -30,7 +30,9 @@ final class WebViewSessionExpiredOnSubscribe implements Observable.OnSubscribe<V
         }
 
         WebView webView = mConfiguration.getWebView();
-        UrlPolicy defaultPolicy = DefaultUrlPolicy.from(webView.getContext())
+        String serverUrl = mConfiguration.getServerUrl();
+
+        UrlPolicy defaultPolicy = new DefaultUrlPolicy(serverUrl)
                 .withSessionListener(new DefaultUrlPolicy.SessionListener() {
                     @Override
                     public void onSessionExpired() {

@@ -29,11 +29,14 @@ import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.view.Window;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AuthenticatorActivityComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.AuthenticatorFragment_;
+
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
@@ -43,6 +46,9 @@ public class AuthenticatorActivity extends BaseActivity implements HasComponent<
 
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle mResultBundle = null;
+
+    @Inject
+    Analytics mAnalytics;
 
     /**
      * Set the result that is to be sent as the result of the request that caused this
@@ -65,7 +71,9 @@ public class AuthenticatorActivity extends BaseActivity implements HasComponent<
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
-        getAnalytics().setScreenName(getString(R.string.ja_aas));
+
+        getComponent().inject(this);
+        mAnalytics.setScreenName(getString(R.string.ja_aas));
 
         mAccountAuthenticatorResponse =
                 getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
@@ -84,8 +92,7 @@ public class AuthenticatorActivity extends BaseActivity implements HasComponent<
     @Override
     protected void onResume() {
         super.onResume();
-
-        analytics.sendScreenView(getString(R.string.ja_aas), null);
+        mAnalytics.sendScreenView(getString(R.string.ja_aas), null);
     }
 
     /**

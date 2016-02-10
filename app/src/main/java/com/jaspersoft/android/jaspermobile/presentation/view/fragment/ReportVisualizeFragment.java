@@ -41,7 +41,6 @@ import com.jaspersoft.android.jaspermobile.widget.PaginationBarView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -102,9 +101,8 @@ public class ReportVisualizeFragment extends BaseFragment
     @OptionsMenuItem
     protected MenuItem aboutAction;
 
-    @Bean
+    @Inject
     protected FavoritesHelper favoritesHelper;
-
     @Inject
     protected JasperServer mServer;
     @Inject

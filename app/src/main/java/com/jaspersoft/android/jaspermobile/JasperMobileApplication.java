@@ -24,9 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.multidex.MultiDexApplication;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.DaggerAppComponent;
@@ -43,7 +44,8 @@ import com.nostra13.universalimageloader.utils.L;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EApplication;
 
-import roboguice.RoboGuice;
+import javax.inject.Inject;
+
 import timber.log.Timber;
 
 /**
@@ -67,7 +69,7 @@ public class JasperMobileApplication extends MultiDexApplication implements Grap
     @Override
     public void onCreate() {
         super.onCreate();
-        RoboGuice.getInjector(this).injectMembers(this);
+        getComponent().inject(this);
 
         initLegacyJsRestClient();
 
@@ -123,6 +125,7 @@ public class JasperMobileApplication extends MultiDexApplication implements Grap
         L.writeLogs(false);
     }
 
+    @NonNull
     @Override
     public AppComponent getComponent() {
         if (mAppComponent == null) {
@@ -134,10 +137,11 @@ public class JasperMobileApplication extends MultiDexApplication implements Grap
     }
 
     @Override
-    public void setProfileComponent(ProfileComponent profileComponent) {
+    public void setProfileComponent(@NonNull ProfileComponent profileComponent) {
         mProfileComponent = profileComponent;
     }
 
+    @Nullable
     @Override
     public ProfileComponent getProfileComponent() {
         return mProfileComponent;

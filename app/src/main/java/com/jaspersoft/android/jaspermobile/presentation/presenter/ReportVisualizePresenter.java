@@ -14,7 +14,6 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualize
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.contract.VisualizeReportContract;
-import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ResourceModelMapper;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExecutionReferenceClickEvent;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ExternalReferenceClickEvent;
@@ -50,7 +49,6 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
     private final String mReportUri;
     private final PostExecutionThread mPostExecutionThread;
     private final RequestExceptionHandler mRequestExceptionHandler;
-    private final ResourceModelMapper mResourceModelMapper;
 
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private final GetVisualizeTemplateCase mGetVisualizeTemplateCase;
@@ -66,7 +64,6 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
             @Named("report_uri") String reportUri,
             PostExecutionThread postExecutionThread,
             RequestExceptionHandler requestExceptionHandler,
-            ResourceModelMapper resourceModelMapper,
             GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
             GetVisualizeTemplateCase getVisualizeTemplateCase,
             GetVisualizeExecOptionsCase getVisualizeExecOptionsCase,
@@ -77,7 +74,6 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
         mReportUri = reportUri;
         mPostExecutionThread = postExecutionThread;
         mRequestExceptionHandler = requestExceptionHandler;
-        mResourceModelMapper = resourceModelMapper;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
         mGetVisualizeTemplateCase = getVisualizeTemplateCase;
         mGetVisualizeExecOptionsCase = getVisualizeExecOptionsCase;

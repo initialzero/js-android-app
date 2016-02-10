@@ -35,11 +35,8 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
-
-import java.net.UnknownHostException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -62,13 +59,7 @@ public class RequestExceptionHandler {
         if (exception == null) {
             throw new IllegalArgumentException("Exception should not be null");
         }
-
-        int statusCode = extractStatusCode(exception);
-        if (statusCode == JasperAccountManager.TokenException.NO_ACCOUNTS_ERROR || statusCode == JasperAccountManager.TokenException.SERVER_UPDATED_ERROR) {
-            // do nothing, app will restart automatically
-        } else {
-            showCommonErrorMessage(context, exception);
-        }
+        showCommonErrorMessage(context, exception);
     }
 
     @Nullable
@@ -81,14 +72,7 @@ public class RequestExceptionHandler {
             ServiceException serviceException = ((ServiceException) exception);
             return adaptServiceMessage(mContext, serviceException.code());
         }
-
-        int statusCode = extractStatusCode(exception);
-        String message = extractMessage(mContext, exception, statusCode);
-        if (TextUtils.isEmpty(message)) {
-            return exception.getLocalizedMessage();
-        } else {
-            return extractMessage(mContext, exception, statusCode);
-        }
+        return exception.getLocalizedMessage();
     }
 
     @Nullable
@@ -124,51 +108,10 @@ public class RequestExceptionHandler {
         }
     }
 
-    /**
-     * Extracts HttpStatus code otherwise returns 0.
-     */
-    public static int extractStatusCode(@NonNull Throwable exception) {
-        if (exception instanceof JasperAccountManager.TokenException) {
-            return ((JasperAccountManager.TokenException) exception).getErrorCode();
-        } else {
-            Throwable cause = exception.getCause();
-
-            Throwable tokenCause = cause.getCause();
-            if (tokenCause instanceof JasperAccountManager.TokenException) {
-                return ((JasperAccountManager.TokenException) tokenCause).getErrorCode();
-            } else if (tokenCause instanceof UnknownHostException) {
-                return JasperAccountManager.TokenException.SERVER_NOT_FOUND;
-            }
-        }
-        return 0;
-    }
-
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
-    /**
-     * Extracts Localized message otherwise returns null.
-     */
-    @Nullable
-    private static String extractMessage(@NonNull Context context, @NonNull Throwable exception, int statusCode) {
-        if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
-            return context.getString(R.string.r_error_server_not_found);
-        }
-
-        Throwable cause = exception.getCause();
-        if (cause == null) {
-            return exception.getLocalizedMessage();
-        }
-
-        Throwable tokenCause = cause.getCause();
-        if (tokenCause instanceof JasperAccountManager.TokenException) {
-            return tokenCause.getLocalizedMessage();
-        }
-
-        return exception.getLocalizedMessage();
-
-    }
 
     private static void showCommonErrorMessage(@NonNull Context context, @NonNull Throwable exception) {
         String message = extractMessage(context, exception);

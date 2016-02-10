@@ -28,6 +28,9 @@ import android.accounts.Account;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -45,8 +48,27 @@ public final class AccountDataMapper {
         mAccountType = accountType;
     }
 
+    public String getAccountType() {
+        return mAccountType;
+    }
+
     public Account transform(Profile profile) {
         String name = profile.getKey();
         return new Account(name, mAccountType);
+    }
+
+    public List<Profile> transform(Account[] accounts) {
+        List<Profile> profiles = new ArrayList<>(accounts.length);
+        for (Account account : accounts) {
+            if (account != null) {
+                Profile profile = transform(account);
+                profiles.add(profile);
+            }
+        }
+        return profiles;
+    }
+
+    public Profile transform(Account account) {
+        return Profile.create(account.name);
     }
 }

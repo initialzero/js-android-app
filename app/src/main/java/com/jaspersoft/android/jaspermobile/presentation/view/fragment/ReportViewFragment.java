@@ -65,7 +65,6 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -128,9 +127,8 @@ public class ReportViewFragment extends BaseFragment
     @OptionsMenuItem
     protected MenuItem aboutAction;
 
-    @Bean
+    @Inject
     protected FavoritesHelper favoritesHelper;
-
     @Inject
     protected JasperServer mServer;
     @Inject

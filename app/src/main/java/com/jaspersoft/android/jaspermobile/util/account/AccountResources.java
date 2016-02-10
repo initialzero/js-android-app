@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.util.account;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.OperationApplicationException;
@@ -32,13 +33,20 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -60,7 +68,7 @@ public class AccountResources {
     }
 
     private String[] prepareAccountNames(Context context) {
-        Account[] accounts = JasperAccountManager.get(context).getAccounts();
+        Account[] accounts = AccountManager.get(context).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
         int count = accounts.length;
         String[] accountNames = new String[count + 1];
         for (int i = 0; i < count; i++) {
@@ -78,6 +86,29 @@ public class AccountResources {
     public void flushOnDemand() {
         flushFavorites();
         flushSavedItems();
+        flushActiveCache();
+    }
+
+    private void flushActiveCache() {
+        ActiveProfileCache cache = new PreferencesActiveProfileCache(context);
+        Profile profile = cache.get();
+        if (profile == null) {
+            flushComponent();
+            return;
+        }
+
+        List<String> strings = Arrays.asList(accountNames);
+        boolean activeProfileRemoved = !strings.contains(profile.getKey());
+
+        if (activeProfileRemoved) {
+            cache.clear();
+            flushComponent();
+        }
+    }
+
+    private void flushComponent() {
+        GraphObject.Factory.from(context)
+                .setProfileComponent(null);
     }
 
     private void flushFavorites() {

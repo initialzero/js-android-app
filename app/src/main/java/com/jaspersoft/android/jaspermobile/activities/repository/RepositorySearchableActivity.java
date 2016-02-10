@@ -29,7 +29,7 @@ import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
@@ -39,7 +39,7 @@ import org.androidannotations.annotations.Extra;
  * @since 1.9
  */
 @EActivity(R.layout.content_layout)
-public class RepositorySearchableActivity extends RoboToolbarActivity {
+public class RepositorySearchableActivity extends ToolbarActivity {
 
     @Extra
     String query;

@@ -27,15 +27,19 @@ package com.jaspersoft.android.jaspermobile.util.filtering;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
-import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * @author Andrew Tivodar
@@ -44,10 +48,10 @@ import java.util.List;
 @EBean
 public class RepositoryResourceFilter extends ResourceFilter {
 
+    private ServerVersion mServerVersion;
+
     @RootContext
     protected FragmentActivity activity;
-    @Bean
-    protected InfoProvider infoProvider;
 
     private enum RepositoryFilterCategory {
         all(R.string.s_fd_option_all);
@@ -61,6 +65,17 @@ public class RepositoryResourceFilter extends ResourceFilter {
         public String getLocalizedTitle(Context context) {
             return context.getString(this.mTitleId);
         }
+    }
+
+    @Inject
+    JasperServer mServer;
+
+    @AfterInject
+    void init() {
+        GraphObject.Factory.from(activity)
+                .getProfileComponent()
+                .inject(this);
+        mServerVersion = ServerVersion.valueOf(mServer.getVersion());
     }
 
     @Override
@@ -90,7 +105,7 @@ public class RepositoryResourceFilter extends ResourceFilter {
     private Filter getFilterAll() {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
-        filterValues.addAll(JasperResources.dashboard(infoProvider.getVersion()));
+        filterValues.addAll(JasperResources.dashboard(mServerVersion));
         filterValues.addAll(JasperResources.folder());
         filterValues.addAll(JasperResources.files());
 

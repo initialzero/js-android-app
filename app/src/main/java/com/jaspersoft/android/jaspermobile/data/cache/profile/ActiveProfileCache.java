@@ -58,4 +58,9 @@ public interface ActiveProfileCache {
      * @return true if exists
      */
     boolean hasProfile();
+
+    /**
+     * Clears data from preference cache
+     */
+    void clear();
 }

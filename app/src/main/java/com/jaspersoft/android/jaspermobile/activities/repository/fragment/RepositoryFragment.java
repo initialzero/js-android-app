@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -36,14 +36,14 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.SearchResult;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetRootFoldersCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
@@ -52,7 +52,6 @@ import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilt
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
-import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -73,8 +72,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import roboguice.fragment.RoboFragment;
-import roboguice.inject.InjectView;
 import rx.Subscriber;
 import timber.log.Timber;
 
@@ -83,7 +80,7 @@ import timber.log.Timber;
  * @since 1.9
  */
 @EFragment(R.layout.fragment_refreshable_resource)
-public class RepositoryFragment extends RoboFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public static final String TAG = RepositoryFragment.class.getSimpleName();
     public static final String ROOT_URI = "/";
@@ -91,12 +88,8 @@ public class RepositoryFragment extends RoboFragment implements SwipeRefreshLayo
     private static final int LOAD_FROM_CACHE = 1;
     private static final int LOAD_FROM_NETWORK = 2;
 
-    @InjectView(android.R.id.list)
     protected JasperRecyclerView listView;
-    @InjectView(R.id.refreshLayout)
     protected SwipeRefreshLayout swipeRefreshLayout;
-
-    @InjectView(android.R.id.empty)
     protected TextView emptyText;
 
     @Inject
@@ -109,14 +102,15 @@ public class RepositoryFragment extends RoboFragment implements SwipeRefreshLayo
     protected int mTreshold;
 
     @Inject
-    @Nullable
     protected SearchResourcesCase mSearchResourcesCase;
     @Inject
-    @Nullable
     protected GetRootFoldersCase mGetRootFoldersCase;
     @Inject
-    @Nullable
     protected JasperResourceConverter jasperResourceConverter;
+    @Inject
+    protected FavoritesHelper favoritesHelper;
+    @Inject
+    protected JasperServer mServer;
 
     @InstanceState
     @FragmentArg
@@ -149,10 +143,6 @@ public class RepositoryFragment extends RoboFragment implements SwipeRefreshLayo
     protected DefaultPrefHelper prefHelper;
     @Bean
     protected ResourceOpener resourceOpener;
-    @Bean
-    protected FavoritesHelper favoritesHelper;
-    @Bean
-    protected InfoProvider infoProvider;
 
     private JasperResourceAdapter mAdapter;
     private HashMap<String, ResourceLookup> mResourceLookupHashMap;
@@ -161,10 +151,7 @@ public class RepositoryFragment extends RoboFragment implements SwipeRefreshLayo
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        GraphObject.Factory.from(getContext())
-                .getProfileComponent()
-                .inject(this);
+        getProfileComponent().inject(this);
 
         mResourceLookupHashMap = new HashMap<>();
 
@@ -182,6 +169,11 @@ public class RepositoryFragment extends RoboFragment implements SwipeRefreshLayo
     @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        listView = (JasperRecyclerView) view.findViewById(android.R.id.list);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refreshLayout);
+        emptyText = (TextView) view.findViewById(android.R.id.empty);
+
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.js_blue,
@@ -208,7 +200,7 @@ public class RepositoryFragment extends RoboFragment implements SwipeRefreshLayo
     public void onResume() {
         super.onResume();
 
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             if (TextUtils.isEmpty(resourceLabel)) {
                 actionBar.setTitle(getString(R.string.h_repository_label));
@@ -342,7 +334,7 @@ public class RepositoryFragment extends RoboFragment implements SwipeRefreshLayo
 
     private void loadPage() {
         boolean isRoot = TextUtils.isEmpty(resourceUri);
-        boolean isProJrs = infoProvider.isProEdition();
+        boolean isProJrs = mServer.isProEdition();
         if (isRoot && isProJrs) {
             loadRootFolders();
         } else {

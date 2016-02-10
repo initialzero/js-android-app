@@ -38,7 +38,6 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.ErrorSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
@@ -90,19 +89,14 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     protected boolean mMaximized;
 
     @Inject
-    @Nullable
     GetDashboardControlsCase mGetDashboardControlsCase;
     @Inject
-    @Nullable
     FlushInputControlsCase mFlushInputControlsCase;
     @Inject
-    @Nullable
     GetDashboardVisualizeParamsCase mGetDashboardVisualizeParamsCase;
     @Inject
-    @Nullable
     GetReportMetadataCase mGetReportMetadataCase;
     @Inject
-    @Nullable
     RequestExceptionHandler mExceptionHandler;
 
     private boolean mFavoriteItemVisible, mInfoItemVisible, mFiltersVisible;
@@ -212,7 +206,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardTrigger = JsDashboardTrigger.with(webView);
-        mDashboardExecutor = AmberTwoDashboardExecutor.newInstance(webView, resource);
+        mDashboardExecutor = AmberTwoDashboardExecutor.newInstance(webView, mServer, resource);
         mWebInterface = DashboardWebInterface.from(this);
         WebViewEnvironment.configure(webView)
                 .withWebInterface(mWebInterface);

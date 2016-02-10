@@ -38,6 +38,8 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.JSWebViewClient;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
@@ -50,7 +52,7 @@ import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
-import roboguice.fragment.RoboFragment;
+import javax.inject.Inject;
 
 /**
  * This fragment should be removed. We won`t utilize it in future.
@@ -60,7 +62,7 @@ import roboguice.fragment.RoboFragment;
  */
 @Deprecated
 @EFragment(R.layout.html_viewer_layout)
-public class WebViewFragment extends RoboFragment {
+public class WebViewFragment extends BaseFragment {
 
     public static final String TAG = WebViewFragment.class.getSimpleName();
 
@@ -79,22 +81,27 @@ public class WebViewFragment extends RoboFragment {
 
     @Bean
     ScrollableTitleHelper scrollableTitleHelper;
-    @Bean
-    JSWebViewClient jsWebViewClient;
+
+    @Inject
+    JasperServer mServer;
 
     private OnWebViewCreated onWebViewCreated;
     private JSWebView webView;
+    private JSWebViewClient jsWebViewClient;
 
     @Override
     public void onStart() {
         super.onStart();
         setHasOptionsMenu(true);
+        getProfileComponent().inject(this);
     }
 
     @AfterViews
     final void init() {
         initWebView();
         scrollableTitleHelper.injectTitle(resourceLabel);
+
+        jsWebViewClient = new JSWebViewClient(mServer.getBaseUrl());
         jsWebViewClient.setSessionListener(DefaultSessionListener.from(getActivity()));
     }
 

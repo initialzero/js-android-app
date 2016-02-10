@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.activities.robospice;
+package com.jaspersoft.android.jaspermobile.presentation.view.activity;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -55,7 +55,7 @@ import org.androidannotations.annotations.OptionsMenuItem;
  */
 @EActivity
 @OptionsMenu(R.menu.cast_menu)
-public abstract class RoboCastActivity extends RoboToolbarActivity {
+public abstract class CastActivity extends ToolbarActivity {
 
     @OptionsMenuItem(R.id.castReport)
     protected MenuItem castAction;
@@ -176,7 +176,7 @@ public abstract class RoboCastActivity extends RoboToolbarActivity {
 
         @Override
         public void onRemoteDisplaySessionError(Status status) {
-            Toast.makeText(RoboCastActivity.this, "Error casting " + status, Toast.LENGTH_SHORT).show();
+            Toast.makeText(CastActivity.this, "Error casting " + status, Toast.LENGTH_SHORT).show();
         }
     }
 }

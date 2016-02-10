@@ -24,28 +24,27 @@
 
 package com.jaspersoft.android.jaspermobile.webview.dashboard.script;
 
-import android.content.Context;
-
-import com.jaspersoft.android.jaspermobile.util.server.InfoProvider;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.webview.ScriptTagCreator;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
+import javax.inject.Inject;
+
 /**
  * @author Tom Koptel
  * @since 2.0
  */
+@PerProfile
 public class ScriptTagFactory {
-    private final Context mContext;
 
-    private ScriptTagFactory(Context context) {
-        mContext = context;
-    }
+    private final JasperServer mServer;
 
-    public static ScriptTagFactory getInstance(Context context) {
-        return new ScriptTagFactory(context);
+    @Inject
+    public ScriptTagFactory(JasperServer server) {
+        mServer = server;
     }
 
     public ScriptTagCreator getTagCreator(ResourceLookup resource) {
@@ -54,8 +53,7 @@ public class ScriptTagFactory {
             return new EmeraldDashboardScriptTagCreator(token);
         }
 
-        ServerInfoProvider infoProvider = new InfoProvider(mContext);
-        ServerVersion version = infoProvider.getVersion();
+        ServerVersion version = ServerVersion.valueOf(mServer.getVersion());
 
         if (version.lessThanOrEquals(ServerVersion.v5_6_1)) {
             return new EmeraldDashboardScriptTagCreator(token);

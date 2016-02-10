@@ -27,21 +27,4 @@
     <permission
         android:name="jaspermobile.util.actions"
         android:label="util_actions" />
-
-    <application>
-        <receiver
-            android:name=".UtilReceiver"
-            android:exported="true"
-            android:permission="jaspermobile.util.actions">
-            <intent-filter>
-                <action android:name="jaspermobile.util.action.REMOVE_COOKIES" />
-                <action android:name="jaspermobile.util.action.DEPRECATE_COOKIES" />
-                <action android:name="jaspermobile.util.action.REMOVE_ALL_ACCOUNTS" />
-                <action android:name="jaspermobile.util.action.DOWNGRADE_SERVER_VERSION" />
-                <action android:name="jaspermobile.util.action.CHANGE_SERVER_EDITION" />
-                <action android:name="jaspermobile.util.action.LOAD_PROFILES" />
-            </intent-filter>
-        </receiver>
-    </application>
-
 </manifest>

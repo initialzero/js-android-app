@@ -29,9 +29,8 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.widget.Toast;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BasePreferenceFragment;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference;
 import com.jaspersoft.android.sdk.network.Server;
@@ -46,8 +45,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.provided.RoboPreferenceFragment;
-
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT_REPO_CACHE_EXPIRATION;
@@ -61,10 +58,9 @@ import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PRE
  * @since 1.9
  */
 @EFragment
-public class SettingsFragment extends RoboPreferenceFragment {
+public class SettingsFragment extends BasePreferenceFragment {
 
     @Inject
-    @Nullable
     protected Server.Builder mServerConfig;
 
     @Bean
@@ -75,9 +71,7 @@ public class SettingsFragment extends RoboPreferenceFragment {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GraphObject.Factory.from(getContext())
-                .getProfileComponent()
-                .inject(this);
+        getProfileComponent().inject(this);
 
         addPreferencesFromResource(R.xml.preferences);
 

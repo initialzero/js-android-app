@@ -44,7 +44,6 @@ import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCal
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardExecutor;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardTrigger;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -155,7 +154,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardTrigger = JsDashboardTrigger.with(webView);
-        mDashboardExecutor = AmberDashboardExecutor.newInstance(webView, resource);
+        mDashboardExecutor = AmberDashboardExecutor.newInstance(webView, mServer, resource);
         webInterface = DashboardWebInterface.from(this);
         WebViewEnvironment
                 .configure(webView)
@@ -166,7 +165,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
 
     @Override
     public void onPageFinished() {
-        webView.loadUrl(ScriptTagFactory.getInstance(this).getTagCreator(resource).createTag());
+        webView.loadUrl(mScriptTagFactory.getTagCreator(resource).createTag());
     }
 
     @Override

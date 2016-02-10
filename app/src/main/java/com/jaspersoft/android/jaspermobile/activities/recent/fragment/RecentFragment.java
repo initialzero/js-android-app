@@ -27,19 +27,18 @@ package com.jaspersoft.android.jaspermobile.activities.recent.fragment;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.domain.SearchResult;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
@@ -62,8 +61,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.RoboFragment;
-import roboguice.inject.InjectView;
 import rx.Subscriber;
 import timber.log.Timber;
 
@@ -72,28 +69,23 @@ import timber.log.Timber;
  * @since 1.9
  */
 @EFragment(R.layout.fragment_refreshable_resource)
-public class RecentFragment extends RoboFragment
+public class RecentFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener {
     public static final String TAG = RecentFragment.class.getSimpleName();
     public static final String ROOT_URI = "/";
 
-    @InjectView(android.R.id.list)
     protected JasperRecyclerView listView;
-    @InjectView(R.id.refreshLayout)
     protected SwipeRefreshLayout swipeRefreshLayout;
-
-    @InjectView(android.R.id.empty)
     protected TextView emptyText;
 
     @Inject
-    @Nullable
     protected Analytics analytics;
     @Inject
-    @Nullable
     protected JasperResourceConverter jasperResourceConverter;
     @Inject
-    @Nullable
     protected SearchResourcesCase mSearchResourcesCase;
+    @Inject
+    protected FavoritesHelper favoritesHelper;
 
     @FragmentArg
     protected ViewType viewType;
@@ -102,8 +94,7 @@ public class RecentFragment extends RoboFragment
     protected RecentlyViewedResourceFilter recentlyViewedResourceFilter;
     @Bean
     protected ResourceOpener resourceOpener;
-    @Bean
-    protected FavoritesHelper favoritesHelper;
+
 
     private JasperResourceAdapter mAdapter;
     private HashMap<String, ResourceLookup> mResourceLookupHashMap;
@@ -112,10 +103,7 @@ public class RecentFragment extends RoboFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        GraphObject.Factory.from(getContext())
-                .getProfileComponent()
-                .inject(this);
+        getProfileComponent().inject(this);
 
         mResourceLookupHashMap = new HashMap<>();
 
@@ -133,6 +121,10 @@ public class RecentFragment extends RoboFragment
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        listView = (JasperRecyclerView) view.findViewById(android.R.id.list);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refreshLayout);
+        emptyText = (TextView) view.findViewById(android.R.id.empty);
+
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.js_blue,
@@ -149,7 +141,7 @@ public class RecentFragment extends RoboFragment
     public void onResume() {
         super.onResume();
 
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(getString(R.string.recent_card_label));
         }

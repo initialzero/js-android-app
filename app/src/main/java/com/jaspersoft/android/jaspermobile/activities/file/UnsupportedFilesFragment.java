@@ -10,7 +10,6 @@ import org.androidannotations.annotations.EFragment;
 
 import java.io.File;
 
-import roboguice.inject.InjectView;
 
 /**
  * @author Andrew Tivodar
@@ -19,12 +18,12 @@ import roboguice.inject.InjectView;
 @EFragment(R.layout.fragment_unsupported_file)
 public class UnsupportedFilesFragment extends FileLoadFragment {
 
-    @InjectView(android.R.id.message)
     protected TextView messageView;
 
     @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        messageView = (TextView) view.findViewById(android.R.id.message);
         showErrorMessage();
     }
 

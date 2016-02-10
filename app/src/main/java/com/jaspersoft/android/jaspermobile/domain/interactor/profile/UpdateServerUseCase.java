@@ -24,12 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.domain.interactor.profile;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractUseCase;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;

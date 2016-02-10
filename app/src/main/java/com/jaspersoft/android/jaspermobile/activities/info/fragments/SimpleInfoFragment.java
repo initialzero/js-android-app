@@ -3,21 +3,20 @@ package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.InfoHeaderView;
-import com.jaspersoft.android.jaspermobile.activities.robospice.Nullable;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.LoadControlsForOptionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsByTypeCase;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ResourceBinder;
@@ -28,15 +27,12 @@ import org.androidannotations.annotations.FragmentArg;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.RoboFragment;
-import roboguice.inject.InjectView;
-
 /**
  * @author Andrew Tivodar
  * @since 2.2
  */
 @EFragment(R.layout.fragment_resource_info)
-public class SimpleInfoFragment extends RoboFragment {
+public class SimpleInfoFragment extends BaseFragment {
 
     public static final String TAG = ResourceInfoFragment.class.getSimpleName();
 
@@ -44,29 +40,22 @@ public class SimpleInfoFragment extends RoboFragment {
     protected JasperResource jasperResource;
 
     @Inject
-    @Nullable
     protected Analytics analytics;
     @Inject
-    @Nullable
     protected JasperServer mJasperServer;
     @Inject
-    @Nullable
     protected JasperResourceConverter mJasperResourceConverter;
+    @Inject
+    protected FavoritesHelper favoriteHelper;
 
     @Inject
-    @Nullable
     protected GetResourceDetailsByTypeCase mGetResourceDetailsByTypeCase;
     @Inject
-    @Nullable
     protected GetReportOptionsCase mGetReportOptionsCase;
     @Inject
-    @Nullable
     protected LoadControlsForOptionCase mLoadControlsForOptionCase;
 
-    @InjectView(R.id.toolbarImageView)
     protected ImageView toolbarImage;
-
-    @InjectView(R.id.info_collapsing_toolbar)
     protected CollapsingToolbarLayout toolbarLayout;
 
     private InfoHeaderView infoHeaderView;
@@ -75,14 +64,15 @@ public class SimpleInfoFragment extends RoboFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ProfileComponent profileComponent = GraphObject.Factory.from(getContext())
-                .getProfileComponent();
-        profileComponent.inject(this);
+        getProfileComponent().inject(this);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        toolbarImage = (ImageView) view.findViewById(R.id.toolbarImageView);
+        toolbarLayout = (CollapsingToolbarLayout) view.findViewById(R.id.info_collapsing_toolbar);
 
         setToolbar(view);
         showHeaderView();
@@ -120,7 +110,7 @@ public class SimpleInfoFragment extends RoboFragment {
     private void setToolbar(View infoView) {
         Toolbar toolbar = (Toolbar) infoView.findViewById(R.id.toolbar);
 
-        ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
+        AppCompatActivity actionBarActivity = (AppCompatActivity) getActivity();
         actionBarActivity.setSupportActionBar(toolbar);
 
         ActionBar actionBar = actionBarActivity.getSupportActionBar();

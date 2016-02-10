@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.view.activity;
 
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -54,6 +55,7 @@ import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragme
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog_;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.NavigationActivityComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.NavigationActivityModule;
@@ -209,9 +211,11 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
     }
 
     @OnActivityResult(NEW_ACCOUNT)
-    final void newAccountAction(int resultCode) {
+    final void newAccountAction(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
-            // TODO on new account
+            String profileName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+            Profile profile = Profile.create(profileName);
+            mActionListener.activateProfile(profile);
         }
     }
 
@@ -277,6 +281,7 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
     }
 
     private void setupNavPanel() {
+        navigationPanelLayout.setAnalytics(mAnalytics);
         enableRecentlyViewedSection();
         navigationPanelLayout.setListener(new NavigationPanelLayout.NavigationListener() {
             @Override
@@ -287,7 +292,14 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
 
             @Override
             public void onActiveProfileChange(ProfileViewModel profile) {
-                mActionListener.activateProfile(profile);
+                analytics.sendEvent(
+                        Analytics.EventCategory.CATALOG.getValue(),
+                        Analytics.EventAction.CLICKED.getValue(),
+                        Analytics.EventLabel.SWITCH_ACCOUNT.getValue()
+                );
+
+                Profile domainProfile = Profile.create(profile.getLabel());
+                mActionListener.activateProfile(domainProfile);
                 drawerLayout.closeDrawer(navigationPanelLayout);
             }
         });

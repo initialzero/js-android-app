@@ -3,7 +3,7 @@ package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
@@ -110,7 +110,7 @@ public class SimpleInfoFragment extends BaseFragment {
     private void setToolbar(View infoView) {
         Toolbar toolbar = (Toolbar) infoView.findViewById(R.id.toolbar);
 
-        ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
+        AppCompatActivity actionBarActivity = (AppCompatActivity) getActivity();
         actionBarActivity.setSupportActionBar(toolbar);
 
         ActionBar actionBar = actionBarActivity.getSupportActionBar();

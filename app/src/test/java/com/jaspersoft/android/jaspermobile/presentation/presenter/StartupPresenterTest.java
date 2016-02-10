@@ -4,10 +4,10 @@ import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.data.ComponentManager;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.presentation.navigation.FakePageFactory;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.MainPage;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Page;
-import com.jaspersoft.android.jaspermobile.presentation.navigation.PageFactory;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.SignUpPage;
 
 import org.junit.Before;
@@ -21,7 +21,6 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.spy;
 
@@ -34,12 +33,11 @@ public class StartupPresenterTest {
 
     @Mock
     Navigator mNavigator;
-    @Mock
-    PageFactory mPageFactory;
 
     @Mock
     ComponentManager.Callback mCallback;
 
+    private FakePageFactory mFakePageFactory;
     private StartupPresenter mStartupPresenter;
     private FakeComponentManager fakeComponentManager;
     private final Profile fakeProfile = Profile.create("fake");
@@ -47,19 +45,18 @@ public class StartupPresenterTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        mockPageFactory();
+        setupSpy();
         fakeComponentManager = spy(new FakeComponentManager());
         mStartupPresenter = new StartupPresenter(
                 REQUEST_CODE,
                 fakeComponentManager,
-                mPageFactory,
+                mFakePageFactory,
                 mNavigator
         );
     }
 
-    private void mockPageFactory() {
-        when(mPageFactory.createMainPage()).thenReturn(new MainPage(null));
-        when(mPageFactory.createSignUpPage()).thenReturn(new SignUpPage(null));
+    private void setupSpy() {
+        mFakePageFactory = spy(new FakePageFactory());
     }
 
     @Test

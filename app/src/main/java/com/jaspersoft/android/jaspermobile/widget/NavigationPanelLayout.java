@@ -101,6 +101,10 @@ public class NavigationPanelLayout extends RelativeLayout {
         super(context, attrs, defStyleAttr);
     }
 
+    public void setAnalytics(Analytics analytics) {
+        this.analytics = analytics;
+    }
+
     public void setListener(NavigationListener listener) {
         this.mListener = listener;
     }
@@ -223,9 +227,6 @@ public class NavigationPanelLayout extends RelativeLayout {
 
     @ItemClick(R.id.lv_accounts_menu)
     public void onAccountSelect(ProfileViewModel profile) {
-        // TODO properly handle accounts trgger for accounts
-//        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.CLICKED.getValue(), Analytics.EventLabel.SWITCH_ACCOUNT.getValue());
-
         if (mListener != null) {
             mListener.onActiveProfileChange(profile);
         }
@@ -264,7 +265,18 @@ public class NavigationPanelLayout extends RelativeLayout {
         boolean hasProfiles = !profiles.isEmpty();
         footerDivider.setVisibility(hasProfiles ? VISIBLE : GONE);
 
-        mProfilesAdapter.setProfiles(profiles);
+        List<ProfileViewModel> nonActiveProfiles = filterNonActiveProfile(profiles);
+        mProfilesAdapter.setProfiles(nonActiveProfiles);
+    }
+
+    private List<ProfileViewModel> filterNonActiveProfile(List<ProfileViewModel> profiles) {
+        List<ProfileViewModel> result = new ArrayList<>(profiles.size() - 1);
+        for (ProfileViewModel profile : profiles) {
+            if (!profile.isActive()) {
+                result.add(profile);
+            }
+        }
+        return result;
     }
 
     public void setActiveProfile(@Nullable ProfileViewModel profile) {
@@ -324,7 +336,11 @@ public class NavigationPanelLayout extends RelativeLayout {
     }
 
     private void trackNavigateEvent(String location) {
-        analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.CLICKED.getValue(), location);
+        analytics.sendEvent(
+                Analytics.EventCategory.MENU.getValue(),
+                Analytics.EventAction.CLICKED.getValue(),
+                location
+        );
     }
 
     //---------------------------------------------------------------------

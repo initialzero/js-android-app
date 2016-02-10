@@ -27,7 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -200,7 +200,7 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
     public void onResume() {
         super.onResume();
 
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             if (TextUtils.isEmpty(resourceLabel)) {
                 actionBar.setTitle(getString(R.string.h_repository_label));

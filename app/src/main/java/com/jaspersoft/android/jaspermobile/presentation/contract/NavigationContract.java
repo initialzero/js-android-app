@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.presentation.contract;
 
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
 
 import java.util.List;
@@ -18,6 +19,6 @@ public interface NavigationContract {
     interface ActionListener {
         void loadProfiles();
         void loadActiveProfile();
-        void activateProfile(ProfileViewModel profile);
+        void activateProfile(Profile profile);
     }
 }

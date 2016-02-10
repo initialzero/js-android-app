@@ -1,6 +1,8 @@
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
+import com.jaspersoft.android.jaspermobile.data.ComponentManager;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileMetadata;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetActiveProfileUseCase;
@@ -26,6 +28,7 @@ import timber.log.Timber;
 public final class NavigationPresenter extends Presenter<NavigationContract.View> implements NavigationContract.ActionListener {
     private final Navigator mNavigator;
     private final PageFactory mPageFactory;
+    private final ComponentManager mComponentManager;
     private final ProfileViewModelMapper mProfileViewModelMapper;
     private final GetProfilesUseCase mGetProfilesUseCase;
     private final GetActiveProfileUseCase mGetActiveProfileUseCase;
@@ -34,11 +37,13 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
     public NavigationPresenter(
             Navigator navigator,
             PageFactory pageFactory,
+            ComponentManager componentManager,
             ProfileViewModelMapper profileViewModelMapper,
             GetProfilesUseCase getProfilesUseCase,
             GetActiveProfileUseCase getActiveProfileUseCase) {
         mNavigator = navigator;
         mPageFactory = pageFactory;
+        mComponentManager = componentManager;
         mProfileViewModelMapper = profileViewModelMapper;
         mGetProfilesUseCase = getProfilesUseCase;
         mGetActiveProfileUseCase = getActiveProfileUseCase;
@@ -87,7 +92,8 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
     }
 
     @Override
-    public void activateProfile(ProfileViewModel profile) {
-
+    public void activateProfile(Profile profile) {
+        mComponentManager.setupActiveProfile(profile);
+        mNavigator.navigate(mPageFactory.createStartUpPage(), true);
     }
 }

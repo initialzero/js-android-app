@@ -30,4 +30,9 @@ public class PageFactory {
     public Page createSignUpPage() {
         return new SignUpPage(mContext);
     }
+
+    @NonNull
+    public Page createStartUpPage() {
+        return new StartUpPage(mContext);
+    }
 }

@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
+import com.jaspersoft.android.jaspermobile.data.ComponentManager;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileMetadata;
@@ -10,11 +11,14 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetProfiles
 import com.jaspersoft.android.jaspermobile.presentation.contract.NavigationContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ProfileViewModelMapper;
+import com.jaspersoft.android.jaspermobile.presentation.navigation.FakePageFactory;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
-import com.jaspersoft.android.jaspermobile.presentation.navigation.PageFactory;
+import com.jaspersoft.android.jaspermobile.presentation.navigation.Page;
+import com.jaspersoft.android.jaspermobile.presentation.navigation.StartUpPage;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.Collections;
@@ -23,8 +27,12 @@ import java.util.List;
 import rx.Observable;
 import rx.Subscriber;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -51,26 +59,29 @@ public class NavigationPresenterTest {
     @Mock
     Navigator mNavigator;
     @Mock
-    PageFactory mPageFactory;
-    @Mock
     ProfileViewModelMapper profileViewModelMapper;
+    @Mock
+    ComponentManager mComponentManager;
 
     @Mock
     NavigationContract.View mView;
 
+    private FakePageFactory mFakePageFactory;
     private FakeGetProfilesUseCase mGetProfilesUseCase;
     private FakeGetActiveProfileUseCase mGetActiveProfileUseCase;
     private NavigationPresenter mNavigationPresenter;
+    private Profile fakeProfile = Profile.create("fake");
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        spyOnUseCase();
+        setupSpies();
         mockMapper();
 
         mNavigationPresenter = new NavigationPresenter(
                 mNavigator,
-                mPageFactory,
+                mFakePageFactory,
+                mComponentManager,
                 profileViewModelMapper,
                 mGetProfilesUseCase,
                 mGetActiveProfileUseCase
@@ -78,7 +89,8 @@ public class NavigationPresenterTest {
         mNavigationPresenter.injectView(mView);
     }
 
-    private void spyOnUseCase() {
+    private void setupSpies() {
+        mFakePageFactory = spy(new FakePageFactory());
         mGetProfilesUseCase = spy(new FakeGetProfilesUseCase());
         mGetActiveProfileUseCase = spy(new FakeGetActiveProfileUseCase());
     }
@@ -141,6 +153,27 @@ public class NavigationPresenterTest {
 
     private void whenLoadsActiveProfile() {
         mNavigationPresenter.loadActiveProfile();
+    }
+
+    @Test
+    public void should_activate_new_profile() throws Exception {
+        whenActivatesProfile();
+        thenShouldActivateProfileWithComponent();
+        thenNavigatesToStartPage();
+    }
+
+    private void thenNavigatesToStartPage() {
+        ArgumentCaptor<Page> argument = ArgumentCaptor.forClass(Page.class);
+        verify(mNavigator).navigate(argument.capture(), eq(true));
+        assertThat(argument.getValue(), is(instanceOf(StartUpPage.class)));
+    }
+
+    private void thenShouldActivateProfileWithComponent() {
+        verify(mComponentManager).setupActiveProfile(fakeProfile);
+    }
+
+    private void whenActivatesProfile() {
+        mNavigationPresenter.activateProfile(fakeProfile);
     }
 
     private class FakeGetProfilesUseCase extends GetProfilesUseCase {

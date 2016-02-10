@@ -6,6 +6,7 @@ import com.jaspersoft.android.jaspermobile.data.ComponentManager;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileMetadata;
+import com.jaspersoft.android.jaspermobile.domain.ProfileMetadataCollection;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetActiveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetProfilesUseCase;
 import com.jaspersoft.android.jaspermobile.presentation.contract.NavigationContract;
@@ -64,6 +65,9 @@ public class NavigationPresenterTest {
     ComponentManager mComponentManager;
 
     @Mock
+    ProfileMetadataCollection mProfileMetadataCollection;
+
+    @Mock
     NavigationContract.View mView;
 
     private FakePageFactory mFakePageFactory;
@@ -71,6 +75,7 @@ public class NavigationPresenterTest {
     private FakeGetActiveProfileUseCase mGetActiveProfileUseCase;
     private NavigationPresenter mNavigationPresenter;
     private Profile fakeProfile = Profile.create("fake");
+
 
     @Before
     public void setUp() throws Exception {
@@ -104,8 +109,11 @@ public class NavigationPresenterTest {
 
     @Test
     public void should_load_profiles_on_view() throws Exception {
+        givenProfilesCollectionWithActiveOne();
+
         whenLoadProfiles();
-        thenExecutesGetProfilesCase();
+
+        thenShouldExecuteGetProfilesCase();
         thenShouldMapDomainProfiles();
         thenShouldShowProfiles();
     }
@@ -114,7 +122,7 @@ public class NavigationPresenterTest {
         verify(profileViewModelMapper).transform(DOMAIN_PROFILES);
     }
 
-    private void thenExecutesGetProfilesCase() {
+    private void thenShouldExecuteGetProfilesCase() {
         verify(mGetProfilesUseCase).execute(any(Subscriber.class));
     }
 
@@ -129,10 +137,16 @@ public class NavigationPresenterTest {
     @Test
     public void should_load_active_profile_on_view() throws Exception {
         whenLoadsActiveProfile();
+
         thenShouldExecuteGetActiveProfileCase();
         thenShouldMapDomainProfile();
         thenShouldShowActiveProfile();
         thenShouldToggleRecentlyViewed();
+    }
+
+    private void givenProfilesCollectionWithActiveOne() {
+        when(mProfileMetadataCollection.get()).thenReturn(DOMAIN_PROFILES);
+        when(mProfileMetadataCollection.containsActiveProfile()).thenReturn(true);
     }
 
     private void thenShouldToggleRecentlyViewed() {
@@ -158,6 +172,7 @@ public class NavigationPresenterTest {
     @Test
     public void should_activate_new_profile() throws Exception {
         whenActivatesProfile();
+
         thenShouldActivateProfileWithComponent();
         thenNavigatesToStartPage();
     }
@@ -176,14 +191,28 @@ public class NavigationPresenterTest {
         mNavigationPresenter.activateProfile(fakeProfile);
     }
 
+    @Test
+    public void should_exit_current_session() throws Exception {
+        givenProfilesWithNoActiveOne();
+
+        whenLoadProfiles();
+
+        thenShouldExecuteGetProfilesCase();
+        thenNavigatesToStartPage();
+    }
+
+    private void givenProfilesWithNoActiveOne() {
+        when(mProfileMetadataCollection.containsActiveProfile()).thenReturn(false);
+    }
+
     private class FakeGetProfilesUseCase extends GetProfilesUseCase {
         public FakeGetProfilesUseCase() {
             super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null);
         }
 
         @Override
-        protected Observable<List<ProfileMetadata>> buildUseCaseObservable() {
-            return Observable.just(DOMAIN_PROFILES);
+        protected Observable<ProfileMetadataCollection> buildUseCaseObservable() {
+            return Observable.just(mProfileMetadataCollection);
         }
     }
 

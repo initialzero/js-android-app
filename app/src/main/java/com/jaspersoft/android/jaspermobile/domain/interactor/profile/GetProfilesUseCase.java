@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.domain.interactor.profile;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileMetadata;
+import com.jaspersoft.android.jaspermobile.domain.ProfileMetadataCollection;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractSimpleUseCase;
@@ -23,7 +24,7 @@ import rx.functions.Func1;
  * @since 2.3
  */
 @PerProfile
-public class GetProfilesUseCase extends AbstractSimpleUseCase<List<ProfileMetadata>> {
+public class GetProfilesUseCase extends AbstractSimpleUseCase<ProfileMetadataCollection> {
     private final ProfileRepository mProfileRepository;
     private final JasperServerRepository mServerRepository;
 
@@ -40,12 +41,15 @@ public class GetProfilesUseCase extends AbstractSimpleUseCase<List<ProfileMetada
     }
 
     @Override
-    protected Observable<List<ProfileMetadata>> buildUseCaseObservable() {
+    protected Observable<ProfileMetadataCollection> buildUseCaseObservable() {
         Observable<List<Profile>> listProfiles = mProfileRepository.listProfiles();
-        return listProfiles.flatMap(new Func1<List<Profile>, Observable<List<ProfileMetadata>>>() {
+        return listProfiles.flatMap(new Func1<List<Profile>, Observable<ProfileMetadataCollection>>() {
             @Override
-            public Observable<List<ProfileMetadata>> call(List<Profile> profiles) {
+            public Observable<ProfileMetadataCollection> call(List<Profile> profiles) {
                 Profile activeProfile = mProfileRepository.getActiveProfile();
+                if (activeProfile == null) {
+                    activeProfile = Profile.create("");
+                }
 
                 List<ProfileMetadata> metadataList = new ArrayList<>(profiles.size());
                 for (Profile profile : profiles) {
@@ -55,7 +59,9 @@ public class GetProfilesUseCase extends AbstractSimpleUseCase<List<ProfileMetada
                     metadataList.add(metadata);
                 }
 
-                return Observable.just(metadataList);
+                ProfileMetadataCollection profileMetadataCollection =
+                        new ProfileMetadataCollection(metadataList);
+                return Observable.just(profileMetadataCollection);
             }
         });
     }

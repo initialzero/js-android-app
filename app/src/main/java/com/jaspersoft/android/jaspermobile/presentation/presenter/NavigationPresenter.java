@@ -4,6 +4,7 @@ import com.jaspersoft.android.jaspermobile.data.ComponentManager;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileMetadata;
+import com.jaspersoft.android.jaspermobile.domain.ProfileMetadataCollection;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetActiveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetProfilesUseCase;
@@ -57,18 +58,26 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
 
     @Override
     public void loadProfiles() {
-        mGetProfilesUseCase.execute(new SimpleSubscriber<List<ProfileMetadata>>() {
+        mGetProfilesUseCase.execute(new SimpleSubscriber<ProfileMetadataCollection>() {
             @Override
             public void onError(Throwable e) {
                 Timber.e(e, "GetProfilesUseCase# failed");
             }
 
             @Override
-            public void onNext(List<ProfileMetadata> items) {
-                List<ProfileViewModel> profiles = mProfileViewModelMapper.transform(items);
-                getView().showProfiles(profiles);
+            public void onNext(ProfileMetadataCollection collection) {
+                if (collection.containsActiveProfile()) {
+                    showProfiles(collection);
+                } else {
+//                    exitCurrentSession();
+                }
             }
         });
+    }
+
+    private void showProfiles(ProfileMetadataCollection collection) {
+        List<ProfileViewModel> profiles = mProfileViewModelMapper.transform(collection.get());
+        getView().showProfiles(profiles);
     }
 
     @Override
@@ -94,6 +103,10 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
     @Override
     public void activateProfile(Profile profile) {
         mComponentManager.setupActiveProfile(profile);
+        exitCurrentSession();
+    }
+
+    private void exitCurrentSession() {
         mNavigator.navigate(mPageFactory.createStartUpPage(), true);
     }
 }

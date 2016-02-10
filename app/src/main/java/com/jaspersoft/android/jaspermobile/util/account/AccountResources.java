@@ -33,14 +33,20 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -80,6 +86,29 @@ public class AccountResources {
     public void flushOnDemand() {
         flushFavorites();
         flushSavedItems();
+        flushActiveCache();
+    }
+
+    private void flushActiveCache() {
+        ActiveProfileCache cache = new PreferencesActiveProfileCache(context);
+        Profile profile = cache.get();
+        if (profile == null) {
+            flushComponent();
+            return;
+        }
+
+        List<String> strings = Arrays.asList(accountNames);
+        boolean activeProfileRemoved = !strings.contains(profile.getKey());
+
+        if (activeProfileRemoved) {
+            cache.clear();
+            flushComponent();
+        }
+    }
+
+    private void flushComponent() {
+        GraphObject.Factory.from(context)
+                .setProfileComponent(null);
     }
 
     private void flushFavorites() {

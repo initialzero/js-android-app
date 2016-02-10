@@ -82,4 +82,9 @@ public final class PreferencesActiveProfileCache implements ActiveProfileCache {
     public boolean hasProfile() {
         return !TextUtils.isEmpty(mPreference.getString(ACCOUNT_NAME_KEY, null));
     }
+
+    @Override
+    public void clear() {
+        mPreference.edit().clear().apply();
+    }
 }

@@ -14,6 +14,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ProfileViewModelMapper;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.PageFactory;
+import com.jaspersoft.android.jaspermobile.presentation.page.NavigationPageState;
 
 import java.util.List;
 
@@ -51,6 +52,14 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
     }
 
     @Override
+    public void resume() {
+        NavigationPageState state = getView().getState();
+        if (state.shouldExit()) {
+            exitCurrentSession();
+        }
+    }
+
+    @Override
     public void destroy() {
         mGetProfilesUseCase.unsubscribe();
         mGetActiveProfileUseCase.unsubscribe();
@@ -69,7 +78,8 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
                 if (collection.containsActiveProfile()) {
                     showProfiles(collection);
                 } else {
-//                    exitCurrentSession();
+                    NavigationPageState state = getView().getState();
+                    state.setShouldExit(true);
                 }
             }
         });

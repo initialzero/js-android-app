@@ -72,6 +72,8 @@ public final class ComponentManagerImpl implements ComponentManager {
             callback.onActiveProfileMissing();
         } else {
             activateProfile(profile);
+            setupProfileComponent(profile);
+            callback.onSetupComplete();
         }
     }
 

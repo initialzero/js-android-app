@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.presentation.contract;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
+import com.jaspersoft.android.jaspermobile.presentation.page.NavigationPageState;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public interface NavigationContract {
         void toggleRecentlyViewedNavigation(boolean visibility);
         void showActiveProfile(ProfileViewModel activeProfile);
         void showProfiles(List<ProfileViewModel> profiles);
+        NavigationPageState getState();
     }
 
     interface ActionListener {

@@ -16,6 +16,7 @@ import com.jaspersoft.android.jaspermobile.presentation.navigation.FakePageFacto
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Page;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.StartUpPage;
+import com.jaspersoft.android.jaspermobile.presentation.page.NavigationPageState;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -69,6 +70,8 @@ public class NavigationPresenterTest {
 
     @Mock
     NavigationContract.View mView;
+    @Mock
+    NavigationPageState mState;
 
     private FakePageFactory mFakePageFactory;
     private FakeGetProfilesUseCase mGetProfilesUseCase;
@@ -81,6 +84,7 @@ public class NavigationPresenterTest {
     public void setUp() throws Exception {
         initMocks(this);
         setupSpies();
+        setupMocks();
         mockMapper();
 
         mNavigationPresenter = new NavigationPresenter(
@@ -92,6 +96,10 @@ public class NavigationPresenterTest {
                 mGetActiveProfileUseCase
         );
         mNavigationPresenter.injectView(mView);
+    }
+
+    private void setupMocks() {
+        when(mView.getState()).thenReturn(mState);
     }
 
     private void setupSpies() {
@@ -174,10 +182,10 @@ public class NavigationPresenterTest {
         whenActivatesProfile();
 
         thenShouldActivateProfileWithComponent();
-        thenNavigatesToStartPage();
+        thenShouldNavigatesToStartPage();
     }
 
-    private void thenNavigatesToStartPage() {
+    private void thenShouldNavigatesToStartPage() {
         ArgumentCaptor<Page> argument = ArgumentCaptor.forClass(Page.class);
         verify(mNavigator).navigate(argument.capture(), eq(true));
         assertThat(argument.getValue(), is(instanceOf(StartUpPage.class)));
@@ -193,16 +201,37 @@ public class NavigationPresenterTest {
 
     @Test
     public void should_exit_current_session() throws Exception {
-        givenProfilesWithNoActiveOne();
+        givenNotActiveProfiles();
 
         whenLoadProfiles();
 
         thenShouldExecuteGetProfilesCase();
-        thenNavigatesToStartPage();
+        thenShouldFlagPageForExit();
     }
 
-    private void givenProfilesWithNoActiveOne() {
+    private void thenShouldFlagPageForExit() {
+        verify(mState).setShouldExit(true);
+    }
+
+    private void givenNotActiveProfiles() {
         when(mProfileMetadataCollection.containsActiveProfile()).thenReturn(false);
+    }
+
+    @Test
+    public void if_state_flagged_for_exit_should_finish_page() throws Exception {
+        givenStateMarkedForFinish();
+
+        whenPresenterResumes();
+
+        thenShouldNavigatesToStartPage();
+    }
+
+    private void whenPresenterResumes() {
+        mNavigationPresenter.resume();
+    }
+
+    private void givenStateMarkedForFinish() {
+        when(mState.shouldExit()).thenReturn(true);
     }
 
     private class FakeGetProfilesUseCase extends GetProfilesUseCase {

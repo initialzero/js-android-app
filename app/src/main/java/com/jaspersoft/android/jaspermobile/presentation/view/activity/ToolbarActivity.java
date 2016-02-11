@@ -40,10 +40,8 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 
 import org.androidannotations.api.ViewServer;
@@ -141,10 +139,7 @@ public class ToolbarActivity extends BaseActivity {
         }
     }
 
-    protected ProfileComponent getProfileComponent() {
-        GraphObject graphObject = GraphObject.Factory.from(this);
-        return graphObject.getProfileComponent();
-    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -6,6 +6,8 @@ import android.view.WindowManager;
 
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 
 /**
@@ -21,6 +23,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected AppComponent getAppComponent() {
         return GraphObject.Factory.from(this).getComponent();
+    }
+
+    protected ProfileComponent getProfileComponent() {
+        return ComponentProviderDelegate.INSTANCE.getProfileComponent(this);
     }
 
     private void toggleScreenCapturing(){

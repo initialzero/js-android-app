@@ -93,16 +93,16 @@ public class ComponentManagerTest {
 
         whenSetupProfileComponent();
 
-        thenProfileComponentInitialized();
-        thenSetupCompleteCalled();
+        thenShouldSetupProfileComponent();
+        thenShouldCallCompleteCallback();
     }
 
-    private void thenSetupCompleteCalled() {
+    private void thenShouldCallCompleteCallback() {
         verify(mCallback).onSetupComplete();
         verifyNoMoreInteractions(mCallback);
     }
 
-    private void thenProfileComponentInitialized() {
+    private void thenShouldSetupProfileComponent() {
         verify(mGraphObject).setProfileComponent(any(ProfileComponent.class));
     }
 
@@ -118,7 +118,7 @@ public class ComponentManagerTest {
         whenSetupActiveProfile();
 
         thenShouldWriteToActiveCache();
-        thenProfileComponentInitialized();
+        thenShouldSetupProfileComponent();
     }
 
     private void whenSetupActiveProfile() {
@@ -156,6 +156,8 @@ public class ComponentManagerTest {
 
         thenShouldRetrieveAllProfiles();
         thenShouldWriteToActiveCache();
+        thenShouldCallCompleteCallback();
+        thenShouldSetupProfileComponent();
     }
 
     private void givenOneRegisteredProfile() {

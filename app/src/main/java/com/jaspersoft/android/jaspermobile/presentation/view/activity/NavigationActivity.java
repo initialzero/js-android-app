@@ -61,6 +61,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.components.NavigationActi
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.NavigationActivityModule;
 import com.jaspersoft.android.jaspermobile.presentation.contract.NavigationContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
+import com.jaspersoft.android.jaspermobile.presentation.page.NavigationPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.NavigationPresenter;
 import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
@@ -110,6 +111,8 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
 
     @InstanceState
     protected boolean customToolbarDisplayEnabled = true;
+    @InstanceState
+    protected NavigationPageState mState = new NavigationPageState();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -150,6 +153,12 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mNavigationPresenter.resume();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         mNavigationPresenter.destroy();
@@ -174,6 +183,11 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
     @Override
     public void showProfiles(List<ProfileViewModel> profiles) {
         navigationPanelLayout.loadProfiles(profiles);
+    }
+
+    @Override
+    public NavigationPageState getState() {
+        return mState;
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.jaspersoft.android.jaspermobile.domain.ProfileMetadata;
 import com.jaspersoft.android.jaspermobile.domain.ProfileMetadataCollection;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetActiveProfileUseCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetProfilesUseCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetProfilesMetadataUseCase;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.contract.NavigationContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
@@ -32,7 +32,7 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
     private final PageFactory mPageFactory;
     private final ComponentManager mComponentManager;
     private final ProfileViewModelMapper mProfileViewModelMapper;
-    private final GetProfilesUseCase mGetProfilesUseCase;
+    private final GetProfilesMetadataUseCase mGetProfilesMetadataUseCase;
     private final GetActiveProfileUseCase mGetActiveProfileUseCase;
 
     @Inject
@@ -41,13 +41,13 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
             PageFactory pageFactory,
             ComponentManager componentManager,
             ProfileViewModelMapper profileViewModelMapper,
-            GetProfilesUseCase getProfilesUseCase,
+            GetProfilesMetadataUseCase getProfilesMetadataUseCase,
             GetActiveProfileUseCase getActiveProfileUseCase) {
         mNavigator = navigator;
         mPageFactory = pageFactory;
         mComponentManager = componentManager;
         mProfileViewModelMapper = profileViewModelMapper;
-        mGetProfilesUseCase = getProfilesUseCase;
+        mGetProfilesMetadataUseCase = getProfilesMetadataUseCase;
         mGetActiveProfileUseCase = getActiveProfileUseCase;
     }
 
@@ -61,13 +61,13 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
 
     @Override
     public void destroy() {
-        mGetProfilesUseCase.unsubscribe();
+        mGetProfilesMetadataUseCase.unsubscribe();
         mGetActiveProfileUseCase.unsubscribe();
     }
 
     @Override
     public void loadProfiles() {
-        mGetProfilesUseCase.execute(new SimpleSubscriber<ProfileMetadataCollection>() {
+        mGetProfilesMetadataUseCase.execute(new SimpleSubscriber<ProfileMetadataCollection>() {
             @Override
             public void onError(Throwable e) {
                 Timber.e(e, "GetProfilesUseCase# failed");

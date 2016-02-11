@@ -24,12 +24,12 @@ import rx.functions.Func1;
  * @since 2.3
  */
 @PerProfile
-public class GetProfilesUseCase extends AbstractSimpleUseCase<ProfileMetadataCollection> {
+public class GetProfilesMetadataUseCase extends AbstractSimpleUseCase<ProfileMetadataCollection> {
     private final ProfileRepository mProfileRepository;
     private final JasperServerRepository mServerRepository;
 
     @Inject
-    public GetProfilesUseCase(
+    public GetProfilesMetadataUseCase(
             PreExecutionThread preExecutionThread,
             PostExecutionThread postExecutionThread,
             ProfileRepository profileRepository,

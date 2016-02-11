@@ -20,9 +20,11 @@ public interface AuthenticationContract {
         void showServerVersionNotSupported();
         void showFailedToAddProfile(String message);
         void navigateToApp(Profile profile);
+        void showTryDemo(boolean visible);
     }
 
-    interface Action {
+    interface ActionListener {
+        void checkDemoAccountAvailability();
         void saveProfile(ProfileForm profileForm);
     }
 }

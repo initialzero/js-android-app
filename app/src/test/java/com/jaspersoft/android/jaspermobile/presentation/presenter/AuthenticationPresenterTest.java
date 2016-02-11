@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.DemoProfileExistsUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
@@ -42,13 +43,8 @@ import com.jaspersoft.android.jaspermobile.presentation.validation.UsernameMissi
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import rx.Subscriber;
 
@@ -61,8 +57,6 @@ import static org.mockito.Mockito.when;
  * @author Tom Koptel
  * @since 2.3
  */
-@RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 21, shadows = {ShadowMultiDex.class})
 public class AuthenticationPresenterTest {
 
     @Mock
@@ -81,6 +75,9 @@ public class AuthenticationPresenterTest {
     @Mock
     AppCredentials mCredentials;
 
+    @Mock
+    DemoProfileExistsUseCase mDemoProfileExistsUseCase;
+
     AuthenticationPresenter presenterUnderTest;
 
     @Mock
@@ -89,15 +86,18 @@ public class AuthenticationPresenterTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        setupMocks();
 
         presenterUnderTest = new AuthenticationPresenter(
-                RuntimeEnvironment.application,
                 mSaveProfileUseCase,
                 profileFormValidation,
-                mRequestExceptionHandler
+                mRequestExceptionHandler,
+                mDemoProfileExistsUseCase
         );
         presenterUnderTest.injectView(mAuthenticationView);
+    }
 
+    private void setupMocks() {
         when(mForm.getProfile()).thenReturn(mProfile);
         when(mForm.getCredentials()).thenReturn(mCredentials);
         when(mForm.getServerUrl()).thenReturn("http://localhost");
@@ -105,76 +105,196 @@ public class AuthenticationPresenterTest {
 
     @Test
     public void testSaveProfile() throws Exception {
-        presenterUnderTest.saveProfile(mForm);
-        verify(mAuthenticationView).showLoading();
-        verify(mSaveProfileUseCase).execute(any(ProfileForm.class), any(Subscriber.class));
+        whenSaveProfile();
+
+        thenShouldShowLoading();
+        thenShouldExecuteSaveProfileCase();
     }
 
     @Test
     public void testPresenterHandlesDuplicateAliasCase() {
-        presenterUnderTest.handleProfileSaveFailure(new DuplicateProfileException("any profile"));
-        verify(mAuthenticationView).hideLoading();
-        verify(mAuthenticationView).showAliasDuplicateError();
+        whenHandlesSaveFailure(new DuplicateProfileException("any profile"));
+
+        thenShouldHideLoading();
+        thenShouldShowDuplicateError();
     }
 
     @Test
     public void testPresenterHandlesAliasReservedCase() throws Exception {
-        presenterUnderTest.handleProfileSaveFailure(new ProfileReservedException());
-        verify(mAuthenticationView).hideLoading();
-        verify(mAuthenticationView).showAliasReservedError();
+        whenHandlesSaveFailure(new ProfileReservedException());
+
+        thenShouldHideLoading();
+        thenShouldShowNameReservedError();
     }
 
     @Test
     public void testPresenterHandlesAliasMissing() throws Exception {
-        doThrow(new AliasMissingException()).when(profileFormValidation).validate(mForm);
-        presenterUnderTest.saveProfile(mForm);
-        verify(mAuthenticationView).showAliasRequiredError();
+        givenFormValidationThrowsException(new AliasMissingException());
+
+        whenSaveProfile();
+
+        thenShouldShowAliasRequiredError();
     }
 
     @Test
     public void testPresenterHandlesServerUrlInvalidFormat() throws Exception {
-        doThrow(new ServerUrlFormatException()).when(profileFormValidation).validate(mForm);
-        presenterUnderTest.saveProfile(mForm);
-        verify(mAuthenticationView).showServerUrlFormatError();
+        givenFormValidationThrowsException(new ServerUrlFormatException());
+
+        whenSaveProfile();
+
+        thenShouldShowServerUrlFormatError();
     }
 
     @Test
     public void testPresenterHandlesServerUrlMissing() throws Exception {
-        doThrow(new ServerUrlMissingException()).when(profileFormValidation).validate(mForm);
-        presenterUnderTest.saveProfile(mForm);
-        verify(mAuthenticationView).showServerUrlRequiredError();
+        givenFormValidationThrowsException(new ServerUrlMissingException());
+
+        whenSaveProfile();
+
+        thenShouldShowUrlReqiredError();
     }
 
     @Test
     public void testPresenterHandlesUsernameMissing() throws Exception {
-        doThrow(new UsernameMissingException()).when(profileFormValidation).validate(mForm);
-        presenterUnderTest.saveProfile(mForm);
-        verify(mAuthenticationView).showUsernameRequiredError();
+        givenFormValidationThrowsException(new UsernameMissingException());
+
+        whenSaveProfile();
+
+        thenShouldShowUsernameReqiredError();
     }
 
     @Test
     public void testPresenterHandlesPasswordMissing() throws Exception {
-        doThrow(new PasswordMissingException()).when(profileFormValidation).validate(mForm);
-        presenterUnderTest.saveProfile(mForm);
-        verify(mAuthenticationView).showPasswordRequiredError();
+        givenFormValidationThrowsException(new PasswordMissingException());
+
+        whenSaveProfile();
+
+        thenShouldShowPasswordReqiredError();
     }
 
     @Test
     public void testPresenterHandlesSeverVersionNotSupported() throws Exception {
-        presenterUnderTest.handleProfileSaveFailure(new ServerVersionNotSupportedException("5.0"));
-        verify(mAuthenticationView).hideLoading();
-        verify(mAuthenticationView).showServerVersionNotSupported();
+        whenHandlesSaveFailure(new ServerVersionNotSupportedException("5.0"));
+
+        thenShouldHideLoading();
+
+        thenShouldShowVersionNotSupportedError();
     }
 
     @Test
     public void testPresenterHandlesCompleteProfileSaveEvent() throws Exception {
-        presenterUnderTest.handleProfileComplete();
-        verify(mAuthenticationView).hideLoading();
+        whenHandlesProfileComplete();
+        thenShouldHideLoading();
     }
 
     @Test
     public void testPresenterUnsubscribesDuringDestroy() {
+        whenPresenterDestroyed();
+
+        thenShouldUnsubscribeSaveProfileCase();
+    }
+
+    @Test
+    public void should_hide_try_demo_if_mobile_account_exists() throws Exception {
+        givenAppHasMobileDemoProfile(true);
+
+        whenChecksDemoAccountAvailability();
+
+        thenShouldExecuteGetProfilesMetadataCase();
+        thenShouldToggleTryDemoView(false);
+    }
+
+    @Test
+    public void should_show_try_demo_if_mobile_account_exists() throws Exception {
+        givenAppHasMobileDemoProfile(false);
+
+        whenChecksDemoAccountAvailability();
+
+        thenShouldExecuteGetProfilesMetadataCase();
+        thenShouldToggleTryDemoView(true);
+    }
+
+    private void givenAppHasMobileDemoProfile(boolean has) {
+        when(mDemoProfileExistsUseCase.execute()).thenReturn(has);
+    }
+
+    private void givenFormValidationThrowsException(Throwable throwable) throws Exception {
+        doThrow(throwable).when(profileFormValidation).validate(mForm);
+    }
+
+    private void whenChecksDemoAccountAvailability() {
+        presenterUnderTest.checkDemoAccountAvailability();
+    }
+
+    private void whenHandlesProfileComplete() {
+        presenterUnderTest.handleProfileComplete();
+    }
+
+    private void whenPresenterDestroyed() {
         presenterUnderTest.destroy();
+    }
+
+    private void whenSaveProfile() {
+        presenterUnderTest.saveProfile(mForm);
+    }
+
+    private void thenShouldToggleTryDemoView(boolean show) {
+        verify(mAuthenticationView).showTryDemo(show);
+    }
+
+    private void thenShouldExecuteGetProfilesMetadataCase() {
+        verify(mDemoProfileExistsUseCase).execute();
+    }
+
+    private void thenShouldShowAliasRequiredError() {
+        verify(mAuthenticationView).showAliasRequiredError();
+    }
+
+    private void thenShouldShowServerUrlFormatError() {
+        verify(mAuthenticationView).showServerUrlFormatError();
+    }
+
+    private void thenShouldShowUrlReqiredError() {
+        verify(mAuthenticationView).showServerUrlRequiredError();
+    }
+
+    private void thenShouldShowUsernameReqiredError() {
+        verify(mAuthenticationView).showUsernameRequiredError();
+    }
+
+    private void thenShouldShowPasswordReqiredError() {
+        verify(mAuthenticationView).showPasswordRequiredError();
+    }
+
+    private void thenShouldShowVersionNotSupportedError() {
+        verify(mAuthenticationView).showServerVersionNotSupported();
+    }
+
+    private void thenShouldUnsubscribeSaveProfileCase() {
         verify(mSaveProfileUseCase).unsubscribe();
+    }
+
+    private void thenShouldShowNameReservedError() {
+        verify(mAuthenticationView).showAliasReservedError();
+    }
+
+    private void thenShouldExecuteSaveProfileCase() {
+        verify(mSaveProfileUseCase).execute(any(ProfileForm.class), any(Subscriber.class));
+    }
+
+    private void thenShouldShowDuplicateError() {
+        verify(mAuthenticationView).showAliasDuplicateError();
+    }
+
+    private void whenHandlesSaveFailure(Throwable throwable) {
+        presenterUnderTest.handleProfileSaveFailure(throwable);
+    }
+
+    private void thenShouldHideLoading() {
+        verify(mAuthenticationView).hideLoading();
+    }
+
+    private void thenShouldShowLoading() {
+        verify(mAuthenticationView).showLoading();
     }
 }

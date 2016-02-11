@@ -28,6 +28,7 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -43,6 +44,7 @@ import com.jaspersoft.android.jaspermobile.presentation.presenter.Authentication
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.BaseUrlNormalizer;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
@@ -78,7 +80,7 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     @Inject
     AuthenticationPresenter mPresenter;
     @Inject
-    AuthenticationContract.Action mProfileActionListener;
+    AuthenticationContract.ActionListener mActionListener;
 
     @Inject
     @Named("accountType")
@@ -95,6 +97,12 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     private void injectComponents() {
         getComponent(AuthenticatorActivityComponent.class).inject(this);
         mPresenter.injectView(this);
+    }
+
+    @AfterViews
+    void init() {
+        showTryDemo(false);
+        mActionListener.checkDemoAccountAvailability();
     }
 
     @Click
@@ -225,6 +233,11 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
         getAccountAuthenticatorActivity().setAccountAuthenticatorResult(data);
         getActivity().setResult(Activity.RESULT_OK, resultIntent);
         getActivity().finish();
+    }
+
+    @Override
+    public void showTryDemo(boolean visible) {
+        tryDemoLayout.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     private AuthenticatorActivity getAccountAuthenticatorActivity() {

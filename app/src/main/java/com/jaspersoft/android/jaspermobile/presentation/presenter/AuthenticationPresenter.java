@@ -1,19 +1,16 @@
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
-import android.app.Application;
-import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 
-import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.DemoProfileExistsUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.SaveProfileUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveCredentials;
 import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToSaveProfile;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.DuplicateProfileException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ProfileReservedException;
 import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVersionNotSupportedException;
-import com.jaspersoft.android.jaspermobile.internal.di.ActivityContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.contract.AuthenticationContract;
@@ -34,23 +31,24 @@ import rx.Subscriber;
  * @since 2.3
  */
 @PerActivity
-public final class AuthenticationPresenter extends Presenter<AuthenticationContract.View> implements AuthenticationContract.Action {
-    private final Context mContext;
+public final class AuthenticationPresenter extends Presenter<AuthenticationContract.View> implements AuthenticationContract.ActionListener {
 
     private final SaveProfileUseCase mSaveProfileUseCaseUseCase;
     private final ProfileFormValidation mProfileFormValidation;
     private final RequestExceptionHandler mRequestExceptionHandler;
+    private final DemoProfileExistsUseCase mDemoProfileExistsUseCase;
 
     @Inject
     public AuthenticationPresenter(
-            @ActivityContext Context context,
             SaveProfileUseCase saveProfileUseCaseUseCase,
             ProfileFormValidation profileFormValidation,
-            RequestExceptionHandler requestExceptionHandler) {
-        mContext = context;
+            RequestExceptionHandler requestExceptionHandler,
+            DemoProfileExistsUseCase demoProfileExistsUseCase
+    ) {
         mSaveProfileUseCaseUseCase = saveProfileUseCaseUseCase;
         mProfileFormValidation = profileFormValidation;
         mRequestExceptionHandler = requestExceptionHandler;
+        mDemoProfileExistsUseCase = demoProfileExistsUseCase;
     }
 
     @Override
@@ -64,6 +62,12 @@ public final class AuthenticationPresenter extends Presenter<AuthenticationContr
     @Override
     public void destroy() {
         mSaveProfileUseCaseUseCase.unsubscribe();
+    }
+
+    @Override
+    public void checkDemoAccountAvailability() {
+        boolean hideTryDemo = !mDemoProfileExistsUseCase.execute();
+        getView().showTryDemo(hideTryDemo);
     }
 
     @Override
@@ -94,7 +98,6 @@ public final class AuthenticationPresenter extends Presenter<AuthenticationContr
 
     @VisibleForTesting
     void handleProfileComplete() {
-        initLegacyJsRestClient();
         getView().hideLoading();
     }
 
@@ -115,21 +118,6 @@ public final class AuthenticationPresenter extends Presenter<AuthenticationContr
             getView().showError(mRequestExceptionHandler.extractMessage(e));
         } else {
             getView().showError(e.getMessage());
-        }
-    }
-
-
-    /**
-     * This is ugly fix for incompatible versions
-     * TODO: remove as soon as JsRestClient will be dropped from App
-     */
-    private void initLegacyJsRestClient() {
-        Application application = (Application) mContext.getApplicationContext();
-        if (application instanceof JasperMobileApplication) {
-            JasperMobileApplication app = ((JasperMobileApplication) mContext.getApplicationContext());
-            if (app != null) {
-                app.initLegacyJsRestClient();
-            }
         }
     }
 

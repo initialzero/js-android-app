@@ -26,7 +26,7 @@ import dagger.Provides;
 public final class AuthenticatorModule {
     @PerActivity
     @Provides
-    AuthenticationContract.Action provideActionListener(AuthenticationPresenter presenter) {
+    AuthenticationContract.ActionListener provideActionListener(AuthenticationPresenter presenter) {
         return presenter;
     }
 

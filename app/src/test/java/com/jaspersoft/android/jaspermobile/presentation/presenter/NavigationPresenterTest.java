@@ -8,7 +8,6 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileMetadata;
 import com.jaspersoft.android.jaspermobile.domain.ProfileMetadataCollection;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetActiveProfileUseCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetProfilesUseCase;
 import com.jaspersoft.android.jaspermobile.presentation.contract.NavigationContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ProfileViewModelMapper;
@@ -74,7 +73,7 @@ public class NavigationPresenterTest {
     NavigationPageState mState;
 
     private FakePageFactory mFakePageFactory;
-    private FakeGetProfilesUseCase mGetProfilesUseCase;
+    private FakeGetProfilesMetadataUseCase mGetProfilesUseCase;
     private FakeGetActiveProfileUseCase mGetActiveProfileUseCase;
     private NavigationPresenter mNavigationPresenter;
     private Profile fakeProfile = Profile.create("fake");
@@ -104,7 +103,10 @@ public class NavigationPresenterTest {
 
     private void setupSpies() {
         mFakePageFactory = spy(new FakePageFactory());
-        mGetProfilesUseCase = spy(new FakeGetProfilesUseCase());
+
+        mGetProfilesUseCase = spy(new FakeGetProfilesMetadataUseCase());
+        mGetProfilesUseCase.setProfileMetadataCollection(mProfileMetadataCollection);
+
         mGetActiveProfileUseCase = spy(new FakeGetActiveProfileUseCase());
     }
 
@@ -232,17 +234,6 @@ public class NavigationPresenterTest {
 
     private void givenStateMarkedForFinish() {
         when(mState.shouldExit()).thenReturn(true);
-    }
-
-    private class FakeGetProfilesUseCase extends GetProfilesUseCase {
-        public FakeGetProfilesUseCase() {
-            super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, null);
-        }
-
-        @Override
-        protected Observable<ProfileMetadataCollection> buildUseCaseObservable() {
-            return Observable.just(mProfileMetadataCollection);
-        }
     }
 
     private class FakeGetActiveProfileUseCase extends GetActiveProfileUseCase {

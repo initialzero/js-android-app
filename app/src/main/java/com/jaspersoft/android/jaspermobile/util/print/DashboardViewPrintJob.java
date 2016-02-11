@@ -25,7 +25,12 @@ public final class DashboardViewPrintJob implements ResourcePrintJob {
     @Override
     public ResourcePrintJob printResource(@NonNull String resourceUri, @NonNull String printName) {
         PrintManager printManager = (PrintManager) webView.getContext().getSystemService(Context.PRINT_SERVICE);
-        PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(printName);
+        PrintDocumentAdapter printAdapter;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            printAdapter = webView.createPrintDocumentAdapter(printName);
+        } else {
+            printAdapter = webView.createPrintDocumentAdapter();
+        }
         printManager.print(printName, printAdapter, new PrintAttributes.Builder().build());
         return this;
     }

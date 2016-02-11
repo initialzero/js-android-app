@@ -124,7 +124,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
                 return dateInputControlViewHolder;
             case IC_TIME:
                 DateTimeView timeItem = new DateTimeView(parent.getContext());
-                timeItem.setDateType(DateTimeView.DateType.DATE_TIME);
+                timeItem.setDateType(DateTimeView.DateType.TIME);
                 DateTimeInputControlViewHolder timeInputControlViewHolder = new DateTimeInputControlViewHolder(timeItem);
                 timeInputControlViewHolder.setDateTimeClickListener(new DateIcInteractionListener());
                 return timeInputControlViewHolder;

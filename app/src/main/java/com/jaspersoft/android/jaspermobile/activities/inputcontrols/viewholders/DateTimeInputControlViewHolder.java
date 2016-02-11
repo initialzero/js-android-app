@@ -51,6 +51,7 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
         Calendar calendarDate = IcDateHelper.convertToDate(inputControl);
         dateTimeView.setDate(calendarDate);
         dateTimeView.setLabel(getUpdatedLabelText(inputControl));
+        dateTimeView.setRequestCode(getAdapterPosition());
 
         showError(dateTimeView.getErrorView(), inputControl);
     }

@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
@@ -115,6 +116,8 @@ public class ReportVisualizeFragment extends BaseFragment
     protected VisualizeViewModel mVisualizeViewModel;
     @Inject
     protected ResourcePrintJob mResourcePrintJob;
+    @Inject
+    protected Analytics mAnalytics;
 
     @InstanceState
     protected ReportPageState mState;
@@ -240,6 +243,11 @@ public class ReportVisualizeFragment extends BaseFragment
 
     @OptionsItem
     final void printAction() {
+        mAnalytics.sendEvent(
+                Analytics.EventCategory.RESOURCE.getValue(),
+                Analytics.EventAction.PRINTED.getValue(),
+                Analytics.EventLabel.REPORT.getValue()
+        );
         mResourcePrintJob.printResource(resource.getUri(), resource.getLabel());
     }
 

@@ -39,6 +39,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
@@ -139,6 +140,8 @@ public class ReportViewFragment extends BaseFragment
     protected PostExecutionThread mPostExecutionThread;
     @Inject
     protected ResourcePrintJob mResourcePrintJob;
+    @Inject
+    protected Analytics mAnalytics;
 
     @InstanceState
     protected ReportPageState mReportPageState;
@@ -415,6 +418,11 @@ public class ReportViewFragment extends BaseFragment
 
     @OptionsItem
     final void printAction() {
+        mAnalytics.sendEvent(
+                Analytics.EventCategory.RESOURCE.getValue(),
+                Analytics.EventAction.PRINTED.getValue(),
+                Analytics.EventLabel.REPORT.getValue()
+        );
         mResourcePrintJob.printResource(resource.getUri(), resource.getLabel());
     }
 

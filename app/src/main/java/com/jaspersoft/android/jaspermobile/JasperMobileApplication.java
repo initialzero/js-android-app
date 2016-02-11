@@ -71,8 +71,6 @@ public class JasperMobileApplication extends MultiDexApplication implements Grap
         super.onCreate();
         getComponent().inject(this);
 
-        initLegacyJsRestClient();
-
         savedItemHelper.deleteUnsavedItems();
         forceDatabaseUpdate();
 
@@ -91,19 +89,6 @@ public class JasperMobileApplication extends MultiDexApplication implements Grap
 
     private void forceDatabaseUpdate() {
         getContentResolver().query(MobileDbProvider.FAVORITES_CONTENT_URI, new String[]{"_id"}, null, null, null);
-    }
-
-    public void initLegacyJsRestClient() {
-        // TODO make proper analytics activation during profile activation
-//        Account account = JasperAccountManager.get(this).getActiveAccount();
-//        if (account != null) {
-//            AccountServerData serverData = AccountServerData.get(this, account);
-//            String serverEdition = serverData.getEdition();
-//            if (serverData.isDemo()) {
-//                serverEdition = "DEMO";
-//            }
-//            analytics.setServerInfo(serverData.getVersionName(), serverEdition);
-//        }
     }
 
     private void initImageLoader() {

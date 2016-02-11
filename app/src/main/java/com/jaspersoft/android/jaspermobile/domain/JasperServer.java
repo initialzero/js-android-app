@@ -56,6 +56,11 @@ public class JasperServer {
     }
 
     @NonNull
+    public String getEdition() {
+        return edition;
+    }
+
+    @NonNull
     public String getVersion() {
         return version;
     }

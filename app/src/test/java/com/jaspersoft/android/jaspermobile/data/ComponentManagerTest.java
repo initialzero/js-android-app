@@ -98,7 +98,7 @@ public class ComponentManagerTest {
     }
 
     private void thenShouldCallCompleteCallback() {
-        verify(mCallback).onSetupComplete();
+        verify(mCallback).onSetupComplete(any(Profile.class));
         verifyNoMoreInteractions(mCallback);
     }
 

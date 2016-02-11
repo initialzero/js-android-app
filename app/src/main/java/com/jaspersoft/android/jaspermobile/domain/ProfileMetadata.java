@@ -6,17 +6,27 @@ import android.support.annotation.NonNull;
  * @author Tom Koptel
  * @since 2.3
  */
-public final class ProfileMetadata {
+public class ProfileMetadata {
+    private static final String MOBILE_DEMO_LABEL = "Mobile Demo";
+
     @NonNull
     private final Profile mProfile;
     @NonNull
     private final JasperServer mServer;
     private final boolean mActive;
 
-    public ProfileMetadata(@NonNull Profile profile, @NonNull JasperServer server, boolean active) {
+    public ProfileMetadata(
+            @NonNull Profile profile,
+            @NonNull JasperServer server,
+            boolean active
+    ) {
         mProfile = profile;
         mServer = server;
         mActive = active;
+    }
+
+    public boolean isDemo() {
+        return MOBILE_DEMO_LABEL.equals(mProfile.getKey());
     }
 
     public boolean isActive() {

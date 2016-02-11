@@ -20,11 +20,11 @@ public interface ComponentManager {
             }
 
             @Override
-            public void onSetupComplete() {
+            public void onSetupComplete(Profile profile) {
             }
         };
         void onActiveProfileMissing();
 
-        void onSetupComplete();
+        void onSetupComplete(Profile profile);
     }
 }

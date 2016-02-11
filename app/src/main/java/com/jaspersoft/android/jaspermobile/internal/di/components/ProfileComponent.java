@@ -23,6 +23,7 @@ import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItem
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity;
 import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
@@ -67,6 +68,7 @@ public interface ProfileComponent {
 
     BaseActivityComponent plusBase(ActivityModule activityModule);
 
+    Profile getProfile();
     /**
      * TODO remove one after architecture will be revised
      * Hardcoded injections.

@@ -41,7 +41,8 @@ public final class ComponentManagerImpl implements ComponentManager {
         if (profileComponent == null) {
             tryToSetupActiveProfile(callback);
         } else {
-            callback.onSetupComplete();
+            Profile profile = profileComponent.getProfile();
+            callback.onSetupComplete(profile);
         }
     }
 
@@ -62,7 +63,7 @@ public final class ComponentManagerImpl implements ComponentManager {
             tryToSetupFirstAvailable(callback);
         } else {
             setupProfileComponent(activeProfile);
-            callback.onSetupComplete();
+            callback.onSetupComplete(activeProfile);
         }
     }
 
@@ -73,7 +74,7 @@ public final class ComponentManagerImpl implements ComponentManager {
         } else {
             activateProfile(profile);
             setupProfileComponent(profile);
-            callback.onSetupComplete();
+            callback.onSetupComplete(profile);
         }
     }
 

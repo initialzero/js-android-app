@@ -88,6 +88,7 @@ public class InputControlsMapper {
 
     public com.jaspersoft.android.sdk.client.oxm.control.InputControlState retrofittedStateToLegacy(InputControlState state) {
         com.jaspersoft.android.sdk.client.oxm.control.InputControlState legacyState = new com.jaspersoft.android.sdk.client.oxm.control.InputControlState();
+        legacyState.setError(state.getError());
         legacyState.setId(state.getId());
         legacyState.setUri(state.getUri());
         legacyState.setValue(state.getValue());

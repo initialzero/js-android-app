@@ -22,6 +22,7 @@ import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragme
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.WebViewFragment;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity;
+import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
@@ -104,4 +105,5 @@ public interface ProfileComponent {
     void inject(RecentlyViewedResourceFilter filter);
     void inject(RepositoryResourceFilter filter);
     void inject(ResourceOpener resourceOpener);
+    void inject(PasswordDialogFragment passwordDialogFragment);
 }

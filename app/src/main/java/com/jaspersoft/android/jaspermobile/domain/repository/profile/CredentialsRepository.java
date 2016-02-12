@@ -27,7 +27,6 @@ package com.jaspersoft.android.jaspermobile.domain.repository.profile;
 import com.jaspersoft.android.jaspermobile.data.repository.profile.CredentialsDataRepository;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.domain.repository.exception.FailedToRetrieveCredentials;
 
 /**
  * Abstraction responsible for create and get operations around profile credentials.
@@ -49,7 +48,6 @@ public interface CredentialsRepository {
      * Retrieves cached credentials for corresponding profile
      * @param profile the target profile we use to associate with credentials
      * @return credentials for passed profile
-     * @throws FailedToRetrieveCredentials during fetch process system could fail to decrypt sensitive data
      */
     AppCredentials getCredentials(Profile profile);
 }

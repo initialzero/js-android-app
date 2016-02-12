@@ -3,7 +3,6 @@ package com.jaspersoft.android.jaspermobile.data.validator;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.CredentialsMapper;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.domain.validator.ValidationRule;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.sdk.network.AnonymousClient;
 import com.jaspersoft.android.sdk.network.Credentials;
 import com.jaspersoft.android.sdk.network.Server;
@@ -12,12 +11,13 @@ import com.jaspersoft.android.sdk.service.auth.AuthorizationService;
 import java.net.CookieHandler;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-@PerActivity
+@Singleton
 public final class ProfileAuthorizedValidation implements ValidationRule<ProfileForm, Exception> {
     private final Server.Builder mServerBuilder;
     private final CredentialsMapper mCredentialsMapper;

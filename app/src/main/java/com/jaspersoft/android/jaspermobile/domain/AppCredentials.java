@@ -37,6 +37,13 @@ public class AppCredentials {
         return organization;
     }
 
+    public Builder newBuilder() {
+        return new Builder()
+                .setUsername(username)
+                .setPassword(password)
+                .setOrganization(organization);
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

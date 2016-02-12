@@ -40,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OutputFormatDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ValueInputDialogFragment;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
@@ -185,23 +186,27 @@ public class ScheduleActivity extends ToolbarActivity implements DateDialogFragm
                         .subscribe(new Subscriber<JobData>() {
                             @Override
                             public void onCompleted() {
+                                hideLoading();
                                 analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.SCHEDULED.getValue(), null);
                             }
 
                             @Override
                             public void onError(Throwable e) {
-                                ProgressDialogFragment.dismiss(getSupportFragmentManager());
-                                // TODO: handle error
+                                hideLoading();
+                                RequestExceptionHandler.showAuthErrorIfExists(ScheduleActivity.this, e);
                             }
 
                             @Override
                             public void onNext(JobData data) {
-                                ProgressDialogFragment.dismiss(getSupportFragmentManager());
                                 Toast.makeText(ScheduleActivity.this, R.string.sch_created, Toast.LENGTH_SHORT).show();
                                 finish();
                             }
                         })
         );
+    }
+
+    private void hideLoading() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
     @Click(R.id.runImmediately)

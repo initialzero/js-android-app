@@ -384,6 +384,16 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
         }
     }
 
+    private void hideLoading() {
+        ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+    }
+
+    private void showLoading() {
+        ProgressDialogFragment.builder(getActivity().getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
+    }
+
     //---------------------------------------------------------------------
     // Inner classes
     //---------------------------------------------------------------------
@@ -397,8 +407,9 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "LibraryFragment#GetResourceLookupsListener failed");
-            RequestExceptionHandler.handle(e, getContext());
+            RequestExceptionHandler.showAuthErrorIfExists(getContext(), e);
             showEmptyTextIfNoItems(R.string.failed_load_data);
+            setRefreshState(false);
         }
 
         @Override
@@ -418,20 +429,19 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
 
         @Override
         public void onStart() {
-            ProgressDialogFragment.builder(getActivity().getSupportFragmentManager())
-                    .setLoadingMessage(R.string.loading_msg)
-                    .show();
+            showLoading();
         }
 
         @Override
         public void onCompleted() {
-            ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+            hideLoading();
         }
 
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "LibraryFragment#GetResourceMetadataListener failed");
-            RequestExceptionHandler.handle(e, getContext());
+            RequestExceptionHandler.showAuthErrorIfExists(getContext(), e);
+            hideLoading();
         }
 
         @Override

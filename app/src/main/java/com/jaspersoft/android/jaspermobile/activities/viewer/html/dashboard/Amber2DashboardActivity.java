@@ -290,12 +290,6 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     public void onReportExecution(String data) {
         mGetReportMetadataCase.execute(data, new GenericSubscriber<>(new SimpleSubscriber<ResourceLookup>() {
             @Override
-            public void onError(Throwable e) {
-                String message = RequestExceptionHandler.extractMessage(Amber2DashboardActivity.this, e);
-                showMessage(message);
-            }
-
-            @Override
             public void onNext(ResourceLookup lookup) {
                 ReportVisualizeActivity_.intent(Amber2DashboardActivity.this)
                         .resource(lookup)
@@ -379,23 +373,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     private void applyParams() {
         mGetDashboardVisualizeParamsCase.execute(resource.getUri(), new GenericSubscriber<>(new SimpleSubscriber<String>() {
             @Override
-            public void onStart() {
-                showLoading();
-            }
-
-            @Override
-            public void onCompleted() {
-                hideLoading();
-            }
-
-            @Override
             public void onNext(String params) {
                 mDashboardTrigger.applyParams(params);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                super.onError(e);
             }
         }));
     }
@@ -426,9 +405,23 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         }
 
         @Override
+        public void onStart() {
+            showLoading();
+            super.onStart();
+        }
+
+        @Override
+        public void onCompleted() {
+            hideLoading();
+            super.onCompleted();
+        }
+
+        @Override
         public void onError(Throwable e) {
             String message = RequestExceptionHandler.extractMessage(Amber2DashboardActivity.this, e);
             showMessage(message);
+            hideLoading();
+            super.onError(e);
         }
     }
 }

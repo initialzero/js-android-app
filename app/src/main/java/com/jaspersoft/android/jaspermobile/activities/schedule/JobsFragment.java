@@ -38,6 +38,8 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
@@ -160,7 +162,7 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
     private void createJobSearchTask() {
         mRestClient.scheduleService()
                 .compose(RxTransformers.<RxReportScheduleService>applySchedulers())
-                .subscribe(new Subscriber<RxReportScheduleService>() {
+                .subscribe(new ErrorSubscriber<>(new Subscriber<RxReportScheduleService>() {
                     @Override
                     public void onStart() {
                         mJobs = new LinkedHashMap<>();
@@ -174,7 +176,6 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
 
                     @Override
                     public void onError(Throwable e) {
-                        // TODO: handle error
                         showMessage(getString(R.string.failed_load_data));
                     }
 
@@ -186,29 +187,21 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
                         mScheduleService = service;
                         mJobSearchTask = service.search(jobSearchCriteria);
                     }
-                });
+                }));
     }
 
     private void loadJobs() {
         Subscription subscription = mJobSearchTask.nextLookup()
                 .compose(RxTransformers.<List<JobUnit>>applySchedulers())
-                .subscribe(new Subscriber<List<JobUnit>>() {
-                    @Override
-                    public void onStart() {
-                        setRefreshState(true);
-                    }
-
+                .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<List<JobUnit>>() {
                     @Override
                     public void onCompleted() {
                         showMessage(mJobs.isEmpty() ? getString(R.string.sch_not_found) : null);
-                        setRefreshState(false);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        // TODO: handle error
                         showMessage(getString(R.string.failed_load_data));
-                        setRefreshState(false);
                     }
 
                     @Override
@@ -219,7 +212,7 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
                             mJobs.put(job.getId(), job);
                         }
                     }
-                });
+                }));
         mCompositeSubscription.add(subscription);
     }
 
@@ -263,10 +256,9 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
 
                         mCompositeSubscription.add(mScheduleService.deleteJobs(idToDel)
                                 .compose(RxTransformers.<Set<Integer>>applySchedulers())
-                                .subscribe(new Subscriber<Set<Integer>>() {
+                                .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Set<Integer>>() {
                                     @Override
                                     public void onCompleted() {
-                                        ProgressDialogFragment.dismiss(getFragmentManager());
                                         Toast.makeText(getActivity(), R.string.sch_deleted, Toast.LENGTH_SHORT).show();
 
                                         mJobs.remove(jobId);
@@ -277,18 +269,7 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
                                         }
                                         analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.REMOVED.getValue(), Analytics.EventLabel.JOB.getValue());
                                     }
-
-                                    @Override
-                                    public void onError(Throwable e) {
-                                        // TODO: Handle error
-                                        ProgressDialogFragment.dismiss(getFragmentManager());
-                                    }
-
-                                    @Override
-                                    public void onNext(Set<Integer> integers) {
-
-                                    }
-                                }));
+                                })));
                     } catch (NumberFormatException ex) {
                         Toast.makeText(getActivity(), R.string.wrong_action, Toast.LENGTH_SHORT).show();
                     }
@@ -319,5 +300,42 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
         String nextDate = jobUnit.getNextFireTime() != null ? "" + jobUnit.getNextFireTime() : "-";
         return getString(R.string.sch_info, jobUnit.getDescription(), jobUnit.getReportUri(), prevDate,
                 nextDate, jobUnit.getOwner().getUsername(), jobUnit.getOwner().getOrganization());
+    }
+
+    private void hideLoading() {
+        ProgressDialogFragment.dismiss(getFragmentManager());
+    }
+
+    private class ErrorSubscriber<R> extends Subscriber<R> {
+        private final Subscriber<R> mDelegate;
+
+        private ErrorSubscriber(Subscriber<R> delegate) {
+            mDelegate = delegate;
+        }
+
+        @Override
+        public void onStart() {
+            mDelegate.onStart();
+        }
+
+        @Override
+        public void onCompleted() {
+            setRefreshState(false);
+            hideLoading();
+            mDelegate.onCompleted();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            RequestExceptionHandler.showAuthErrorIfExists(getActivity(), e);
+            hideLoading();
+            setRefreshState(false);
+            mDelegate.onError(e);
+        }
+
+        @Override
+        public void onNext(R r) {
+            mDelegate.onNext(r);
+        }
     }
 }

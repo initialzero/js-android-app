@@ -92,24 +92,14 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
 
     private void loadControls() {
         getView().showLoading();
-        mGetReportShowControlsPropertyCase.execute(mReportUri, new SimpleSubscriber<Boolean>() {
-            @Override
-            public void onCompleted() {
-                getView().hideLoading();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                handleError(e);
-            }
-
+        mGetReportShowControlsPropertyCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<Boolean>() {
             @Override
             public void onNext(Boolean needControls) {
                 getView().getState().setControlsPageShown(true);
                 toggleFiltersAction(needControls);
                 resolveNeedControls(needControls);
             }
-        });
+        }));
     }
 
     @Override
@@ -488,11 +478,13 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
 
         @Override
         public void onError(Throwable e) {
+            getView().hideLoading();
             handleError(e);
         }
 
         @Override
         public void onCompleted() {
+            getView().hideLoading();
             mDelegate.onCompleted();
         }
 

@@ -182,12 +182,6 @@ public class AuthenticationPresenterTest {
     }
 
     @Test
-    public void testPresenterHandlesCompleteProfileSaveEvent() throws Exception {
-        whenHandlesProfileComplete();
-        thenShouldHideLoading();
-    }
-
-    @Test
     public void testPresenterUnsubscribesDuringDestroy() {
         whenPresenterDestroyed();
 
@@ -224,10 +218,6 @@ public class AuthenticationPresenterTest {
 
     private void whenChecksDemoAccountAvailability() {
         presenterUnderTest.checkDemoAccountAvailability();
-    }
-
-    private void whenHandlesProfileComplete() {
-        presenterUnderTest.handleProfileComplete();
     }
 
     private void whenPresenterDestroyed() {

@@ -97,11 +97,6 @@ public final class AuthenticationPresenter extends Presenter<AuthenticationContr
     }
 
     @VisibleForTesting
-    void handleProfileComplete() {
-        getView().hideLoading();
-    }
-
-    @VisibleForTesting
     void handleProfileSaveFailure(Throwable e) {
         getView().hideLoading();
         if (e instanceof DuplicateProfileException) {
@@ -124,12 +119,13 @@ public final class AuthenticationPresenter extends Presenter<AuthenticationContr
     private class ProfileSaveListener extends Subscriber<Profile> {
         @Override
         public void onCompleted() {
-            handleProfileComplete();
+            getView().hideLoading();
         }
 
         @Override
         public void onError(Throwable e) {
             handleProfileSaveFailure(e);
+            getView().hideLoading();
         }
 
         @Override

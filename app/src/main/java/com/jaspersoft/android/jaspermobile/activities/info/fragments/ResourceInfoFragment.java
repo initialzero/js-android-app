@@ -4,8 +4,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.ResourceDetailsRequest;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.widget.InfoView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -17,7 +17,6 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
-import rx.Subscriber;
 import timber.log.Timber;
 
 /**
@@ -76,16 +75,12 @@ public class ResourceInfoFragment extends SimpleInfoFragment {
         );
     }
 
-    private class GetResourceDescriptorListener extends Subscriber<ResourceLookup> {
-        @Override
-        public void onCompleted() {
-            ProgressDialogFragment.dismiss(getFragmentManager());
-        }
+    private class GetResourceDescriptorListener extends SimpleSubscriber<ResourceLookup> {
 
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "ResourceInfoFragment#GetResourceDescriptorListener failed");
-            RequestExceptionHandler.handle(e, getContext());
+            RequestExceptionHandler.showAuthErrorIfExists(getActivity(), e);
             getActivity().finish();
         }
 

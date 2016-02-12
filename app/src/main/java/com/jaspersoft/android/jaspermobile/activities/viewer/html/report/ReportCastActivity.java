@@ -360,6 +360,7 @@ public class ReportCastActivity extends CastActivity
                 Timber.e(e, "GetReportShowControlsPropertyCase failed");
                 String error = RequestExceptionHandler.extractMessage(ReportCastActivity.this, e);
                 showErrorView(error);
+                hideProgress();
             }
 
             @Override

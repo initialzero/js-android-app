@@ -40,7 +40,9 @@ import android.widget.ProgressBar;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.service.data.report.option.ReportOption;
@@ -54,8 +56,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
-
-import rx.Subscriber;
 
 /**
  * @author Andrew Tivodar
@@ -115,13 +115,10 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
 
     @Override
     public void onShow(DialogInterface dialog) {
-        mGetReportOptionsCase.execute(reportUri, new Subscriber<Set<ReportOption>>() {
-            @Override
-            public void onCompleted() {
-            }
-
+        mGetReportOptionsCase.execute(reportUri, new SimpleSubscriber<Set<ReportOption>>() {
             @Override
             public void onError(Throwable e) {
+                RequestExceptionHandler.showAuthErrorIfExists(getActivity(), e);
             }
 
             @Override

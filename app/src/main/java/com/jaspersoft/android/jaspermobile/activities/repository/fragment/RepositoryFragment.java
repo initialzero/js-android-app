@@ -395,8 +395,9 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "RepositoryFragment#GetRootFolderDataRequestListener failed");
-            RequestExceptionHandler.handle(e, getContext());
+            RequestExceptionHandler.showAuthErrorIfExists(getActivity(), e);
             showEmptyText(com.jaspersoft.android.jaspermobile.R.string.failed_load_data);
+            setRefreshState(false);
         }
     }
 

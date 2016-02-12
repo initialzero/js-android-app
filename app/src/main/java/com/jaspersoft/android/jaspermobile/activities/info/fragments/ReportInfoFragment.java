@@ -132,7 +132,8 @@ public class ReportInfoFragment extends ResourceInfoFragment
 
         @Override
         public void onError(Throwable e) {
-            RequestExceptionHandler.handle(e, getContext());
+            RequestExceptionHandler.showAuthErrorIfExists(getActivity(), e);
+            hideProgressDialog();
         }
 
         @Override

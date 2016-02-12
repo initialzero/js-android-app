@@ -152,6 +152,10 @@ public abstract class FileLoadFragment extends BaseFragment {
                 .show();
     }
 
+    private void hideProgressDialog() {
+        ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+    }
+
     private class FileContentListener extends Subscriber<File> {
         @Override
         public void onStart() {
@@ -160,13 +164,14 @@ public abstract class FileLoadFragment extends BaseFragment {
 
         @Override
         public void onCompleted() {
-            ProgressDialogFragment.dismiss(getActivity().getSupportFragmentManager());
+            hideProgressDialog();
         }
 
         @Override
         public void onError(Throwable e) {
-            RequestExceptionHandler.handle(e, getContext());
+            RequestExceptionHandler.showAuthErrorIfExists(getContext(), e);
             showErrorMessage();
+            hideProgressDialog();
         }
 
         @Override

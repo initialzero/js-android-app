@@ -246,8 +246,9 @@ public class RecentFragment extends BaseFragment
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "LibraryFragment#GetResourceLookupsListener failed");
-            RequestExceptionHandler.handle(e, getContext());
+            RequestExceptionHandler.showAuthErrorIfExists(getActivity(), e);
             showEmptyText(R.string.failed_load_data);
+            setRefreshState(false);
         }
 
 

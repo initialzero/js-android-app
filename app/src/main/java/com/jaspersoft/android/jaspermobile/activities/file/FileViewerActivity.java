@@ -42,7 +42,6 @@ public class FileViewerActivity extends ToolbarActivity {
         showFileTitle();
         if (savedInstanceState == null) {
             getFileInfo();
-            showProgressDialog();
         }
     }
 
@@ -71,6 +70,10 @@ public class FileViewerActivity extends ToolbarActivity {
                 .show();
     }
 
+    private void hideProgressDialog() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
     private void showFileTitle() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -85,13 +88,19 @@ public class FileViewerActivity extends ToolbarActivity {
 
     private class FileInfoListener extends SimpleSubscriber<ResourceLookup> {
         @Override
+        public void onStart() {
+            showProgressDialog();
+        }
+
+        @Override
         public void onCompleted() {
-            ProgressDialogFragment.dismiss(getSupportFragmentManager());
+            hideProgressDialog();
         }
 
         @Override
         public void onError(Throwable e) {
-            RequestExceptionHandler.handle(e, FileViewerActivity.this);
+            RequestExceptionHandler.showCommonErrorMessage(FileViewerActivity.this, e);
+            hideProgressDialog();
             finish();
         }
 

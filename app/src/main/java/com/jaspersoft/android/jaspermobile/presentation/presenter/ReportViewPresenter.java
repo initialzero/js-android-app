@@ -23,6 +23,7 @@ import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import rx.Subscriber;
 import timber.log.Timber;
 
 /**
@@ -93,39 +94,24 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
                 .setUri(mReportUri)
                 .setRange(position)
                 .build();
-        mGetReportPageContentCase.execute(request, new SimpleSubscriber<ReportPage>() {
-            @Override
-            public void onError(Throwable e) {
-                handleError(e);
-            }
-
+        mGetReportPageContentCase.execute(request, new ErrorSubscriber<>(new SimpleSubscriber<ReportPage>() {
             @Override
             public void onNext(ReportPage item) {
                 showPage(position, item);
             }
-        });
+        }));
     }
 
     private void loadReportMetadata() {
         showLoading();
-        mGetReportShowControlsPropertyCase.execute(mReportUri, new SimpleSubscriber<Boolean>() {
-            @Override
-            public void onCompleted() {
-                hideLoading();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                handleError(e);
-            }
-
+        mGetReportShowControlsPropertyCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<Boolean>() {
             @Override
             public void onNext(Boolean needControls) {
                 getView().getState().setControlsPageShown(true);
                 toggleFiltersAction(needControls);
                 resolveNeedControls(needControls);
             }
-        });
+        }));
     }
 
     private void resolveNeedControls(boolean needControls) {
@@ -166,48 +152,29 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
     @Override
     public void runReport() {
         showLoading();
-        mRunReportCase.execute(mReportUri, new SimpleSubscriber<ReportPage>() {
-            @Override
-            public void onCompleted() {
-                hideLoading();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                handleError(e);
-            }
-
+        mRunReportCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<ReportPage>() {
             @Override
             public void onNext(ReportPage page) {
                 showPage("1", page);
                 loadMultiPageProperty();
                 loadTotalPagesProperty();
             }
-        });
+        }));
     }
 
     @VisibleForTesting
     void loadMultiPageProperty() {
-        mGetReportMultiPagePropertyCase.execute(mReportUri, new SimpleSubscriber<Boolean>() {
-            @Override
-            public void onError(Throwable e) {
-                handleError(e);
-            }
-
+        mGetReportMultiPagePropertyCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<Boolean>() {
             @Override
             public void onNext(Boolean multiPage) {
                 togglePaginationControl(multiPage);
             }
-        });
+        }));
     }
 
     @VisibleForTesting
     void loadTotalPagesProperty() {
-        mGetReportTotalPagesPropertyCase.execute(mReportUri, new SimpleSubscriber<Integer>() {
-            @Override
-            public void onError(Throwable e) {
-                handleError(e);
-            }
+        mGetReportTotalPagesPropertyCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<Integer>() {
 
             @Override
             public void onNext(Integer totalPages) {
@@ -221,31 +188,21 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
                     loadLastSavedPage();
                 }
             }
-        });
+        }));
     }
 
     @Override
     public void updateReport() {
         showLoading();
         resetTotalPagesLabel();
-        mUpdateReportCase.execute(mReportUri, new SimpleSubscriber<ReportPage>() {
-            @Override
-            public void onCompleted() {
-                hideLoading();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                handleError(e);
-            }
-
+        mUpdateReportCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<ReportPage>() {
             @Override
             public void onNext(ReportPage page) {
                 showPage("1", page);
                 loadMultiPageProperty();
                 loadTotalPagesProperty();
             }
-        });
+        }));
     }
 
     @Override
@@ -260,24 +217,14 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
                 .setUri(mReportUri)
                 .setRange(position)
                 .build();
-        mReloadReportCase.execute(request, new SimpleSubscriber<ReportPage>() {
-            @Override
-            public void onCompleted() {
-                hideLoading();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                handleError(e);
-            }
-
+        mReloadReportCase.execute(request, new ErrorSubscriber<>(new SimpleSubscriber<ReportPage>() {
             @Override
             public void onNext(ReportPage page) {
                 showPage(position, page);
                 loadMultiPageProperty();
                 loadTotalPagesProperty();
             }
-        });
+        }));
     }
 
     private void showPageLoader() {
@@ -360,5 +307,32 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
     private void showErrorMessage(Throwable error) {
         getView().hideLoading();
         getView().showError(mExceptionHandler.extractMessage(error));
+    }
+
+    private class ErrorSubscriber<R> extends Subscriber<R> {
+        private final Subscriber<R> mDelegate;
+
+        private ErrorSubscriber(Subscriber<R> delegate) {
+            mDelegate = delegate;
+        }
+
+        @Override
+        public void onCompleted() {
+            hideLoading();
+            mDelegate.onCompleted();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            handleError(e);
+            hideLoading();
+            mDelegate.onError(e);
+        }
+
+        @Override
+        public void onNext(R r) {
+
+            mDelegate.onNext(r);
+        }
     }
 }

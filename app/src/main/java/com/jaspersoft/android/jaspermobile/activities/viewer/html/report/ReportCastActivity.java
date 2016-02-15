@@ -427,6 +427,11 @@ public class ReportCastActivity extends CastActivity
     }
 
     @Override
+    public void onAuthErrorOccurred() {
+        // TODO handle auth error for casting activity
+    }
+
+    @Override
     public void onCastStopped() {
         super.onCastStopped();
         finish();

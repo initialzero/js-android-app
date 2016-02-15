@@ -28,4 +28,6 @@ public interface VisualizeEvents {
     Observable<ExecutionReferenceClickEvent> executionReferenceClickEvent();
 
     Observable<ErrorEvent> windowErrorEvent();
+
+    Observable<ErrorEvent> authErrorEvent();
 }

@@ -132,6 +132,11 @@ public class ResourceCastDialog extends MediaRouteControllerDialog implements Re
     }
 
     @Override
+    public void onAuthErrorOccurred() {
+        // TODO implement auth error handling
+    }
+
+    @Override
     public void onCastStopped() {
         dismiss();
     }

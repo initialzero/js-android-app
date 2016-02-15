@@ -6,6 +6,7 @@ import android.support.annotation.VisibleForTesting;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.AuthorizeSessionUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMetadataCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
@@ -26,6 +27,7 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.Visualiz
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewErrorEvent;
+import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import java.util.Collections;
@@ -55,6 +57,7 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
     private final GetVisualizeExecOptionsCase mGetVisualizeExecOptionsCase;
     private final FlushInputControlsCase mFlushInputControlsCase;
     private final GetReportMetadataCase mGetReportMetadataCase;
+    private final AuthorizeSessionUseCase mAuthorizeSessionUseCase;
 
     private CompositeSubscription mCompositeSubscription;
 
@@ -68,7 +71,8 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
             GetVisualizeTemplateCase getVisualizeTemplateCase,
             GetVisualizeExecOptionsCase getVisualizeExecOptionsCase,
             FlushInputControlsCase flushInputControlsCase,
-            GetReportMetadataCase getReportMetadataCase
+            GetReportMetadataCase getReportMetadataCase,
+            AuthorizeSessionUseCase authorizeSessionUseCase
     ) {
         mScreenDiagonal = screenDiagonal;
         mReportUri = reportUri;
@@ -79,6 +83,7 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
         mGetVisualizeExecOptionsCase = getVisualizeExecOptionsCase;
         mFlushInputControlsCase = flushInputControlsCase;
         mGetReportMetadataCase = getReportMetadataCase;
+        mAuthorizeSessionUseCase = authorizeSessionUseCase;
     }
 
     public void init() {
@@ -128,11 +133,37 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
     @Override
     public void refresh() {
         getView().showLoading();
+
+        getView().showWebView(false);
+        getView().showPagination(false);
+        getView().showReloadButton(false);
+
+        getView().resetPaginationControl();
+        getView().setPaginationCurrentPage(1);
+
+        ReportPageState state = getView().getState();
+        state.setCurrentPage("1");
+
+        if (state.isSessionExpired()) {
+            reloadVisualize();
+        } else {
+            refreshVisualize();
+        }
+    }
+
+    private void reloadVisualize() {
+        mAuthorizeSessionUseCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
+            @Override
+            public void onCompleted() {
+                getView().getState().setSessionExpired(false);
+                runReport();
+            }
+        }));
+    }
+
+    private void refreshVisualize() {
         getView().getVisualize().refresh();
         getView().resetZoom();
-        getView().setWebViewVisibility(false);
-        getView().setPaginationVisibility(false);
-        getView().resetPaginationControl();
     }
 
     private void resolveNeedControls(boolean needControls) {
@@ -184,6 +215,7 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
         mGetReportShowControlsPropertyCase.unsubscribe();
         mGetVisualizeTemplateCase.unsubscribe();
         mGetVisualizeExecOptionsCase.unsubscribe();
+        mAuthorizeSessionUseCase.unsubscribe();
         mFlushInputControlsCase.execute(mReportUri);
     }
 
@@ -217,7 +249,7 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
                             @Override
                             public void onNext(WebViewErrorEvent event) {
                                 getView().hideLoading();
-                                getView().setWebViewVisibility(false);
+                                getView().showWebView(false);
                                 getView().showError("title" + "\n" + "message");
                             }
                         }))
@@ -251,6 +283,7 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
         listenForExternalPageEvent(visualize);
         listenForExecutionEvent(visualize);
         listenForWindowErrorEvent(visualize);
+        listenForAuthErrorEvent(visualize);
     }
 
     private void listenForLoadStartEvent(VisualizeComponent visualize) {
@@ -262,7 +295,7 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
                             @Override
                             public void onNext(Void item) {
                                 getView().showLoading();
-                                getView().setWebViewVisibility(false);
+                                getView().showWebView(false);
                                 getView().resetPaginationControl();
                             }
                         }))
@@ -292,7 +325,7 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
                             @Override
                             public void onNext(LoadCompleteEvent completeEvent) {
                                 getView().hideLoading();
-                                getView().setWebViewVisibility(true);
+                                getView().showWebView(true);
                             }
                         }))
         );
@@ -331,13 +364,13 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
                                     getView().hideEmptyPageMessage();
 
                                     boolean multiPage = totalPages > 1;
-                                    getView().setPaginationVisibility(multiPage);
+                                    getView().showPagination(multiPage);
 
                                     if (multiPage) {
                                         getView().setPaginationTotalPages(totalPages);
                                     }
                                 } else {
-                                    getView().setPaginationVisibility(false);
+                                    getView().showPagination(false);
                                     getView().showEmptyPageMessage();
                                 }
                             }
@@ -385,7 +418,7 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
                             @Override
                             public void onNext(MultiPageLoadEvent event) {
                                 boolean needToShowPagination = event.isMultiPage() && getView().getPaginationTotalPages() > 0;
-                                getView().setPaginationVisibility(needToShowPagination);
+                                getView().showPagination(needToShowPagination);
                             }
                         }))
         );
@@ -448,6 +481,22 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
         );
     }
 
+    private void listenForAuthErrorEvent(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .authErrorEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ErrorEvent>() {
+                            @Override
+                            public void onNext(ErrorEvent item) {
+                                getView().hideLoading();
+                                getView().getState().setSessionExpired(true);
+                                getView().handleSessionExpiration();
+                            }
+                        }))
+        );
+    }
+
     @VisibleForTesting
     void handleError(Throwable error) {
         Timber.e(error, "Presenter received unexpected error");
@@ -456,12 +505,12 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
     }
 
     private void toggleFiltersAction(boolean visibility) {
-        getView().setFilterActionVisibility(visibility);
+        getView().showFilterAction(visibility);
         getView().reloadMenu();
     }
 
     private void toggleSaveAction(boolean visibility) {
-        getView().setSaveActionVisibility(visibility);
+        getView().showSaveAction(visibility);
         getView().reloadMenu();
     }
 
@@ -480,6 +529,7 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
         public void onError(Throwable e) {
             getView().hideLoading();
             handleError(e);
+            mDelegate.onError(e);
         }
 
         @Override

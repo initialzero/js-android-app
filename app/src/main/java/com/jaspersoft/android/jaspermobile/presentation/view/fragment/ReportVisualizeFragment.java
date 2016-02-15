@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
@@ -42,6 +41,7 @@ import com.jaspersoft.android.jaspermobile.widget.PaginationBarView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -90,6 +90,8 @@ public class ReportVisualizeFragment extends BaseFragment
     protected ProgressBar progressBar;
     @ViewById
     protected PaginationBarView paginationControl;
+    @ViewById(R.id.reload)
+    protected View reloadControl;
 
     @OptionsMenuItem
     protected MenuItem saveReport;
@@ -151,8 +153,7 @@ public class ReportVisualizeFragment extends BaseFragment
     }
 
     private void injectComponents() {
-        GraphObject.Factory.from(getContext())
-                .getProfileComponent()
+        getProfileComponent()
                 .plusReportVisualizeViewer(
                         new ActivityModule(getActivity()),
                         new ReportVisualizeViewerModule(resource.getUri(), webView)
@@ -283,17 +284,24 @@ public class ReportVisualizeFragment extends BaseFragment
         mPresenter.init();
     }
 
+    @Click
+    void reload() {
+        hideError();
+        showReloadButton(false);
+        mActionListener.refresh();
+    }
+
     //---------------------------------------------------------------------
     // ReportVisualizeView callbacks
     //---------------------------------------------------------------------
 
     @Override
-    public void setFilterActionVisibility(boolean visibilityFlag) {
+    public void showFilterAction(boolean visibilityFlag) {
         filtersMenuItemVisibilityFlag = visibilityFlag;
     }
 
     @Override
-    public void setSaveActionVisibility(boolean visibilityFlag) {
+    public void showSaveAction(boolean visibilityFlag) {
         saveMenuItemVisibilityFlag = visibilityFlag;
     }
 
@@ -315,7 +323,7 @@ public class ReportVisualizeFragment extends BaseFragment
     }
 
     @Override
-    public void setPaginationVisibility(boolean visibility) {
+    public void showPagination(boolean visibility) {
         paginationControl.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 
@@ -345,8 +353,13 @@ public class ReportVisualizeFragment extends BaseFragment
     }
 
     @Override
-    public void setWebViewVisibility(boolean visibility) {
+    public void showWebView(boolean visibility) {
         webView.setVisibility(visibility ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void showReloadButton(boolean visibility) {
+        reloadControl.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -412,8 +425,10 @@ public class ReportVisualizeFragment extends BaseFragment
 
     @Override
     public void handleSessionExpiration() {
-        showNotification(getString(R.string.da_session_expired));
-        getActivity().finish();
+        showWebView(false);
+        showPagination(false);
+        showReloadButton(true);
+        showError(getString(R.string.da_session_expired));
     }
 
     @Override

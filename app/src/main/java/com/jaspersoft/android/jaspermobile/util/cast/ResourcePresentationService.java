@@ -361,6 +361,8 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
         void onErrorOccurred(String errorMessage);
 
+        void onAuthErrorOccurred();
+
         void onCastStopped();
     }
 
@@ -695,7 +697,9 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    handleError(error);
+                    for (ResourcePresentationCallback reportPresentationListener : mReportPresentationListeners) {
+                        reportPresentationListener.onAuthErrorOccurred();
+                    }
                 }
             });
         }

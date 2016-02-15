@@ -16,6 +16,7 @@ public final class RxVisualizeEvents implements VisualizeEvents {
     private final PublishSubject<Void> mLoadStarted = PublishSubject.create();
     private final PublishSubject<LoadCompleteEvent> mLoadCompleteEvent = PublishSubject.create();
     private final PublishSubject<ErrorEvent> mLoadErrorEvent = PublishSubject.create();
+    private final PublishSubject<ErrorEvent> mAuthErrorEvent = PublishSubject.create();
     private final PublishSubject<ReportCompleteEvent> mReportCompleteEvent = PublishSubject.create();
     private final PublishSubject<PageLoadCompleteEvent> mPageLoadCompleteEvent = PublishSubject.create();
     private final PublishSubject<PageLoadErrorEvent> mPageLoadErrorEvent = PublishSubject.create();
@@ -47,7 +48,7 @@ public final class RxVisualizeEvents implements VisualizeEvents {
 
             @Override
             public void onAuthError(String error) {
-                // TODO handle on auth error
+                mAuthErrorEvent.onNext(new ErrorEvent(error));
             }
 
             @Override
@@ -144,5 +145,10 @@ public final class RxVisualizeEvents implements VisualizeEvents {
     @Override
     public Observable<ErrorEvent> windowErrorEvent() {
         return mLoadErrorEvent;
+    }
+
+    @Override
+    public Observable<ErrorEvent> authErrorEvent() {
+        return mAuthErrorEvent;
     }
 }

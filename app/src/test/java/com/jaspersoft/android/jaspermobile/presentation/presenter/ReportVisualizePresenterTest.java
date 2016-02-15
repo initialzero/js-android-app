@@ -24,7 +24,6 @@ import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewE
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewEvents;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.jaspersoft.android.sdk.service.data.report.ReportResource;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -117,7 +116,7 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.init();
 
         verify(fakeState).setControlsPageShown(true);
-        verify(mView).setFilterActionVisibility(true);
+        verify(mView).showFilterAction(true);
         verify(mView).showInitialFiltersPage();
     }
 
@@ -133,7 +132,7 @@ public class ReportVisualizePresenterTest {
         verify(mGetVisualizeTemplateCase).execute(eq(clientParams), any(Subscriber.class));
 
         verify(fakeState).setControlsPageShown(true);
-        verify(mView).setFilterActionVisibility(false);
+        verify(mView).showFilterAction(false);
         verify(mView).loadTemplateInView(VIS_TEMPLATE);
     }
 
@@ -144,7 +143,7 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.resume();
 
         verify(mView).showLoading();
-        verify(mView).setWebViewVisibility(false);
+        verify(mView).showWebView(false);
         verify(mView).resetPaginationControl();
     }
 
@@ -165,7 +164,7 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.resume();
 
         verify(mView).hideLoading();
-        verify(mView).setWebViewVisibility(true);
+        verify(mView).showWebView(true);
     }
 
     @Test
@@ -184,8 +183,8 @@ public class ReportVisualizePresenterTest {
 
         mReportVisualizePresenter.resume();
 
-        verify(mView).setSaveActionVisibility(false);
-        verify(mView).setPaginationVisibility(false);
+        verify(mView).showSaveAction(false);
+        verify(mView).showPagination(false);
         verify(mView).showEmptyPageMessage();
     }
 
@@ -196,8 +195,8 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.resume();
 
         verify(mView).hideEmptyPageMessage();
-        verify(mView).setSaveActionVisibility(true);
-        verify(mView).setPaginationVisibility(false);
+        verify(mView).showSaveAction(true);
+        verify(mView).showPagination(false);
     }
 
     @Test
@@ -207,9 +206,9 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.resume();
 
         verify(mView).hideEmptyPageMessage();
-        verify(mView).setSaveActionVisibility(true);
+        verify(mView).showSaveAction(true);
         verify(mView).setPaginationTotalPages(2);
-        verify(mView).setPaginationVisibility(true);
+        verify(mView).showPagination(true);
     }
 
     @Test
@@ -239,7 +238,7 @@ public class ReportVisualizePresenterTest {
 
         mReportVisualizePresenter.resume();
 
-        verify(mView).setPaginationVisibility(false);
+        verify(mView).showPagination(false);
     }
 
     @Test
@@ -249,7 +248,7 @@ public class ReportVisualizePresenterTest {
 
         mReportVisualizePresenter.resume();
 
-        verify(mView).setPaginationVisibility(true);
+        verify(mView).showPagination(true);
     }
 
     @Test
@@ -301,7 +300,7 @@ public class ReportVisualizePresenterTest {
         mReportVisualizePresenter.resume();
 
         verify(mView).hideLoading();
-        verify(mView).setWebViewVisibility(false);
+        verify(mView).showWebView(false);
         verify(mView).showError("title" + "\n" + "message");
     }
 
@@ -335,8 +334,8 @@ public class ReportVisualizePresenterTest {
 
         verify(mView.getVisualize()).refresh();
         verify(mView).resetZoom();
-        verify(mView).setWebViewVisibility(false);
-        verify(mView).setPaginationVisibility(false);
+        verify(mView).showWebView(false);
+        verify(mView).showPagination(false);
         verify(mView).resetPaginationControl();
         verify(mView).showLoading();
     }

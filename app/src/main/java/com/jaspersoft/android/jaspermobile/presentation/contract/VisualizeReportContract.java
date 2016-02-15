@@ -12,9 +12,9 @@ import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
  */
 public interface VisualizeReportContract {
     interface View extends LoadDataView {
-        void setFilterActionVisibility(boolean visibilityFlag);
+        void showFilterAction(boolean visibilityFlag);
 
-        void setSaveActionVisibility(boolean visibilityFlag);
+        void showSaveAction(boolean visibilityFlag);
 
         void reloadMenu();
 
@@ -22,7 +22,7 @@ public interface VisualizeReportContract {
 
         void showPageOutOfRangeError();
 
-        void setPaginationVisibility(boolean visibility);
+        void showPagination(boolean visibility);
 
         void setPaginationEnabled(boolean enabled);
 
@@ -35,7 +35,9 @@ public interface VisualizeReportContract {
         void resetPaginationControl();
 
 
-        void setWebViewVisibility(boolean visibility);
+        void showWebView(boolean visibility);
+
+        void showReloadButton(boolean visibility);
 
 
         void showEmptyPageMessage();

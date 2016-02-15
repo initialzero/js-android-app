@@ -44,6 +44,8 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControl
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.AuthorizeSessionUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.CastActivity;
@@ -56,6 +58,7 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
@@ -73,7 +76,6 @@ import java.util.TimerTask;
 
 import javax.inject.Inject;
 
-import rx.Subscriber;
 import timber.log.Timber;
 
 
@@ -85,13 +87,11 @@ import timber.log.Timber;
 @EActivity(R.layout.activity_cast_report)
 public class ReportCastActivity extends CastActivity
         implements
-        ReportView,
         ResourcePresentationService.ResourcePresentationCallback,
         NumberDialogFragment.NumberDialogClickListener,
         PageDialogFragment.PageDialogClickListener,
         AbstractPaginationView.OnPageChangeListener,
-        AbstractPaginationView.OnPickerSelectedListener
-{
+        AbstractPaginationView.OnPickerSelectedListener {
 
     private static final int REQUEST_INITIAL_REPORT_PARAMETERS = 100;
     private static final int REQUEST_NEW_REPORT_PARAMETERS = 200;
@@ -111,6 +111,10 @@ public class ReportCastActivity extends CastActivity
     @ViewById(R.id.paginationControl)
     protected PaginationBarView paginationBar;
 
+
+    @ViewById(R.id.reload)
+    protected View reloadControl;
+
     @OptionsMenuItem(R.id.refreshAction)
     protected MenuItem refreshAction;
 
@@ -124,6 +128,9 @@ public class ReportCastActivity extends CastActivity
     protected ReportParamsStorage paramsStorage;
     @Inject
     protected GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
+    @Inject
+    protected AuthorizeSessionUseCase mAuthorizeSessionUseCase;
+
     @Inject
     protected ReportParamsMapper mReportParamsMapper;
 
@@ -152,11 +159,11 @@ public class ReportCastActivity extends CastActivity
     protected void onStart() {
         super.onStart();
 
-        if (!ResourcePresentationService.isStarted()) {
-            finish();
-        } else {
+        if (ResourcePresentationService.isStarted()) {
             mResourcePresentationService.addResourcePresentationCallback(this);
             mResourcePresentationService.synchronizeState(resource, this);
+        } else {
+            finish();
         }
     }
 
@@ -171,6 +178,7 @@ public class ReportCastActivity extends CastActivity
     @Override
     protected void onDestroy() {
         mGetReportShowControlsPropertyCase.unsubscribe();
+        mAuthorizeSessionUseCase.unsubscribe();
         super.onDestroy();
     }
 
@@ -202,7 +210,7 @@ public class ReportCastActivity extends CastActivity
     }
 
     @OnActivityResult(REQUEST_INITIAL_REPORT_PARAMETERS)
-    final void onInitialsParametersResult(int resultCode, Intent data) {
+    final void onInitialsParametersResult(int resultCode) {
         if (resultCode == Activity.RESULT_OK) {
             requestReportCasting();
         } else {
@@ -243,6 +251,27 @@ public class ReportCastActivity extends CastActivity
         return false;
     }
 
+    @Click(R.id.reload)
+    void reloadSession() {
+        mAuthorizeSessionUseCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
+            @Override
+            public void onStart() {
+                showReloadButton(false);
+                showMessageView(false);
+                showPaginationBar(false);
+                resetProgressBar();
+
+                showProgressBar(true);
+                showProgressMessage(getString(R.string.r_pd_running_report_msg));
+            }
+
+            @Override
+            public void onCompleted() {
+                mResourcePresentationService.reload();
+            }
+        }));
+    }
+
     //---------------------------------------------------------------------
     // Callbacks
     //---------------------------------------------------------------------
@@ -275,63 +304,15 @@ public class ReportCastActivity extends CastActivity
     }
 
     @Override
-    public void showEmptyView() {
-        reportMessage.setVisibility(View.VISIBLE);
-        reportMessage.setText(getString(R.string.rv_error_empty_report));
-
-        hideScrollControls();
-    }
-
-    @Override
-    public void hideEmptyView() {
-        reportMessage.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void showErrorView(CharSequence error) {
-        reportMessage.setVisibility(View.VISIBLE);
-        reportMessage.setText(error);
-
-        hideScrollControls();
-    }
-
-    @Override
-    public void hideErrorView() {
-        reportMessage.setVisibility(View.GONE);
-    }
-
-    public void showProgress(CharSequence message) {
-        reportProgress.setVisibility(View.VISIBLE);
-
-        reportMessage.setVisibility(View.VISIBLE);
-        reportMessage.setText(message);
-
-        hideScrollControls();
-    }
-
-    public void hideProgress() {
-        reportProgress.setVisibility(View.GONE);
-        reportMessage.setVisibility(View.GONE);
-    }
-
-    public void showScrollControls() {
-        scrollContainer.setVisibility(View.VISIBLE);
-    }
-
-    public void hideScrollControls() {
-        scrollContainer.setVisibility(View.GONE);
-    }
-
-    @Override
     public void onCastStarted() {
         super.onCastStarted();
-
-        showProgress(getString(R.string.r_pd_initializing_msg));
+        showProgressMessage(getString(R.string.r_pd_initializing_msg));
     }
 
     @Override
     public void onInitializationDone() {
-        hideProgress();
+        showMessageView(false);
+        showProgressBar(false);
         loadInputControls();
     }
 
@@ -344,25 +325,7 @@ public class ReportCastActivity extends CastActivity
     }
 
     private void loadControls() {
-        mGetReportShowControlsPropertyCase.execute(resource.getUri(), new Subscriber<Boolean>() {
-            @Override
-            public void onCompleted() {
-                hideProgress();
-            }
-
-            @Override
-            public void onStart() {
-                showProgress(getString(R.string.loading_msg));
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Timber.e(e, "GetReportShowControlsPropertyCase failed");
-                String error = RequestExceptionHandler.extractMessage(ReportCastActivity.this, e);
-                showErrorView(error);
-                hideProgress();
-            }
-
+        mGetReportShowControlsPropertyCase.execute(resource.getUri(), new ErrorSubscriber<>(new SimpleSubscriber<Boolean>() {
             @Override
             public void onNext(Boolean hasControls) {
                 mHasControls = hasControls;
@@ -374,28 +337,35 @@ public class ReportCastActivity extends CastActivity
                     requestReportCasting();
                 }
             }
-        });
+        }));
     }
 
     @Override
     public void onLoadingStarted() {
         invalidateOptionsMenu();
-        showProgress(getString(R.string.r_pd_running_report_msg));
-        paginationBar.setVisibility(View.GONE);
-        paginationBar.reset();
+
+        showProgressMessage(getString(R.string.r_pd_running_report_msg));
+
+        showPaginationBar(false);
+        resetProgressBar();
+    }
+
+    private void resetProgressBar() {
+        resetPaginationView();
     }
 
     @Override
     public void onPresentationBegun() {
         invalidateOptionsMenu();
-        hideProgress();
-
-        showScrollControls();
+        showMessageView(false);
+        showProgressBar(false);
+        showScrollControls(true);
+        setPaginationBarEnable(true);
     }
 
     @Override
     public void onMultiPage() {
-        paginationBar.setVisibility(View.VISIBLE);
+        showPaginationBar(true);
     }
 
     @Override
@@ -403,14 +373,17 @@ public class ReportCastActivity extends CastActivity
         if (pageCount == 0) {
             showEmptyView();
         }
-        paginationBar.updateTotalCount(pageCount);
-        paginationBar.setVisibility(pageCount > 1 ? View.VISIBLE : View.GONE);
+
+        setPaginationBarTotal(pageCount);
+        boolean isMultiPage = pageCount > 1;
+        showPaginationBar(isMultiPage);
     }
 
     @Override
     public void onPageChanged(int pageNumb, String errorMessage) {
-        paginationBar.updateCurrentPage(pageNumb);
-        paginationBar.setEnabled(true);
+        setPaginationBarPage(pageNumb);
+        setPaginationBarEnable(true);
+
         if (errorMessage != null) {
             Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
         }
@@ -419,22 +392,103 @@ public class ReportCastActivity extends CastActivity
     @Override
     public void onErrorOccurred(String error) {
         invalidateOptionsMenu();
-        hideProgress();
-        showErrorView(error);
+        showErrorMessage(error);
 
-        paginationBar.reset();
-        paginationBar.setVisibility(View.GONE);
+        showProgressBar(false);
+        showPaginationBar(false);
+        resetPaginationView();
     }
 
     @Override
     public void onAuthErrorOccurred() {
-        // TODO handle auth error for casting activity
+        showPaginationBar(false);
+        showProgressBar(false);
+        showErrorMessage(getString(R.string.da_session_expired));
+        showReloadButton(true);
     }
 
     @Override
     public void onCastStopped() {
         super.onCastStopped();
         finish();
+    }
+
+    //---------------------------------------------------------------------
+    // UI methods
+    //---------------------------------------------------------------------
+
+    public void showProgressMessage(CharSequence message) {
+        showProgressBar(true);
+        showMessageView(true);
+        showMessage(message);
+        showScrollControls(false);
+    }
+
+    public void showEmptyView() {
+        showMessageView(true);
+        showMessage(getString(R.string.rv_error_empty_report));
+        showScrollControls(false);
+    }
+
+    public void showErrorMessage(CharSequence error) {
+        showMessageView(true);
+        showMessage(error);
+        showScrollControls(false);
+    }
+
+    public void showMessage(CharSequence message) {
+        reportMessage.setText(message);
+    }
+
+    private void resetPaginationView() {
+        paginationBar.reset();
+    }
+
+    public void setPaginationBarTotal(int total) {
+        paginationBar.updateTotalCount(total);
+    }
+
+    public void setPaginationBarEnable(boolean enabled) {
+        paginationBar.setEnabled(enabled);
+    }
+
+    public void setPaginationBarPage(int page) {
+        paginationBar.updateCurrentPage(page);
+    }
+
+    public void showPaginationBar(boolean visibility) {
+        paginationBar.setVisibility(visibility ? View.VISIBLE : View.GONE);
+    }
+
+    public void showReloadButton(boolean visibility) {
+        reloadControl.setVisibility(visibility ? View.VISIBLE : View.GONE);
+    }
+
+    public void showMessageView(boolean visibility) {
+        reportMessage.setVisibility(visibility ? View.VISIBLE : View.GONE);
+    }
+
+    private void showProgressBar(boolean visibility) {
+        reportProgress.setVisibility(visibility ? View.VISIBLE : View.GONE);
+    }
+
+    public void showScrollControls(boolean visibility) {
+        scrollContainer.setVisibility(visibility ? View.VISIBLE : View.GONE);
+    }
+
+    private void scrollTo(MotionEvent event, TimerTask task) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            cancelScrolling();
+            mTimer.scheduleAtFixedRate(task, 0, 10);
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            cancelScrolling();
+        }
+    }
+
+    private void cancelScrolling() {
+        mTimer.cancel();
+        mTimer.purge();
+        mTimer = new Timer();
     }
 
     //---------------------------------------------------------------------
@@ -446,8 +500,7 @@ public class ReportCastActivity extends CastActivity
     }
 
     private void requestReportCasting() {
-        String params = mReportParamsMapper.legacyParamsToJson(getReportParameters());
-        mResourcePresentationService.startPresentation(resource, params);
+        mResourcePresentationService.startPresentation(resource);
     }
 
     private void requestApplyParams() {
@@ -471,18 +524,38 @@ public class ReportCastActivity extends CastActivity
         return reportParams;
     }
 
-    private void scrollTo(MotionEvent event, TimerTask task) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            cancelScrolling();
-            mTimer.scheduleAtFixedRate(task, 0, 10);
-        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            cancelScrolling();
-        }
-    }
+    private class ErrorSubscriber<T> extends SimpleSubscriber<T> {
+        private final SimpleSubscriber<T> mDelegate;
 
-    private void cancelScrolling() {
-        mTimer.cancel();
-        mTimer.purge();
-        mTimer = new Timer();
+        protected ErrorSubscriber(SimpleSubscriber<T> delegate) {
+            mDelegate = delegate;
+        }
+
+        @Override
+        public void onNext(T item) {
+            mDelegate.onNext(item);
+        }
+
+        @Override
+        public void onCompleted() {
+            showProgressBar(false);
+            showMessageView(false);
+            mDelegate.onCompleted();
+        }
+
+        @Override
+        public void onStart() {
+            showProgressMessage(getString(R.string.loading_msg));
+            mDelegate.onStart();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Timber.e(e, "GetReportShowControlsPropertyCase failed");
+            String error = RequestExceptionHandler.extractMessage(ReportCastActivity.this, e);
+            showErrorMessage(error);
+            showProgressBar(false);
+            mDelegate.onError(e);
+        }
     }
 }

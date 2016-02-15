@@ -133,7 +133,7 @@ public class ResourceCastDialog extends MediaRouteControllerDialog implements Re
 
     @Override
     public void onAuthErrorOccurred() {
-        // TODO implement auth error handling
+        onErrorOccurred(getContext().getString(R.string.da_session_expired));
     }
 
     @Override

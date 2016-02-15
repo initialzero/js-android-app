@@ -182,22 +182,22 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
     public void fetchState(ResourcePresentationCallback resourcePresentationCallback) {
         switch (mState) {
-            case ResourcePresentationService.IDLE:
+            case IDLE:
                 if (resourcePresentationCallback != null) {
                     resourcePresentationCallback.onCastStarted();
                 }
                 break;
-            case ResourcePresentationService.INITIALIZED:
+            case INITIALIZED:
                 if (resourcePresentationCallback != null) {
                     resourcePresentationCallback.onInitializationDone();
                 }
                 break;
-            case ResourcePresentationService.LOADING:
+            case LOADING:
                 if (resourcePresentationCallback != null) {
                     resourcePresentationCallback.onLoadingStarted();
                 }
                 break;
-            case ResourcePresentationService.PRESENTING:
+            case PRESENTING:
                 if (resourcePresentationCallback != null) {
                     resourcePresentationCallback.onPresentationBegun();
                     if (mPresentation.getPageCount() == -1) {
@@ -219,9 +219,9 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         this.mReportPresentationListeners.remove(resourcePresentationCallback);
     }
 
-    public void startPresentation(ResourceLookup resourceLookup, String params) {
+    public void startPresentation(ResourceLookup resourceLookup) {
         mCurrentResource = resourceLookup;
-        mPresentation.castReport(resourceLookup.getUri(), params);
+        mPresentation.castReport(resourceLookup.getUri());
 
         analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRESENTED.getValue(), resourceLookup.getResourceType().name());
     }
@@ -273,7 +273,6 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
     private void changeState(int state) {
         mState = state;
-        updateCastNotification();
     }
 
     private void clearReportParams() {
@@ -283,13 +282,19 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     }
 
     private void resetPresentation() {
+        hidePresentationView();
+        changeState(INITIALIZED);
+        updateCastNotification();
+    }
+
+    private void hidePresentationView() {
         mPresentation.hideLoading();
         mPresentation.hideReport();
-        changeState(INITIALIZED);
     }
 
     private void handleError(String error) {
         resetPresentation();
+        updateCastNotification();
         for (ResourcePresentationCallback reportPresentationListener : mReportPresentationListeners) {
             reportPresentationListener.onErrorOccurred(error);
         }
@@ -335,9 +340,15 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                 .setContentText(mCastDeviceName)
                 .setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
 
-        castNotificationBuilder.addAction(R.drawable.ic_menu_close, "", PendingIntent.getBroadcast(this, 0, new Intent(getString(R.string.resource_presentation_stop_intent)), 0));
+        Intent stopIntent = new Intent(getString(R.string.resource_presentation_stop_intent));
+        PendingIntent broadcast = PendingIntent.getBroadcast(this, 0, stopIntent, 0);
+        castNotificationBuilder.addAction(R.drawable.ic_menu_close, "", broadcast);
 
         return castNotificationBuilder.build();
+    }
+
+    public void reload() {
+        startPresentation(mCurrentResource);
     }
 
     //---------------------------------------------------------------------
@@ -399,7 +410,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         // Report presentation commands
         //---------------------------------------------------------------------
 
-        private void castReport(String reportUri, String params) {
+        private void castReport(String reportUri) {
             mGetVisualizeExecOptionsCase.execute(reportUri, new SimpleSubscriber<VisualizeExecOptions.Builder>() {
                 @Override
                 public void onError(Throwable e) {
@@ -565,6 +576,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                     hideLoading();
 
                     changeState(INITIALIZED);
+                    updateCastNotification();
                     for (ResourcePresentationCallback reportPresentationListener : mReportPresentationListeners) {
                         reportPresentationListener.onInitializationDone();
                     }
@@ -580,6 +592,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                     mPresentation.showLoading();
 
                     changeState(LOADING);
+                    updateCastNotification();
                     mCurrentPage = 1;
                     mPageCount = -1;
 
@@ -601,6 +614,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                     mPresentation.showReport();
 
                     changeState(PRESENTING);
+                    updateCastNotification();
 
                     for (ResourcePresentationCallback reportPresentationListener : mReportPresentationListeners) {
                         reportPresentationListener.onPresentationBegun();
@@ -697,6 +711,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
+                    resetPresentation();
                     for (ResourcePresentationCallback reportPresentationListener : mReportPresentationListeners) {
                         reportPresentationListener.onAuthErrorOccurred();
                     }

@@ -41,11 +41,16 @@ import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
+import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.ErrorSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.AuthorizeSessionUseCase;
 import com.jaspersoft.android.jaspermobile.internal.di.components.DashboardActivityComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.DashboardModule;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
@@ -61,6 +66,8 @@ import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFac
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import javax.inject.Inject;
+
+import timber.log.Timber;
 
 /**
  * Activity that performs dashboard viewing in HTML format through native component.
@@ -91,6 +98,8 @@ public abstract class BaseDashboardActivity extends ToolbarActivity
     ScriptTagFactory mScriptTagFactory;
     @Inject
     FavoritesHelper favoritesHelper;
+    @Inject
+    AuthorizeSessionUseCase mAuthorizeSessionUseCase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -213,7 +222,36 @@ public abstract class BaseDashboardActivity extends ToolbarActivity
 
     @Override
     public void onSessionExpired() {
-        Toast.makeText(this, R.string.da_session_expired, Toast.LENGTH_SHORT).show();
+        mAuthorizeSessionUseCase.execute(new GenericSubscriber<>(new SimpleSubscriber<Void>() {
+            @Override
+            public void onStart() {
+                Toast.makeText(BaseDashboardActivity.this, R.string.da_session_expired, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCompleted() {
+                onSessionRefreshed();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                RequestExceptionHandler.showAuthErrorIfExists(BaseDashboardActivity.this, e);
+            }
+        }));
+    }
+
+    protected void showLoading() {
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.da_loading)
+                .show();
+    }
+
+    protected void hideLoading() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
+    protected void showWebView(boolean visibility) {
+        webView.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 
     //---------------------------------------------------------------------
@@ -278,4 +316,28 @@ public abstract class BaseDashboardActivity extends ToolbarActivity
         }
     }
 
+    protected final class GenericSubscriber<R> extends ErrorSubscriber<R> {
+        protected GenericSubscriber(SimpleSubscriber<R> delegate) {
+            super(delegate);
+        }
+
+        @Override
+        public void onStart() {
+            showLoading();
+            super.onStart();
+        }
+
+        @Override
+        public void onCompleted() {
+            hideLoading();
+            super.onCompleted();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Timber.e(e, "Dashboard thrown error");
+            hideLoading();
+            super.onError(e);
+        }
+    }
 }

@@ -54,6 +54,7 @@ final class AppCookieStore implements CookieStorage {
     @Override
     public void add(URI uri, HttpCookie cookie) {
         mStore.add(uri, cookie);
+        mWebViewCookieStore.removeAllCookies();
         mWebViewCookieStore.add(uri.toString(), cookie.toString());
     }
 

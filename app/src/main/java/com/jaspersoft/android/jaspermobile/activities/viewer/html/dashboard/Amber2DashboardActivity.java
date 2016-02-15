@@ -31,15 +31,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.domain.ErrorSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardVisualizeParamsCase;
@@ -67,8 +64,6 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.UiThread;
 
 import javax.inject.Inject;
-
-import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -118,10 +113,9 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         super.onCreate(savedInstanceState);
         getComponent().inject(this);
 
-        mGetDashboardControlsCase.execute(resource.getUri(), new SimpleSubscriber<Boolean>() {
+        mGetDashboardControlsCase.execute(resource.getUri(), new GenericSubscriber<>(new SimpleSubscriber<Boolean>() {
             @Override
             public void onError(Throwable e) {
-                Timber.e(e, "get dashboards thrown error");
                 mFiltersVisible = false;
             }
 
@@ -130,7 +124,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
                 mFiltersVisible = hasControls;
                 invalidateOptionsMenu();
             }
-        });
+        }));
         scrollableTitleHelper.injectTitle(resource.getLabel());
         showMenuItems();
     }
@@ -265,16 +259,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @UiThread
     @Override
     public void onLoadStart() {
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.da_loading)
-                .setOnCancelListener(cancelListener)
-                .show();
+        showLoading();
     }
 
     @UiThread
     @Override
     public void onLoadDone() {
-        webView.setVisibility(View.VISIBLE);
+        showWebView(true);
         hideLoading();
     }
 
@@ -373,6 +364,12 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     private void applyParams() {
         mGetDashboardVisualizeParamsCase.execute(resource.getUri(), new GenericSubscriber<>(new SimpleSubscriber<String>() {
             @Override
+            public void onError(Throwable e) {
+                String message = RequestExceptionHandler.extractMessage(Amber2DashboardActivity.this, e);
+                showMessage(message);
+            }
+
+            @Override
             public void onNext(String params) {
                 mDashboardTrigger.applyParams(params);
             }
@@ -387,41 +384,5 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     private void hideMenuItems() {
         mFavoriteItemVisible = mInfoItemVisible = false;
         supportInvalidateOptionsMenu();
-    }
-
-    private void showLoading() {
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.loading_msg)
-                .show();
-    }
-
-    private void hideLoading() {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-    }
-
-    private final class GenericSubscriber<R> extends ErrorSubscriber<R> {
-        private GenericSubscriber(SimpleSubscriber<R> delegate) {
-            super(delegate);
-        }
-
-        @Override
-        public void onStart() {
-            showLoading();
-            super.onStart();
-        }
-
-        @Override
-        public void onCompleted() {
-            hideLoading();
-            super.onCompleted();
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            String message = RequestExceptionHandler.extractMessage(Amber2DashboardActivity.this, e);
-            showMessage(message);
-            hideLoading();
-            super.onError(e);
-        }
     }
 }

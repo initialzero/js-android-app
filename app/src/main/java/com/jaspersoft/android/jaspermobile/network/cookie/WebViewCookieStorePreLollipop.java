@@ -11,7 +11,7 @@ import android.webkit.CookieSyncManager;
  * @since 2.3
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-final class WebViewCookieStorePreLollipop implements WebViewCookieStore {
+final class WebViewCookieStorePreLollipop extends WebViewCookieStore {
     private final CookieManager mCookieManager;
     private final CookieSyncManager mCookieSyncManager;
 
@@ -23,18 +23,21 @@ final class WebViewCookieStorePreLollipop implements WebViewCookieStore {
 
     @Override
     public void add(@NonNull String domain, @NonNull String cookie) {
+        super.add(domain, cookie);
         mCookieManager.setCookie(domain, cookie);
         mCookieSyncManager.sync();
     }
 
     @Override
     public void removeCookie(@NonNull String domain) {
+        super.removeCookie(domain);
         mCookieManager.setCookie(domain, null);
         mCookieSyncManager.sync();
     }
 
     @Override
     public void removeAllCookies() {
+        super.removeAllCookies();
         mCookieManager.removeAllCookie();
         mCookieSyncManager.sync();
     }

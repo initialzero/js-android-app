@@ -10,7 +10,7 @@ import android.webkit.CookieManager;
  * @since 2.3
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-final class WebViewCookieStoreLollipop implements WebViewCookieStore {
+final class WebViewCookieStoreLollipop extends WebViewCookieStore {
     private final CookieManager mCookieManager;
 
     WebViewCookieStoreLollipop(CookieManager cookieManager) {
@@ -19,18 +19,21 @@ final class WebViewCookieStoreLollipop implements WebViewCookieStore {
 
     @Override
     public void add(@NonNull String domain, @NonNull String cookie) {
+        super.add(domain, cookie);
         mCookieManager.setCookie(domain, cookie);
         mCookieManager.flush();
     }
 
     @Override
     public void removeCookie(@NonNull String domain) {
+        super.removeCookie(domain);
         mCookieManager.setCookie(domain, null);
         mCookieManager.flush();
     }
 
     @Override
     public void removeAllCookies() {
+        super.removeAllCookies();
         mCookieManager.removeAllCookies(null);
         mCookieManager.flush();
     }

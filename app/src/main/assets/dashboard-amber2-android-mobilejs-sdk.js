@@ -212,7 +212,8 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
       DashboardController.prototype._processErrors = function(error) {
         js_mobile.log(JSON.stringify(error));
-        if (error.errorCode === "authentication.error") {
+        var code = error.errorCode;
+        if (code === "resource.not.found" || code === "authentication.error") {
           return this.callback.onAuthError(error.message);
         } else {
           return this.callback.onLoadError(error.message);

@@ -77,13 +77,6 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     private MenuItem favoriteAction, refreshAction, aboutAction;
     private JsDashboardTrigger mDashboardTrigger;
     private DashboardExecutor mDashboardExecutor;
-
-    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
-        @Override
-        public void onCancel(DialogInterface dialog) {
-            AmberDashboardActivity.super.onBackPressed();
-        }
-    };
     private WebInterface webInterface;
 
     @SuppressLint("ShowToast")
@@ -118,9 +111,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation != mOrientation && mOrientation != -1 && !mPaused) {
             mOrientation = newConfig.orientation;
-            ProgressDialogFragment.builder(getSupportFragmentManager())
-                    .setLoadingMessage(R.string.loading_msg)
-                    .show();
+            showLoading();
         }
     }
 
@@ -198,9 +189,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     public void onMaximizeStart(String title) {
         resetZoom();
         hideMenuItems();
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.loading_msg)
-                .show();
+        showLoading();
     }
 
     @UiThread
@@ -214,7 +203,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @UiThread
     @Override
     public void onMaximizeFailed(String error) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     @UiThread
@@ -222,22 +211,20 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     public void onMinimizeStart() {
         resetZoom();
         showMenuItems();
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.loading_msg)
-                .show();
+        showLoading();
     }
 
     @UiThread
     @Override
     public void onMinimizeEnd() {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
         mMaximized = false;
     }
 
     @UiThread
     @Override
     public void onMinimizeFailed(String error) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     @UiThread
@@ -260,7 +247,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @UiThread
     @Override
     public void onLoadError(String error) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
         mToast.setText(error);
         mToast.show();
     }
@@ -278,7 +265,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @UiThread
     @Override
     public void onWindowResizeEnd() {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     @Override
@@ -289,7 +276,7 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     @Override
     public void onWindowError(String errorMessage) {
         showMessage(getString(R.string.failed_load_data));
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     //---------------------------------------------------------------------
@@ -306,15 +293,12 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
 
     private void showInitialLoader() {
         webView.setVisibility(View.INVISIBLE);
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.da_loading)
-                .setOnCancelListener(cancelListener)
-                .show();
+        showLoading();
     }
 
     private void hideInitialLoader() {
         webView.setVisibility(View.VISIBLE);
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     private void showMenuItems() {

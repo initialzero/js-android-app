@@ -42,6 +42,7 @@ import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ValueInputDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.util.JobOutputFormatConverter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
 import com.jaspersoft.android.jaspermobile.widget.DateTimeView;
@@ -219,6 +220,7 @@ public class ScheduleActivity extends ToolbarActivity implements DateDialogFragm
         ValueInputDialogFragment.createBuilder(getSupportFragmentManager())
                 .setLabel(getString(R.string.sch_job_name))
                 .setValue(jobName.getText().toString())
+                .setRequired(true)
                 .setCancelableOnTouchOutside(true)
                 .setRequestCode(JOB_NAME_CODE)
                 .show();
@@ -229,6 +231,7 @@ public class ScheduleActivity extends ToolbarActivity implements DateDialogFragm
         ValueInputDialogFragment.createBuilder(getSupportFragmentManager())
                 .setLabel(getString(R.string.sch_file_name))
                 .setValue(fileName.getText().toString())
+                .setRequired(true)
                 .setCancelableOnTouchOutside(true)
                 .setRequestCode(FILE_NAME_CODE)
                 .show();
@@ -246,6 +249,7 @@ public class ScheduleActivity extends ToolbarActivity implements DateDialogFragm
         ValueInputDialogFragment.createBuilder(getSupportFragmentManager())
                 .setLabel(getString(R.string.sch_destination))
                 .setValue(outputPath.getText().toString())
+                .setRequired(true)
                 .setCancelableOnTouchOutside(true)
                 .setRequestCode(OUTPUT_PATH_CODE)
                 .show();
@@ -289,7 +293,7 @@ public class ScheduleActivity extends ToolbarActivity implements DateDialogFragm
     }
 
     private String getSupportedFormatsTitles() {
-        return mFormats.isEmpty() ? InputControlWrapper.NOTHING_SUBSTITUTE_LABEL : TextUtils.join(", ", mFormats);
+        return mFormats.isEmpty() ? InputControlWrapper.NOTHING_SUBSTITUTE_LABEL : TextUtils.join(", ", JobOutputFormatConverter.toStringsList(ScheduleActivity.this, mFormats));
     }
 
     private JobForm createJobForm() {

@@ -24,9 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile;
 
+import android.app.Application;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.multidex.MultiDexApplication;
 
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
@@ -53,7 +53,7 @@ import timber.log.Timber;
  * @since 1.0
  */
 @EApplication
-public class JasperMobileApplication extends MultiDexApplication implements GraphObject {
+public class JasperMobileApplication extends Application implements GraphObject {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
     public static final String RESOURCES_CACHE_DIR_NAME = "resources";
     public static final String SHARED_DIR = "com.jaspersoft.account.none";

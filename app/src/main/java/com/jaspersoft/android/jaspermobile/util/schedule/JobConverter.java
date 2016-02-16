@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -22,36 +22,32 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.util.resource;
+package com.jaspersoft.android.jaspermobile.util.schedule;
 
-import java.util.Date;
+import com.jaspersoft.android.sdk.service.data.schedule.JobForm;
+
+import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * @author Andrew Tivodar
- * @since 2.0
+ * @since 2.3
  */
-public class JobResource extends JasperResource {
+public class JobConverter {
 
-    private Date mDate;
-    private String mState;
-
-    public JobResource(String id, String label, String description, Date date, String state) {
-        super(id, label, description);
-        mDate = date;
-        mState = state;
+    public static JobForm toJobForm(ScheduleViewModel scheduleViewModel) {
+        return new JobForm.Builder()
+                .build();
     }
 
-    public Date getDate() {
-        return mDate;
+    public static ScheduleViewModel toJobViewModel(JobForm jobForm) {
+        Calendar startDate = Calendar.getInstance();
+        if (jobForm.getSimpleTrigger() != null && jobForm.getSimpleTrigger().getStartDate() != null) {
+            startDate.setTime(jobForm.getSimpleTrigger().getStartDate());
+        } else {
+            startDate = null;
+        }
+        return new ScheduleViewModel(jobForm.getLabel(), jobForm.getBaseOutputFilename(), jobForm.getRepositoryDestination().getFolderUri(),
+                startDate, new ArrayList<>(jobForm.getOutputFormats()));
     }
-
-    public String getState() {
-        return mState;
-    }
-
-    @Override
-    public JasperResourceType getResourceType() {
-        return JasperResourceType.job;
-    }
-
 }

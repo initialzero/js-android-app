@@ -161,6 +161,7 @@
 
     <!-- Schedule -->
     <string name="sch_new" translatable="false">New schedule</string>
+    <string name="sch_edit" translatable="false">Edit schedule</string>
     <string name="sch_job_name" translatable="false">Scheduled Job Name</string>
     <string name="sch_file_name" translatable="false">Output file name</string>
     <string name="sch_run_immediately" translatable="false">Run immediately</string>
@@ -172,6 +173,14 @@
     <string name="sch_info" translatable="false">Description: %s \nResource: %s \nLastRun: %s \nNextRun: %s \nOwner: %s \nOrganization: %s</string>
     <string name="sch_not_found" translatable="false">No jobs found</string>
     <string name="sch_format_paginated" translatable="false">%s(Paginated)</string>
+    <string name="sch_state_label" translatable="false">%s (state: %s)</string>
+    <string name="sch_next_run_label" translatable="false">Next run: %s</string>
+    <string name="sch_state_normal" translatable="false">Normal</string>
+    <string name="sch_state_complete" translatable="false">Complete</string>
+    <string name="sch_state_executing" translatable="false">Executing</string>
+    <string name="sch_state_error" translatable="false">Error</string>
+    <string name="sch_state_paused" translatable="false">Paused</string>
+    <string name="sch_state_unknown" translatable="false">Unknown</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

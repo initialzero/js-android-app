@@ -15,8 +15,9 @@ import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageF
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryFragment;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService;
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment;
+import com.jaspersoft.android.jaspermobile.activities.schedule.EditScheduleActivity;
 import com.jaspersoft.android.jaspermobile.activities.schedule.JobsFragment;
-import com.jaspersoft.android.jaspermobile.activities.schedule.ScheduleActivity;
+import com.jaspersoft.android.jaspermobile.activities.schedule.NewScheduleActivity;
 import com.jaspersoft.android.jaspermobile.activities.settings.fragment.SettingsFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsFragment;
@@ -81,7 +82,8 @@ public interface ProfileComponent {
     void inject(SimpleInfoFragment simpleInfoFragment);
     void inject(ResourceInfoFragment resourceInfoFragment);
     void inject(ReportInfoFragment reportInfoFragment);
-    void inject(ScheduleActivity scheduleActivity);
+    void inject(NewScheduleActivity newScheduleActivity);
+    void inject(EditScheduleActivity editScheduleActivity);
     void inject(JobsFragment jobsFragment);
     void inject(FileLoadFragment fileLoadFragment);
     void inject(FileResourceBinder fileResourceBinder);

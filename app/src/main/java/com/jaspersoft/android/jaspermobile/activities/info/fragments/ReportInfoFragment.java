@@ -8,7 +8,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
-import com.jaspersoft.android.jaspermobile.activities.schedule.ScheduleActivity_;
+import com.jaspersoft.android.jaspermobile.activities.schedule.NewScheduleActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog;
 import com.jaspersoft.android.jaspermobile.domain.LoadOptionParamsRequest;
@@ -86,7 +86,7 @@ public class ReportInfoFragment extends ResourceInfoFragment
 
     @OptionsItem(R.id.newSchedule)
     protected void schedule() {
-        ScheduleActivity_.intent(getActivity())
+        NewScheduleActivity_.intent(getActivity())
                 .jasperResource(jasperResource)
                 .start();
     }

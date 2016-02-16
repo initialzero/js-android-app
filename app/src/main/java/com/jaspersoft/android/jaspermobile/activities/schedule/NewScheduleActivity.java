@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.schedule;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.View;
@@ -45,6 +46,8 @@ import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarAct
 import com.jaspersoft.android.jaspermobile.util.JobOutputFormatConverter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
+import com.jaspersoft.android.jaspermobile.util.schedule.JobConverter;
+import com.jaspersoft.android.jaspermobile.util.schedule.ScheduleViewModel;
 import com.jaspersoft.android.jaspermobile.widget.DateTimeView;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.service.data.schedule.JobData;
@@ -82,13 +85,9 @@ import rx.subscriptions.CompositeSubscription;
  * @since 2.3
  */
 @OptionsMenu(R.menu.report_add_schedule)
-@EActivity(R.layout.activity_schedule)
-public class ScheduleActivity extends ToolbarActivity implements DateDialogFragment.DateDialogClickListener,
-        OutputFormatDialogFragment.OutputFormatClickListener, ValueInputDialogFragment.ValueDialogCallback {
+@EActivity
+public class NewScheduleActivity extends ToolbarActivity {
 
-    private final static int JOB_NAME_CODE = 563;
-    private final static int FILE_NAME_CODE = 251;
-    private final static int OUTPUT_PATH_CODE = 515;
     private final static String DEFAULT_OUTPUT_PATH = "/public/Samples/Reports";
 
     @Extra
@@ -99,24 +98,8 @@ public class ScheduleActivity extends ToolbarActivity implements DateDialogFragm
     @Inject
     protected JasperRestClient mRestClient;
 
-    @ViewById(R.id.scheduleName)
-    TextView jobName;
-    @ViewById(R.id.fileName)
-    TextView fileName;
-    @ViewById(R.id.ic_boolean_title)
-    TextView runImmediatelyTitle;
-    @ViewById(R.id.ic_boolean)
-    CheckBox runImmediately;
-    @ViewById(R.id.scheduleDate)
-    DateTimeView scheduleDate;
-    @ViewById(R.id.outputFormat)
-    TextView outputFormat;
-    @ViewById(R.id.outputPath)
-    TextView outputPath;
-
-    private Calendar mDate;
-    private ArrayList<JobOutputFormat> mFormats;
     private CompositeSubscription mCompositeSubscription;
+    private ScheduleFragment mScheduleFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,30 +108,24 @@ public class ScheduleActivity extends ToolbarActivity implements DateDialogFragm
 
         mCompositeSubscription = new CompositeSubscription();
 
-        mFormats = new ArrayList<>();
-        mFormats.add(JobOutputFormat.PDF);
-
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.sch_new);
         }
-    }
 
-    @AfterViews
-    protected void init() {
-        jobName.setText(R.string.sch_new);
+        if (savedInstanceState != null) return;
 
-        String outputFileName = jasperResource.getLabel().replace(" ", "_");
-        fileName.setText(outputFileName);
-        runImmediatelyTitle.setText(getString(R.string.sch_run_immediately));
+        JobForm jobForm = createEmptyJobForm();
 
-        runImmediately.setChecked(true);
-        scheduleDate.setDate(null);
-        scheduleDate.setLabel(getString(R.string.sch_start_date));
-        scheduleDate.setDateTimeClickListener(new ScheduleDateClickListener());
+        mScheduleFragment = ScheduleFragment_
+                .builder()
+                .scheduleViewModel(JobConverter.toJobViewModel(jobForm))
+                .build();
 
-        outputFormat.setText(getSupportedFormatsTitles());
-        outputPath.setText(DEFAULT_OUTPUT_PATH);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction
+                .replace(R.id.content, mScheduleFragment)
+                .commit();
     }
 
     @Override
@@ -180,7 +157,8 @@ public class ScheduleActivity extends ToolbarActivity implements DateDialogFragm
                         .flatMap(new Func1<RxReportScheduleService, Observable<JobData>>() {
                             @Override
                             public Observable<JobData> call(RxReportScheduleService rxReportScheduleService) {
-                                return rxReportScheduleService.createJob(createJobForm());
+                                ScheduleViewModel scheduleViewModel = mScheduleFragment.provideJob();
+                                return rxReportScheduleService.createJob(JobConverter.toJobForm(scheduleViewModel));
                             }
                         })
                         .compose(RxTransformers.<JobData>applySchedulers())
@@ -188,18 +166,18 @@ public class ScheduleActivity extends ToolbarActivity implements DateDialogFragm
                             @Override
                             public void onCompleted() {
                                 hideLoading();
-                                analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.SCHEDULED.getValue(), null);
+                                analytics.sendEvent(Analytics.EventCategory.JOB.getValue(), Analytics.EventAction.ADDED.getValue(), null);
                             }
 
                             @Override
                             public void onError(Throwable e) {
                                 hideLoading();
-                                RequestExceptionHandler.showAuthErrorIfExists(ScheduleActivity.this, e);
+                                RequestExceptionHandler.showAuthErrorIfExists(NewScheduleActivity.this, e);
                             }
 
                             @Override
                             public void onNext(JobData data) {
-                                Toast.makeText(ScheduleActivity.this, R.string.sch_created, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(NewScheduleActivity.this, R.string.sch_created, Toast.LENGTH_SHORT).show();
                                 finish();
                             }
                         })
@@ -210,134 +188,29 @@ public class ScheduleActivity extends ToolbarActivity implements DateDialogFragm
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
 
-    @Click(R.id.runImmediately)
-    protected void runImmediatelyClicked() {
-        runImmediately.performClick();
-    }
-
-    @Click(R.id.scheduleNameContainer)
-    protected void scheduleNameClick() {
-        ValueInputDialogFragment.createBuilder(getSupportFragmentManager())
-                .setLabel(getString(R.string.sch_job_name))
-                .setValue(jobName.getText().toString())
-                .setRequired(true)
-                .setCancelableOnTouchOutside(true)
-                .setRequestCode(JOB_NAME_CODE)
-                .show();
-    }
-
-    @Click(R.id.fileNameContainer)
-    protected void fileNameClick() {
-        ValueInputDialogFragment.createBuilder(getSupportFragmentManager())
-                .setLabel(getString(R.string.sch_file_name))
-                .setValue(fileName.getText().toString())
-                .setRequired(true)
-                .setCancelableOnTouchOutside(true)
-                .setRequestCode(FILE_NAME_CODE)
-                .show();
-    }
-
-    @Click(R.id.outputFormatContainer)
-    protected void selectOutputFormat() {
-        OutputFormatDialogFragment.createBuilder(getSupportFragmentManager())
-                .setSelectedFormats(mFormats)
-                .show();
-    }
-
-    @Click(R.id.outputPathContainer)
-    protected void outputPathClick() {
-        ValueInputDialogFragment.createBuilder(getSupportFragmentManager())
-                .setLabel(getString(R.string.sch_destination))
-                .setValue(outputPath.getText().toString())
-                .setRequired(true)
-                .setCancelableOnTouchOutside(true)
-                .setRequestCode(OUTPUT_PATH_CODE)
-                .show();
-    }
-
-    @CheckedChange(R.id.ic_boolean)
-    protected void checkBoxCheckedChange(boolean checked) {
-        runImmediately.setChecked(checked);
-        scheduleDate.setVisibility(checked ? View.GONE : View.VISIBLE);
-    }
-
-    @Override
-    public void onDateSelected(String id, Calendar date) {
-        mDate = date;
-        scheduleDate.setDate(mDate);
-    }
-
-    @Override
-    public void onTextValueEntered(int requestCode, String name) {
-        switch (requestCode) {
-            case JOB_NAME_CODE:
-                jobName.setText(name);
-                break;
-            case FILE_NAME_CODE:
-                fileName.setText(name);
-                break;
-            case OUTPUT_PATH_CODE:
-                outputPath.setText(name);
-                break;
-        }
-    }
-
-    @Override
-    public void onOutputFormatSelected(ArrayList<JobOutputFormat> outputFormats) {
-        mFormats = outputFormats;
-        outputFormat.setText(getSupportedFormatsTitles());
-    }
-
     private void subscribe(Subscription subscription) {
         mCompositeSubscription.add(subscription);
     }
 
-    private String getSupportedFormatsTitles() {
-        return mFormats.isEmpty() ? InputControlWrapper.NOTHING_SUBSTITUTE_LABEL : TextUtils.join(", ", JobOutputFormatConverter.toStringsList(ScheduleActivity.this, mFormats));
-    }
-
-    private JobForm createJobForm() {
+    private JobForm createEmptyJobForm() {
         JobSimpleTrigger jobTrigger = new JobSimpleTrigger.Builder()
                 .withOccurrenceCount(1)
                 .withRecurrenceIntervalUnit(RecurrenceIntervalUnit.WEEK)
                 .withRecurrenceInterval(0)
                 .withTimeZone(TimeZone.getDefault())
-                .withStartDate(mDate == null ? null : mDate.getTime())
                 .build();
+
+        String outputFileName = jasperResource.getLabel().replace(" ", "_");
+        ArrayList<JobOutputFormat> formats = new ArrayList<>();
+        formats.add(JobOutputFormat.PDF);
 
         return new JobForm.Builder()
-                .withBaseOutputFilename(fileName.getText().toString())
-                .withLabel(jobName.getText().toString())
+                .withBaseOutputFilename(outputFileName)
+                .withLabel(getString(R.string.sch_new))
                 .withSimpleTrigger(jobTrigger)
                 .withJobSource(new JobSource.Builder().withUri(jasperResource.getId()).build())
-                .withRepositoryDestination(new RepositoryDestination.Builder().withFolderUri(outputPath.getText().toString()).build())
-                .addOutputFormats(mFormats)
+                .withRepositoryDestination(new RepositoryDestination.Builder().withFolderUri(DEFAULT_OUTPUT_PATH).build())
+                .addOutputFormats(formats)
                 .build();
-    }
-
-    private class ScheduleDateClickListener implements DateTimeView.DateTimeClickListener {
-        @Override
-        public void onDateClick(int position) {
-            DateDialogFragment.createBuilder(getSupportFragmentManager())
-                    .setInputControlId(null)
-                    .setDate(mDate)
-                    .setType(DateDialogFragment.DATE)
-                    .show();
-        }
-
-        @Override
-        public void onTimeClick(int position) {
-            DateDialogFragment.createBuilder(getSupportFragmentManager())
-                    .setInputControlId(null)
-                    .setDate(mDate)
-                    .setType(DateDialogFragment.TIME)
-                    .show();
-        }
-
-        @Override
-        public void onClear(int position) {
-            mDate = null;
-            scheduleDate.setDate(null);
-        }
     }
 }

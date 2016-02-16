@@ -30,12 +30,17 @@ import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JobResource;
+
+import java.text.SimpleDateFormat;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 class JobResourceBinder extends ResourceBinder {
+
+    private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm";
 
     public JobResourceBinder(Context context) {
         super(context);
@@ -49,5 +54,27 @@ class JobResourceBinder extends ResourceBinder {
     @Override
     protected void setActionResource(ResourceView resourceView, JasperResource jasperResource) {
         resourceView.setSecondaryAction(R.drawable.im_cancel);
+    }
+
+    @Override
+    protected void setSubtitle(ResourceView resourceView, JasperResource item) {
+        if (item instanceof JobResource) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT);
+            String date = simpleDateFormat.format(((JobResource) item).getDate());
+            resourceView.setSubTitle(getContext().getString(R.string.sch_next_run_label, date));
+            return;
+        }
+
+        super.setSubtitle(resourceView, item);
+    }
+
+    @Override
+    protected void setTitle(ResourceView resourceView, JasperResource item) {
+        if (item instanceof JobResource) {
+            resourceView.setTitle(getContext().getString(R.string.sch_state_label, item.getLabel(), ((JobResource) item).getState()));
+            return;
+        }
+
+        super.setSubtitle(resourceView, item);
     }
 }

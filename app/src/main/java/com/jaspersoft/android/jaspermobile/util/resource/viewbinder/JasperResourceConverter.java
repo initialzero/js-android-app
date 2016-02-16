@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.data.ThumbNailGenerator;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
@@ -17,10 +18,12 @@ import com.jaspersoft.android.jaspermobile.util.resource.ReportResource;
 import com.jaspersoft.android.jaspermobile.util.resource.SavedItemResource;
 import com.jaspersoft.android.jaspermobile.util.resource.UndefinedResource;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.schedule.JobState;
 import com.jaspersoft.android.sdk.service.data.schedule.JobUnit;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -77,12 +80,13 @@ public class JasperResourceConverter {
         return jasperResourceList;
     }
 
-    public List<JasperResource> convertToJasperResources(List<JobUnit> jobsList) {
+    public List<JasperResource> convertToJasperResources(Context context, List<JobUnit> jobsList) {
         List<JasperResource> jasperResourceList = new ArrayList<>();
         if (jobsList == null) return jasperResourceList;
 
         for (JobUnit job : jobsList) {
-            JasperResource jasperResource = new JobResource(String.valueOf(job.getId()), job.getLabel(), job.getDescription());
+            JasperResource jasperResource = new JobResource(String.valueOf(job.getId()), job.getLabel(),
+                    job.getDescription(), job.getNextFireTime(), parseJobState(context, job.getState()));
             jasperResourceList.add(jasperResource);
         }
         return jasperResourceList;
@@ -208,5 +212,22 @@ public class JasperResourceConverter {
         resource.setCreationDate(cursor.getString(cursor.getColumnIndex(FavoritesTable.CREATION_TIME)));
 
         return resource;
+    }
+
+    private String parseJobState(Context context, JobState jobState) {
+        switch (jobState) {
+            case NORMAL:
+                return context.getString(R.string.sch_state_normal);
+            case COMPLETE:
+                return context.getString(R.string.sch_state_complete);
+            case EXECUTING:
+                return context.getString(R.string.sch_state_executing);
+            case ERROR:
+                return context.getString(R.string.sch_state_error);
+            case PAUSED:
+                return context.getString(R.string.sch_state_paused);
+            default:
+                return context.getString(R.string.sch_state_unknown);
+        }
     }
 }

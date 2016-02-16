@@ -31,22 +31,13 @@ import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Andrew Tivodar
  * @since 2.3
  */
 public class JobOutputFormatConverter {
-
-    public static List<String> toStringsList(Context context, List<JobOutputFormat> jobOutputFormatList) {
-        List<String> titles = new ArrayList<>();
-
-        for (JobOutputFormat jobOutputFormat : jobOutputFormatList) {
-            titles.add(formatToString(context, jobOutputFormat));
-        }
-
-        return titles;
-    }
 
     public static String[] toStringsArray(Context context, List<JobOutputFormat> jobOutputFormatList) {
         String[] titles = new String[jobOutputFormatList.size()];

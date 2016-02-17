@@ -39,6 +39,7 @@ import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Andrew Tivodar

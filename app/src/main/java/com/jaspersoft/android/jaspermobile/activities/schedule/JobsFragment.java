@@ -206,7 +206,7 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
 
                     @Override
                     public void onNext(List<JobUnit> jobUnits) {
-                        mAdapter.addAll(jasperResourceConverter.convertToJasperResources(jobUnits));
+                        mAdapter.addAll(jasperResourceConverter.convertToJasperResources(getActivity(), jobUnits));
 
                         for (JobUnit job : jobUnits) {
                             mJobs.put(job.getId(), job);
@@ -223,13 +223,10 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
             public void onResourceItemClicked(String id) {
                 try {
                     int jobId = Integer.parseInt(id);
-                    JobUnit job = mJobs.get(jobId);
 
-                    SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                            .setTitle(job.getLabel())
-                            .setMessage(createJobInfo(job))
-                            .setPositiveButtonText(R.string.ok)
-                            .show();
+                    EditScheduleActivity_.intent(getContext())
+                            .jobId(jobId)
+                            .start();
                 } catch (NumberFormatException ex) {
                     Toast.makeText(getActivity(), R.string.wrong_action, Toast.LENGTH_SHORT).show();
                 }

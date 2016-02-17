@@ -36,7 +36,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -49,7 +48,7 @@ import static org.mockito.Mockito.when;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 21, constants = BuildConfig.class, shadows = {ShadowMultiDex.class})
+@Config(manifest = Config.NONE, sdk = 21, constants = BuildConfig.class)
 public class FeedbackSenderTest {
 
     @Mock

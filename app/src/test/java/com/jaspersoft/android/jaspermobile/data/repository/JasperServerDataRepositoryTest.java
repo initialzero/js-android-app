@@ -30,9 +30,7 @@ import com.jaspersoft.android.jaspermobile.data.repository.profile.JasperServerD
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.sdk.network.Server;
-import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
-import com.jaspersoft.android.sdk.service.rx.info.RxServerInfoService;
 
 import org.junit.Before;
 import org.junit.Test;

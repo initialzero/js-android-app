@@ -6,7 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import java.net.HttpCookie;
 import java.net.URI;
@@ -19,7 +18,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 21, shadows = {ShadowMultiDex.class})
+@Config(manifest = Config.NONE, sdk = 21)
 public class AppCookieStoreTest {
 
     public static final URI DOMAIN = URI.create("http://localhost");

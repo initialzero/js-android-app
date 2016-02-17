@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import java.net.CookieStore;
 import java.net.HttpCookie;
@@ -27,7 +26,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 21, shadows = {ShadowMultiDex.class})
+@Config(manifest = Config.NONE, sdk = 21)
 public class ApacheCookieStoreTest {
 
     private static final List<HttpCookie> COOKIES =

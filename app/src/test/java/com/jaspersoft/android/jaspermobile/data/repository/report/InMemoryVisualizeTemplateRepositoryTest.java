@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import java.util.Collections;
 import java.util.Map;
@@ -35,7 +34,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
  * @since 2.3
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 21, shadows = {ShadowMultiDex.class})
+@Config(constants = BuildConfig.class, sdk = 21)
 public class InMemoryVisualizeTemplateRepositoryTest {
 
     @Mock

@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.spy;
@@ -21,7 +20,7 @@ import static org.powermock.api.mockito.PowerMockito.spy;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 21, shadows = {ShadowMultiDex.class})
+@Config(manifest = Config.NONE, sdk = 21)
 public class SimpleVisualizeComponentTest {
 
     @Mock

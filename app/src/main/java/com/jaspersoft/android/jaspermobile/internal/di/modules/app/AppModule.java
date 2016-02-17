@@ -14,12 +14,16 @@ import com.jaspersoft.android.jaspermobile.UIThread;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.data.cache.SecureCache;
 import com.jaspersoft.android.jaspermobile.data.cache.SecureStorage;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.jaspersoft.android.jaspermobile.network.cookie.CookieHandlerFactory;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.jaspermobile.util.account.AccountStorage;
 import com.jaspersoft.android.sdk.network.Server;
+import com.orhanobut.hawk.Storage;
 
 import java.net.CookieHandler;
 import java.util.concurrent.TimeUnit;
@@ -102,5 +106,19 @@ public final class AppModule {
         return Server.builder()
                 .withConnectionTimeOut(helper.getConnectTimeoutValue(), TimeUnit.MILLISECONDS)
                 .withReadTimeout(helper.getReadTimeoutValue(), TimeUnit.MILLISECONDS);
+    }
+
+    @Provides
+    @Singleton
+    Storage providesHawkBuilder(
+            AccountManager accountManager,
+            AccountDataMapper accountDataMapper,
+            ActiveProfileCache activeProfileCache
+    ) {
+        return new AccountStorage(
+                accountManager,
+                accountDataMapper,
+                activeProfileCache
+        );
     }
 }

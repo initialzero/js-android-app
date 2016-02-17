@@ -67,7 +67,7 @@ public final class AccountJasperServerCache implements JasperServerCache {
     public void put(Profile profile, JasperServer jasperServer) {
         Account accountProfile = mAccountDataMapper.transform(profile);
         mAccountManager.setUserData(accountProfile, SERVER_URL_KEY, jasperServer.getBaseUrl());
-        mAccountManager.setUserData(accountProfile, EDITION_KEY, String.valueOf(jasperServer.isProEdition()));
+        mAccountManager.setUserData(accountProfile, EDITION_KEY, jasperServer.getEdition());
         mAccountManager.setUserData(accountProfile, VERSION_NAME_KEY, String.valueOf(jasperServer.getVersion()));
     }
 
@@ -84,7 +84,7 @@ public final class AccountJasperServerCache implements JasperServerCache {
 
         JasperServer.Builder serverBuilder = new JasperServer.Builder();
         serverBuilder.setBaseUrl(baseUrl);
-        serverBuilder.setEdition(Boolean.valueOf(edition) ? "PRO" : "CE");
+        serverBuilder.setEdition(edition);
         serverBuilder.setVersion(versionString);
 
         return serverBuilder.create();

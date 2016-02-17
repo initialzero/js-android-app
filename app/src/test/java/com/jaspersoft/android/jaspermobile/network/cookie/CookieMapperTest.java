@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import java.net.HttpCookie;
 
@@ -19,7 +18,7 @@ import static org.hamcrest.core.Is.is;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 21, shadows = {ShadowMultiDex.class})
+@Config(manifest = Config.NONE, sdk = 21)
 public class CookieMapperTest {
 
     private CookieMapper cookieMapper;

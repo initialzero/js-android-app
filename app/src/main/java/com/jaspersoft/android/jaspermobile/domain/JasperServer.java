@@ -26,6 +26,8 @@ package com.jaspersoft.android.jaspermobile.domain;
 
 import android.support.annotation.NonNull;
 
+import com.jaspersoft.android.jaspermobile.util.BaseUrlNormalizer;
+
 /**
  * @author Tom Koptel
  * @since 2.3
@@ -48,7 +50,7 @@ public class JasperServer {
 
     @NonNull
     public String getBaseUrl() {
-        return baseUrl;
+        return BaseUrlNormalizer.normalize(baseUrl);
     }
 
     public boolean isProEdition() {

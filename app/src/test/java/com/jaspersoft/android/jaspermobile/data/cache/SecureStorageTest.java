@@ -25,10 +25,13 @@
 package com.jaspersoft.android.jaspermobile.data.cache;
 
 import android.accounts.Account;
+import android.app.Application;
 import android.provider.Settings;
 
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
+import com.orhanobut.hawk.HawkBuilder;
+import com.orhanobut.hawk.Storage;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +39,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -46,7 +48,7 @@ import static org.hamcrest.Matchers.is;
  * @since 2.1.1
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 21, shadows = {ShadowMultiDex.class})
+@Config(manifest = Config.NONE, sdk = 21)
 public class SecureStorageTest {
 
     private SecureStorage mSecureStorage;
@@ -54,14 +56,20 @@ public class SecureStorageTest {
 
     @Before
     public void setup() {
+        Application application = RuntimeEnvironment.application;
         Settings.Secure.putString(
-                RuntimeEnvironment.application.getContentResolver(),
+                application.getContentResolver(),
                 Settings.Secure.ANDROID_ID,
                 "ROBOLECTRICYOUAREBAD"
         );
-        mSecureStorage = new SecureStorage(RuntimeEnvironment.application,
+
+        Storage passwordStorage = HawkBuilder.newSharedPrefStorage(application);
+        mSecureStorage = new SecureStorage(
+                application,
+                passwordStorage,
                 FakePreExecutionThread.create(),
-                FakePostExecutionThread.create());
+                FakePostExecutionThread.create()
+        );
         fakeAccount = new Account("test", "com.test");
     }
 

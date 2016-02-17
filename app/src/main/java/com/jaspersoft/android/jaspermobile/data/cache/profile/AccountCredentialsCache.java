@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -31,6 +31,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.SecureCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.util.account.AccountStorage;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -65,7 +66,7 @@ public final class AccountCredentialsCache implements CredentialsCache {
     @Override
     public AppCredentials put(final Profile profile, final AppCredentials credentials)  {
         Account account = mAccountDataMapper.transform(profile);
-        mSecureCache.put(account.name, credentials.getPassword());
+        mSecureCache.put(AccountStorage.KEY + account.name, credentials.getPassword());
         mAccountManager.setUserData(account, ORGANIZATION_KEY, credentials.getOrganization());
         mAccountManager.setUserData(account, USERNAME_KEY, credentials.getUsername());
         return credentials;
@@ -77,7 +78,7 @@ public final class AccountCredentialsCache implements CredentialsCache {
     @Override
     public AppCredentials get(final Profile profile) {
         Account account = mAccountDataMapper.transform(profile);
-        String password = mSecureCache.get(account.name);
+        String password = mSecureCache.get(AccountStorage.KEY + account.name);
 
         String username = mAccountManager.getUserData(account, USERNAME_KEY);
         String organization = mAccountManager.getUserData(account, ORGANIZATION_KEY);

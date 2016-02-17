@@ -33,6 +33,7 @@ import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
 import com.orhanobut.hawk.Hawk;
 import com.orhanobut.hawk.HawkBuilder;
+import com.orhanobut.hawk.Storage;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -48,21 +49,39 @@ import rx.observers.Observers;
 @Singleton
 public final class SecureStorage implements SecureCache {
 
+    private final HawkBuilder hawkBuilder;
+    private final PreExecutionThread mPreExecutionThread;
+    private final PostExecutionThread mPostExecutionThread;
     private boolean isInitialized = false;
-    private final ConnectableObservable<Boolean> initObservable;
+    private ConnectableObservable<Boolean> initObservable;
 
     @Inject
     public SecureStorage(@ApplicationContext Context context,
+                         Storage passwordStorage,
                          PreExecutionThread preExecutionThread,
                          PostExecutionThread postExecutionThread) {
+        mPreExecutionThread = preExecutionThread;
+        mPostExecutionThread = postExecutionThread;
+
         String storagePassword = Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
-        initObservable = Hawk.init(context)
+        hawkBuilder = Hawk.init(context)
                 .setEncryptionMethod(HawkBuilder.EncryptionMethod.HIGHEST)
                 .setPassword(storagePassword)
-                .buildRx()
-                .subscribeOn(preExecutionThread.getScheduler())
-                .observeOn(postExecutionThread.getScheduler())
+                .setStorage(passwordStorage);
+        initHawk();
+    }
+
+    @Override
+    public void reset() {
+        initHawk();
+    }
+
+    private void initHawk() {
+        isInitialized = false;
+        initObservable = hawkBuilder.buildRx()
+                .subscribeOn(mPreExecutionThread.getScheduler())
+                .observeOn(mPostExecutionThread.getScheduler())
                 .publish();
 
         initObservable.subscribe(Observers.create(new Action1<Boolean>() {

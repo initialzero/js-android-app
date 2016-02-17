@@ -41,7 +41,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,11 +55,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(
-        constants = BuildConfig.class,
-        sdk = 21,
-        shadows = {ShadowMultiDex.class}
-)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class LegacyProfileMigrationV3Test {
 
     private ResourceDatabase resourceDatabase;

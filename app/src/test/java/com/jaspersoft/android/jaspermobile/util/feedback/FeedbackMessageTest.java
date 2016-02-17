@@ -40,7 +40,6 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.res.builder.RobolectricPackageManager;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -55,7 +54,7 @@ import static org.robolectric.Shadows.shadowOf;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 21, constants = BuildConfig.class, shadows = {ShadowMultiDex.class})
+@Config(manifest = Config.NONE, sdk = 21, constants = BuildConfig.class)
 public class FeedbackMessageTest {
     @Mock
     JasperServer mServer;

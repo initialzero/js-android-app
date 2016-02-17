@@ -41,7 +41,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import java.util.List;
 
@@ -53,7 +52,7 @@ import static org.hamcrest.Matchers.hasItems;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, shadows = {ShadowMultiDex.class})
+@Config(manifest = Config.NONE)
 public class AccountProfileCacheTest {
     AccountProfileCache cacheUnderTest;
     Profile fakeProfile;

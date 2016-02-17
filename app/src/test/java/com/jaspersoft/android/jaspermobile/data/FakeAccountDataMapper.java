@@ -31,7 +31,9 @@ import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
  * @since 2.3
  */
 public final class FakeAccountDataMapper {
+    public static final String TYPE = "com.jaspersoft";
+
     public static AccountDataMapper get() {
-        return new AccountDataMapper("com.jaspersoft");
+        return new AccountDataMapper(TYPE);
     }
 }

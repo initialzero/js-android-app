@@ -37,7 +37,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -48,11 +47,7 @@ import static org.hamcrest.core.IsNot.not;
  * @since 2.1.2
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(
-        constants = BuildConfig.class,
-        sdk = 21,
-        shadows = {ShadowMultiDex.class}
-)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class MigrationV4Test {
 
     @Before

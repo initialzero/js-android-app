@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
 import com.jaspersoft.android.jaspermobile.data.JasperClient;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
+import com.jaspersoft.android.jaspermobile.data.cache.SecureCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryControlsCache;
@@ -51,7 +52,9 @@ public final class ProfileModule {
     }
 
     @Provides
-    JasperRestClient provideJasperRestClient(JasperClient client) {
+    @PerProfile
+    JasperRestClient provideJasperRestClient(JasperClient client, SecureCache cache) {
+        cache.reset();
         return client;
     }
 

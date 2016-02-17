@@ -41,7 +41,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.multidex.ShadowMultiDex;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -54,7 +53,7 @@ import static org.mockito.Mockito.when;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, shadows = {ShadowMultiDex.class})
+@Config(manifest = Config.NONE)
 public class AccountCredentialsCacheTest {
     @Mock
     SecureCache mSecureCache;

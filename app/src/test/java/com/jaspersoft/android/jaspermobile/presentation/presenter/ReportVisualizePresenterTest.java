@@ -60,6 +60,7 @@ public class ReportVisualizePresenterTest {
     private FakeGetVisualizeExecOptionsCase mGetJsonParamsCase;
     private FakeFlushInputControlsCase mFakeFlushInputControlsCase;
     private FakeGetReportMetadataCase mFakeGetReportMetadataCase;
+    private FakeAuthorizeSessionUseCase mFakeAuthorizeSessionUseCase;
 
     @Mock
     RequestExceptionHandler mExceptionHandler;
@@ -92,7 +93,8 @@ public class ReportVisualizePresenterTest {
                 mGetVisualizeTemplateCase,
                 mGetJsonParamsCase,
                 mFakeFlushInputControlsCase,
-                mFakeGetReportMetadataCase
+                mFakeGetReportMetadataCase,
+                mFakeAuthorizeSessionUseCase
         );
         mReportVisualizePresenter.injectView(mView);
     }
@@ -356,6 +358,7 @@ public class ReportVisualizePresenterTest {
         mGetJsonParamsCase = spy(new FakeGetVisualizeExecOptionsCase());
         mFakeFlushInputControlsCase = spy(new FakeFlushInputControlsCase());
         mFakeGetReportMetadataCase = spy(new FakeGetReportMetadataCase());
+        mFakeAuthorizeSessionUseCase = spy(new FakeAuthorizeSessionUseCase());
 
         fakeState.setControlsPageShown(false);
         when(mView.getState()).thenReturn(fakeState);

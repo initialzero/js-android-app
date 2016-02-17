@@ -17,6 +17,7 @@ import java.util.Collections;
 
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -52,11 +53,16 @@ public class ComponentManagerTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+        setupMocks();
         mComponentManager = new ComponentManagerImpl(
                 mActiveProfileCache,
                 mProfileCache,
                 mGraphObject
         );
+    }
+
+    private void setupMocks() {
+        when(mProfileCache.getAll()).thenReturn(Collections.<Profile>emptyList());
     }
 
     @Test
@@ -73,7 +79,7 @@ public class ComponentManagerTest {
     }
 
     private void thenShouldRetrieveAllProfiles() {
-        verify(mProfileCache).getAll();
+        verify(mProfileCache, times(2)).getAll();
     }
 
     private void givenNoRegisteredProfiles() {
@@ -135,6 +141,7 @@ public class ComponentManagerTest {
 
     private void givenActiveProfile() {
         when(mActiveProfileCache.get()).thenReturn(fakeProfile);
+        when(mProfileCache.getAll()).thenReturn(Collections.singletonList(fakeProfile));
     }
 
     private void givenNoProfileComponent() {

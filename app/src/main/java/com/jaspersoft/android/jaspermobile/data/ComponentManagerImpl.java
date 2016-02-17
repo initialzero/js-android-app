@@ -37,12 +37,13 @@ public final class ComponentManagerImpl implements ComponentManager {
             callback = Callback.EMPTY;
         }
 
-        ProfileComponent profileComponent = mGraphObject.getProfileComponent();
-        if (profileComponent == null) {
-            tryToSetupActiveProfile(callback);
+        Profile activeProfile = getActiveProfile();
+
+        if (activeProfile == null) {
+            tryToSetupFirstAvailable(callback);
         } else {
-            Profile profile = profileComponent.getProfile();
-            callback.onSetupComplete(profile);
+            setupProfileComponent(activeProfile);
+            callback.onSetupComplete(activeProfile);
         }
     }
 
@@ -56,19 +57,9 @@ public final class ComponentManagerImpl implements ComponentManager {
         mActiveProfileCache.put(profile);
     }
 
-    private void tryToSetupActiveProfile(Callback callback) {
-        Profile activeProfile = getActiveProfile();
-
-        if (activeProfile == null) {
-            tryToSetupFirstAvailable(callback);
-        } else {
-            setupProfileComponent(activeProfile);
-            callback.onSetupComplete(activeProfile);
-        }
-    }
-
     private void tryToSetupFirstAvailable(Callback callback) {
         Profile profile = selectFirstAvailableProfile();
+
         if (profile == null) {
             callback.onActiveProfileMissing();
         } else {
@@ -78,8 +69,14 @@ public final class ComponentManagerImpl implements ComponentManager {
         }
     }
 
+    @Nullable
     private Profile getActiveProfile() {
-        return mActiveProfileCache.get();
+        List<Profile> profiles = mProfileCache.getAll();
+        Profile activeProfile = mActiveProfileCache.get();
+        if (profiles.contains(activeProfile)) {
+            return activeProfile;
+        }
+        return null;
     }
 
     private Profile selectFirstAvailableProfile() {

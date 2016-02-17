@@ -53,7 +53,6 @@ import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.service.data.schedule.JobData;
 import com.jaspersoft.android.sdk.service.data.schedule.JobForm;
 import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
-import com.jaspersoft.android.sdk.service.data.schedule.JobSimpleTrigger;
 import com.jaspersoft.android.sdk.service.data.schedule.JobSource;
 import com.jaspersoft.android.sdk.service.data.schedule.RecurrenceIntervalUnit;
 import com.jaspersoft.android.sdk.service.data.schedule.RepositoryDestination;
@@ -100,6 +99,7 @@ public class NewScheduleActivity extends ToolbarActivity {
 
     private CompositeSubscription mCompositeSubscription;
     private ScheduleFragment mScheduleFragment;
+    private JobForm emptyJobForm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,24 +107,25 @@ public class NewScheduleActivity extends ToolbarActivity {
         getProfileComponent().inject(this);
 
         mCompositeSubscription = new CompositeSubscription();
+        emptyJobForm = createEmptyJobForm();
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.sch_new);
         }
 
-        if (savedInstanceState != null) return;
-
-        JobForm jobForm = createEmptyJobForm();
-
-        mScheduleFragment = ScheduleFragment_
-                .builder()
-                .scheduleViewModel(JobConverter.toJobViewModel(jobForm))
-                .build();
+        if (savedInstanceState != null) {
+            mScheduleFragment = (ScheduleFragment) getSupportFragmentManager().findFragmentByTag(ScheduleFragment.TAG);
+        } else {
+            mScheduleFragment = ScheduleFragment_
+                    .builder()
+                    .scheduleViewModel(JobConverter.toJobViewModel(emptyJobForm))
+                    .build();
+        }
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction
-                .replace(R.id.content, mScheduleFragment)
+                .replace(R.id.content, mScheduleFragment, ScheduleFragment.TAG)
                 .commit();
     }
 
@@ -158,7 +159,7 @@ public class NewScheduleActivity extends ToolbarActivity {
                             @Override
                             public Observable<JobData> call(RxReportScheduleService rxReportScheduleService) {
                                 ScheduleViewModel scheduleViewModel = mScheduleFragment.provideJob();
-                                return rxReportScheduleService.createJob(JobConverter.toJobForm(scheduleViewModel));
+                                return rxReportScheduleService.createJob(JobConverter.toJobForm(emptyJobForm, scheduleViewModel));
                             }
                         })
                         .compose(RxTransformers.<JobData>applySchedulers())
@@ -193,13 +194,6 @@ public class NewScheduleActivity extends ToolbarActivity {
     }
 
     private JobForm createEmptyJobForm() {
-        JobSimpleTrigger jobTrigger = new JobSimpleTrigger.Builder()
-                .withOccurrenceCount(1)
-                .withRecurrenceIntervalUnit(RecurrenceIntervalUnit.WEEK)
-                .withRecurrenceInterval(0)
-                .withTimeZone(TimeZone.getDefault())
-                .build();
-
         String outputFileName = jasperResource.getLabel().replace(" ", "_");
         ArrayList<JobOutputFormat> formats = new ArrayList<>();
         formats.add(JobOutputFormat.PDF);
@@ -207,7 +201,6 @@ public class NewScheduleActivity extends ToolbarActivity {
         return new JobForm.Builder()
                 .withBaseOutputFilename(outputFileName)
                 .withLabel(getString(R.string.sch_new))
-                .withSimpleTrigger(jobTrigger)
                 .withJobSource(new JobSource.Builder().withUri(jasperResource.getId()).build())
                 .withRepositoryDestination(new RepositoryDestination.Builder().withFolderUri(DEFAULT_OUTPUT_PATH).build())
                 .addOutputFormats(formats)

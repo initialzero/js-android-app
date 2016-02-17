@@ -28,6 +28,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
@@ -36,26 +38,18 @@ import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
 import com.jaspersoft.android.jaspermobile.util.schedule.JobConverter;
 import com.jaspersoft.android.jaspermobile.util.schedule.ScheduleViewModel;
 import com.jaspersoft.android.sdk.service.data.schedule.JobData;
 import com.jaspersoft.android.sdk.service.data.schedule.JobForm;
-import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
-import com.jaspersoft.android.sdk.service.data.schedule.JobSimpleTrigger;
-import com.jaspersoft.android.sdk.service.data.schedule.JobSource;
-import com.jaspersoft.android.sdk.service.data.schedule.RecurrenceIntervalUnit;
-import com.jaspersoft.android.sdk.service.data.schedule.RepositoryDestination;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
-
-import java.util.ArrayList;
-import java.util.TimeZone;
+import org.androidannotations.annotations.OptionsMenuItem;
 
 import javax.inject.Inject;
 
@@ -81,8 +75,12 @@ public class EditScheduleActivity extends ToolbarActivity {
     @Inject
     protected JasperRestClient mRestClient;
 
+    @OptionsMenuItem(R.id.editSchedule)
+    protected MenuItem editAction;
+
     private CompositeSubscription mCompositeSubscription;
     private ScheduleFragment mScheduleFragment;
+    private JobForm currentJobForm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,14 +89,22 @@ public class EditScheduleActivity extends ToolbarActivity {
 
         mCompositeSubscription = new CompositeSubscription();
 
+        if (savedInstanceState != null) {
+            mScheduleFragment = (ScheduleFragment) getSupportFragmentManager().findFragmentByTag(ScheduleFragment.TAG);
+        }
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.sch_edit);
         }
 
-        if (savedInstanceState != null) return;
-
         requestJobInfo();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        editAction.setVisible(currentJobForm != null);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -131,7 +137,7 @@ public class EditScheduleActivity extends ToolbarActivity {
                             @Override
                             public Observable<JobData> call(RxReportScheduleService rxReportScheduleService) {
                                 ScheduleViewModel scheduleViewModel = mScheduleFragment.provideJob();
-                                return rxReportScheduleService.createJob(JobConverter.toJobForm(scheduleViewModel));
+                                return rxReportScheduleService.updateJob(jobId, JobConverter.toJobForm(currentJobForm, scheduleViewModel));
                             }
                         })
                         .compose(RxTransformers.<JobData>applySchedulers())
@@ -150,7 +156,7 @@ public class EditScheduleActivity extends ToolbarActivity {
 
                             @Override
                             public void onNext(JobData data) {
-                                Toast.makeText(EditScheduleActivity.this, R.string.sch_created, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(EditScheduleActivity.this, R.string.sch_updated, Toast.LENGTH_SHORT).show();
                                 finish();
                             }
                         })
@@ -166,39 +172,59 @@ public class EditScheduleActivity extends ToolbarActivity {
     }
 
     private void requestJobInfo() {
-        mRestClient.scheduleService()
-                .flatMap(new Func1<RxReportScheduleService, Observable<JobForm>>() {
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
-                    public Observable<JobForm> call(RxReportScheduleService rxReportScheduleService) {
-                        return null;
+                    public void onCancel(DialogInterface dialog) {
+                        mCompositeSubscription.unsubscribe();
+                        mCompositeSubscription = new CompositeSubscription();
+                        finish();
                     }
                 })
-                .compose(RxTransformers.<JobForm>applySchedulers())
-                .subscribe(new Subscriber<JobForm>() {
-                    @Override
-                    public void onCompleted() {
-                        hideLoading();
-                        analytics.sendEvent(Analytics.EventCategory.JOB.getValue(), Analytics.EventAction.VIEWED.getValue(), null);
-                    }
+                .show();
 
-                    @Override
-                    public void onError(Throwable e) {
-                        hideLoading();
-                        RequestExceptionHandler.showAuthErrorIfExists(EditScheduleActivity.this, e);
-                    }
+        subscribe(
+                mRestClient.scheduleService()
+                        .flatMap(new Func1<RxReportScheduleService, Observable<JobForm>>() {
+                            @Override
+                            public Observable<JobForm> call(RxReportScheduleService rxReportScheduleService) {
+                                return rxReportScheduleService.readJob(jobId);
+                            }
+                        })
+                        .compose(RxTransformers.<JobForm>applySchedulers())
+                        .subscribe(new Subscriber<JobForm>() {
+                            @Override
+                            public void onCompleted() {
+                                hideLoading();
+                                analytics.sendEvent(Analytics.EventCategory.JOB.getValue(), Analytics.EventAction.VIEWED.getValue(), null);
+                                invalidateOptionsMenu();
+                            }
 
-                    @Override
-                    public void onNext(JobForm data) {
-                        mScheduleFragment = ScheduleFragment_
-                                .builder()
-                                .scheduleViewModel(JobConverter.toJobViewModel(data))
-                                .build();
+                            @Override
+                            public void onError(Throwable e) {
+                                hideLoading();
+                                finish();
+                                RequestExceptionHandler.showAuthErrorIfExists(EditScheduleActivity.this, e);
+                            }
 
-                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                        transaction
-                                .replace(R.id.content, mScheduleFragment)
-                                .commit();
-                    }
-                });
+                            @Override
+                            public void onNext(JobForm data) {
+                                currentJobForm = data;
+
+                                if (mScheduleFragment != null) return;
+
+                                mScheduleFragment = ScheduleFragment_
+                                        .builder()
+                                        .scheduleViewModel(JobConverter.toJobViewModel(data))
+                                        .build();
+
+                                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                transaction
+                                        .replace(R.id.content, mScheduleFragment, ScheduleFragment.TAG)
+                                        .commit();
+                            }
+                        })
+        );
     }
 }

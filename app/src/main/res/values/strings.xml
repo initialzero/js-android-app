@@ -168,6 +168,7 @@
     <string name="sch_start_date" translatable="false">Schedule start date</string>
     <string name="sch_destination" translatable="false">Output destination path</string>
     <string name="sch_created" translatable="false">Job scheduled</string>
+    <string name="sch_updated" translatable="false">Job updated</string>
     <string name="sch_deleted" translatable="false">Schedule deleted</string>
     <string name="sch_jobs" translatable="false">Schedules</string>
     <string name="sch_info" translatable="false">Description: %s \nResource: %s \nLastRun: %s \nNextRun: %s \nOwner: %s \nOrganization: %s</string>

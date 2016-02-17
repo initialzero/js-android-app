@@ -25,6 +25,8 @@
 package com.jaspersoft.android.jaspermobile.util.schedule;
 
 import com.jaspersoft.android.sdk.service.data.schedule.JobForm;
+import com.jaspersoft.android.sdk.service.data.schedule.JobSource;
+import com.jaspersoft.android.sdk.service.data.schedule.RepositoryDestination;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,15 +37,24 @@ import java.util.Calendar;
  */
 public class JobConverter {
 
-    public static JobForm toJobForm(ScheduleViewModel scheduleViewModel) {
-        return new JobForm.Builder()
-                .build();
+    public static JobForm toJobForm(JobForm jobForm, ScheduleViewModel scheduleViewModel) {
+        JobForm.Builder jobFormBuilder = jobForm.newBuilder()
+                .withLabel(scheduleViewModel.getJobName())
+                .withBaseOutputFilename(scheduleViewModel.getFileName())
+                .withRepositoryDestination(new RepositoryDestination.Builder().withFolderUri(scheduleViewModel.getOutputPath()).build())
+                .addOutputFormats(scheduleViewModel.getJobOutputFormats());
+
+        if (scheduleViewModel.getDate() != null) {
+            jobFormBuilder.withStartDate(scheduleViewModel.getDate().getTime());
+        }
+
+        return jobFormBuilder.build();
     }
 
     public static ScheduleViewModel toJobViewModel(JobForm jobForm) {
         Calendar startDate = Calendar.getInstance();
-        if (jobForm.getSimpleTrigger() != null && jobForm.getSimpleTrigger().getStartDate() != null) {
-            startDate.setTime(jobForm.getSimpleTrigger().getStartDate());
+        if (jobForm.getStartDate() != null) {
+            startDate.setTime(jobForm.getStartDate());
         } else {
             startDate = null;
         }

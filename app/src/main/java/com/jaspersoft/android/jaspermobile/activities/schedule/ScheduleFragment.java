@@ -61,6 +61,8 @@ import java.util.Calendar;
 public class ScheduleFragment extends BaseFragment implements DateDialogFragment.DateDialogClickListener,
         OutputFormatDialogFragment.OutputFormatClickListener, ValueInputDialogFragment.ValueDialogCallback {
 
+    public static final String TAG = ScheduleFragment.class.getSimpleName();
+
     private final static int JOB_NAME_CODE = 563;
     private final static int FILE_NAME_CODE = 251;
     private final static int OUTPUT_PATH_CODE = 515;
@@ -88,11 +90,9 @@ public class ScheduleFragment extends BaseFragment implements DateDialogFragment
     protected void init() {
         jobName.setText(scheduleViewModel.getJobName());
         fileName.setText(scheduleViewModel.getFileName());
-        runImmediatelyTitle.setText(getString(R.string.sch_run_immediately));
 
-        if (scheduleViewModel.getDate() == null) {
-            runImmediately.setChecked(true);
-        }
+        runImmediatelyTitle.setText(getString(R.string.sch_run_immediately));
+        checkBoxCheckedChange(scheduleViewModel.getDate() == null);
 
         scheduleDate.setDate(scheduleViewModel.getDate());
         scheduleDate.setLabel(getString(R.string.sch_start_date));

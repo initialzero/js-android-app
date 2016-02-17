@@ -13,6 +13,7 @@ import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment;
 import com.jaspersoft.android.jaspermobile.activities.recent.fragment.RecentFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryFragment;
+import com.jaspersoft.android.jaspermobile.activities.save.ReportDownloadManager;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService;
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment;
 import com.jaspersoft.android.jaspermobile.activities.schedule.EditScheduleActivity;
@@ -108,4 +109,5 @@ public interface ProfileComponent {
     void inject(RepositoryResourceFilter filter);
     void inject(ResourceOpener resourceOpener);
     void inject(PasswordDialogFragment passwordDialogFragment);
+    void inject(ReportDownloadManager reportDownloadManager);
 }

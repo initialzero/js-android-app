@@ -186,6 +186,7 @@ public class SaveItemFragment extends BaseFragment implements NumberDialogFragme
 
         SaveReportService.start(getActivity(), bundle);
         Toast.makeText(getActivity().getApplicationContext(), getString(R.string.sdr_starting_downloading_msg), Toast.LENGTH_SHORT).show();
+        getActivity().finish();
     }
 
     @AfterViews

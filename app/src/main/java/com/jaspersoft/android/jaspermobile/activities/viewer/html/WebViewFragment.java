@@ -90,8 +90,9 @@ public class WebViewFragment extends BaseFragment {
     private JSWebViewClient jsWebViewClient;
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         setHasOptionsMenu(true);
         getProfileComponent().inject(this);
     }

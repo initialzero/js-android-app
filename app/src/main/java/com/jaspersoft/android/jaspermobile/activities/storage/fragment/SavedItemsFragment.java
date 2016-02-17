@@ -221,9 +221,7 @@ public class SavedItemsFragment extends BaseFragment
                             .jasperResource(jasperResource)
                             .start();
                 } else {
-                    File file = jasperResourceConverter.convertToFile(jasperResource.getId(), getActivity());
-                    CancelExportBundle cancelExportBundle = new CancelExportBundle(jasperResource.getId(), file);
-                    SaveReportService.cancel(getContext(), cancelExportBundle);
+                    SaveReportService.cancel(getContext(), Uri.parse(jasperResource.getId()));
                 }
             }
         });

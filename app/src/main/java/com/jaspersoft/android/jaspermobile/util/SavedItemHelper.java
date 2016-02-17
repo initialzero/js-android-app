@@ -78,6 +78,11 @@ public class SavedItemHelper {
         }
     }
 
+    public void deleteSavedItem(Uri reportUri) {
+        File reportFile = getFile(reportUri);
+        deleteSavedItem(reportFile, reportUri);
+    }
+
     public void deleteUnsavedItems() {
         String selection = SavedItemsTable.DOWNLOADED + " =?";
         Cursor cursor = context.getContentResolver().query(MobileDbProvider.SAVED_ITEMS_CONTENT_URI, new String[]{SavedItemsTable._ID, SavedItemsTable.FILE_PATH}, selection, new String[]{"0"}, null);
@@ -124,5 +129,15 @@ public class SavedItemHelper {
 
     private void deleteReferenceInDb(Uri reportUri) {
         context.getContentResolver().delete(reportUri, null, null);
+    }
+
+    private File getFile(Uri recordUri) {
+        Cursor cursor = context.getContentResolver().query(recordUri, null, null, null, null);
+        if (cursor == null) return null;
+
+        cursor.moveToFirst();
+        File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
+        cursor.close();
+        return file;
     }
 }

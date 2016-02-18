@@ -59,25 +59,10 @@ public class ExternalOpenFragment extends FileLoadFragment {
     }
 
     private void tryToShowFile() {
-        if (canBeOpened()) {
-            showFileOpeningMessage();
-            tryToOpen.setVisibility(View.GONE);
+        showFileOpeningMessage();
+        tryToOpen.setVisibility(View.GONE);
 
-            loadFile();
-        } else {
-            showFileUnsupportedMessage();
-            tryToOpen.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private boolean canBeOpened() {
-        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileType.name());
-
-        Intent openIntent = new Intent(Intent.ACTION_VIEW);
-        openIntent.setDataAndType(null, mimeType);
-        PackageManager packageManager = getActivity().getPackageManager();
-        List<ResolveInfo> suitableApps = packageManager.queryIntentActivities(openIntent, PackageManager.GET_INTENT_FILTERS);
-        return suitableApps.size() > 0;
+        loadFile();
     }
 
     private void openFile(File file) {
@@ -90,7 +75,8 @@ public class ExternalOpenFragment extends FileLoadFragment {
             getActivity().startActivity(openIntent);
             getActivity().finish();
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(getActivity(), getString(R.string.sdr_t_no_app_available, fileType), Toast.LENGTH_LONG).show();
+            showFileUnsupportedMessage();
+            tryToOpen.setVisibility(View.VISIBLE);
         }
     }
 

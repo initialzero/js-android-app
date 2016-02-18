@@ -44,7 +44,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func0;
 import rx.functions.Func1;
@@ -61,10 +60,6 @@ public final class InMemoryReportRepository implements ReportRepository {
     private final ReportParamsMapper mReportParamsMapper;
     private final ReportCache mReportCache;
     private final JasperRestClient mJasperRestClient;
-
-    private Observable<RxReportExecution> mReloadReportCommand;
-    private Observable<RxReportExecution> mUpdateReportCommand;
-    private Observable<RxReportExecution> mGetReportCommand;
 
     @Inject
     public InMemoryReportRepository(JasperRestClient jasperRestClient,
@@ -83,85 +78,65 @@ public final class InMemoryReportRepository implements ReportRepository {
     @NonNull
     @Override
     public Observable<RxReportExecution> getReport(@NonNull final String uri) {
-        if (mGetReportCommand == null) {
-            Observable<RxReportExecution> memorySource = Observable.defer(new Func0<Observable<RxReportExecution>>() {
-                @Override
-                public Observable<RxReportExecution> call() {
-                    RxReportExecution execution = mReportCache.get(uri);
-                    if (execution == null) {
-                        return Observable.empty();
+        Observable<RxReportExecution> memorySource = Observable.defer(new Func0<Observable<RxReportExecution>>() {
+            @Override
+            public Observable<RxReportExecution> call() {
+                RxReportExecution execution = mReportCache.get(uri);
+                if (execution == null) {
+                    return Observable.empty();
+                }
+                return Observable.just(execution);
+            }
+        });
+
+        Observable<RxReportExecution> networkSource = Observable.defer(new Func0<Observable<RxReportExecution>>() {
+            @Override
+            public Observable<RxReportExecution> call() {
+                List<com.jaspersoft.android.sdk.client.oxm.report.ReportParameter> legacyParams = mReportParamsCache.get(uri);
+                List<ReportParameter> params = mReportParamsMapper.legacyParamsToRetrofitted(legacyParams);
+
+                final ReportExecutionOptions options = ReportExecutionOptions.builder()
+                        .withFormat(ReportFormat.HTML)
+                        .withFreshData(false)
+                        .withParams(params)
+                        .build();
+
+                return mJasperRestClient.reportService().flatMap(new Func1<RxReportService, Observable<RxReportExecution>>() {
+                    @Override
+                    public Observable<RxReportExecution> call(RxReportService reportService) {
+                        return reportService.run(uri, options);
                     }
-                    return Observable.just(execution);
-                }
-            });
+                });
+            }
+        }).doOnNext(new Action1<RxReportExecution>() {
+            @Override
+            public void call(RxReportExecution execution) {
+                mReportCache.put(uri, execution);
+            }
+        });
 
-            Observable<RxReportExecution> networkSource = Observable.defer(new Func0<Observable<RxReportExecution>>() {
-                @Override
-                public Observable<RxReportExecution> call() {
-                    List<com.jaspersoft.android.sdk.client.oxm.report.ReportParameter> legacyParams = mReportParamsCache.get(uri);
-                    List<ReportParameter> params = mReportParamsMapper.legacyParamsToRetrofitted(legacyParams);
-
-                    final ReportExecutionOptions options = ReportExecutionOptions.builder()
-                            .withFormat(ReportFormat.HTML)
-                            .withFreshData(false)
-                            .withParams(params)
-                            .build();
-
-                    return mJasperRestClient.reportService().flatMap(new Func1<RxReportService, Observable<RxReportExecution>>() {
-                        @Override
-                        public Observable<RxReportExecution> call(RxReportService reportService) {
-                            return reportService.run(uri, options);
-                        }
-                    });
-                }
-            }).doOnNext(new Action1<RxReportExecution>() {
-                @Override
-                public void call(RxReportExecution execution) {
-                    mReportCache.put(uri, execution);
-                }
-            });
-
-            mGetReportCommand = Observable.concat(memorySource, networkSource)
-                    .first()
-                    .cache()
-                    .doOnTerminate(new Action0() {
-                        @Override
-                        public void call() {
-                            mGetReportCommand = null;
-                        }
-                    });
-        }
-        return mGetReportCommand;
+        return Observable.concat(memorySource, networkSource)
+                .first()
+                .cache();
     }
 
     @NonNull
     @Override
     public Observable<RxReportExecution> reloadReport(@NonNull final String uri) {
-        if (mReloadReportCommand == null) {
-            mReloadReportCommand = Observable.defer(new Func0<Observable<RxReportExecution>>() {
-                @Override
-                public Observable<RxReportExecution> call() {
-                    mReportPageCache.evict(uri);
-                    mReportCache.evict(uri);
-                    return getReport(uri);
-                }
-            });
-            mReloadReportCommand = mReloadReportCommand.cache()
-                    .doOnTerminate(new Action0() {
-                        @Override
-                        public void call() {
-                            mReloadReportCommand = null;
-                        }
-                    });
-        }
-        return mReloadReportCommand;
+        return Observable.defer(new Func0<Observable<RxReportExecution>>() {
+            @Override
+            public Observable<RxReportExecution> call() {
+                mReportCache.evict(uri);
+                mReportPageCache.evict(uri);
+                return getReport(uri);
+            }
+        });
     }
 
     @NonNull
     @Override
     public Observable<RxReportExecution> updateReport(@NonNull final String uri) {
-        if (mUpdateReportCommand == null) {
-            mUpdateReportCommand = Observable.defer(new Func0<Observable<RxReportExecution>>() {
+        return Observable.defer(new Func0<Observable<RxReportExecution>>() {
                 @Override
                 public Observable<RxReportExecution> call() {
                     mReportPageCache.evict(uri);
@@ -183,20 +158,11 @@ public final class InMemoryReportRepository implements ReportRepository {
                     });
                 }
             });
-
-            mUpdateReportCommand = mUpdateReportCommand.cache()
-                    .doOnTerminate(new Action0() {
-                        @Override
-                        public void call() {
-                            mUpdateReportCommand = null;
-                        }
-                    });
-        }
-        return mUpdateReportCommand;
     }
 
     @Override
     public void flushReport(String reportUri) {
+        mReportCache.evict(reportUri);
         mReportPageCache.evict(reportUri);
         mReportParamsCache.evict(reportUri);
     }

@@ -39,6 +39,11 @@ public final class PageRequest {
         return mUri;
     }
 
+    @NonNull
+    public String getIdentifier() {
+        return mUri + ":" + mRange + ":" + mFormat;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -88,6 +93,12 @@ public final class PageRequest {
         public PageRequest build() {
             if (mFormat == null) {
                 mFormat = "HTML";
+            }
+            if (mRange == null) {
+                throw new NullPointerException("Range should not be null");
+            }
+            if (mUri == null) {
+                throw new NullPointerException("Uri should not be null");
             }
             return new PageRequest(mUri, mRange, mFormat);
         }

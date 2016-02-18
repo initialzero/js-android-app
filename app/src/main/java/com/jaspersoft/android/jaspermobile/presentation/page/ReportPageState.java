@@ -10,6 +10,7 @@ import android.os.Parcelable;
 public class ReportPageState implements Parcelable {
     private boolean mSessionExpired;
     private boolean mControlsPageShown;
+    private boolean mNeedControls;
     private String mCurrentPage;
     private String mRequestedPage;
 
@@ -41,6 +42,14 @@ public class ReportPageState implements Parcelable {
         mSessionExpired = sessionExpired;
     }
 
+    public void setHasControls(boolean needControls) {
+        mNeedControls = needControls;
+    }
+
+    public boolean hasControls() {
+        return mNeedControls;
+    }
+
     public boolean isSessionExpired() {
         return mSessionExpired;
     }
@@ -54,6 +63,7 @@ public class ReportPageState implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte(mSessionExpired ? (byte) 1 : (byte) 0);
         dest.writeByte(mControlsPageShown ? (byte) 1 : (byte) 0);
+        dest.writeByte(mNeedControls ? (byte) 1 : (byte) 0);
         dest.writeString(this.mCurrentPage);
         dest.writeString(this.mRequestedPage);
     }
@@ -64,6 +74,7 @@ public class ReportPageState implements Parcelable {
     protected ReportPageState(Parcel in) {
         this.mSessionExpired = in.readByte() != 0;
         this.mControlsPageShown = in.readByte() != 0;
+        this.mNeedControls = in.readByte() != 0;
         this.mCurrentPage = in.readString();
         this.mRequestedPage = in.readString();
     }

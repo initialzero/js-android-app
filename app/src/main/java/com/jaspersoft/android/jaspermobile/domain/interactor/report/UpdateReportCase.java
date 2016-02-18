@@ -15,6 +15,7 @@ import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.functions.Action0;
 import rx.functions.Func1;
 
 /**
@@ -25,6 +26,7 @@ import rx.functions.Func1;
 public class UpdateReportCase extends AbstractUseCase<ReportPage, String> {
     private final ReportRepository mReportRepository;
     private final ReportPageRepository mReportPageRepository;
+    private Observable<ReportPage> mAction;
 
     @Inject
     public UpdateReportCase(PreExecutionThread preExecutionThread,
@@ -39,17 +41,27 @@ public class UpdateReportCase extends AbstractUseCase<ReportPage, String> {
 
     @Override
     protected Observable<ReportPage> buildUseCaseObservable(@NonNull final String reportUri) {
-        return mReportRepository.updateReport(reportUri)
-                .flatMap(new Func1<RxReportExecution, Observable<ReportPage>>() {
-                    @Override
-                    public Observable<ReportPage> call(RxReportExecution execution) {
-                        PageRequest page = new PageRequest.Builder()
-                                .setUri(reportUri)
-                                .setRange("1")
-                                .asHtml()
-                                .build();
-                        return mReportPageRepository.get(execution, page);
-                    }
-                });
+        if (mAction == null) {
+            mAction = mReportRepository.updateReport(reportUri)
+                    .flatMap(new Func1<RxReportExecution, Observable<ReportPage>>() {
+                        @Override
+                        public Observable<ReportPage> call(RxReportExecution execution) {
+                            PageRequest page = new PageRequest.Builder()
+                                    .setUri(reportUri)
+                                    .setRange("1")
+                                    .asHtml()
+                                    .build();
+                            return mReportPageRepository.get(execution, page);
+                        }
+                    })
+                    .cache()
+                    .doOnTerminate(new Action0() {
+                        @Override
+                        public void call() {
+                            mAction = null;
+                        }
+                    });
+        }
+        return mAction;
     }
 }

@@ -35,7 +35,6 @@ public final class InMemoryResourceRepository implements ResourceRepository {
     private final CriteriaMapper mCriteriaMapper;
     private final ResourceMapper mResourceMapper;
 
-    private Observable<Resource> mGetResourceDetailsAction;
     private Observable<ResourceOutput> mGetFileContentAction;
     private Observable<List<FolderDataResponse>> mGetRootRepositoriesAction;
     private Observable<SearchResult> mSearchAction;

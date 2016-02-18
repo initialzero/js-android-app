@@ -8,9 +8,6 @@ import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.inject.Inject;
 
 /**
@@ -19,7 +16,7 @@ import javax.inject.Inject;
  */
 @PerProfile
 public final class InMemoryReportPageCache implements ReportPageCache {
-    private final Map<String, LruCache<String, ReportPage>> mStorage = new HashMap<>();
+    private final LruCache<String, ReportPage> mStorage = new LruCache<>(10);
 
     @Inject
     public InMemoryReportPageCache() {
@@ -28,26 +25,16 @@ public final class InMemoryReportPageCache implements ReportPageCache {
     @Nullable
     @Override
     public ReportPage get(@NonNull PageRequest pageRequest) {
-        LruCache<String, ReportPage> cache = getInternalCache(pageRequest.getUri());
-        return cache.get(pageRequest.getRange());
+        String id = pageRequest.getIdentifier();
+        return mStorage.get(id);
     }
 
     @Override
     @NonNull
     public ReportPage put(@NonNull PageRequest pageRequest, @NonNull ReportPage content) {
-        LruCache<String, ReportPage> cache = getInternalCache(pageRequest.getUri());
-        cache.put(pageRequest.getRange(), content);
+        String id = pageRequest.getIdentifier();
+        mStorage.put(id, content);
         return content;
-    }
-
-    @NonNull
-    private LruCache<String, ReportPage> getInternalCache(String uri) {
-        LruCache<String, ReportPage> cache = mStorage.get(uri);
-        if (cache == null) {
-            cache = new LruCache<>(10);
-            mStorage.put(uri, cache);
-        }
-        return cache;
     }
 
     @Override

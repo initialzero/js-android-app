@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -39,6 +39,7 @@ import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.functions.Action0;
 import rx.functions.Func1;
 
 /**
@@ -49,6 +50,7 @@ import rx.functions.Func1;
 public class GetReportPageContentCase extends AbstractUseCase<ReportPage, PageRequest> {
     private final ReportRepository mReportRepository;
     private final ReportPageRepository mReportPageRepository;
+    private Observable<ReportPage> mAction;
 
     @Inject
     public GetReportPageContentCase(PreExecutionThread preExecutionThread,
@@ -63,12 +65,21 @@ public class GetReportPageContentCase extends AbstractUseCase<ReportPage, PageRe
 
     @Override
     protected Observable<ReportPage> buildUseCaseObservable(@NonNull final PageRequest request) {
-        return mReportRepository.getReport(request.getUri())
-                .flatMap(new Func1<RxReportExecution, Observable<ReportPage>>() {
-                    @Override
-                    public Observable<ReportPage> call(RxReportExecution execution) {
-                        return mReportPageRepository.get(execution, request);
-                    }
-                });
+        if (mAction == null) {
+            mAction = mReportRepository.getReport(request.getUri())
+                    .flatMap(new Func1<RxReportExecution, Observable<ReportPage>>() {
+                        @Override
+                        public Observable<ReportPage> call(RxReportExecution execution) {
+                            return mReportPageRepository.get(execution, request);
+                        }
+                    }).doOnTerminate(new Action0() {
+                        @Override
+                        public void call() {
+                            mAction = null;
+                        }
+                    });
+        }
+
+        return mAction;
     }
 }

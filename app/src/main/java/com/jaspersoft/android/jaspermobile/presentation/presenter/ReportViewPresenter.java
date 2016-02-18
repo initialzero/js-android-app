@@ -4,6 +4,7 @@ import android.support.annotation.VisibleForTesting;
 
 import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.ReportPage;
+import com.jaspersoft.android.jaspermobile.domain.ReportControlFlags;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushReportCachesCase;
@@ -79,6 +80,9 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
             loadLastSavedPage();
             loadMultiPageProperty();
             loadTotalPagesProperty();
+
+            boolean hasControls = getView().getState().hasControls();
+            toggleFiltersAction(hasControls);
         } else {
             loadReportMetadata();
         }
@@ -104,12 +108,17 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
 
     private void loadReportMetadata() {
         showLoading();
-        mGetReportShowControlsPropertyCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<Boolean>() {
+        mGetReportShowControlsPropertyCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<ReportControlFlags>() {
             @Override
-            public void onNext(Boolean needControls) {
+            public void onNext(ReportControlFlags flags) {
                 getView().getState().setControlsPageShown(true);
-                toggleFiltersAction(needControls);
-                resolveNeedControls(needControls);
+
+                boolean hasControls = flags.hasControls();
+                getView().getState().setHasControls(hasControls);
+                toggleFiltersAction(hasControls);
+
+                boolean needPrompt = flags.needPrompt();
+                resolveNeedControls(needPrompt);
             }
         }));
     }
@@ -324,6 +333,7 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
 
         @Override
         public void onError(Throwable e) {
+            Timber.e(e, "Error on REST Report Presenter");
             handleError(e);
             hideLoading();
             mDelegate.onError(e);
@@ -331,7 +341,6 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
 
         @Override
         public void onNext(R r) {
-
             mDelegate.onNext(r);
         }
     }

@@ -24,13 +24,18 @@
 
 package com.jaspersoft.android.jaspermobile.data.cache;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
+import com.jaspersoft.android.jaspermobile.util.account.AccountStorage;
 import com.orhanobut.hawk.Hawk;
 import com.orhanobut.hawk.HawkBuilder;
 import com.orhanobut.hawk.Storage;
@@ -50,51 +55,39 @@ import rx.observers.Observers;
 public final class SecureStorage implements SecureCache {
 
     private final HawkBuilder hawkBuilder;
+    private final AccountManager mAccountManager;
+    private final AccountDataMapper mAccountDataMapper;
     private final PreExecutionThread mPreExecutionThread;
     private final PostExecutionThread mPostExecutionThread;
+
     private boolean isInitialized = false;
     private ConnectableObservable<Boolean> initObservable;
+    private Profile mCurrentProfile;
 
     @Inject
     public SecureStorage(@ApplicationContext Context context,
-                         Storage passwordStorage,
+                         AccountDataMapper accountDataMapper,
                          PreExecutionThread preExecutionThread,
-                         PostExecutionThread postExecutionThread) {
+                         PostExecutionThread postExecutionThread
+    ) {
+        mAccountManager = AccountManager.get(context);
+        mAccountDataMapper = accountDataMapper;
         mPreExecutionThread = preExecutionThread;
         mPostExecutionThread = postExecutionThread;
 
-        String storagePassword = Settings.Secure.getString(context.getContentResolver(),
-                Settings.Secure.ANDROID_ID);
+        String storagePassword = Settings.Secure.getString(
+                context.getContentResolver(),Settings.Secure.ANDROID_ID);
         hawkBuilder = Hawk.init(context)
                 .setEncryptionMethod(HawkBuilder.EncryptionMethod.HIGHEST)
-                .setPassword(storagePassword)
-                .setStorage(passwordStorage);
-        initHawk();
+                .setPassword(storagePassword);
     }
+
 
     @Override
-    public void reset() {
-        initHawk();
-    }
-
-    private void initHawk() {
-        isInitialized = false;
-        initObservable = hawkBuilder.buildRx()
-                .subscribeOn(mPreExecutionThread.getScheduler())
-                .observeOn(mPostExecutionThread.getScheduler())
-                .publish();
-
-        initObservable.subscribe(Observers.create(new Action1<Boolean>() {
-            @Override
-            public void call(Boolean aBoolean) {
-                isInitialized = aBoolean;
-            }
-        }));
-        initObservable.connect();
-    }
-
-    @Override
-    public void put(final String key, final String rawValue) {
+    public void put(Profile profile, final String key, final String rawValue) {
+        if (profileChanged(profile)) {
+            setupProfileStorage(profile);
+        }
         if (isInitialized) {
             Hawk.put(key, rawValue);
         } else {
@@ -111,7 +104,10 @@ public final class SecureStorage implements SecureCache {
 
     @Nullable
     @Override
-    public String get(final String key) {
+    public String get(Profile profile, String key) {
+        if (profileChanged(profile)) {
+            setupProfileStorage(profile);
+        }
         if (isInitialized) {
             return Hawk.get(key);
         } else {
@@ -121,5 +117,39 @@ public final class SecureStorage implements SecureCache {
             }
             return null;
         }
+    }
+
+    private boolean profileChanged(Profile profile) {
+        return !profile.equals(mCurrentProfile);
+    }
+
+    private void setupProfileStorage(Profile profile) {
+        Storage storage = createStorage(profile);
+        initHawk(storage);
+    }
+
+    private Storage createStorage(Profile profile) {
+        mCurrentProfile = profile;
+
+        Account account = mAccountDataMapper.transform(profile);
+        return new AccountStorage(mAccountManager, account);
+    }
+
+    private void initHawk(Storage storage) {
+        isInitialized = false;
+        initObservable = hawkBuilder
+                .setStorage(storage)
+                .buildRx()
+                .subscribeOn(mPreExecutionThread.getScheduler())
+                .observeOn(mPostExecutionThread.getScheduler())
+                .publish();
+
+        initObservable.subscribe(Observers.create(new Action1<Boolean>() {
+            @Override
+            public void call(Boolean aBoolean) {
+                isInitialized = aBoolean;
+            }
+        }));
+        initObservable.connect();
     }
 }

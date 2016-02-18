@@ -24,20 +24,16 @@
 
 package com.jaspersoft.android.jaspermobile.util.account;
 
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.util.Pair;
 
-import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
-import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
-import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.orhanobut.hawk.Storage;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -46,77 +42,25 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.spy;
 
 /**
  * @author Tom Koptel
  * @since 2.2.2
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, sdk = 21)
+@Config(manifest = Config.NONE)
 public class AccountStorageTest {
 
-    private static final String PASSWORD = "password";
     private Storage accountStorage;
-
-    @Mock
-    ActiveProfileCache mActiveProfileCache;
-
     private AccountManager accountManager;
-    private final Profile fakeProfile = Profile.create("fake");
     private Account fakeAccount;
 
     @Before
     public void setUp() throws Exception {
-        initMocks(this);
-        setupMocks();
-
-        accountManager = spy(AccountManager.get(RuntimeEnvironment.application));
-        fakeAccount = new Account(fakeProfile.getKey(), FakeAccountDataMapper.TYPE);
-
-        AccountDataMapper fakeAccountDataMapper = FakeAccountDataMapper.get();
-        accountStorage = new AccountStorage(
-                accountManager,
-                fakeAccountDataMapper,
-                mActiveProfileCache
-        );
+        accountManager = AccountManager.get(RuntimeEnvironment.application);
+        fakeAccount = new Account("test", "com.test");
+        accountStorage = new AccountStorage(accountManager, fakeAccount);
     }
-
-    private void setupMocks() {
-        when(mActiveProfileCache.get()).thenReturn(fakeProfile);
-    }
-
-    @Test
-    public void should_store_password_in_account() throws Exception {
-        whenPutsWithKey(createPasswordKey());
-
-        thenShouldPutPasswordInAccountManager();
-    }
-
-    private String createPasswordKey() {
-        return AccountStorage.KEY + fakeAccount.name;
-    }
-
-    @Test
-    public void should_store_password_for_personilzz_account_name() throws Exception {
-        whenPutsWithKey(AccountStorage.KEY + fakeProfile.getKey());
-
-        thenShouldPutPasswordInAccountManager();
-    }
-
-    private void whenPutsWithKey(String key) {
-        accountStorage.put(key, PASSWORD);
-    }
-
-    private void thenShouldPutPasswordInAccountManager() {
-        Account account = new Account(fakeProfile.getKey(), FakeAccountDataMapper.TYPE);
-        verify(accountManager).setPassword(eq(account), eq(PASSWORD));
-    }
-
 
     @Test
     public void testPut() throws Exception {
@@ -126,13 +70,18 @@ public class AccountStorageTest {
     }
 
     @Test
+    public void testPutPassword() throws Exception {
+        accountStorage.put(AccountStorage.KEY, "foo");
+        String bar = accountManager.getPassword(fakeAccount);
+        assertThat("Failed to put password account storage", bar != null);
+    }
+
+    @Test
     public void testPutPairs() throws Exception {
         Pair<String, ?> pair1 = Pair.create("bar", "foo");
         Pair<String, ?> pair2 = Pair.create("foo", "bar");
         List<Pair<String, ?>> pairs = Arrays.asList(pair1, pair2);
-
         accountStorage.put(pairs);
-
         String foo = accountManager.getUserData(fakeAccount, "foo");
         String bar = accountManager.getUserData(fakeAccount, "bar");
         assertThat(
@@ -152,6 +101,16 @@ public class AccountStorageTest {
     }
 
     @Test
+    public void testGetPassword() throws Exception {
+        accountManager.setPassword(fakeAccount, "foo");
+        String bar = accountStorage.get(AccountStorage.KEY);
+        assertThat(
+                "Failed to get password from account storage",
+                bar != null
+        );
+    }
+
+    @Test
     public void testRemove() throws Exception {
         accountManager.setUserData(fakeAccount, "foo", "bar");
         accountStorage.remove("foo");
@@ -163,14 +122,22 @@ public class AccountStorageTest {
     }
 
 
+    @Test
+    public void testRemovePassword() throws Exception {
+        accountManager.setPassword(fakeAccount, "foo");
+        accountStorage.remove(AccountStorage.KEY);
+        String foo = accountManager.getPassword(fakeAccount);
+        assertThat(
+                "Failed to remove password from account storage",
+                foo == null
+        );
+    }
 
     @Test
     public void testRemoveByKeys() throws Exception {
         accountManager.setUserData(fakeAccount, "foo", "bar");
         accountManager.setUserData(fakeAccount, "bar", "foo");
-
         accountStorage.remove("foo", "bar");
-
         String foo = accountManager.getUserData(fakeAccount, "foo");
         String bar = accountManager.getUserData(fakeAccount, "bar");
         assertThat(
@@ -182,7 +149,6 @@ public class AccountStorageTest {
     @Test
     public void testContains() throws Exception {
         accountManager.setUserData(fakeAccount, "foo", "bar");
-
         assertThat(
                 "Contains 'foo' key condition failed",
                 accountStorage.contains("foo")
@@ -192,10 +158,9 @@ public class AccountStorageTest {
     @Test
     public void testContainsPassword() throws Exception {
         accountManager.setPassword(fakeAccount, "foo");
-
         assertThat(
                 "Contains password condition failed",
-                accountStorage.contains(createPasswordKey())
+                accountStorage.contains(AccountStorage.KEY)
         );
     }
 }

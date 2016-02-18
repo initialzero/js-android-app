@@ -46,27 +46,19 @@ public class AccountStorage implements Storage {
     public static final String KEY = "PASSWORD_KEY";
 
     private final AccountManager mAccountManager;
-    private final AccountDataMapper mAccountDataMapper;
-    private final ActiveProfileCache mActiveProfileCache;
+    private final Account mAccount;
 
-    @Inject
-    public AccountStorage(
-            AccountManager accountManager,
-            AccountDataMapper accountDataMapper,
-            ActiveProfileCache activeProfileCache
-    ) {
+    public AccountStorage(AccountManager accountManager, Account account) {
         mAccountManager = accountManager;
-        mAccountDataMapper = accountDataMapper;
-        mActiveProfileCache = activeProfileCache;
+        mAccount = account;
     }
 
     @Override
     public <T> boolean put(String key, T value) {
-        if (containsPasswordKey(key)) {
-            Account account = extractAccountFromPasswordKey(key);
-            setAccountPassword(account, value);
+        if (isPasswordKey(key)) {
+            mAccountManager.setPassword(mAccount, String.valueOf(value));
         } else {
-            return setUserData(key, value);
+            mAccountManager.setUserData(mAccount, key, String.valueOf(value));
         }
         return true;
     }
@@ -82,21 +74,19 @@ public class AccountStorage implements Storage {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T get(String key) {
-        if (containsPasswordKey(key)) {
-            Account account = extractAccountFromPasswordKey(key);
-            return (T) getAccountPassword(account);
+        if (isPasswordKey(key)) {
+            return (T) mAccountManager.getPassword(mAccount);
         } else {
-            return (T) getUserData(key);
+            return (T) mAccountManager.getUserData(mAccount, key);
         }
     }
 
     @Override
     public boolean remove(String key) {
-        if (containsPasswordKey(key)) {
-            Account account = extractAccountFromPasswordKey(key);
-            setAccountPassword(account, null);
+        if (isPasswordKey(key)) {
+            mAccountManager.setPassword(mAccount, null);
         } else {
-            return setUserData(key, null);
+            mAccountManager.setUserData(mAccount, key, null);
         }
         return true;
     }
@@ -123,46 +113,13 @@ public class AccountStorage implements Storage {
 
     @Override
     public boolean contains(String key) {
-        if (containsPasswordKey(key)) {
-            Account account = extractAccountFromPasswordKey(key);
-            return getAccountPassword(account) != null;
+        if (isPasswordKey(key)) {
+            return mAccountManager.getPassword(mAccount) != null;
         }
-        return getUserData(key) != null;
+        return mAccountManager.getUserData(mAccount, key) != null;
     }
 
-    private boolean containsPasswordKey(String key) {
-        return key.contains(AccountStorage.KEY);
-    }
-
-    private Account extractAccountFromPasswordKey(String key) {
-        String profileKey = key.replace(AccountStorage.KEY, "");
-        Profile profile = Profile.create(profileKey);
-        return mAccountDataMapper.transform(profile);
-    }
-
-    private String getAccountPassword(Account account) {
-        return mAccountManager.getPassword(account);
-    }
-
-    private <T> void setAccountPassword(Account account, T value) {
-        mAccountManager.setPassword(account, String.valueOf(value));
-    }
-
-    private Account getActiveAccount() {
-        Profile profile = mActiveProfileCache.get();
-        return mAccountDataMapper.transform(profile);
-    }
-
-    private String getUserData(String key) {
-        return mAccountManager.getUserData(getActiveAccount(), key);
-    }
-
-    private boolean setUserData(String key, Object value) {
-        mAccountManager.setUserData(
-                getActiveAccount(),
-                key,
-                (value == null) ? null : String.valueOf(value)
-        );
-        return true;
+    private boolean isPasswordKey(String key) {
+        return AccountStorage.KEY.equals(key);
     }
 }

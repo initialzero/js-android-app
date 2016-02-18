@@ -24,14 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.data.cache;
 
-import android.accounts.Account;
 import android.app.Application;
 import android.provider.Settings;
 
 import com.jaspersoft.android.jaspermobile.FakePostExecutionThread;
 import com.jaspersoft.android.jaspermobile.FakePreExecutionThread;
-import com.orhanobut.hawk.HawkBuilder;
-import com.orhanobut.hawk.Storage;
+import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.AccountDataMapper;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.util.account.AccountStorage;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +53,7 @@ import static org.hamcrest.Matchers.is;
 public class SecureStorageTest {
 
     private SecureStorage mSecureStorage;
-    private Account fakeAccount;
+    private Profile fakeProfile = Profile.create("fake");
 
     @Before
     public void setup() {
@@ -63,20 +64,19 @@ public class SecureStorageTest {
                 "ROBOLECTRICYOUAREBAD"
         );
 
-        Storage passwordStorage = HawkBuilder.newSharedPrefStorage(application);
+        AccountDataMapper dataMapper = FakeAccountDataMapper.get();
         mSecureStorage = new SecureStorage(
                 application,
-                passwordStorage,
+                dataMapper,
                 FakePreExecutionThread.create(),
                 FakePostExecutionThread.create()
         );
-        fakeAccount = new Account("test", "com.test");
     }
 
     @Test
     public void shouldEncryptDecryptPassword() {
-        mSecureStorage.put(fakeAccount.name, "1234");
-        String pass = mSecureStorage.get(fakeAccount.name);
+        mSecureStorage.put(fakeProfile, AccountStorage.KEY, "1234");
+        String pass = mSecureStorage.get(fakeProfile, AccountStorage.KEY);
         assertThat("Password manager failed to encrypt/decrypt pass", pass, is("1234"));
     }
 }

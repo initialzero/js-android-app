@@ -32,6 +32,7 @@ import com.jaspersoft.android.jaspermobile.data.FakeAccountDataMapper;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.AccountCredentialsCache;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.util.account.AccountStorage;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +44,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,7 +67,7 @@ public class AccountCredentialsCacheTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(mSecureCache.get(anyString())).thenReturn("encrypted");
+        when(mSecureCache.get(any(Profile.class), anyString())).thenReturn("encrypted");
 
         AccountManager accountManager = AccountManager.get(RuntimeEnvironment.application);
         cacheUnderTest = new AccountCredentialsCache(accountManager, mSecureCache, FakeAccountDataMapper.get());
@@ -84,7 +86,7 @@ public class AccountCredentialsCacheTest {
         Account fakeAccount = FakeAccount.injectAccount(fakeProfile).done();
 
         cacheUnderTest.put(fakeProfile, fakeCredentials);
-        verify(mSecureCache).put(fakeProfile.getKey(), "1234");
+        verify(mSecureCache).put(fakeProfile, AccountStorage.KEY, "1234");
 
         assertThat("Username should be injected in cache",
                 "nay".equals(accountManager.getUserData(fakeAccount, "USERNAME_KEY"))
@@ -96,7 +98,7 @@ public class AccountCredentialsCacheTest {
 
     @Test
     public void testHappyGetCase() throws Exception {
-        when(mSecureCache.get(anyString())).thenReturn("1234");
+        when(mSecureCache.get(any(Profile.class), anyString())).thenReturn("1234");
 
         FakeAccount.injectAccount(fakeProfile)
                 .injectCredentials(fakeCredentials)

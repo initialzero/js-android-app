@@ -66,7 +66,7 @@ public final class AccountCredentialsCache implements CredentialsCache {
     @Override
     public AppCredentials put(final Profile profile, final AppCredentials credentials)  {
         Account account = mAccountDataMapper.transform(profile);
-        mSecureCache.put(AccountStorage.KEY + account.name, credentials.getPassword());
+        mSecureCache.put(profile, AccountStorage.KEY, credentials.getPassword());
         mAccountManager.setUserData(account, ORGANIZATION_KEY, credentials.getOrganization());
         mAccountManager.setUserData(account, USERNAME_KEY, credentials.getUsername());
         return credentials;
@@ -78,7 +78,7 @@ public final class AccountCredentialsCache implements CredentialsCache {
     @Override
     public AppCredentials get(final Profile profile) {
         Account account = mAccountDataMapper.transform(profile);
-        String password = mSecureCache.get(AccountStorage.KEY + account.name);
+        String password = mSecureCache.get(profile, AccountStorage.KEY);
 
         String username = mAccountManager.getUserData(account, USERNAME_KEY);
         String organization = mAccountManager.getUserData(account, ORGANIZATION_KEY);

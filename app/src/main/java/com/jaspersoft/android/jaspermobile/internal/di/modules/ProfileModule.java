@@ -53,8 +53,7 @@ public final class ProfileModule {
 
     @Provides
     @PerProfile
-    JasperRestClient provideJasperRestClient(JasperClient client, SecureCache cache) {
-        cache.reset();
+    JasperRestClient provideJasperRestClient(JasperClient client) {
         return client;
     }
 

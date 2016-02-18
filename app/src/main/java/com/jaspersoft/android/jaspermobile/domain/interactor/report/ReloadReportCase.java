@@ -15,6 +15,7 @@ import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.functions.Action0;
 import rx.functions.Func1;
 
 /**
@@ -25,6 +26,7 @@ import rx.functions.Func1;
 public class ReloadReportCase extends AbstractUseCase<ReportPage, PageRequest> {
     private final ReportRepository mReportRepository;
     private final ReportPageRepository mReportPageRepository;
+    private Observable<ReportPage> mAction;
 
     @Inject
     public ReloadReportCase(PreExecutionThread preExecutionThread,
@@ -39,12 +41,22 @@ public class ReloadReportCase extends AbstractUseCase<ReportPage, PageRequest> {
 
     @Override
     protected Observable<ReportPage> buildUseCaseObservable(@NonNull final PageRequest pageRequest) {
-        return mReportRepository.reloadReport(pageRequest.getUri())
-                .flatMap(new Func1<RxReportExecution, Observable<ReportPage>>() {
-                    @Override
-                    public Observable<ReportPage> call(RxReportExecution execution) {
-                        return mReportPageRepository.get(execution, pageRequest);
-                    }
-                });
+        if (mAction == null) {
+            mAction = mReportRepository.reloadReport(pageRequest.getUri())
+                    .flatMap(new Func1<RxReportExecution, Observable<ReportPage>>() {
+                        @Override
+                        public Observable<ReportPage> call(RxReportExecution execution) {
+                            return mReportPageRepository.get(execution, pageRequest);
+                        }
+                    })
+                    .cache()
+                    .doOnTerminate(new Action0() {
+                        @Override
+                        public void call() {
+                            mAction = null;
+                        }
+                    });
+        }
+        return mAction;
     }
 }

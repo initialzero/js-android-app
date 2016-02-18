@@ -154,6 +154,8 @@ public class ReportViewFragment extends BaseFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+
         if (mReportPageState == null) {
             mReportPageState = new ReportPageState();
         }
@@ -224,14 +226,19 @@ public class ReportViewFragment extends BaseFragment
     @Override
     public void onPause() {
         super.onPause();
-        onPageChangeSubscription.unsubscribe();
         mPresenter.pause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mPresenter.destroy();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mPresenter.destroy();
+        onPageChangeSubscription.unsubscribe();
         mToast.cancel();
         favoritesHelper.getToast().cancel();
     }

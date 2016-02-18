@@ -25,7 +25,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
  * @author Tom Koptel
  * @since 2.3
  */
-public class GetReportShowControlsPropertyCaseTest {
+public class GetReportReportControlFlagsCaseTest {
     private static final String REPORT_URI = "/my/uri";
 
     @Mock
@@ -39,8 +39,8 @@ public class GetReportShowControlsPropertyCaseTest {
         mGetReportShowControlsPropertyCase = new GetReportShowControlsPropertyCase(
                 FakePreExecutionThread.create(),
                 FakePostExecutionThread.create(),
-                mControlsRepository
-        );
+                mControlsRepository,
+                resourceRepository, reportParamsCache);
     }
 
     @Test

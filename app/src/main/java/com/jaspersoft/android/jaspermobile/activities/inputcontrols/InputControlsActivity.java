@@ -740,16 +740,16 @@ public class InputControlsActivity extends ToolbarActivity
 
         @Override
         public void onCompleted() {
-            mDelegate.onCompleted();
             setProgressDialogState(false);
+            mDelegate.onCompleted();
         }
 
         @Override
         public void onError(Throwable e) {
             Timber.e(e, "Subscriber crashed with error");
-            mDelegate.onError(e);
             RequestExceptionHandler.showCommonErrorMessage(InputControlsActivity.this, e);
             setProgressDialogState(false);
+            mDelegate.onError(e);
         }
 
         @Override

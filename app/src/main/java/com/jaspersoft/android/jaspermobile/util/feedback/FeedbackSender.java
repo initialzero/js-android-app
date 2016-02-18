@@ -73,6 +73,7 @@ public final class FeedbackSender {
     @VisibleForTesting
     Intent buildIntent() {
         Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setType(MESSAGE_TYPE);
         intent.putExtra(Intent.EXTRA_EMAIL, mContext.getResources().getStringArray(R.array.feedback_subject_email));
         intent.putExtra(Intent.EXTRA_SUBJECT, mContext.getString(R.string.sa_show_feedback));

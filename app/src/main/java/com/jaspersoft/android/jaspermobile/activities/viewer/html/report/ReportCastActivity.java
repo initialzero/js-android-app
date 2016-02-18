@@ -44,6 +44,7 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControl
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.ReportControlFlags;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.AuthorizeSessionUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
@@ -325,11 +326,12 @@ public class ReportCastActivity extends CastActivity
     }
 
     private void loadControls() {
-        mGetReportShowControlsPropertyCase.execute(resource.getUri(), new ErrorSubscriber<>(new SimpleSubscriber<Boolean>() {
+        mGetReportShowControlsPropertyCase.execute(resource.getUri(), new ErrorSubscriber<>(new SimpleSubscriber<ReportControlFlags>() {
             @Override
-            public void onNext(Boolean hasControls) {
-                mHasControls = hasControls;
-                if (hasControls) {
+            public void onNext(ReportControlFlags property) {
+                mHasControls = property.hasControls();
+
+                if (property.needPrompt()) {
                     InputControlsActivity_.intent(ReportCastActivity.this)
                             .reportUri(resource.getUri())
                             .startForResult(REQUEST_INITIAL_REPORT_PARAMETERS);

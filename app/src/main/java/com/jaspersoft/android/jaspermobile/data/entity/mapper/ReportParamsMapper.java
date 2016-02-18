@@ -1,6 +1,8 @@
 package com.jaspersoft.android.jaspermobile.data.entity.mapper;
 
 
+import android.support.annotation.Nullable;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
@@ -83,27 +85,37 @@ public class ReportParamsMapper {
     public List<ReportParameter> legacyControlsToParams(List<InputControl> inputControls) {
         List<ReportParameter> parameters = new ArrayList<>();
         for (InputControl inputControl : inputControls) {
-            ReportParameter reportParameter = new ReportParameter();
             InputControlState state = inputControl.getState();
-            if (state != null) {
-                Set<String> values = new HashSet<>();
-                String value = state.getValue();
-                if (value == null) {
-                    List<InputControlOption> options = state.getOptions();
-                    for (InputControlOption option : options) {
-                        if (option.isSelected()) {
-                            values.add(option.getValue());
-                        }
-                    }
-                } else {
-                    values.add(value);
-                }
-                reportParameter.setName(state.getId());
-                reportParameter.setValues(values);
+            ReportParameter reportParameter = mapStateToReportParameter(state);
+            if (reportParameter != null) {
                 parameters.add(reportParameter);
             }
         }
         return parameters;
+    }
+
+    @Nullable
+    private ReportParameter mapStateToReportParameter(InputControlState state) {
+        if (state == null) {
+            return null;
+        }
+
+        ReportParameter reportParameter = new ReportParameter();
+        Set<String> values = new HashSet<>();
+        String value = state.getValue();
+        if (value == null) {
+            List<InputControlOption> options = state.getOptions();
+            for (InputControlOption option : options) {
+                if (option.isSelected()) {
+                    values.add(option.getValue());
+                }
+            }
+        } else {
+            values.add(value);
+        }
+        reportParameter.setName(state.getId());
+        reportParameter.setValues(values);
+        return reportParameter;
     }
 
     public List<ReportParameter> adaptDashboardControlComponents(List<ReportParameter> reportParameters,
@@ -119,6 +131,17 @@ public class ReportParamsMapper {
                     reportParameter.setValues(values);
                     parameters.add(reportParameter);
                 }
+            }
+        }
+        return parameters;
+    }
+
+    public List<ReportParameter> mapStatesToLegacyParams(List<InputControlState> states) {
+        List<ReportParameter> parameters = new ArrayList<>(states.size());
+        for (InputControlState state : states) {
+            ReportParameter reportParameter = mapStateToReportParameter(state);
+            if (reportParameter != null) {
+                parameters.add(reportParameter);
             }
         }
         return parameters;

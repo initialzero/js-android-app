@@ -24,7 +24,6 @@ import java.io.InputStream;
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func0;
 import rx.functions.Func1;
@@ -37,7 +36,6 @@ import rx.functions.Func1;
 public final class InMemoryReportPageRepository implements ReportPageRepository {
     private final ReportPageCache mReportPageCache;
 
-    private Observable<ReportPage> mGetReportPageAction;
 
     @Inject
     public InMemoryReportPageRepository(ReportPageCache reportPageCache) {
@@ -47,77 +45,67 @@ public final class InMemoryReportPageRepository implements ReportPageRepository 
     @NonNull
     @Override
     public Observable<ReportPage> get(@NonNull final RxReportExecution execution, @NonNull final PageRequest pageRequest) {
-        if (mGetReportPageAction == null) {
-            Observable<ReportPage> memorySource = Observable.defer(new Func0<Observable<ReportPage>>() {
-                @Override
-                public Observable<ReportPage> call() {
-                    ReportPage reportPage = mReportPageCache.get(pageRequest);
-                    if (reportPage == null) {
-                        return Observable.empty();
-                    }
-                    return Observable.just(reportPage);
+        Observable<ReportPage> memorySource = Observable.defer(new Func0<Observable<ReportPage>>() {
+            @Override
+            public Observable<ReportPage> call() {
+                ReportPage reportPage = mReportPageCache.get(pageRequest);
+                if (reportPage == null) {
+                    return Observable.empty();
                 }
-            });
+                return Observable.just(reportPage);
+            }
+        });
 
-            Observable<ReportPage> networkSource = Observable.defer(new Func0<Observable<RxReportExport>>() {
-                @Override
-                public Observable<RxReportExport> call() {
-                    ReportExportOptions options = ReportExportOptions.builder()
-                            .withFormat(ReportFormat.valueOf(pageRequest.getFormat()))
-                            .withPageRange(PageRange.parse(pageRequest.getRange()))
-                            .build();
-                    return execution.export(options);
-                }
-            }).flatMap(new Func1<RxReportExport, Observable<ReportExportOutput>>() {
-                @Override
-                public Observable<ReportExportOutput> call(RxReportExport export) {
-                    return export.download();
-                }
-            }).flatMap(new Func1<ReportExportOutput, Observable<ReportPage>>() {
-                @Override
-                public Observable<ReportPage> call(ReportExportOutput output) {
-                    InputStream stream = null;
-                    try {
-                        stream = output.getStream();
-                        byte[] content = IOUtils.toByteArray(stream);
-                        return Observable.just(new ReportPage(content, output.isFinal()));
-                    } catch (IOException e) {
-                        return Observable.error(e);
-                    } finally {
-                        if (stream != null) {
-                            IOUtils.closeQuietly(stream);
-                        }
+        Observable<ReportPage> networkSource = Observable.defer(new Func0<Observable<RxReportExport>>() {
+            @Override
+            public Observable<RxReportExport> call() {
+                ReportExportOptions options = ReportExportOptions.builder()
+                        .withFormat(ReportFormat.valueOf(pageRequest.getFormat()))
+                        .withPageRange(PageRange.parse(pageRequest.getRange()))
+                        .build();
+                return execution.export(options);
+            }
+        }).flatMap(new Func1<RxReportExport, Observable<ReportExportOutput>>() {
+            @Override
+            public Observable<ReportExportOutput> call(RxReportExport export) {
+                return export.download();
+            }
+        }).flatMap(new Func1<ReportExportOutput, Observable<ReportPage>>() {
+            @Override
+            public Observable<ReportPage> call(ReportExportOutput output) {
+                InputStream stream = null;
+                try {
+                    stream = output.getStream();
+                    byte[] content = IOUtils.toByteArray(stream);
+                    return Observable.just(new ReportPage(content, output.isFinal()));
+                } catch (IOException e) {
+                    return Observable.error(e);
+                } finally {
+                    if (stream != null) {
+                        IOUtils.closeQuietly(stream);
                     }
                 }
-            }).onErrorResumeNext(new Func1<Throwable, Observable<? extends ReportPage>>() {
-                @Override
-                public Observable<? extends ReportPage> call(Throwable throwable) {
-                    if (throwable instanceof ServiceException) {
-                        ServiceException serviceException = (ServiceException) throwable;
-                        if (serviceException.code() == StatusCodes.EXPORT_EXECUTION_FAILED) {
-                            return Observable.just(ReportPage.EMPTY);
-                        }
+            }
+        }).onErrorResumeNext(new Func1<Throwable, Observable<? extends ReportPage>>() {
+            @Override
+            public Observable<? extends ReportPage> call(Throwable throwable) {
+                if (throwable instanceof ServiceException) {
+                    ServiceException serviceException = (ServiceException) throwable;
+                    if (serviceException.code() == StatusCodes.EXPORT_EXECUTION_FAILED) {
+                        return Observable.just(ReportPage.EMPTY);
                     }
-                    return Observable.error(throwable);
                 }
-            }).doOnNext(new Action1<ReportPage>() {
-                @Override
-                public void call(ReportPage page) {
-                    mReportPageCache.put(pageRequest, page);
-                }
-            });
+                return Observable.error(throwable);
+            }
+        }).doOnNext(new Action1<ReportPage>() {
+            @Override
+            public void call(ReportPage page) {
+                mReportPageCache.put(pageRequest, page);
+            }
+        });
 
-            mGetReportPageAction = Observable.concat(memorySource, networkSource)
-                    .first()
-                    .cache()
-                    .doOnTerminate(new Action0() {
-                        @Override
-                        public void call() {
-                            mGetReportPageAction = null;
-                        }
-                    });
-        }
-
-        return mGetReportPageAction;
+        return Observable.concat(memorySource, networkSource)
+                .first()
+                .cache();
     }
 }

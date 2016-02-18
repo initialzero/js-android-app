@@ -14,7 +14,7 @@ public class FakeGetReportShowControlsPropertyCase extends GetReportShowControls
     private boolean mFakeResult;
 
     public FakeGetReportShowControlsPropertyCase() {
-        super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null);
+        super(FakePreExecutionThread.create(), FakePostExecutionThread.create(), null, resourceRepository, reportParamsCache);
     }
 
     public void setNeedParams(boolean fakeResult) {

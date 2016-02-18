@@ -46,8 +46,8 @@ public abstract class AbstractPaginationView extends RelativeLayout {
     private static final String CURRENT_PAGE = "CURRENT_PAGE";
     private static final String TOTAL_PAGE = "TOTAL_PAGE";
 
-    protected OnPageChangeListener onPageChangeListener;
-    protected OnPickerSelectedListener onOnPickerSelectedListener;
+    protected OnPageChangeListener onPageChangeListener = OnPageChangeListener.NULL;
+    protected OnPickerSelectedListener onOnPickerSelectedListener = OnPickerSelectedListener.NULL;
 
     private int currentPage = FIRST_PAGE;
     private int mTotalPages = UNDEFINED_PAGE_NUMBER;
@@ -74,10 +74,16 @@ public abstract class AbstractPaginationView extends RelativeLayout {
     }
 
     public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
+        if (onPageChangeListener == null) {
+            this.onPageChangeListener = OnPageChangeListener.NULL;
+        }
         this.onPageChangeListener = onPageChangeListener;
     }
 
     public void setOnPickerSelectedListener(OnPickerSelectedListener onOnPickerSelectedListener) {
+        if (onOnPickerSelectedListener == null) {
+            this.onOnPickerSelectedListener = OnPickerSelectedListener.NULL;
+        }
         this.onOnPickerSelectedListener = onOnPickerSelectedListener;
     }
 
@@ -146,10 +152,20 @@ public abstract class AbstractPaginationView extends RelativeLayout {
     protected abstract void alterControlStates();
 
     public interface OnPageChangeListener {
+        OnPageChangeListener NULL = new OnPageChangeListener() {
+            @Override
+            public void onPageSelected(int currentPage) {
+            }
+        };
         void onPageSelected(int currentPage);
     }
 
     public interface OnPickerSelectedListener {
+        OnPickerSelectedListener NULL = new OnPickerSelectedListener() {
+            @Override
+            public void onPagePickerRequested() {
+            }
+        };
         void onPagePickerRequested();
     }
 }

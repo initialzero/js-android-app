@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
 import android.support.annotation.VisibleForTesting;
 
+import com.jaspersoft.android.jaspermobile.domain.ReportControlFlags;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
@@ -90,19 +91,27 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
         if (getView() == null) {
             throw new NullPointerException("Please inject view before calling this method");
         }
-        if (!getView().getState().isControlsPageShown()) {
+        if (getView().getState().isControlsPageShown()) {
+            boolean hasControls = getView().getState().hasControls();
+            toggleFiltersAction(hasControls);
+        } else {
             loadControls();
         }
     }
 
     private void loadControls() {
         getView().showLoading();
-        mGetReportShowControlsPropertyCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<Boolean>() {
+        mGetReportShowControlsPropertyCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<ReportControlFlags>() {
             @Override
-            public void onNext(Boolean needControls) {
+            public void onNext(ReportControlFlags flags) {
                 getView().getState().setControlsPageShown(true);
-                toggleFiltersAction(needControls);
-                resolveNeedControls(needControls);
+
+                boolean hasControls = flags.hasControls();
+                getView().getState().setHasControls(hasControls);
+                toggleFiltersAction(hasControls);
+
+                boolean needPrompt = flags.needPrompt();
+                resolveNeedControls(needPrompt);
             }
         }));
     }

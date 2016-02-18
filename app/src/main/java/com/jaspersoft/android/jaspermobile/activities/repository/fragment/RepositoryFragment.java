@@ -307,6 +307,8 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
             mSearchCriteria.setOffset(currentOffset + mLimit);
             mLoaderState = LOAD_FROM_CACHE;
             loadResources(mLoaderState);
+
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.LOADED_NEXT.getValue(), Analytics.EventLabel.REPOSITORY.getValue());
         }
     }
 
@@ -424,8 +426,6 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
 
             if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
                 loadNextPage();
-
-                analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.LOADED_NEXT.getValue(),  Analytics.EventLabel.REPOSITORY.getValue());
             }
             enableRefreshLayout(listView);
         }

@@ -345,6 +345,8 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
             mSearchCriteria.setOffset(currentOffset + mLimit);
             mLoaderState = LOAD_FROM_CACHE;
             loadResources(mLoaderState);
+
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.LOADED_NEXT.getValue(), Analytics.EventLabel.LIBRARY.getValue());
         }
     }
 
@@ -477,8 +479,6 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
 
             if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
                 loadNextPage();
-
-                analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.LOADED_NEXT.getValue(), Analytics.EventLabel.LIBRARY.getValue());
             }
             enableRefreshLayout(listView);
         }

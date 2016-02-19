@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
  * @since 2.3
  */
 public final class ProfileViewModel {
+    private static final ProfileViewModel EMPTY_PROFILE = new ProfileViewModel("Not Accounts", "6.0", true);
+
     @NonNull
     private final String mLabel;
     @NonNull
@@ -17,6 +19,10 @@ public final class ProfileViewModel {
         mLabel = label;
         mVersion = version;
         mIsActive = isActive;
+    }
+
+    public static ProfileViewModel getEmpty() {
+        return EMPTY_PROFILE;
     }
 
     @NonNull

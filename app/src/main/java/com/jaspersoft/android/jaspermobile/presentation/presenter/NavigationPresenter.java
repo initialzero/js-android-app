@@ -14,7 +14,6 @@ import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ProfileViewModelMapper;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.PageFactory;
-import com.jaspersoft.android.jaspermobile.presentation.page.NavigationPageState;
 
 import java.util.List;
 
@@ -52,14 +51,6 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
     }
 
     @Override
-    public void resume() {
-        NavigationPageState state = getView().getState();
-        if (state.shouldExit()) {
-            exitCurrentSession();
-        }
-    }
-
-    @Override
     public void destroy() {
         mGetProfilesMetadataUseCase.unsubscribe();
         mGetActiveProfileUseCase.unsubscribe();
@@ -75,12 +66,7 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
 
             @Override
             public void onNext(ProfileMetadataCollection collection) {
-                if (collection.containsActiveProfile()) {
-                    showProfiles(collection);
-                } else {
-                    NavigationPageState state = getView().getState();
-                    state.setShouldExit(true);
-                }
+                showProfiles(collection);
             }
         });
     }
@@ -103,9 +89,6 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
                 JasperServer server = profile.getServer();
                 boolean proEdition = server.isProEdition();
                 getView().toggleRecentlyViewedNavigation(proEdition);
-
-                ProfileViewModel model = mProfileViewModelMapper.transform(profile);
-                getView().showActiveProfile(model);
             }
         });
     }
@@ -113,10 +96,6 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
     @Override
     public void activateProfile(Profile profile) {
         mComponentManager.setupActiveProfile(profile);
-        exitCurrentSession();
-    }
-
-    private void exitCurrentSession() {
-        mNavigator.navigate(mPageFactory.createStartUpPage(), true);
+        mNavigator.navigate(mPageFactory.createMainPage(), true);
     }
 }

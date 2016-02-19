@@ -129,6 +129,10 @@ public final class ProfileDataRepository implements ProfileRepository {
      */
     @Override
     public Profile getActiveProfile() {
-        return mPrefActiveCache.get();
+        Profile profile = mPrefActiveCache.get();
+        if (profile == null) {
+            return Profile.getFake();
+        }
+        return profile;
     }
 }

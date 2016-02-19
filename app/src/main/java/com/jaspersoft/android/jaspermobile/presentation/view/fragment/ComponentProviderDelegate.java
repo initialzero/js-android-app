@@ -1,10 +1,14 @@
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.BaseActivityComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 
 /**
  * @author Tom Koptel
@@ -18,12 +22,18 @@ public enum ComponentProviderDelegate {
         return componentType.cast(((HasComponent<C>) activity).getComponent());
     }
 
-    public ProfileComponent getProfileComponent(Activity activity) {
-        GraphObject graphObject = GraphObject.Factory.from(activity);
-        ProfileComponent profileComponent = graphObject.getProfileComponent();
-        if (profileComponent == null) {
-            throw new IllegalStateException("Profile component missing it looks like it was GC or manually nulled");
-        }
-        return profileComponent;
+    public AppComponent getAppComponent(Context context) {
+        GraphObject graphObject = GraphObject.Factory.from(context);
+        return graphObject.getComponent();
+    }
+
+    public ProfileComponent getProfileComponent(Context context) {
+        GraphObject graphObject = GraphObject.Factory.from(context);
+        return graphObject.getProfileComponent();
+    }
+
+    public BaseActivityComponent getBaseActivityComponent(Activity activity) {
+        return getProfileComponent(activity)
+                .plusBase(new ActivityModule(activity));
     }
 }

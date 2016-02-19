@@ -95,7 +95,7 @@ public class PasswordDialogFragment extends DialogFragment implements DialogInte
         super.onCreate(savedInstanceState);
 
         ComponentProviderDelegate.INSTANCE
-                .getProfileComponent(getActivity())
+                .getBaseActivityComponent(getActivity())
                 .inject(this);
 
         setRetainInstance(true);

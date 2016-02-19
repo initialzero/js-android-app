@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
+import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
@@ -43,6 +44,7 @@ import com.jaspersoft.android.jaspermobile.presentation.contract.AuthenticationC
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.BaseUrlNormalizer;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -59,10 +61,10 @@ import javax.inject.Named;
 @EFragment(R.layout.add_account_layout)
 public class AuthenticatorFragment extends BaseFragment implements AuthenticationContract.View {
     private static final String ALIAS = "Mobile Demo";
-    private static final String SERVER_URL = "http://mobiledemo2.jaspersoft.com/jasperserver-pro";
-    private static final String ORGANIZATION = "organization_1";
-    private static final String USERNAME = "phoneuser";
-    private static final String PASSWORD = "phoneuser";
+    private static final String SERVER_URL = "http://192.168.88.55:8088/jasperserver-pro-62/";
+    private static final String ORGANIZATION = "";
+    private static final String USERNAME = "superuser";
+    private static final String PASSWORD = "superuser";
 
     @ViewById
     protected EditText aliasEdit;
@@ -107,17 +109,19 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
 
     @Click
     void addAccount() {
-        String alias = aliasEdit.getText().toString();
-        String serverUrl = serverUrlEdit.getText().toString();
-        String username = usernameEdit.getText().toString();
-        String password = passwordEdit.getText().toString();
-        String organization = organizationEdit.getText().toString();
-        saveProfile(alias, serverUrl, username, password, organization);
+//        String alias = aliasEdit.getText().toString();
+//        String serverUrl = serverUrlEdit.getText().toString();
+//        String username = usernameEdit.getText().toString();
+//        String password = passwordEdit.getText().toString();
+//        String organization = organizationEdit.getText().toString();
+//        saveProfile(alias, serverUrl, username, password, organization);
+        tryDemo();
     }
 
     @Click
     void tryDemo() {
-        saveProfile(ALIAS, SERVER_URL, USERNAME, PASSWORD, ORGANIZATION);
+        Account[] accounts = AccountManager.get(getContext()).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
+        saveProfile("Profile: " + (accounts.length + 1), SERVER_URL, USERNAME, PASSWORD, ORGANIZATION);
     }
 
     @Override

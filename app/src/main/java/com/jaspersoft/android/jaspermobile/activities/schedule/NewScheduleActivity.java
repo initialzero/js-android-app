@@ -28,48 +28,31 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.CheckBox;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
-import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.OutputFormatDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.ValueInputDialogFragment;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
-import com.jaspersoft.android.jaspermobile.util.JobOutputFormatConverter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
 import com.jaspersoft.android.jaspermobile.util.schedule.JobConverter;
 import com.jaspersoft.android.jaspermobile.util.schedule.ScheduleViewModel;
-import com.jaspersoft.android.jaspermobile.widget.DateTimeView;
-import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.service.data.schedule.JobData;
 import com.jaspersoft.android.sdk.service.data.schedule.JobForm;
 import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
 import com.jaspersoft.android.sdk.service.data.schedule.JobSource;
-import com.jaspersoft.android.sdk.service.data.schedule.RecurrenceIntervalUnit;
 import com.jaspersoft.android.sdk.service.data.schedule.RepositoryDestination;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.CheckedChange;
-import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 import javax.inject.Inject;
 
@@ -104,7 +87,7 @@ public class NewScheduleActivity extends ToolbarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         mCompositeSubscription = new CompositeSubscription();
         emptyJobForm = createEmptyJobForm();

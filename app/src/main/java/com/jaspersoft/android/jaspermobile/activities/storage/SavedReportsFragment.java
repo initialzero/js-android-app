@@ -77,7 +77,7 @@ public class SavedReportsFragment extends BaseFragment implements SortDialogFrag
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
         setHasOptionsMenu(true);
     }
 

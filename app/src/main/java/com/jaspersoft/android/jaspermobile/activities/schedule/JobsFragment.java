@@ -37,7 +37,6 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
@@ -46,12 +45,12 @@ import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
+import com.jaspersoft.android.jaspermobile.util.rx.RxTransformer;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 import com.jaspersoft.android.sdk.service.data.schedule.JobUnit;
 import com.jaspersoft.android.sdk.service.report.schedule.JobSearchCriteria;
 import com.jaspersoft.android.sdk.service.report.schedule.JobSortType;
-import com.jaspersoft.android.sdk.service.rx.report.schedule.RxJobSearchTask;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 
 import org.androidannotations.annotations.EFragment;
@@ -64,8 +63,10 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -87,15 +88,13 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
     protected JasperResourceConverter jasperResourceConverter;
 
     private JasperResourceAdapter mAdapter;
-    private RxReportScheduleService mScheduleService;
-    private RxJobSearchTask mJobSearchTask;
     private CompositeSubscription mCompositeSubscription;
     private LinkedHashMap<Integer, JobUnit> mJobs;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         mCompositeSubscription = new CompositeSubscription();
 
@@ -122,13 +121,12 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
                 R.color.js_dark_blue);
 
         setDataAdapter();
-        createJobSearchTask();
+        loadJobs();
     }
 
     @Override
     public void onRefresh() {
-        createJobSearchTask();
-
+        loadJobs();
         analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.JOBS.getValue());
     }
 
@@ -159,41 +157,25 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
         mCompositeSubscription.unsubscribe();
     }
 
-    private void createJobSearchTask() {
-        mRestClient.scheduleService()
-                .compose(RxTransformers.<RxReportScheduleService>applySchedulers())
-                .subscribe(new ErrorSubscriber<>(new Subscriber<RxReportScheduleService>() {
+    private void loadJobs() {
+        Subscription subscription = mRestClient.scheduleService()
+                .flatMap(new Func1<RxReportScheduleService, Observable<List<JobUnit>>>() {
+                    @Override
+                    public Observable<List<JobUnit>> call(RxReportScheduleService service) {
+                        JobSearchCriteria jobSearchCriteria = JobSearchCriteria.builder()
+                                .withSortType(JobSortType.SORTBY_JOBNAME)
+                                .build();
+                        return service.search(jobSearchCriteria).nextLookup();
+                    }
+                })
+                .compose(RxTransformer.<List<JobUnit>>applySchedulers())
+                .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<List<JobUnit>>() {
                     @Override
                     public void onStart() {
                         mJobs = new LinkedHashMap<>();
                         showMessage(getString(R.string.loading_msg));
                     }
 
-                    @Override
-                    public void onCompleted() {
-                        loadJobs();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        showMessage(getString(R.string.failed_load_data));
-                    }
-
-                    @Override
-                    public void onNext(RxReportScheduleService service) {
-                        JobSearchCriteria jobSearchCriteria = JobSearchCriteria.builder()
-                                .withSortType(JobSortType.SORTBY_JOBNAME)
-                                .build();
-                        mScheduleService = service;
-                        mJobSearchTask = service.search(jobSearchCriteria);
-                    }
-                }));
-    }
-
-    private void loadJobs() {
-        Subscription subscription = mJobSearchTask.nextLookup()
-                .compose(RxTransformers.<List<JobUnit>>applySchedulers())
-                .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<List<JobUnit>>() {
                     @Override
                     public void onCompleted() {
                         showMessage(mJobs.isEmpty() ? getString(R.string.sch_not_found) : null);
@@ -234,44 +216,53 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
 
             @Override
             public void onSecondaryActionClicked(final JasperResource jasperResource) {
-                if (mScheduleService != null) {
-                    try {
-                        final int jobId = Integer.parseInt(jasperResource.getId());
-                        Set<Integer> idToDel = new HashSet<>();
-                        idToDel.add(jobId);
 
-                        ProgressDialogFragment.builder(getFragmentManager())
-                                .setLoadingMessage(R.string.loading_msg)
-                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                    @Override
-                                    public void onCancel(DialogInterface dialog) {
-                                        mCompositeSubscription.unsubscribe();
-                                        mCompositeSubscription = new CompositeSubscription();
-                                    }
-                                })
-                                .show();
+                try {
+                    final int jobId = Integer.parseInt(jasperResource.getId());
+                    final Set<Integer> idToDel = new HashSet<>();
+                    idToDel.add(jobId);
 
-                        mCompositeSubscription.add(mScheduleService.deleteJobs(idToDel)
-                                .compose(RxTransformers.<Set<Integer>>applySchedulers())
-                                .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Set<Integer>>() {
-                                    @Override
-                                    public void onCompleted() {
-                                        Toast.makeText(getActivity(), R.string.sch_deleted, Toast.LENGTH_SHORT).show();
+                    ProgressDialogFragment.builder(getFragmentManager())
+                            .setLoadingMessage(R.string.loading_msg)
+                            .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                @Override
+                                public void onCancel(DialogInterface dialog) {
+                                    mCompositeSubscription.unsubscribe();
+                                    mCompositeSubscription = new CompositeSubscription();
+                                }
+                            })
+                            .show();
 
-                                        mJobs.remove(jobId);
-                                        mAdapter.remove(jasperResource);
+                    mCompositeSubscription.add(
+                            mRestClient.scheduleService().flatMap(new Func1<RxReportScheduleService, Observable<Set<Integer>>>() {
+                                @Override
+                                public Observable<Set<Integer>> call(RxReportScheduleService service) {
+                                    return service.deleteJobs(idToDel);
+                                }
+                            })
+                                    .compose(RxTransformers.<Set<Integer>>applySchedulers())
+                                    .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Set<Integer>>() {
+                                        @Override
+                                        public void onCompleted() {
+                                            Toast.makeText(getActivity(), R.string.sch_deleted, Toast.LENGTH_SHORT).show();
 
-                                        if (mJobs.isEmpty()) {
-                                            showMessage(getString(R.string.sch_not_found));
+                                            mJobs.remove(jobId);
+                                            mAdapter.remove(jasperResource);
+
+                                            if (mJobs.isEmpty()) {
+                                                showMessage(getString(R.string.sch_not_found));
+                                            }
+                                            analytics.sendEvent(
+                                                    Analytics.EventCategory.RESOURCE.getValue(),
+                                                    Analytics.EventAction.REMOVED.getValue(),
+                                                    Analytics.EventLabel.JOB.getValue()
+                                            );
                                         }
-                                        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.REMOVED.getValue(), Analytics.EventLabel.JOB.getValue());
-                                    }
-                                })));
-                    } catch (NumberFormatException ex) {
-                        Toast.makeText(getActivity(), R.string.wrong_action, Toast.LENGTH_SHORT).show();
-                    }
-
+                                    })));
+                } catch (NumberFormatException ex) {
+                    Toast.makeText(getActivity(), R.string.wrong_action, Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
 

@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper
 import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper_;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
@@ -85,8 +86,8 @@ public class ReportDownloadManager {
     private ReportDownloadCallback listener;
 
     public ReportDownloadManager(Context context) {
-        GraphObject.Factory.from(context)
-                .getProfileComponent()
+        ComponentProviderDelegate.INSTANCE
+                .getProfileComponent(context)
                 .inject(this);
 
         mContext = context;

@@ -58,7 +58,6 @@ public class AccountResources {
     private AccountResources(Context context) {
         this.context = context;
         this.accountNames = prepareAccountNames(context);
-        Timber.tag(AccountResources.class.getSimpleName());
     }
 
     private String[] prepareAccountNames(Context context) {

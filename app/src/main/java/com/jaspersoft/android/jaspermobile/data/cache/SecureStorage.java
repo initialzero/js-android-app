@@ -88,17 +88,14 @@ public final class SecureStorage implements SecureCache {
         if (profileChanged(profile)) {
             setupProfileStorage(profile);
         }
+
         if (isInitialized) {
             Hawk.put(key, rawValue);
         } else {
-            initObservable.subscribe(Observers.create(new Action1<Boolean>() {
-                @Override
-                public void call(Boolean initialized) {
-                    if (initialized) {
-                        Hawk.put(key, rawValue);
-                    }
-                }
-            }));
+            Boolean initialized = initObservable.toBlocking().firstOrDefault(false);
+            if (initialized) {
+                Hawk.put(key, rawValue);
+            }
         }
     }
 
@@ -108,6 +105,7 @@ public final class SecureStorage implements SecureCache {
         if (profileChanged(profile)) {
             setupProfileStorage(profile);
         }
+
         if (isInitialized) {
             return Hawk.get(key);
         } else {

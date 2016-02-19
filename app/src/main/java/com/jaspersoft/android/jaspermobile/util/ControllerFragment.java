@@ -57,7 +57,7 @@ public abstract class ControllerFragment extends BaseFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
         restoreSavedInstanceState(savedInstanceState);
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);

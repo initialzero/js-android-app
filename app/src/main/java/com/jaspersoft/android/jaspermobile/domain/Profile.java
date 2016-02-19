@@ -31,10 +31,14 @@ import android.support.annotation.NonNull;
  * @since 2.3
  */
 public class Profile {
-    private final String key;
+    private static final Profile FAKE = new Profile("no profile", true);
 
-    private Profile(String key) {
+    private final String key;
+    private final boolean empty;
+
+    private Profile(String key, boolean empty) {
         this.key = key;
+        this.empty = empty;
     }
 
     @NonNull
@@ -42,9 +46,18 @@ public class Profile {
         return key;
     }
 
+    public boolean isEmpty() {
+        return empty;
+    }
+
     @NonNull
     public static Profile create(String key){
-        return new Profile(key);
+        return new Profile(key, false);
+    }
+
+    @NonNull
+    public static Profile getFake(){
+        return FAKE;
     }
 
     @Override

@@ -133,7 +133,7 @@ public class FavoritesFragment extends BaseFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         setHasOptionsMenu(true);
         if (savedInstanceState == null) {

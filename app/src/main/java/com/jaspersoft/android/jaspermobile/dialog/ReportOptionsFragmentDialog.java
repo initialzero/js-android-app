@@ -38,11 +38,11 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.service.data.report.option.ReportOption;
@@ -82,8 +82,8 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GraphObject.Factory.from(getContext())
-                .getProfileComponent()
+        ComponentProviderDelegate.INSTANCE
+                .getBaseActivityComponent(getActivity())
                 .inject(this);
     }
 

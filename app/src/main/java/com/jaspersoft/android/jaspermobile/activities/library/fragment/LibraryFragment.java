@@ -144,7 +144,7 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         mResourceLookupHashMap = new HashMap<>();
 

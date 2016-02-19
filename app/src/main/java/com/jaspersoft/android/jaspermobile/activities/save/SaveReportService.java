@@ -16,7 +16,7 @@ import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.data.entity.ExportBundle;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.StartupActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
 
 import org.androidannotations.annotations.EService;
 import org.androidannotations.annotations.SystemService;
@@ -66,8 +66,8 @@ public class SaveReportService extends Service implements ReportDownloadManager.
     public void onCreate() {
         super.onCreate();
 
-        GraphObject.Factory.from(this)
-                .getProfileComponent()
+        ComponentProviderDelegate.INSTANCE
+                .getProfileComponent(this)
                 .inject(this);
 
         mReportDownloadManager = new ReportDownloadManager(this);
@@ -172,7 +172,7 @@ public class SaveReportService extends Service implements ReportDownloadManager.
     }
 
     private PendingIntent getSavedItemIntent() {
-        Intent notificationIntent = new Intent(this, StartupActivity.class);
+        Intent notificationIntent = new Intent(this, NavigationActivity_.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }

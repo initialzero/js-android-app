@@ -1,12 +1,11 @@
 package com.jaspersoft.android.jaspermobile.presentation.presenter;
 
-import android.support.annotation.Nullable;
-
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.data.ComponentManager;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileMetadata;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.ActiveProfileRemoveUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetMetadataForProfileUseCase;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.FakePageFactory;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.MainPage;
@@ -40,9 +39,6 @@ public class StartupPresenterTest {
     Navigator mNavigator;
 
     @Mock
-    ComponentManager.Callback mCallback;
-
-    @Mock
     Analytics mAnalytics;
 
     @Mock
@@ -51,12 +47,16 @@ public class StartupPresenterTest {
     ProfileMetadata mProfileMetadata;
     @Mock
     GetMetadataForProfileUseCase mGetMetadataForProfileUseCase;
+    @Mock
+    ActiveProfileRemoveUseCase mActiveProfileRemoveUseCase;
+    @Mock
+    ComponentManager mComponentManager;
 
     private FakePageFactory mFakePageFactory;
     private StartupPresenter mStartupPresenter;
-    private FakeComponentManager fakeComponentManager;
 
-    private final Profile fakeProfile = Profile.create("fake");
+    private final Profile activeProfile = Profile.create("active");
+    private final Profile fakeProfile = Profile.getFake();
 
     @Before
     public void setUp() throws Exception {
@@ -65,14 +65,13 @@ public class StartupPresenterTest {
         setupSpy();
         setupMocks();
 
-        fakeComponentManager = spy(new FakeComponentManager());
         mStartupPresenter = new StartupPresenter(
-                REQUEST_CODE,
                 mAnalytics,
-                fakeComponentManager,
+                mComponentManager,
                 mFakePageFactory,
                 mNavigator,
-                mGetMetadataForProfileUseCase
+                mGetMetadataForProfileUseCase,
+                mActiveProfileRemoveUseCase
         );
     }
 
@@ -80,7 +79,7 @@ public class StartupPresenterTest {
         when(mServer.getVersion()).thenReturn("6.0");
         when(mServer.getEdition()).thenReturn("PRO");
         when(mProfileMetadata.getServer()).thenReturn(mServer);
-        when(mProfileMetadata.getProfile()).thenReturn(fakeProfile);
+        when(mProfileMetadata.getProfile()).thenReturn(activeProfile);
     }
 
     private void setupSpy() {
@@ -128,32 +127,32 @@ public class StartupPresenterTest {
     }
 
     private void givenActiveProfile() {
-        fakeComponentManager.setProfile(fakeProfile);
+        when(mComponentManager.setupProfileComponent()).thenReturn(activeProfile);
     }
 
     private void givenNoActiveProfile() {
-        fakeComponentManager.setProfile(null);
+        when(mComponentManager.setupProfileComponent()).thenReturn(fakeProfile);
     }
 
     private void whenSetupActiveProfile() {
-        mStartupPresenter.setupNewProfile(fakeProfile);
+        mStartupPresenter.setupNewProfile(activeProfile);
     }
 
     private void whenTriesToSetupProfile() {
-        mStartupPresenter.tryToSetupProfile();
+        mStartupPresenter.tryToSetupProfile(REQUEST_CODE);
     }
 
     private void thenActivatesProfile() {
-        verify(fakeComponentManager).setupActiveProfile(fakeProfile);
+        verify(mComponentManager).setupActiveProfile(activeProfile);
     }
 
     private void thenSetupsProfileComponent() {
-        verify(fakeComponentManager).setupProfileComponent(any(ComponentManager.Callback.class));
+        verify(mComponentManager).setupProfileComponent();
     }
 
     private void thenNavigatesToSignUpPage() {
         ArgumentCaptor<Page> argument = ArgumentCaptor.forClass(Page.class);
-        verify(mNavigator).navigateForResult(argument.capture(), eq(REQUEST_CODE), eq(false));
+        verify(mNavigator).navigateForResult(argument.capture(), eq(REQUEST_CODE));
         assertThat(argument.getValue(), is(instanceOf(SignUpPage.class)));
     }
 
@@ -161,26 +160,5 @@ public class StartupPresenterTest {
         ArgumentCaptor<Page> argument = ArgumentCaptor.forClass(Page.class);
         verify(mNavigator).navigate(argument.capture(), eq(true));
         assertThat(argument.getValue(), is(instanceOf(MainPage.class)));
-    }
-
-    private static class FakeComponentManager implements ComponentManager {
-        private Profile mProfile;
-
-        public void setProfile(Profile profile) {
-            mProfile = profile;
-        }
-
-        @Override
-        public void setupProfileComponent(@Nullable Callback callback) {
-            if (mProfile != null) {
-                callback.onSetupComplete(mProfile);
-            } else {
-                callback.onActiveProfileMissing();
-            }
-        }
-
-        @Override
-        public void setupActiveProfile(Profile profile) {
-        }
     }
 }

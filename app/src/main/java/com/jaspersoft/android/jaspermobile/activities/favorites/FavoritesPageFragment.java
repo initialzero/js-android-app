@@ -65,7 +65,7 @@ public class FavoritesPageFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         if (savedInstanceState == null) {
             sortOptions.putOrder(SortOrder.LABEL);

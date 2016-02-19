@@ -82,6 +82,10 @@ public final class AccountJasperServerCache implements JasperServerCache {
         String edition = mAccountManager.getUserData(accountProfile, EDITION_KEY);
         String versionString = mAccountManager.getUserData(accountProfile, VERSION_NAME_KEY);
 
+        if (baseUrl == null) {
+            return JasperServer.createFake();
+        }
+
         JasperServer.Builder serverBuilder = new JasperServer.Builder();
         serverBuilder.setBaseUrl(baseUrl);
         serverBuilder.setEdition(edition);

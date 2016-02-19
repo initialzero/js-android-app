@@ -2,7 +2,7 @@ package com.jaspersoft.android.jaspermobile.internal.di.components;
 
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.StartupActivityModule;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.StartupActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.StartupDelegate;
 
 import dagger.Subcomponent;
 
@@ -17,5 +17,5 @@ import dagger.Subcomponent;
         }
 )
 public interface StartupActivityComponent {
-    void inject(StartupActivity startupActivity);
+    void inject(StartupDelegate startupDelegate);
 }

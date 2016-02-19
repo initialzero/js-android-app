@@ -35,6 +35,9 @@ import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import java.net.CookieManager;
 import java.net.CookieStore;
+import java.net.HttpCookie;
+import java.net.URI;
+import java.util.List;
 
 /**
  * @author Tom Koptel
@@ -63,6 +66,9 @@ public class UtilReceiver extends BroadcastReceiver {
 
     private CookieStore getCookieStore() {
         CookieManager manager = (CookieManager) CookieManager.getDefault();
+        if (manager == null) {
+            return new NullCookieStore();
+        }
         return manager.getCookieStore();
     }
 
@@ -75,6 +81,38 @@ public class UtilReceiver extends BroadcastReceiver {
         Account[] accounts = manager.getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
         for (Account account : accounts) {
             manager.removeAccountExplicitly(account);
+        }
+    }
+
+    private static class NullCookieStore implements CookieStore {
+        @Override
+        public void add(URI uri, HttpCookie cookie) {
+
+        }
+
+        @Override
+        public List<HttpCookie> get(URI uri) {
+            return null;
+        }
+
+        @Override
+        public List<HttpCookie> getCookies() {
+            return null;
+        }
+
+        @Override
+        public List<URI> getURIs() {
+            return null;
+        }
+
+        @Override
+        public boolean remove(URI uri, HttpCookie cookie) {
+            return false;
+        }
+
+        @Override
+        public boolean removeAll() {
+            return false;
         }
     }
 }

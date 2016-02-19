@@ -3,11 +3,11 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 import android.content.Context;
 import android.widget.ImageView;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.domain.ResourceDetailsRequest;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsByTypeCase;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -28,8 +28,8 @@ public class FileResourceBinder extends ResourceBinder {
 
     public FileResourceBinder(Context context) {
         super(context);
-        GraphObject.Factory.from(context)
-                .getProfileComponent()
+        ComponentProviderDelegate.INSTANCE
+                .getProfileComponent(context)
                 .inject(this);
     }
 

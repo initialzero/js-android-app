@@ -103,7 +103,7 @@ public class RecentFragment extends BaseFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         mResourceLookupHashMap = new HashMap<>();
 

@@ -15,11 +15,12 @@ import org.mockito.Mock;
 
 import java.util.Collections;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -29,8 +30,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
  */
 public class ComponentManagerTest {
 
-    @Mock
-    ComponentManagerImpl.Callback mCallback;
     @Mock
     ActiveProfileCache mActiveProfileCache;
     @Mock
@@ -44,8 +43,8 @@ public class ComponentManagerTest {
     @Mock
     GraphObject mGraphObject;
 
-    private ComponentManagerImpl mComponentManager;
-    private final Profile fakeProfile = Profile.create("fake");
+    private ComponentManager mComponentManager;
+    private final Profile activeProfile = Profile.create("active");
 
     @Rule
     public ExpectedException expected = none();
@@ -54,10 +53,10 @@ public class ComponentManagerTest {
     public void setUp() throws Exception {
         initMocks(this);
         setupMocks();
-        mComponentManager = new ComponentManagerImpl(
+        mComponentManager = new ComponentManager(
+                mGraphObject,
                 mActiveProfileCache,
-                mProfileCache,
-                mGraphObject
+                mProfileCache
         );
     }
 
@@ -72,10 +71,10 @@ public class ComponentManagerTest {
         givenNoActiveProfile();
         givenNoRegisteredProfiles();
 
-        whenSetupProfileComponent();
+        Profile profile = whenSetupProfileComponent();
 
         thenShouldRetrieveAllProfiles();
-        thenActiveProfileMissingCalled();
+        thenShouldReturnFakeProfile(profile);
     }
 
     private void thenShouldRetrieveAllProfiles() {
@@ -86,9 +85,8 @@ public class ComponentManagerTest {
         when(mProfileCache.getAll()).thenReturn(Collections.<Profile>emptyList());
     }
 
-    private void thenActiveProfileMissingCalled() {
-        verify(mCallback).onActiveProfileMissing();
-        verifyNoMoreInteractions(mCallback);
+    private void thenShouldReturnFakeProfile(Profile profile) {
+        assertThat(profile, is(Profile.getFake()));
     }
 
     @Test
@@ -97,23 +95,22 @@ public class ComponentManagerTest {
         givenNoProfileComponent();
         givenActiveProfile();
 
-        whenSetupProfileComponent();
+        Profile profile = whenSetupProfileComponent();
 
         thenShouldSetupProfileComponent();
-        thenShouldCallCompleteCallback();
+        thenReturnActiveProfile(profile);
     }
 
-    private void thenShouldCallCompleteCallback() {
-        verify(mCallback).onSetupComplete(any(Profile.class));
-        verifyNoMoreInteractions(mCallback);
+    private void thenReturnActiveProfile(Profile profile) {
+        assertThat(profile, is(activeProfile));
     }
 
     private void thenShouldSetupProfileComponent() {
         verify(mGraphObject).setProfileComponent(any(ProfileComponent.class));
     }
 
-    private void whenSetupProfileComponent() {
-        mComponentManager.setupProfileComponent(mCallback);
+    private Profile whenSetupProfileComponent() {
+       return mComponentManager.setupProfileComponent();
     }
 
     @Test
@@ -128,11 +125,11 @@ public class ComponentManagerTest {
     }
 
     private void whenSetupActiveProfile() {
-        mComponentManager.setupActiveProfile(fakeProfile);
+        mComponentManager.setupActiveProfile(activeProfile);
     }
 
     private void thenShouldWriteToActiveCache() {
-        verify(mActiveProfileCache).put(fakeProfile);
+        verify(mActiveProfileCache).put(activeProfile);
     }
 
     private void givenNoActiveProfile() {
@@ -140,8 +137,8 @@ public class ComponentManagerTest {
     }
 
     private void givenActiveProfile() {
-        when(mActiveProfileCache.get()).thenReturn(fakeProfile);
-        when(mProfileCache.getAll()).thenReturn(Collections.singletonList(fakeProfile));
+        when(mActiveProfileCache.get()).thenReturn(activeProfile);
+        when(mProfileCache.getAll()).thenReturn(Collections.singletonList(activeProfile));
     }
 
     private void givenNoProfileComponent() {
@@ -159,15 +156,15 @@ public class ComponentManagerTest {
         givenNoActiveProfile();
         givenOneRegisteredProfile();
 
-        whenSetupProfileComponent();
+        Profile profile = whenSetupProfileComponent();
 
         thenShouldRetrieveAllProfiles();
         thenShouldWriteToActiveCache();
-        thenShouldCallCompleteCallback();
+        thenReturnActiveProfile(profile);
         thenShouldSetupProfileComponent();
     }
 
     private void givenOneRegisteredProfile() {
-        when(mProfileCache.getAll()).thenReturn(Collections.singletonList(fakeProfile));
+        when(mProfileCache.getAll()).thenReturn(Collections.singletonList(activeProfile));
     }
 }

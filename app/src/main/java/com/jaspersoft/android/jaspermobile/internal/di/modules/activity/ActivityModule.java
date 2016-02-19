@@ -18,11 +18,6 @@ package com.jaspersoft.android.jaspermobile.internal.di.modules.activity;
 import android.app.Activity;
 import android.content.Context;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
-import com.jaspersoft.android.jaspermobile.data.ComponentManager;
-import com.jaspersoft.android.jaspermobile.data.ComponentManagerImpl;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
-import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
 import com.jaspersoft.android.jaspermobile.internal.di.ActivityContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
@@ -54,12 +49,5 @@ public class ActivityModule {
     @ActivityContext
     Context context() {
         return activity;
-    }
-
-    @Provides
-    @PerActivity
-    ComponentManager providesComponentManager(ActiveProfileCache activeProfileCache, ProfileCache profileCache) {
-        GraphObject graphObject = GraphObject.Factory.from(activity);
-        return new ComponentManagerImpl(activeProfileCache, profileCache, graphObject);
     }
 }

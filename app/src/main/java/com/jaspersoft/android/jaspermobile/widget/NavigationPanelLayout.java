@@ -28,7 +28,6 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -265,22 +264,24 @@ public class NavigationPanelLayout extends RelativeLayout {
         boolean hasProfiles = !profiles.isEmpty();
         footerDivider.setVisibility(hasProfiles ? VISIBLE : GONE);
 
-        List<ProfileViewModel> nonActiveProfiles = filterNonActiveProfile(profiles);
-        mProfilesAdapter.setProfiles(nonActiveProfiles);
+        ProfileViewModel activeProfile = selectActiveProfile(profiles);
+        setActiveProfile(activeProfile);
+
+        profiles.remove(activeProfile);
+        mProfilesAdapter.setProfiles(profiles);
     }
 
-    private List<ProfileViewModel> filterNonActiveProfile(List<ProfileViewModel> profiles) {
-        List<ProfileViewModel> result = new ArrayList<>(profiles.size() - 1);
+    private ProfileViewModel selectActiveProfile(List<ProfileViewModel> profiles) {
         for (ProfileViewModel profile : profiles) {
-            if (!profile.isActive()) {
-                result.add(profile);
+            if (profile.isActive()) {
+                return profile;
             }
         }
-        return result;
+        return ProfileViewModel.getEmpty();
     }
 
-    public void setActiveProfile(@Nullable ProfileViewModel profile) {
-        if (profile == null) {
+    private void setActiveProfile(@NonNull ProfileViewModel profile) {
+        if (ProfileViewModel.getEmpty().equals(profile)) {
             tvProfile.setText(getContext().getString(R.string.nd_select_account));
         } else {
             tvProfile.setText(profile.getLabel());

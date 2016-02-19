@@ -3,13 +3,13 @@ package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 import android.preference.PreferenceFragment;
 import android.support.annotation.NonNull;
 
-import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.BaseActivityComponent;
 
 /**
  * @author Tom Koptel
  * @since 2.3
  */
-public abstract class BasePreferenceFragment extends PreferenceFragment implements ComponentProvider {
+public abstract class BasePreferenceFragment extends PreferenceFragment {
     @SuppressWarnings("unchecked")
     @NonNull
     public <C> C getComponent(Class<C> componentType) {
@@ -17,7 +17,7 @@ public abstract class BasePreferenceFragment extends PreferenceFragment implemen
     }
 
     @NonNull
-    public ProfileComponent getProfileComponent() {
-        return ComponentProviderDelegate.INSTANCE.getProfileComponent(getActivity());
+    public BaseActivityComponent getBaseActivityComponent() {
+        return ComponentProviderDelegate.INSTANCE.getBaseActivityComponent(getActivity());
     }
 }

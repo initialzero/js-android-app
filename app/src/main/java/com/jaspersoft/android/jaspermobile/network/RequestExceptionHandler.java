@@ -145,6 +145,16 @@ public class RequestExceptionHandler {
                 return mContext.getString(R.string.error_export_failed);
             case StatusCodes.EXPORT_EXECUTION_CANCELLED:
                 return mContext.getString(R.string.error_export_cancelled);
+            case StatusCodes.JOB_DUPLICATE_OUTPUT_FILE_NAME:
+                return mContext.getString(R.string.error_schedule_duplicate_file_name);
+            case StatusCodes.JOB_START_DATE_IN_THE_PAST:
+                return mContext.getString(R.string.error_schedule_in_the_past);
+            case StatusCodes.JOB_OUTPUT_FILENAME_INVALID_CHARS:
+                return mContext.getString(R.string.error_schedule_special_characters);
+            case StatusCodes.JOB_OUTPUT_FOLDER_DOES_NOT_EXIST:
+                return mContext.getString(R.string.error_schedule_folder_not_exist);
+            case StatusCodes.JOB_OUTPUT_FOLDER_IS_NOT_WRITABLE:
+                return mContext.getString(R.string.error_schedule_folder_not_writable);
             default:
                 return mContext.getString(R.string.error_undefined);
         }

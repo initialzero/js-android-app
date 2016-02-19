@@ -42,7 +42,7 @@ public class JobConverter {
                 .withLabel(scheduleViewModel.getJobName())
                 .withBaseOutputFilename(scheduleViewModel.getFileName())
                 .withRepositoryDestination(new RepositoryDestination.Builder().withFolderUri(scheduleViewModel.getOutputPath()).build())
-                .addOutputFormats(scheduleViewModel.getJobOutputFormats());
+                .withOutputFormats(scheduleViewModel.getJobOutputFormats());
 
         if (scheduleViewModel.getDate() != null) {
             jobFormBuilder.withStartDate(scheduleViewModel.getDate().getTime());

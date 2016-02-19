@@ -66,11 +66,6 @@
 
         <SwitchPreference
             android:defaultValue="true"
-            android:key="pref_animation_enabled"
-            android:title="@string/st_title_animations" />
-
-        <SwitchPreference
-            android:defaultValue="true"
             android:key="pref_crash_reports"
             android:summary="@string/st_restart_note"
             android:title="@string/st_send_crashes" />

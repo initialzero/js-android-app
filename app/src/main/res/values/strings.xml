@@ -262,7 +262,6 @@
     <string name="st_title_clear_cache" translatable="false">Clear cache</string>
     <string name="st_title_connect_timeout">Connection timeout</string>
     <string name="st_title_read_timeout">Data read timeout</string>
-    <string name="st_title_animations">Animations</string>
     <string name="st_send_crashes">Send crash reports</string>
     <string name="st_restart_note">NOTE: Restart the app after changing this setting.</string>
     <string name="st_summary_cache_enable" translatable="false">Cache resources for the specified amount of time</string>
@@ -272,8 +271,8 @@
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Invalid number format</string>
     <string name="st_category_more">More</string>
-    <string name="st_action_clear_cache">Cache cleared</string>
-    <string name="st_action_clear_cache_fail">Can not clear cache</string>
+    <string name="st_action_clear_cache" translatable="false">Cache cleared</string>
+    <string name="st_action_clear_cache_fail" translatable="false">Can not clear cache</string>
 
     <!-- Error messages -->
     <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>

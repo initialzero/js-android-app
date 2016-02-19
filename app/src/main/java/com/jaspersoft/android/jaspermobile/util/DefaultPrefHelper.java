@@ -46,7 +46,6 @@ public class DefaultPrefHelper {
     public static final String KEY_PREF_CLEAR_CACHE = "pref_clear_cache";
     public static final String KEY_PREF_CONNECT_TIMEOUT = "pref_connect_timeout";
     public static final String KEY_PREF_READ_TIMEOUT = "pref_read_timeout";
-    public static final String KEY_PREF_ANIMATION_ENABLED = "pref_animation_enabled";
     public static final String KEY_PREF_SEND_CRASHES = "pref_crash_reports";
     public static final String KEY_PREF_SCREEN_CAPTURING_ENABLED = "pref_screen_capturing_enabled";
 
@@ -72,19 +71,9 @@ public class DefaultPrefHelper {
         return (int) TimeUnit.SECONDS.toMillis(Integer.parseInt(value));
     }
 
-    public boolean isAnimationEnabled() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);
-    }
-
     public boolean isScreenCapturingEnabled() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean(KEY_PREF_SCREEN_CAPTURING_ENABLED, false);
-    }
-
-    public void setAnimationEnabled(boolean value) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        preferences.edit().putBoolean(KEY_PREF_ANIMATION_ENABLED, value).apply();
     }
 
     public boolean sendCrashReports() {

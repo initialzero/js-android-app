@@ -131,7 +131,6 @@
     <string name="st_title_cache_enable">Activer le cache</string>
     <string name="st_title_connect_timeout">Délai de connexion</string>
     <string name="st_title_read_timeout">Délai de lecture des données</string>
-    <string name="st_title_animations">Animations</string>
     <string name="st_send_crashes">Envoyer les rapports d\'incidents</string>
     <string name="st_summary_sec">%s s</string>
     <string name="st_summary_h">%s h</string>

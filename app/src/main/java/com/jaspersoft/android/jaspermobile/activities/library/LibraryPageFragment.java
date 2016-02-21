@@ -39,9 +39,11 @@ import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryCo
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibrarySearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibrarySearchFragment_;
+import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
+import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.VoiceRecognitionHelper;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
@@ -68,7 +70,7 @@ import javax.inject.Inject;
  */
 @OptionsMenu({R.menu.sort_menu, R.menu.am_voice_command})
 @EFragment(R.layout.content_layout)
-public class LibraryPageFragment extends BaseFragment implements SortDialogFragment.SortDialogClickListener {
+public class LibraryPageFragment extends BaseFragment implements SortDialogFragment.SortDialogClickListener, SimpleDialogFragment.SimpleDialogClickListener {
 
     private static final int VOICE_COMMAND = 132;
 
@@ -84,6 +86,8 @@ public class LibraryPageFragment extends BaseFragment implements SortDialogFragm
     protected LibraryResourceFilter libraryResourceFilter;
     @Bean
     protected SortOptions sortOptions;
+    @Bean
+    protected DefaultPrefHelper defaultPrefHelper;
 
     private LibraryControllerFragment libraryControllerFragment;
 
@@ -143,20 +147,27 @@ public class LibraryPageFragment extends BaseFragment implements SortDialogFragm
 
     @OptionsItem(R.id.voiceCommand)
     final void voiceCommand() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.voice_command_title));
-        startActivityForResult(intent, VOICE_COMMAND);
-        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.CLICKED.getValue(), Analytics.EventLabel.VOICE_COMMANDS.getValue());
+        if (defaultPrefHelper.isVoiceHelpDialogEnabled()) {
+            SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setTitle(R.string.voice_command_btn)
+                    .setMessage(getString(R.string.voice_command_help))
+                    .setPositiveButtonText(R.string.ok)
+                    .setNegativeButtonText(R.string.voice_command_not_show_again)
+                    .setTargetFragment(this)
+                    .setCancelableOnTouchOutside(true)
+                    .show();
+        } else {
+            initVoiceRecognition();
+        }
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        boolean voicRecognationAvailable = VoiceRecognitionHelper.
-                isVoiceRecognizerAvailable(getContext());
-        voiceCommandAction.setVisible(voicRecognationAvailable);
+        boolean voiceRecognitionAvailable = VoiceRecognitionHelper.isVoiceRecognizerAvailable(getActivity());
+        voiceCommandAction.setVisible(voiceRecognitionAvailable);
     }
 
     @Override
@@ -176,6 +187,25 @@ public class LibraryPageFragment extends BaseFragment implements SortDialogFragm
         if (libraryControllerFragment != null) {
             libraryControllerFragment.handleVoiceCommand(matches);
         }
+    }
+
+    @Override
+    public void onPositiveClick(int requestCode) {
+        initVoiceRecognition();
+    }
+
+    @Override
+    public void onNegativeClick(int requestCode) {
+        defaultPrefHelper.setVoiceHelpDialogDisabled();
+        initVoiceRecognition();
+    }
+
+    private void initVoiceRecognition() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.voice_command_title));
+        startActivityForResult(intent, VOICE_COMMAND);
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.CLICKED.getValue(), Analytics.EventLabel.VOICE_COMMANDS.getValue());
     }
 
     private class FilterChangeListener implements FilterTitleView.FilterListener {

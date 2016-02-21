@@ -131,7 +131,6 @@
     <string name="st_title_cache_enable">启用缓存</string>
     <string name="st_title_connect_timeout">连接超时</string>
     <string name="st_title_read_timeout">数据读取超时</string>
-    <string name="st_title_animations">动画</string>
     <string name="st_send_crashes">发送崩溃报告</string>
     <string name="st_summary_sec">%s 秒</string>
     <string name="st_summary_h">%s 小时</string>

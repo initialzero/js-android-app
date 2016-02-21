@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -28,5 +27,10 @@
     <style name="Theme.JasperMobile.NoToolbar.TransparentStatusBar" parent="Theme.JasperMobile.NoToolbar">
         <item name="android:windowTranslucentStatus">true</item>
     </style>
+
+  <style name="Theme.JasperMobile.Dialog.Alert.Sort" parent="Theme.AppCompat.Dialog.Alert">
+    <item name="android:background">@drawable/bg_popup</item>
+    <item name="colorAccent">@color/js_blue</item>
+  </style>
 
 </resources>

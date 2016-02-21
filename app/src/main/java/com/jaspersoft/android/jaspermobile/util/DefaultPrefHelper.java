@@ -46,9 +46,9 @@ public class DefaultPrefHelper {
     public static final String KEY_PREF_CLEAR_CACHE = "pref_clear_cache";
     public static final String KEY_PREF_CONNECT_TIMEOUT = "pref_connect_timeout";
     public static final String KEY_PREF_READ_TIMEOUT = "pref_read_timeout";
-    public static final String KEY_PREF_ANIMATION_ENABLED = "pref_animation_enabled";
     public static final String KEY_PREF_SEND_CRASHES = "pref_crash_reports";
     public static final String KEY_PREF_SCREEN_CAPTURING_ENABLED = "pref_screen_capturing_enabled";
+    public static final String KEY_PREF_VOICE_COMMAND_HELP_ENABLED = "pref_voice_command_help_enabled";
 
     public static final boolean DEFAULT_REPO_CACHE_ENABLED = true;
     public static final String DEFAULT_REPO_CACHE_EXPIRATION = "48";
@@ -72,19 +72,9 @@ public class DefaultPrefHelper {
         return (int) TimeUnit.SECONDS.toMillis(Integer.parseInt(value));
     }
 
-    public boolean isAnimationEnabled() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(KEY_PREF_ANIMATION_ENABLED, true);
-    }
-
     public boolean isScreenCapturingEnabled() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean(KEY_PREF_SCREEN_CAPTURING_ENABLED, false);
-    }
-
-    public void setAnimationEnabled(boolean value) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        preferences.edit().putBoolean(KEY_PREF_ANIMATION_ENABLED, value).apply();
     }
 
     public boolean sendCrashReports() {
@@ -109,9 +99,14 @@ public class DefaultPrefHelper {
         }
     }
 
-    public boolean isRateDialogEnabled(){
+    public boolean isVoiceHelpDialogEnabled(){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(RateAppDialog.KEY_PREF_NEED_TO_RATE, true);
+        return preferences.getBoolean(KEY_PREF_VOICE_COMMAND_HELP_ENABLED, true);
+    }
+
+    public void setVoiceHelpDialogDisabled(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(KEY_PREF_VOICE_COMMAND_HELP_ENABLED, false).apply();
     }
 
     public void setRateDialogEnabled(boolean value){
@@ -148,5 +143,10 @@ public class DefaultPrefHelper {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         preferences.edit().putLong(
                 RateAppDialog.KEY_PREF_APP_LAUNCH_COUNT_WITHOUT_RATE, 0).apply();
+    }
+
+    public boolean isRateDialogEnabled(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(RateAppDialog.KEY_PREF_NEED_TO_RATE, true);
     }
 }

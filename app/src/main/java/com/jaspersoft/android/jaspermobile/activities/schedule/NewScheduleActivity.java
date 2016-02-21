@@ -186,7 +186,7 @@ public class NewScheduleActivity extends ToolbarActivity {
                 .withLabel(getString(R.string.sch_new))
                 .withJobSource(new JobSource.Builder().withUri(jasperResource.getId()).build())
                 .withRepositoryDestination(new RepositoryDestination.Builder().withFolderUri(DEFAULT_OUTPUT_PATH).build())
-                .addOutputFormats(formats)
+                .withOutputFormats(formats)
                 .build();
     }
 }

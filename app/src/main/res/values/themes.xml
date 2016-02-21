@@ -54,4 +54,12 @@
 
     <style name="Theme.JasperMobile.NoToolbar.TransparentStatusBar" parent="Theme.JasperMobile.NoToolbar">
     </style>
+
+    <style name="Theme.JasperMobile.Dialog.Alert" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:background">@drawable/bg_popup</item>
+        <item name="colorAccent">@color/js_blue</item>
+    </style>
+
+    <style name="Theme.JasperMobile.Dialog.Alert.Sort" parent="@android:style/Theme.Holo.Dialog.NoActionBar.MinWidth" />
+
 </resources>

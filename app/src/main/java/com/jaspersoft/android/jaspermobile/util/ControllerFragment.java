@@ -146,12 +146,9 @@ public abstract class ControllerFragment extends BaseFragment {
     }
 
     protected void commitContentFragment() {
-        boolean animationEnabled = DefaultPrefHelper_.getInstance_(getActivity()).isAnimationEnabled();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        if (animationEnabled) {
-            transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-        }
         transaction
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                 .replace(R.id.content_frame, getContentFragment(), getContentFragmentTag())
                 .commit();
     }

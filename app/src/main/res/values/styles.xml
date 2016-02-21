@@ -107,11 +107,6 @@
         <item name="android:colorBackground">@color/js_popup_window</item>
     </style>
 
-    <style name="Theme.JasperMobile.Dialog.Alert" parent="Theme.AppCompat.Dialog.Alert">
-        <item name="android:background">@drawable/bg_popup</item>
-        <item name="colorAccent">@color/js_blue</item>
-    </style>
-
     <!--Add account page-->
 
     <style name="Widget.JasperMobile.CardView.Auth" parent="CardView">

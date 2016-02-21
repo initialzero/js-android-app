@@ -48,5 +48,9 @@ public final class ReportPage {
         result = 31 * result + (mFinal ? 1 : 0);
         return result;
     }
+
+    public boolean isEmpty() {
+        return mContent == null;
+    }
 }
 

@@ -101,7 +101,11 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
         mGetReportPageContentCase.execute(request, new ErrorSubscriber<>(new SimpleSubscriber<ReportPage>() {
             @Override
             public void onNext(ReportPage item) {
-                showPage(position, item);
+                if (item.isEmpty()) {
+                    handleExportOutOfRange();
+                } else {
+                    showPage(position, item);
+                }
             }
         }));
     }
@@ -301,8 +305,7 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
         int errorCode = serviceException.code();
         switch (errorCode) {
             case StatusCodes.EXPORT_PAGE_OUT_OF_RANGE:
-                showPageOutOfRangeError();
-                loadLastSavedPage();
+                handleExportOutOfRange();
                 break;
             case StatusCodes.REPORT_EXECUTION_INVALID:
                 reloadByPosition(getView().getState().getRequestedPage());
@@ -311,6 +314,11 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
                 Timber.e(serviceException, "Page request operation crashed with SDK exception");
                 showErrorMessage(serviceException);
         }
+    }
+
+    private void handleExportOutOfRange() {
+        showPageOutOfRangeError();
+        loadLastSavedPage();
     }
 
     private void showErrorMessage(Throwable error) {

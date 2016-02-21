@@ -29,7 +29,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
@@ -43,6 +42,7 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportC
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportViewActivity_;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
 import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
@@ -73,8 +73,8 @@ public class ResourceOpener {
 
     @AfterInject
     final void init() {
-        GraphObject.Factory.from(activity)
-                .getProfileComponent()
+        ComponentProviderDelegate.INSTANCE
+                .getBaseActivityComponent(activity)
                 .inject(this);
         resourceFilter = RepositoryResourceFilter_.getInstance_(activity);
 

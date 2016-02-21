@@ -40,12 +40,16 @@ public class JasperServer {
     @NonNull
     private final String version;
 
+    private final boolean fake;
+
     private JasperServer(@NonNull String baseUrl,
                          @NonNull String edition,
-                         @NonNull String version) {
+                         @NonNull String version,
+                         boolean fake) {
         this.baseUrl = baseUrl;
         this.edition = edition;
         this.version = version;
+        this.fake = fake;
     }
 
     @NonNull
@@ -97,6 +101,14 @@ public class JasperServer {
                 '}';
     }
 
+    public boolean isFake() {
+        return fake;
+    }
+
+    public static JasperServer createFake() {
+        return new JasperServer("", "CE", "5.5", true);
+    }
+
     public static class Builder {
         private String mBaseUrl;
         private String mEdition;
@@ -127,7 +139,7 @@ public class JasperServer {
             if (mBaseUrl == null) {
                 throw new NullPointerException("Edition should not be null");
             }
-            return new JasperServer(mBaseUrl, mEdition, mVersion);
+            return new JasperServer(mBaseUrl, mEdition, mVersion, false);
         }
     }
 }

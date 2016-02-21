@@ -42,7 +42,6 @@ import android.widget.ProgressBar;
 import com.google.android.gms.cast.CastPresentation;
 import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.jaspersoft.android.jaspermobile.Analytics;
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
@@ -51,10 +50,10 @@ import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
-import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
@@ -113,14 +112,10 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     @Override
     public void onCreate() {
         super.onCreate();
-        GraphObject graph = GraphObject.Factory.from(this);
-        ProfileComponent profileComponent = graph.getProfileComponent();
-        if (profileComponent == null) {
-            onDismissPresentation();
-        } else {
-            profileComponent.inject(this);
-            mReportPresentationListeners = new ArrayList<>();
-        }
+        ComponentProviderDelegate.INSTANCE
+                .getProfileComponent(this)
+                .inject(this);
+        mReportPresentationListeners = new ArrayList<>();
     }
 
     @Override

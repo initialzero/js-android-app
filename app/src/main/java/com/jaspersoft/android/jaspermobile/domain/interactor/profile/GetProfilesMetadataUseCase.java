@@ -9,7 +9,6 @@ import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractSimpleUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.profile.JasperServerRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.profile.ProfileRepository;
-import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,6 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerProfile
 public class GetProfilesMetadataUseCase extends AbstractSimpleUseCase<ProfileMetadataCollection> {
     private final ProfileRepository mProfileRepository;
     private final JasperServerRepository mServerRepository;
@@ -47,10 +45,6 @@ public class GetProfilesMetadataUseCase extends AbstractSimpleUseCase<ProfileMet
             @Override
             public Observable<ProfileMetadataCollection> call(List<Profile> profiles) {
                 Profile activeProfile = mProfileRepository.getActiveProfile();
-                if (activeProfile == null) {
-                    activeProfile = Profile.create("");
-                }
-
                 List<ProfileMetadata> metadataList = new ArrayList<>(profiles.size());
                 for (Profile profile : profiles) {
                     boolean isActive = profile.equals(activeProfile);

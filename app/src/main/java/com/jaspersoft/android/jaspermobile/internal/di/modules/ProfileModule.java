@@ -1,8 +1,10 @@
 package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
-import com.jaspersoft.android.jaspermobile.data.JasperClient;
+import com.jaspersoft.android.jaspermobile.data.FakeJasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
-import com.jaspersoft.android.jaspermobile.data.cache.SecureCache;
+import com.jaspersoft.android.jaspermobile.data.RealJasperRestClient;
+import com.jaspersoft.android.jaspermobile.data.StateJasperClient;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.CredentialsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ControlsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.InMemoryControlsCache;
@@ -29,6 +31,9 @@ import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportProper
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.resource.ResourceRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
+import com.jaspersoft.android.sdk.network.Server;
+
+import java.net.CookieHandler;
 
 import dagger.Module;
 import dagger.Provides;
@@ -53,8 +58,17 @@ public final class ProfileModule {
 
     @Provides
     @PerProfile
-    JasperRestClient provideJasperRestClient(JasperClient client) {
-        return client;
+    JasperRestClient provideJasperRestClient(
+            Server.Builder serverBuilder,
+            CookieHandler cookieHandler,
+            Profile profile,
+            CredentialsCache credentialsCache,
+            JasperServerCache serverCache
+    ) {
+        JasperRestClient realJasperRestClient = new RealJasperRestClient(
+                serverBuilder, cookieHandler, profile, credentialsCache, serverCache);
+        JasperRestClient fakeJasperRestClient = new FakeJasperRestClient();
+        return new StateJasperClient(profile, serverCache, realJasperRestClient, fakeJasperRestClient);
     }
 
     @Provides

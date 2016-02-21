@@ -71,7 +71,7 @@ public class SettingsFragment extends BasePreferenceFragment {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         addPreferencesFromResource(R.xml.preferences);
 

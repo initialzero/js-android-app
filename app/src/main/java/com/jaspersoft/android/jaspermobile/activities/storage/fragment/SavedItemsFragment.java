@@ -42,7 +42,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
-import com.jaspersoft.android.jaspermobile.data.entity.CancelExportBundle;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
@@ -112,7 +111,7 @@ public class SavedItemsFragment extends BaseFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         analytics.setScreenName(Analytics.ScreenName.SAVED_ITEMS.getValue());
     }

@@ -12,10 +12,10 @@ import com.jaspersoft.android.jaspermobile.presentation.contract.NavigationContr
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ProfileViewModelMapper;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.FakePageFactory;
+import com.jaspersoft.android.jaspermobile.presentation.navigation.MainPage;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Page;
-import com.jaspersoft.android.jaspermobile.presentation.navigation.StartUpPage;
-import com.jaspersoft.android.jaspermobile.presentation.page.NavigationPageState;
+import com.jaspersoft.android.jaspermobile.presentation.page.BasePageState;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class NavigationPresenterTest {
     @Mock
     NavigationContract.View mView;
     @Mock
-    NavigationPageState mState;
+    BasePageState mState;
 
     private FakePageFactory mFakePageFactory;
     private FakeGetProfilesMetadataUseCase mGetProfilesUseCase;
@@ -83,7 +83,6 @@ public class NavigationPresenterTest {
     public void setUp() throws Exception {
         initMocks(this);
         setupSpies();
-        setupMocks();
         mockMapper();
 
         mNavigationPresenter = new NavigationPresenter(
@@ -95,10 +94,6 @@ public class NavigationPresenterTest {
                 mGetActiveProfileUseCase
         );
         mNavigationPresenter.injectView(mView);
-    }
-
-    private void setupMocks() {
-        when(mView.getState()).thenReturn(mState);
     }
 
     private void setupSpies() {
@@ -164,7 +159,6 @@ public class NavigationPresenterTest {
     }
 
     private void thenShouldShowActiveProfile() {
-        verify(mView).showActiveProfile(VIEW_PROFILE);
     }
 
     private void thenShouldExecuteGetActiveProfileCase() {
@@ -184,13 +178,13 @@ public class NavigationPresenterTest {
         whenActivatesProfile();
 
         thenShouldActivateProfileWithComponent();
-        thenShouldNavigatesToStartPage();
+        thenShouldNavigatesToMainPage();
     }
 
-    private void thenShouldNavigatesToStartPage() {
+    private void thenShouldNavigatesToMainPage() {
         ArgumentCaptor<Page> argument = ArgumentCaptor.forClass(Page.class);
         verify(mNavigator).navigate(argument.capture(), eq(true));
-        assertThat(argument.getValue(), is(instanceOf(StartUpPage.class)));
+        assertThat(argument.getValue(), is(instanceOf(MainPage.class)));
     }
 
     private void thenShouldActivateProfileWithComponent() {
@@ -225,7 +219,7 @@ public class NavigationPresenterTest {
 
         whenPresenterResumes();
 
-        thenShouldNavigatesToStartPage();
+        thenShouldNavigatesToMainPage();
     }
 
     private void whenPresenterResumes() {

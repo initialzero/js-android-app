@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * @author Tom Koptel
  * @since 2.3
  */
-public class NavigationPageState implements Parcelable {
+public class BasePageState implements Parcelable {
     private boolean mShouldExit;
 
     public void setShouldExit(boolean shouldExit) {
@@ -28,20 +28,20 @@ public class NavigationPageState implements Parcelable {
         dest.writeByte(mShouldExit ? (byte) 1 : (byte) 0);
     }
 
-    public NavigationPageState() {
+    public BasePageState() {
     }
 
-    protected NavigationPageState(Parcel in) {
+    protected BasePageState(Parcel in) {
         this.mShouldExit = in.readByte() != 0;
     }
 
-    public static final Parcelable.Creator<NavigationPageState> CREATOR = new Parcelable.Creator<NavigationPageState>() {
-        public NavigationPageState createFromParcel(Parcel source) {
-            return new NavigationPageState(source);
+    public static final Parcelable.Creator<BasePageState> CREATOR = new Parcelable.Creator<BasePageState>() {
+        public BasePageState createFromParcel(Parcel source) {
+            return new BasePageState(source);
         }
 
-        public NavigationPageState[] newArray(int size) {
-            return new NavigationPageState[size];
+        public BasePageState[] newArray(int size) {
+            return new BasePageState[size];
         }
     };
 }

@@ -27,9 +27,9 @@ package com.jaspersoft.android.jaspermobile.util.filtering;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 
-import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.androidannotations.annotations.AfterInject;
@@ -72,8 +72,8 @@ public class RecentlyViewedResourceFilter extends ResourceFilter {
 
     @AfterInject
     void init() {
-        GraphObject.Factory.from(activity)
-                .getProfileComponent()
+        ComponentProviderDelegate.INSTANCE
+                .getBaseActivityComponent(activity)
                 .inject(this);
         mServerVersion = ServerVersion.valueOf(mServer.getVersion());
     }

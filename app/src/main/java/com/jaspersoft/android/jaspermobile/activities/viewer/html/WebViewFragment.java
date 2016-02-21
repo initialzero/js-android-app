@@ -94,7 +94,7 @@ public class WebViewFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
     }
 
     @AfterViews

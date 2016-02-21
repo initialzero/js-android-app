@@ -42,7 +42,6 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 
 import org.androidannotations.api.ViewServer;
 
@@ -73,7 +72,7 @@ public class ToolbarActivity extends BaseActivity {
     protected SecurityProviderUpdater mSecurityProviderUpdater;
     @Inject
     protected Analytics analytics;
-
+    private StartupDelegate mStartupDelegate;
 
     public boolean isDevMode() {
         return BuildConfig.DEBUG && BuildConfig.FLAVOR.equals("dev");
@@ -108,29 +107,29 @@ public class ToolbarActivity extends BaseActivity {
             actionBar.setDisplayShowTitleEnabled(toolbarCustomView.getChildCount() == 0 || !enabled);
         }
 
-        for (int i = 0; i < toolbarCustomView.getChildCount(); i++) {
-            toolbarCustomView.getChildAt(i).setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+        if (toolbarCustomView != null) {
+            for (int i = 0; i < toolbarCustomView.getChildCount(); i++) {
+                toolbarCustomView.getChildAt(i).setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+            }
         }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        closeAppIfNeed();
-
-        super.onCreate(savedInstanceState);
-
-        getProfileComponent()
-                .plusBase(new ActivityModule(this))
-                .inject(this);
-
-        setScreenName();
-        addToolbar();
         Timber.tag(TAG);
-
-        // Listen for view render events during dev process
+        closeAppIfNeed();
         if (isDevMode()) {
             ViewServer.get(this).addWindow(this);
         }
+
+        getBaseActivityComponent().inject(this);
+
+        super.onCreate(savedInstanceState);
+        mStartupDelegate = new StartupDelegate(this);
+        mStartupDelegate.onCreate(savedInstanceState);
+
+        setScreenName();
+        addToolbar();
     }
 
     private void closeAppIfNeed() {
@@ -139,11 +138,11 @@ public class ToolbarActivity extends BaseActivity {
         }
     }
 
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        mStartupDelegate.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == SECURITY_PROVIDER_DIALOG_REQUEST_CODE) {
             // Adding a fragment via GoogleApiAvailability.showErrorDialogFragment
             // before the instance state is restored throws an error. So instead,
@@ -156,6 +155,8 @@ public class ToolbarActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        mStartupDelegate.onResume();
+
         if (isDevMode()) {
             ViewServer.get(this).setFocusedWindow(this);
         }
@@ -174,9 +175,17 @@ public class ToolbarActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mStartupDelegate.onDestroy();
+
         if (isDevMode()) {
             ViewServer.get(this).removeWindow(this);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        mStartupDelegate.onSaveInstanceState(outState);
+        super.onSaveInstanceState(outState);
     }
 
     @Override

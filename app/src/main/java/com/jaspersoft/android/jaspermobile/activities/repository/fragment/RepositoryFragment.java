@@ -151,7 +151,7 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         mResourceLookupHashMap = new HashMap<>();
 

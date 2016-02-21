@@ -5,7 +5,6 @@ import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
-import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.network.AuthorizedClient;
 import com.jaspersoft.android.sdk.network.Credentials;
 import com.jaspersoft.android.sdk.network.Server;
@@ -18,8 +17,6 @@ import com.jaspersoft.android.sdk.service.rx.repository.RxRepositoryService;
 
 import java.net.CookieHandler;
 
-import javax.inject.Inject;
-
 import rx.Observable;
 import rx.functions.Func0;
 import rx.functions.Func1;
@@ -28,16 +25,14 @@ import rx.functions.Func1;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerProfile
-public class JasperClient implements JasperRestClient {
+public class RealJasperRestClient implements JasperRestClient {
     private final Server.Builder mServerBuilder;
     private final CookieHandler mCookieHandler;
     private final Profile mProfile;
     private final CredentialsCache mCredentialsCache;
     private final JasperServerCache mServerCache;
 
-    @Inject
-    public JasperClient(
+    public RealJasperRestClient(
             Server.Builder serverBuilder,
             CookieHandler cookieHandler,
             Profile profile,

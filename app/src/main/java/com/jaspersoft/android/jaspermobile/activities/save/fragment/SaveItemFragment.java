@@ -122,7 +122,7 @@ public class SaveItemFragment extends BaseFragment implements NumberDialogFragme
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         hasOptionsMenu();
 

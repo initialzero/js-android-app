@@ -37,7 +37,7 @@ public class FileViewerActivity extends ToolbarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         showFileTitle();
         if (savedInstanceState == null) {

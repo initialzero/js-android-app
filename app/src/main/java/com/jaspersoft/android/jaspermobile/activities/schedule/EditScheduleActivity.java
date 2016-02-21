@@ -85,7 +85,7 @@ public class EditScheduleActivity extends ToolbarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         mCompositeSubscription = new CompositeSubscription();
 

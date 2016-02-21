@@ -2,7 +2,6 @@ package com.jaspersoft.android.jaspermobile;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
@@ -16,7 +15,7 @@ public interface GraphObject {
     @NonNull
     AppComponent getComponent();
 
-    void setProfileComponent(@Nullable ProfileComponent profileComponent);
+    void setProfileComponent(@NonNull ProfileComponent profileComponent);
 
     ProfileComponent getProfileComponent();
 

@@ -54,14 +54,12 @@ import com.jaspersoft.android.jaspermobile.activities.settings.SettingsActivity_
 import com.jaspersoft.android.jaspermobile.activities.storage.SavedReportsFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.AboutDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RateAppDialog_;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.HasComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.NavigationActivityComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.NavigationActivityModule;
 import com.jaspersoft.android.jaspermobile.presentation.contract.NavigationContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
-import com.jaspersoft.android.jaspermobile.presentation.page.NavigationPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.NavigationPresenter;
 import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
@@ -94,8 +92,6 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
     protected NavigationPanelLayout navigationPanelLayout;
 
     @Inject
-    protected JasperServer mJasperServer;
-    @Inject
     protected Analytics mAnalytics;
     @Inject
     protected NavigationPresenter mNavigationPresenter;
@@ -111,8 +107,6 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
 
     @InstanceState
     protected boolean customToolbarDisplayEnabled = true;
-    @InstanceState
-    protected NavigationPageState mState = new NavigationPageState();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -172,22 +166,13 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
 
     @Override
     public void toggleRecentlyViewedNavigation(boolean visibility) {
-
-    }
-
-    @Override
-    public void showActiveProfile(ProfileViewModel activeProfile) {
-        navigationPanelLayout.setActiveProfile(activeProfile);
+        View recentlyView = findViewById(R.id.vg_recent);
+        recentlyView.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void showProfiles(List<ProfileViewModel> profiles) {
         navigationPanelLayout.loadProfiles(profiles);
-    }
-
-    @Override
-    public NavigationPageState getState() {
-        return mState;
     }
 
     @Override
@@ -258,17 +243,6 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
     // Helper methods
     //---------------------------------------------------------------------
 
-    private void enableRecentlyViewedSection() {
-        View recentlyView = findViewById(R.id.vg_recent);
-        if (mJasperServer != null) {
-            if (mJasperServer.isProEdition()) {
-                recentlyView.setVisibility(View.VISIBLE);
-            } else {
-                recentlyView.setVisibility(View.GONE);
-            }
-        }
-    }
-
     private void setupNavDrawer() {
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, getToolbar(),
                 R.string.nd_drawer_open, R.string.nd_drawer_close) {
@@ -296,7 +270,6 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
 
     private void setupNavPanel() {
         navigationPanelLayout.setAnalytics(mAnalytics);
-        enableRecentlyViewedSection();
         navigationPanelLayout.setListener(new NavigationPanelLayout.NavigationListener() {
             @Override
             public void onNavigate(int viewId) {

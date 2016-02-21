@@ -141,7 +141,7 @@ public class ReportCastActivity extends CastActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getProfileComponent().inject(this);
+        getBaseActivityComponent().inject(this);
 
         mResourcePresentationService = (ResourcePresentationService) ResourcePresentationService.getInstance();
         mTimer = new Timer();

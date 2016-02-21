@@ -5,15 +5,19 @@ import com.jaspersoft.android.jaspermobile.data.ComponentManager;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileMetadata;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.ActiveProfileRemoveUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetMetadataForProfileUseCase;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.contract.StartupContract;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Page;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.PageFactory;
+import com.jaspersoft.android.jaspermobile.presentation.page.BasePageState;
 
 import javax.inject.Inject;
-import javax.inject.Named;
+
+import timber.log.Timber;
 
 /**
  * @author Tom Koptel
@@ -21,45 +25,64 @@ import javax.inject.Named;
  */
 @PerActivity
 public class StartupPresenter extends Presenter<StartupContract.View> implements StartupContract.ActionListener {
-    private final Integer mSignUpRequest;
     private final Analytics mAnalytics;
     private final ComponentManager mComponentManager;
     private final PageFactory mPageFactory;
     private final Navigator mNavigator;
     private final GetMetadataForProfileUseCase mGetMetadataForProfileUseCase;
+    private final ActiveProfileRemoveUseCase mActiveProfileRemoveUseCase;
 
     @Inject
     public StartupPresenter(
-            @Named("SIGN_UP_REQUEST") Integer signUpRequest,
             Analytics analytics,
             ComponentManager componentManager,
             PageFactory pageFactory,
             Navigator navigator,
-            GetMetadataForProfileUseCase getMetadataForProfileUseCase
+            GetMetadataForProfileUseCase getMetadataForProfileUseCase,
+            ActiveProfileRemoveUseCase activeProfileRemoveUseCase
     ) {
-        mSignUpRequest = signUpRequest;
         mAnalytics = analytics;
         mComponentManager = componentManager;
         mPageFactory = pageFactory;
         mNavigator = navigator;
         mGetMetadataForProfileUseCase = getMetadataForProfileUseCase;
+        mActiveProfileRemoveUseCase = activeProfileRemoveUseCase;
     }
 
     @Override
-    public void tryToSetupProfile() {
-        mComponentManager.setupProfileComponent(new ComponentManager.Callback() {
-            @Override
-            public void onActiveProfileMissing() {
-                Page authPage = mPageFactory.createSignUpPage();
-                mNavigator.navigateForResult(authPage, mSignUpRequest, false);
-            }
+    public void resume() {
+        StartupContract.View view = getView();
+        BasePageState state = view.getState();
+        if (state.shouldExit()) {
+            navigateToMainPage();
+        }
+    }
 
-            @Override
-            public void onSetupComplete(Profile profile) {
-                logAnalyticsEvent(profile);
-                navigateToMainPage();
-            }
-        });
+    @Override
+    public void destroy() {
+        mActiveProfileRemoveUseCase.unsubscribe();
+    }
+
+    @Override
+    public void setupNewProfile(Profile profile) {
+        mComponentManager.setupActiveProfile(profile);
+        navigateToMainPage();
+    }
+
+    @Override
+    public void tryToSetupProfile(int signUpRequestCode) {
+        Profile profile = mComponentManager.setupProfileComponent();
+        if (profile.isEmpty()) {
+            navigateToSignUp(signUpRequestCode);
+        } else {
+            logAnalyticsEvent(profile);
+            listenForActiveProfileRemoved();
+        }
+    }
+
+    private void navigateToSignUp(int signUpRequestCode) {
+        Page authPage = mPageFactory.createSignUpPage();
+        mNavigator.navigateForResult(authPage, signUpRequestCode);
     }
 
     private void logAnalyticsEvent(Profile profile) {
@@ -75,10 +98,19 @@ public class StartupPresenter extends Presenter<StartupContract.View> implements
         mAnalytics.setServerInfo(version, serverEdition);
     }
 
-    @Override
-    public void setupNewProfile(Profile profile) {
-        mComponentManager.setupActiveProfile(profile);
-        navigateToMainPage();
+    private void listenForActiveProfileRemoved() {
+        mActiveProfileRemoveUseCase.execute(new SimpleSubscriber<Boolean>() {
+            @Override
+            public void onError(Throwable e) {
+                Timber.e(e, "ActiveProfileRemoveUseCase# failed");
+            }
+
+            @Override
+            public void onNext(Boolean removed) {
+                BasePageState state = getView().getState();
+                state.setShouldExit(removed);
+            }
+        });
     }
 
     private void navigateToMainPage() {

@@ -8,6 +8,7 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.AppConfigurator;
 import com.jaspersoft.android.jaspermobile.AppConfiguratorImpl;
 import com.jaspersoft.android.jaspermobile.BackgroundThread;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.JasperAnalytics;
 import com.jaspersoft.android.jaspermobile.JasperSecurityProviderUpdater;
 import com.jaspersoft.android.jaspermobile.UIThread;
@@ -102,5 +103,10 @@ public final class AppModule {
         return Server.builder()
                 .withConnectionTimeOut(helper.getConnectTimeoutValue(), TimeUnit.MILLISECONDS)
                 .withReadTimeout(helper.getReadTimeoutValue(), TimeUnit.MILLISECONDS);
+    }
+
+    @Provides
+    GraphObject providesGraphObject() {
+        return GraphObject.Factory.from(mApplication);
     }
 }

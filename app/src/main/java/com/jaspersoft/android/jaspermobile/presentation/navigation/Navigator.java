@@ -1,7 +1,6 @@
 package com.jaspersoft.android.jaspermobile.presentation.navigation;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
 
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
@@ -24,26 +23,14 @@ public class Navigator {
         start(page, finishCurrent);
     }
 
-    public void navigateForResult(Page page, int result, boolean finishCurrent) {
-        startForResult(page, result, finishCurrent);
+    public void navigateForResult(Page page, int result) {
+        mActivity.startActivityForResult(page.getIntent(), result);
     }
 
     private void start(Page page, boolean finishCurrent) {
+        if (finishCurrent) {
+            mActivity.finish();
+        }
         mActivity.startActivity(page.getIntent());
-        if (finishCurrent) {
-            mActivity.finish();
-        }
-    }
-
-    private void startForResult(Page page, int result, boolean finishCurrent) {
-        mActivity.startActivityForResult(page.getIntent(), result);
-        if (finishCurrent) {
-            mActivity.finish();
-        }
-    }
-
-    @NonNull
-    public static Navigator from(@NonNull Activity activity) {
-        return new Navigator(activity);
     }
 }

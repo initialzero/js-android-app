@@ -6,8 +6,6 @@ import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.presentation.contract.StartupContract;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.StartupPresenter;
 
-import javax.inject.Named;
-
 import dagger.Module;
 import dagger.Provides;
 
@@ -25,12 +23,5 @@ public final class StartupActivityModule extends ActivityModule {
     @PerActivity
     StartupContract.ActionListener providesActionListener(StartupPresenter startupPresenter) {
         return startupPresenter;
-    }
-
-    @Provides
-    @PerActivity
-    @Named("SIGN_UP_REQUEST")
-    Integer providesSignUpRequest() {
-        return 100;
     }
 }

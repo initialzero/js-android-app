@@ -133,8 +133,6 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
     @InstanceState
     protected boolean mLoading;
     @InstanceState
-    protected int mLoaderState = LOAD_FROM_CACHE;
-    @InstanceState
     protected boolean mHasNextPage;
 
     @Bean
@@ -187,16 +185,6 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        boolean isResourceLoaded = (mAdapter.getItemCount() == 0);
-        if (!mLoading && isResourceLoaded) {
-            loadPage();
-        }
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 
@@ -237,22 +225,11 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
 
     @Override
     public void onRefresh() {
-        clearData();
         ImageLoader.getInstance().clearDiskCache();
         ImageLoader.getInstance().clearMemoryCache();
-        mLoaderState = LOAD_FROM_NETWORK;
         loadPage();
 
         analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.REPOSITORY.getValue());
-    }
-
-    //---------------------------------------------------------------------
-    // Implements ResourcesLoader
-    //---------------------------------------------------------------------
-
-    public void loadFirstPage() {
-        mSearchCriteria.setOffset(0);
-        loadResources(mLoaderState);
     }
 
     //---------------------------------------------------------------------
@@ -301,19 +278,24 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
         mGetRootFoldersCase.execute(new GetRootFolderDataRequestListener());
     }
 
+    public void loadFirstPage() {
+        clearData();
+        mSearchCriteria.setOffset(0);
+        mSearchResourcesCase.unsubscribe();
+        loadResources();
+    }
+
     private void loadNextPage() {
         if (!mLoading && mHasNextPage) {
             int currentOffset = mSearchCriteria.getOffset();
             mSearchCriteria.setOffset(currentOffset + mLimit);
-            mLoaderState = LOAD_FROM_CACHE;
-            loadResources(mLoaderState);
+            loadResources();
 
             analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.LOADED_NEXT.getValue(), Analytics.EventLabel.REPOSITORY.getValue());
         }
     }
 
-
-    private void loadResources(int state) {
+    private void loadResources() {
         setRefreshState(true);
         mSearchResourcesCase.execute(mSearchCriteria, new GetResourceLookupsListener());
     }

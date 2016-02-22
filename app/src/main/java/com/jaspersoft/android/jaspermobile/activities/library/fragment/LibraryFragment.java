@@ -126,8 +126,6 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
     @InstanceState
     protected boolean mLoading;
     @InstanceState
-    protected int mLoaderState = LOAD_FROM_CACHE;
-    @InstanceState
     protected boolean mHasNextPage = true;
 
     @Bean
@@ -183,16 +181,6 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        boolean isResourceLoaded = (mAdapter.getItemCount() == 0);
-        if (!mLoading && isResourceLoaded) {
-            loadFirstPage();
-        }
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 
@@ -240,10 +228,8 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
 
     @Override
     public void onRefresh() {
-        clearData();
         ImageLoader.getInstance().clearDiskCache();
         ImageLoader.getInstance().clearMemoryCache();
-        mLoaderState = LOAD_FROM_NETWORK;
         loadFirstPage();
 
         analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.LIBRARY.getValue());
@@ -257,7 +243,6 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
         analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.FILTERED.getValue(), libraryResourceFilter.getCurrent().getName());
 
         mSearchCriteria.setTypes(libraryResourceFilter.getCurrent().getValues());
-        clearData();
         loadFirstPage();
     }
 
@@ -266,7 +251,6 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
 
         sortOrder = order;
         mSearchCriteria.setSortBy(order.getValue());
-        clearData();
         loadFirstPage();
     }
 
@@ -292,11 +276,6 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
                 break;
         }
         analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.SAID_COMMANDS.getValue(), voiceCommandName);
-    }
-
-    public void loadFirstPage() {
-        mSearchCriteria.setOffset(0);
-        loadResources(mLoaderState);
     }
 
     //---------------------------------------------------------------------
@@ -339,18 +318,25 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
         listView.setAdapter(mAdapter);
     }
 
+    private void loadFirstPage() {
+        clearData();
+        mSearchCriteria.setOffset(0);
+        mSearchResourcesCase.unsubscribe();
+        loadResources();
+    }
+
     private void loadNextPage() {
         if (!mLoading && mHasNextPage) {
             int currentOffset = mSearchCriteria.getOffset();
             mSearchCriteria.setOffset(currentOffset + mLimit);
-            mLoaderState = LOAD_FROM_CACHE;
-            loadResources(mLoaderState);
+            loadResources();
 
             analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.LOADED_NEXT.getValue(), Analytics.EventLabel.LIBRARY.getValue());
         }
     }
 
-    private void loadResources(int state) {
+    private void loadResources() {
+        mSearchResourcesCase.unsubscribe();
         setRefreshState(true);
         showEmptyTextIfNoItems(R.string.loading_msg);
         mSearchResourcesCase.execute(mSearchCriteria, new GetResourceLookupsListener());

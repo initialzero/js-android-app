@@ -5,6 +5,7 @@ import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.AbstractUseCase;
 import com.jaspersoft.android.jaspermobile.domain.repository.resource.ResourceRepository;
+import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 
@@ -16,7 +17,6 @@ import rx.Observable;
  * @author Tom Koptel
  * @since 2.3
  */
-@PerProfile
 public class SearchResourcesCase extends AbstractUseCase<SearchResult, ResourceLookupSearchCriteria> {
 
     private final ResourceRepository mResourceRepository;

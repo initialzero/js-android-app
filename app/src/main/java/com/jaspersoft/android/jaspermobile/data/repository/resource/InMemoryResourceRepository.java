@@ -35,10 +35,6 @@ public final class InMemoryResourceRepository implements ResourceRepository {
     private final CriteriaMapper mCriteriaMapper;
     private final ResourceMapper mResourceMapper;
 
-    private Observable<ResourceOutput> mGetFileContentAction;
-    private Observable<List<FolderDataResponse>> mGetRootRepositoriesAction;
-    private Observable<SearchResult> mSearchAction;
-
     @Inject
     public InMemoryResourceRepository(
             JasperRestClient restClient,
@@ -65,80 +61,55 @@ public final class InMemoryResourceRepository implements ResourceRepository {
     @NonNull
     @Override
     public Observable<ResourceOutput> getResourceContent(@NonNull final String resourceUri) {
-        if (mGetFileContentAction == null) {
-            mGetFileContentAction = mRestClient.repositoryService()
-                    .flatMap(new Func1<RxRepositoryService, Observable<ResourceOutput>>() {
-                        @Override
-                        public Observable<ResourceOutput> call(RxRepositoryService service) {
-                            return service.fetchResourceContent(resourceUri);
-                        }
-                    })
-                    .doOnTerminate(new Action0() {
-                        @Override
-                        public void call() {
-                            mGetFileContentAction = null;
-                        }
-                    }).cache();
-        }
-        return mGetFileContentAction;
+        return mRestClient.repositoryService()
+                .flatMap(new Func1<RxRepositoryService, Observable<ResourceOutput>>() {
+                    @Override
+                    public Observable<ResourceOutput> call(RxRepositoryService service) {
+                        return service.fetchResourceContent(resourceUri);
+                    }
+                });
     }
 
     @NonNull
     @Override
     public Observable<SearchResult> searchResources(@NonNull final ResourceLookupSearchCriteria criteria) {
-        if (mSearchAction == null) {
-            mSearchAction = mRestClient.repositoryService()
-                    .flatMap(new Func1<RxRepositoryService, Observable<List<Resource>>>() {
-                        @Override
-                        public Observable<List<Resource>> call(RxRepositoryService service) {
-                            RepositorySearchCriteria searchCriteria = mCriteriaMapper.toRetrofittedCriteria(criteria);
-                            return service.search(searchCriteria).nextLookup();
-                        }
-                    })
-                    .map(new Func1<List<Resource>, SearchResult>() {
-                        @Override
-                        public SearchResult call(List<Resource> resources) {
-                            int limit = criteria.getLimit();
-                            int searchCount = resources.size();
-                            boolean hasReachedEnd = searchCount < limit;
+        return mRestClient.repositoryService()
+                .flatMap(new Func1<RxRepositoryService, Observable<List<Resource>>>() {
+                    @Override
+                    public Observable<List<Resource>> call(RxRepositoryService service) {
+                        RepositorySearchCriteria searchCriteria = mCriteriaMapper.toRetrofittedCriteria(criteria);
+                        return service.search(searchCriteria).nextLookup();
+                    }
+                })
+                .map(new Func1<List<Resource>, SearchResult>() {
+                    @Override
+                    public SearchResult call(List<Resource> resources) {
+                        int limit = criteria.getLimit();
+                        int searchCount = resources.size();
+                        boolean hasReachedEnd = searchCount < limit;
 
-                            List<ResourceLookup> lookups = mResourceMapper.toLegacyResources(resources);
-                            SearchResult searchResult = new SearchResult(lookups, hasReachedEnd);
-                            return searchResult;
-                        }
-                    }).doOnTerminate(new Action0() {
-                        @Override
-                        public void call() {
-                            mSearchAction = null;
-                        }
-                    });
-        }
-        return mSearchAction;
+                        List<ResourceLookup> lookups = mResourceMapper.toLegacyResources(resources);
+                        SearchResult searchResult = new SearchResult(lookups, hasReachedEnd);
+                        return searchResult;
+                    }
+                });
     }
 
     @NonNull
     @Override
     public Observable<List<FolderDataResponse>> getRootRepositories() {
-        if (mGetRootRepositoriesAction == null) {
-            mGetRootRepositoriesAction = mRestClient.repositoryService()
-                    .flatMap(new Func1<RxRepositoryService, Observable<List<Resource>>>() {
-                        @Override
-                        public Observable<List<Resource>> call(RxRepositoryService service) {
-                            return service.fetchRootFolders();
-                        }
-                    })
-                    .map(new Func1<List<Resource>, List<FolderDataResponse>>() {
-                        @Override
-                        public List<FolderDataResponse> call(List<Resource> resources) {
-                            return mResourceMapper.toLegacyFolders(resources);
-                        }
-                    }).doOnTerminate(new Action0() {
-                        @Override
-                        public void call() {
-                            mGetRootRepositoriesAction = null;
-                        }
-                    });
-        }
-        return mGetRootRepositoriesAction;
+        return mRestClient.repositoryService()
+                .flatMap(new Func1<RxRepositoryService, Observable<List<Resource>>>() {
+                    @Override
+                    public Observable<List<Resource>> call(RxRepositoryService service) {
+                        return service.fetchRootFolders();
+                    }
+                })
+                .map(new Func1<List<Resource>, List<FolderDataResponse>>() {
+                    @Override
+                    public List<FolderDataResponse> call(List<Resource> resources) {
+                        return mResourceMapper.toLegacyFolders(resources);
+                    }
+                });
     }
 }

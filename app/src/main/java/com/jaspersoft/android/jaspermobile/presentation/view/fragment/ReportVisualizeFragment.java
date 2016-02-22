@@ -19,6 +19,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
+import com.jaspersoft.android.jaspermobile.activities.schedule.NewScheduleActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -35,6 +36,8 @@ import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportVisualiz
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
 import com.jaspersoft.android.jaspermobile.widget.PaginationBarView;
@@ -68,6 +71,7 @@ import rx.functions.Action1;
         R.menu.webview_menu,
         R.menu.retrofit_report_menu,
         R.menu.print_menu,
+        R.menu.report_schedule
 })
 public class ReportVisualizeFragment extends BaseFragment
         implements VisualizeReportContract.View,
@@ -120,6 +124,8 @@ public class ReportVisualizeFragment extends BaseFragment
     protected ResourcePrintJob mResourcePrintJob;
     @Inject
     protected Analytics mAnalytics;
+    @Inject
+    protected JasperResourceConverter mJasperResourceConverter;
 
     @InstanceState
     protected ReportPageState mState;
@@ -265,6 +271,15 @@ public class ReportVisualizeFragment extends BaseFragment
                 .setNegativeButtonText(R.string.ok)
                 .setTargetFragment(this)
                 .show();
+    }
+
+    @OptionsItem(R.id.newSchedule)
+    final void scheduleAction() {
+        JasperResource reportResource = mJasperResourceConverter.convertToJasperResource(resource);
+
+        NewScheduleActivity_.intent(getActivity())
+                .jasperResource(reportResource)
+                .start();
     }
 
     @OptionsItem

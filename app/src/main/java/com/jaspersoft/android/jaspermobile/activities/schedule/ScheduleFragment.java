@@ -29,6 +29,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
@@ -51,6 +52,7 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -94,8 +96,10 @@ public class ScheduleFragment extends BaseFragment implements DateDialogFragment
         runImmediatelyTitle.setText(getString(R.string.sch_run_immediately));
         checkBoxCheckedChange(scheduleViewModel.getDate() == null);
 
-        scheduleDate.setDate(scheduleViewModel.getDate());
+        Calendar selectedDate = scheduleViewModel.getDate() != null ? scheduleViewModel.getDate() : Calendar.getInstance();
+        scheduleDate.setDate(selectedDate);
         scheduleDate.setLabel(getString(R.string.sch_start_date));
+        scheduleDate.setClearButtonVisibility(false);
         scheduleDate.setDateTimeClickListener(new ScheduleDateClickListener());
 
         outputFormat.setText(getSupportedFormatsTitles());
@@ -163,6 +167,11 @@ public class ScheduleFragment extends BaseFragment implements DateDialogFragment
 
     @Override
     public void onDateSelected(String id, Calendar date) {
+        if (date.getTimeInMillis() < new Date().getTime()) {
+            Toast.makeText(getActivity(), getString(R.string.error_schedule_in_the_past), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         scheduleViewModel.setDate(date);
         scheduleDate.setDate(date);
     }

@@ -61,6 +61,7 @@ public class DateTimeView extends LinearLayout {
     protected View dateTimeDivider;
 
     protected SimpleDateFormat mUserDateFormat;
+    private boolean mClearVisible;
     private int mRequestCode;
     private DateType mDateType;
     private DateTimeClickListener mDateTimeClickListener;
@@ -84,6 +85,7 @@ public class DateTimeView extends LinearLayout {
         View itemView = LayoutInflater.from(context).inflate(R.layout.item_input_control_date, this);
 
         mDateType = DateType.DATE_TIME;
+        mClearVisible = true;
 
         selectedDateTime = (TextView) itemView.findViewById(R.id.ic_datetime_text);
         errorText = (TextView) itemView.findViewById(R.id.ic_error_text);
@@ -162,6 +164,11 @@ public class DateTimeView extends LinearLayout {
         btnClear.setAlpha(enabled ? 1f : .5f);
     }
 
+    public void enableClearButton(boolean enabled) {
+        mClearVisible = enabled;
+        setClearButtonVisibility(selectedDateTime.getText().length() > 0);
+    }
+
     public void setDateType(DateType dateType) {
         mDateType = dateType;
 
@@ -180,9 +187,9 @@ public class DateTimeView extends LinearLayout {
         selectedDateTime.setText(dateText != null ? dateText : InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
     }
 
-    private void setClearButtonVisibility(boolean visible) {
-        btnClear.setVisibility(visible ? View.VISIBLE : View.GONE);
-        clearDivider.setVisibility(visible ? View.VISIBLE : View.GONE);
+    public void setClearButtonVisibility(boolean visible) {
+        btnClear.setVisibility(visible && mClearVisible ? View.VISIBLE : View.GONE);
+        clearDivider.setVisibility(visible && mClearVisible ? View.VISIBLE : View.GONE);
     }
 
     private void updateViews() {

@@ -171,7 +171,6 @@
     <string name="sch_updated" translatable="false">Job updated</string>
     <string name="sch_deleted" translatable="false">Schedule deleted</string>
     <string name="sch_jobs" translatable="false">Schedules</string>
-    <string name="sch_info" translatable="false">Description: %s \nResource: %s \nLastRun: %s \nNextRun: %s \nOwner: %s \nOrganization: %s</string>
     <string name="sch_not_found" translatable="false">No job is scheduled.</string>
     <string name="sch_format_paginated" translatable="false">%s(Paginated)</string>
     <string name="sch_state_label" translatable="false">%s (state: %s)</string>

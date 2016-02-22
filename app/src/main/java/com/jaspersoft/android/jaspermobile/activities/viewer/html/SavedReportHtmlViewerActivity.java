@@ -31,6 +31,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -86,11 +87,7 @@ public class SavedReportHtmlViewerActivity extends ToolbarActivity
 
     @OptionsItem
     final void deleteItem() {
-        Uri uri = Uri.parse(recordUri);
-
         DeleteDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setFile(reportFile)
-                .setRecordsUri(uri.toString())
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getString(R.string.sdr_drd_msg, resourceLabel))
@@ -109,13 +106,8 @@ public class SavedReportHtmlViewerActivity extends ToolbarActivity
     //---------------------------------------------------------------------
 
     @Override
-    public void onDeleteConfirmed(String itemsToDelete, File filesToDelete) {
-        long id = Long.valueOf(Uri.parse(itemsToDelete).getLastPathSegment());
-        savedItemHelper.deleteSavedItem(reportFile, id);
+    public void onDeleteConfirmed(JasperResource resource) {
+        savedItemHelper.deleteSavedItem(Uri.parse(recordUri));
         finish();
-    }
-
-    @Override
-    public void onDeleteCanceled() {
     }
 }

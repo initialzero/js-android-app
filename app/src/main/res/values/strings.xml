@@ -182,6 +182,8 @@
     <string name="sch_state_error" translatable="false">Error</string>
     <string name="sch_state_paused" translatable="false">Paused</string>
     <string name="sch_state_unknown" translatable="false">Unknown</string>
+    <string name="sdr_delete_title">Delete schedule</string>
+    <string name="sdr_delete_message">Do you really want to delete this schedule?</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

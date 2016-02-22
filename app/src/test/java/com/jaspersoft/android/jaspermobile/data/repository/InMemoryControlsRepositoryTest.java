@@ -109,7 +109,7 @@ public class InMemoryControlsRepositoryTest {
     @Test
     public void should_validate_input_control_states() throws Exception {
         TestSubscriber<List<com.jaspersoft.android.sdk.client.oxm.control.InputControlState>> test = new TestSubscriber<>();
-        inMemoryControlsRepository.validateControls(REPORT_URI).subscribe(test);
+        inMemoryControlsRepository.validateReportControls(REPORT_URI).subscribe(test);
 
         verify(mReportParamsCache).get(REPORT_URI);
         verify(mReportParamsMapper).legacyParamsToRetrofitted(LEGACY_REPORT_PARAMETERS);

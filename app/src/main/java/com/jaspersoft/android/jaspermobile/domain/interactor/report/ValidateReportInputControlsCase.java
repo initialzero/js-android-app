@@ -18,11 +18,11 @@ import rx.Observable;
  * @since 2.3
  */
 @PerProfile
-public final class ValidateInputControlsCase extends AbstractUseCase<List<InputControlState>, String> {
+public final class ValidateReportInputControlsCase extends AbstractUseCase<List<InputControlState>, String> {
     private final ControlsRepository mControlsRepository;
 
     @Inject
-    public ValidateInputControlsCase(
+    public ValidateReportInputControlsCase(
             PreExecutionThread preExecutionThread,
             PostExecutionThread postExecutionThread,
             ControlsRepository controlsRepository) {
@@ -32,6 +32,6 @@ public final class ValidateInputControlsCase extends AbstractUseCase<List<InputC
 
     @Override
     protected Observable<List<InputControlState>> buildUseCaseObservable(String reportUri) {
-        return mControlsRepository.validateControls(reportUri);
+        return mControlsRepository.validateReportControls(reportUri);
     }
 }

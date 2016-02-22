@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.data;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.JasperServerCache;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.sdk.service.filter.FiltersService;
 import com.jaspersoft.android.sdk.service.report.ReportService;
 import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
@@ -40,6 +41,12 @@ public class StateJasperClient implements JasperRestClient {
     public ReportService syncReportService() {
         updateState();
         return mDelegate.syncReportService();
+    }
+
+    @Override
+    public FiltersService syncFilterService() {
+        updateState();
+        return mDelegate.syncFilterService();
     }
 
     @Override

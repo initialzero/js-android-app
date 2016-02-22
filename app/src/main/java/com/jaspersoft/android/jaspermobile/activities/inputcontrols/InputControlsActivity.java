@@ -55,7 +55,8 @@ import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.SaveOptionRequest;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetInputControlsValuesCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateInputControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateDashboardInputControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.ValidateReportInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.DeleteReportOptionCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionValuesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
@@ -122,7 +123,9 @@ public class InputControlsActivity extends ToolbarActivity
     @Inject
     protected GetInputControlsValuesCase mGetInputControlsValuesCase;
     @Inject
-    protected ValidateInputControlsCase mValidateInputControlsCase;
+    protected ValidateReportInputControlsCase mValidateReportInputControlsCase;
+    @Inject
+    protected ValidateDashboardInputControlsCase mValidateDashboardInputControlsCase;
     @Inject
     protected GetReportOptionsCase mGetReportOptionsCase;
     @Inject
@@ -195,8 +198,13 @@ public class InputControlsActivity extends ToolbarActivity
 
     @Override
     protected void onStop() {
-        mValidateInputControlsCase.unsubscribe();
+        mGetInputControlsValuesCase.unsubscribe();
+        mValidateReportInputControlsCase.unsubscribe();
+        mValidateDashboardInputControlsCase.unsubscribe();
         mGetReportOptionsCase.unsubscribe();
+        mSaveReportOptionsCase.unsubscribe();
+        mGetReportOptionValuesCase.unsubscribe();
+        mDeleteReportOptionCase.unsubscribe();
         super.onStop();
     }
 
@@ -215,7 +223,7 @@ public class InputControlsActivity extends ToolbarActivity
     @OptionsItem(R.id.saveReportOption)
     protected void saveReportOptionAction() {
         setProgressDialogState(true);
-        mValidateInputControlsCase.execute(reportUri, new ValidateReportOptionsValuesListener());
+        mValidateReportInputControlsCase.execute(reportUri, new ValidateReportOptionsValuesListener());
     }
 
     @OptionsItem(R.id.resetReportOption)
@@ -225,12 +233,14 @@ public class InputControlsActivity extends ToolbarActivity
 
     @Click(R.id.btnApplyParams)
     protected void applyParamsClick() {
+        GenericSubscriber<List<InputControlState>> useCaseSubscriber =
+                new GenericSubscriber<>(new ValidateInputControlsValuesListener());
+
+        setProgressDialogState(true);
         if (dashboardInputControl) {
-            // TODO add validation for dashboard filters
-            runReport();
+            mValidateDashboardInputControlsCase.execute(reportUri, useCaseSubscriber);
         } else {
-            setProgressDialogState(true);
-            mValidateInputControlsCase.execute(reportUri, new GenericSubscriber<>(new ValidateInputControlsValuesListener()));
+            mValidateReportInputControlsCase.execute(reportUri, useCaseSubscriber);
         }
     }
 

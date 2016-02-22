@@ -94,6 +94,14 @@ public class ReportParamsMapper {
         return parameters;
     }
 
+    public com.jaspersoft.android.sdk.network.entity.report.ReportParameter legacyControlToRetrofittedParam(InputControl control) {
+        InputControlState state = control.getState();
+        ReportParameter reportParameter = mapStateToReportParameter(state);
+        com.jaspersoft.android.sdk.network.entity.report.ReportParameter parameter =
+                legacyParamToRetrofitted(reportParameter);
+        return parameter;
+    }
+
     @Nullable
     private ReportParameter mapStateToReportParameter(InputControlState state) {
         if (state == null) {

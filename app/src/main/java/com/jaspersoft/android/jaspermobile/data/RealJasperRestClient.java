@@ -9,6 +9,7 @@ import com.jaspersoft.android.sdk.network.AuthorizedClient;
 import com.jaspersoft.android.sdk.network.Credentials;
 import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.network.SpringCredentials;
+import com.jaspersoft.android.sdk.service.filter.FiltersService;
 import com.jaspersoft.android.sdk.service.report.ReportService;
 import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
@@ -50,6 +51,12 @@ public class RealJasperRestClient implements JasperRestClient {
     public ReportService syncReportService() {
         AuthorizedClient client = createAuthorizedClient().toBlocking().first();
         return ReportService.newService(client);
+    }
+
+    @Override
+    public FiltersService syncFilterService() {
+        AuthorizedClient client = createAuthorizedClient().toBlocking().first();
+        return FiltersService.newService(client);
     }
 
     @Override

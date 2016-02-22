@@ -22,7 +22,10 @@ public interface ControlsRepository {
     Observable<List<InputControl>> listDashboardControls(@NonNull String reportUri);
 
     @NonNull
-    Observable<List<InputControlState>> validateControls(@NonNull String reportUri);
+    Observable<List<InputControlState>> validateReportControls(@NonNull String reportUri);
+
+    @NonNull
+    Observable<List<InputControlState>> validateDashboardControls(String dashboardUri);
 
     @NonNull
     Observable<List<InputControlState>> listControlValues(@NonNull String reportUri);
@@ -31,4 +34,5 @@ public interface ControlsRepository {
     Observable<List<DashboardControlComponent>> listDashboardControlComponents(@NonNull String dashboardUri);
 
     void flushControls(@NonNull String reportUri);
+
 }

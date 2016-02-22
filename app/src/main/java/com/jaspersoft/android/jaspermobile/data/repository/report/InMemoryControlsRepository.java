@@ -13,8 +13,11 @@ import com.jaspersoft.android.sdk.client.oxm.control.InputControlState;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.network.entity.control.InputControl;
 import com.jaspersoft.android.sdk.service.data.dashboard.DashboardControlComponent;
+import com.jaspersoft.android.sdk.service.exception.ServiceException;
+import com.jaspersoft.android.sdk.service.filter.FiltersService;
 import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -116,7 +119,7 @@ public final class InMemoryControlsRepository implements ControlsRepository {
 
     @NonNull
     @Override
-    public Observable<List<InputControlState>> validateControls(@NonNull final String reportUri) {
+    public Observable<List<InputControlState>> validateReportControls(@NonNull final String reportUri) {
         return Observable.defer(
                 new Func0<Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>>>() {
                     @Override
@@ -136,6 +139,46 @@ public final class InMemoryControlsRepository implements ControlsRepository {
                                         return service.validateControls(reportUri, params, true);
                                     }
                                 });
+                    }
+                }).map(new Func1<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>, List<InputControlState>>() {
+            @Override
+            public List<InputControlState> call(List<com.jaspersoft.android.sdk.network.entity.control.InputControlState> inputControlStates) {
+                return mControlsMapper.retrofittedStatesToLegacy(inputControlStates);
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public Observable<List<InputControlState>> validateDashboardControls(@NonNull final String dashboardUri) {
+        return Observable.defer(
+                new Func0<Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>>>() {
+                    @Override
+                    public Observable<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>> call() {
+                        List<com.jaspersoft.android.sdk.client.oxm.control.InputControl> controls =
+                                mControlsCache.get(dashboardUri);
+
+
+                        FiltersService filtersService = mRestClient.syncFilterService();
+
+                        List<com.jaspersoft.android.sdk.network.entity.control.InputControlState> states =
+                                new ArrayList<>();
+
+                        for (com.jaspersoft.android.sdk.client.oxm.control.InputControl control : controls) {
+                            try {
+                                String controlUri = control.getUri().replace("repo:", "");
+                                com.jaspersoft.android.sdk.network.entity.report.ReportParameter parameter =
+                                        mReportParamsMapper.legacyControlToRetrofittedParam(control);
+
+                                List<com.jaspersoft.android.sdk.network.entity.control.InputControlState> inputControlStates =
+                                        filtersService.validateControls(controlUri, Collections.singletonList(parameter), false);
+                                states.addAll(inputControlStates);
+                            } catch (ServiceException e) {
+                                return Observable.error(e);
+                            }
+                        }
+
+                        return Observable.just(states);
                     }
                 }).map(new Func1<List<com.jaspersoft.android.sdk.network.entity.control.InputControlState>, List<InputControlState>>() {
             @Override

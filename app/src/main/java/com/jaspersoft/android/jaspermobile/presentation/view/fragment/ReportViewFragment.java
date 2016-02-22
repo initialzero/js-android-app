@@ -44,6 +44,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
+import com.jaspersoft.android.jaspermobile.activities.schedule.NewScheduleActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -56,6 +57,8 @@ import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListener;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
@@ -92,6 +95,7 @@ import rx.functions.Action1;
         R.menu.webview_menu,
         R.menu.retrofit_report_menu,
         R.menu.print_menu,
+        R.menu.report_schedule
 })
 public class ReportViewFragment extends BaseFragment
         implements RestReportContract.View,
@@ -142,6 +146,8 @@ public class ReportViewFragment extends BaseFragment
     protected ResourcePrintJob mResourcePrintJob;
     @Inject
     protected Analytics mAnalytics;
+    @Inject
+    protected JasperResourceConverter mJasperResourceConverter;
 
     @InstanceState
     protected ReportPageState mReportPageState;
@@ -421,6 +427,15 @@ public class ReportViewFragment extends BaseFragment
         InputControlsActivity_.intent(this)
                 .reportUri(resource.getUri())
                 .startForResult(REQUEST_NEW_REPORT_PARAMETERS);
+    }
+
+    @OptionsItem(R.id.newSchedule)
+    final void scheduleAction() {
+        JasperResource reportResource = mJasperResourceConverter.convertToJasperResource(resource);
+
+        NewScheduleActivity_.intent(getActivity())
+                .jasperResource(reportResource)
+                .start();
     }
 
     @OptionsItem

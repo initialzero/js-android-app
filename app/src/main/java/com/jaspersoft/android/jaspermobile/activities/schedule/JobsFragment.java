@@ -36,6 +36,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
+import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
@@ -74,7 +75,7 @@ import rx.subscriptions.CompositeSubscription;
  * @since 2.3
  */
 @EFragment(R.layout.fragment_refreshable_resource)
-public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener, DeleteDialogFragment.DeleteDialogClickListener {
 
     protected JasperRecyclerView listView;
     protected SwipeRefreshLayout swipeRefreshLayout;
@@ -157,6 +158,55 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
         mCompositeSubscription.unsubscribe();
     }
 
+    @Override
+    public void onDeleteConfirmed(final JasperResource resource) {
+        try {
+            final int jobId = Integer.parseInt(resource.getId());
+            final Set<Integer> idToDel = new HashSet<>();
+            idToDel.add(jobId);
+
+            ProgressDialogFragment.builder(getFragmentManager())
+                    .setLoadingMessage(R.string.loading_msg)
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            mCompositeSubscription.unsubscribe();
+                            mCompositeSubscription = new CompositeSubscription();
+                        }
+                    })
+                    .show();
+
+            mCompositeSubscription.add(mRestClient.scheduleService()
+                    .flatMap(new Func1<RxReportScheduleService, Observable<Set<Integer>>>() {
+                        @Override
+                        public Observable<Set<Integer>> call(RxReportScheduleService scheduleService) {
+                            return scheduleService.deleteJobs(idToDel);
+                        }
+                    })
+                    .compose(RxTransformers.<Set<Integer>>applySchedulers())
+                    .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Set<Integer>>() {
+                        @Override
+                        public void onCompleted() {
+                            Toast.makeText(getActivity(), R.string.sch_deleted, Toast.LENGTH_SHORT).show();
+
+                            mJobs.remove(jobId);
+                            mAdapter.remove(resource);
+
+                            if (mJobs.isEmpty()) {
+                                showMessage(getString(R.string.sch_not_found));
+                            }
+                            analytics.sendEvent(
+                                    Analytics.EventCategory.RESOURCE.getValue(),
+                                    Analytics.EventAction.REMOVED.getValue(),
+                                    Analytics.EventLabel.JOB.getValue()
+                            );
+                        }
+                    })));
+        } catch (NumberFormatException ex) {
+            Toast.makeText(getActivity(), R.string.wrong_action, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void loadJobs() {
         Subscription subscription = mRestClient.scheduleService()
                 .flatMap(new Func1<RxReportScheduleService, Observable<List<JobUnit>>>() {
@@ -215,54 +265,18 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
             }
 
             @Override
-            public void onSecondaryActionClicked(final JasperResource jasperResource) {
+            public void onSecondaryActionClicked(JasperResource jasperResource) {
+                String deleteMessage = getActivity().getString(R.string.sdr_delete_message);
 
-                try {
-                    final int jobId = Integer.parseInt(jasperResource.getId());
-                    final Set<Integer> idToDel = new HashSet<>();
-                    idToDel.add(jobId);
-
-                    ProgressDialogFragment.builder(getFragmentManager())
-                            .setLoadingMessage(R.string.loading_msg)
-                            .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                @Override
-                                public void onCancel(DialogInterface dialog) {
-                                    mCompositeSubscription.unsubscribe();
-                                    mCompositeSubscription = new CompositeSubscription();
-                                }
-                            })
-                            .show();
-
-                    mCompositeSubscription.add(
-                            mRestClient.scheduleService().flatMap(new Func1<RxReportScheduleService, Observable<Set<Integer>>>() {
-                                @Override
-                                public Observable<Set<Integer>> call(RxReportScheduleService service) {
-                                    return service.deleteJobs(idToDel);
-                                }
-                            })
-                                    .compose(RxTransformers.<Set<Integer>>applySchedulers())
-                                    .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Set<Integer>>() {
-                                        @Override
-                                        public void onCompleted() {
-                                            Toast.makeText(getActivity(), R.string.sch_deleted, Toast.LENGTH_SHORT).show();
-
-                                            mJobs.remove(jobId);
-                                            mAdapter.remove(jasperResource);
-
-                                            if (mJobs.isEmpty()) {
-                                                showMessage(getString(R.string.sch_not_found));
-                                            }
-                                            analytics.sendEvent(
-                                                    Analytics.EventCategory.RESOURCE.getValue(),
-                                                    Analytics.EventAction.REMOVED.getValue(),
-                                                    Analytics.EventLabel.JOB.getValue()
-                                            );
-                                        }
-                                    })));
-                } catch (NumberFormatException ex) {
-                    Toast.makeText(getActivity(), R.string.wrong_action, Toast.LENGTH_SHORT).show();
-                }
-
+                DeleteDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                        .setResource(jasperResource)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(R.string.sdr_delete_title)
+                        .setMessage(deleteMessage)
+                        .setPositiveButtonText(R.string.spm_delete_btn)
+                        .setNegativeButtonText(R.string.cancel)
+                        .setTargetFragment(JobsFragment.this)
+                        .show();
             }
         });
 
@@ -281,13 +295,6 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
         if (!refreshing) {
             swipeRefreshLayout.setRefreshing(false);
         }
-    }
-
-    private String createJobInfo(JobUnit jobUnit) {
-        String prevDate = jobUnit.getPreviousFireTime() != null ? "" + jobUnit.getPreviousFireTime() : "-";
-        String nextDate = jobUnit.getNextFireTime() != null ? "" + jobUnit.getNextFireTime() : "-";
-        return getString(R.string.sch_info, jobUnit.getDescription(), jobUnit.getReportUri(), prevDate,
-                nextDate, jobUnit.getOwner().getUsername(), jobUnit.getOwner().getOrganization());
     }
 
     private void hideLoading() {

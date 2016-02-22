@@ -11,6 +11,7 @@ import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.RenameDialogFragment;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.widget.InfoView;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
@@ -76,8 +77,7 @@ public class SavedItemInfoFragment extends SimpleInfoFragment
         String deleteMessage = getActivity().getString(R.string.sdr_drd_msg, jasperResource.getLabel());
 
         DeleteDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                .setFile(new File(mFileUri))
-                .setRecordsUri(jasperResource.getId())
+                .setResource(jasperResource)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(deleteMessage)
@@ -111,14 +111,9 @@ public class SavedItemInfoFragment extends SimpleInfoFragment
     //---------------------------------------------------------------------
 
     @Override
-    public void onDeleteConfirmed(String itemsToDelete, File filesToDelete) {
-        long id = Long.valueOf(Uri.parse(itemsToDelete).getLastPathSegment());
-        savedItemHelper.deleteSavedItem(filesToDelete, id);
+    public void onDeleteConfirmed(JasperResource resource) {
+        savedItemHelper.deleteSavedItem(Uri.parse(resource.getId()));
         getActivity().finish();
-    }
-
-    @Override
-    public void onDeleteCanceled() {
     }
 
     //---------------------------------------------------------------------

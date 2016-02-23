@@ -51,10 +51,11 @@ public class VisualizeEndpoint {
      * @return absolute url on visualize.js resources
      */
     public String createUri() {
-        Uri.Builder visualizeUriBuilder = Uri.parse(mBaseUrl + "/client/visualize.js")
+        String serverUrl = BaseUrlNormalizer.denormalize(mBaseUrl);
+        Uri.Builder visualizeUriBuilder = Uri.parse(mBaseUrl + "client/visualize.js")
                 .buildUpon()
                 .appendQueryParameter("_opt", String.valueOf(mOptimized))
-                .appendQueryParameter("baseUrl", mBaseUrl);
+                .appendQueryParameter("baseUrl", serverUrl);
         if (mShowControls) {
             visualizeUriBuilder.appendQueryParameter("_showInputControls", String.valueOf(true));
         }

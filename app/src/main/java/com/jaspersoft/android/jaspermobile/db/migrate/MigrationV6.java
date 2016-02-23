@@ -24,11 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.db.migrate;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.text.TextUtils;
 
 /**
  * @author Andrew Tivodar

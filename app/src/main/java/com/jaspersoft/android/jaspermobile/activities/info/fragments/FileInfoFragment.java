@@ -24,43 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.activities.info.fragments;
 
-import android.accounts.Account;
-import android.content.Context;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.ReportOptionsFragmentDialog;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.client.async.request.GetFileResourceRequest;
-import com.jaspersoft.android.sdk.client.async.request.cacheable.GetInputControlsRequest;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControlsList;
-import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOption;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
-import com.jaspersoft.android.sdk.util.FileUtils;
-import com.octo.android.robospice.persistence.exception.SpiceException;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.OptionsMenuItem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Andrew Tivodar
@@ -68,27 +35,10 @@ import java.util.List;
  */
 @EFragment(R.layout.fragment_resource_info)
 public class FileInfoFragment extends ResourceInfoFragment {
-
     @Override
     protected void onDataObtain() {
         super.onDataObtain();
-
-        loadFileType();
+        FileLookup fileLookup = (FileLookup) mResourceLookup;
+        infoView.addInfoItem(getString(R.string.ri_file_format), fileLookup.getFileType().name(), 1);
     }
-
-    private void loadFileType() {
-        GetFileResourceRequest mFileResourceRequest = new GetFileResourceRequest(jsRestClient, jasperResource.getId());
-        getSpiceManager().execute(mFileResourceRequest, new SimpleRequestListener<FileLookup>() {
-            @Override
-            protected Context getContext() {
-                return getActivity();
-            }
-
-            @Override
-            public void onRequestSuccess(FileLookup fileLookup) {
-                infoView.addInfoItem(getString(R.string.ri_file_format), fileLookup.getFileType().name(), 1);
-            }
-        });
-    }
-
 }

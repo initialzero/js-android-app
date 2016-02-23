@@ -33,6 +33,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.jaspersoft.android.jaspermobile.R;
 
 /**
@@ -78,7 +79,11 @@ public class ResourceCastDialog extends MediaRouteControllerDialog implements Re
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        getResourcePresentationService().removeResourcePresentationCallback(this);
+
+        ResourcePresentationService resourcePresentationService = getResourcePresentationService();
+        if (resourcePresentationService != null) {
+            getResourcePresentationService().removeResourcePresentationCallback(this);
+        }
     }
 
     @Override
@@ -132,11 +137,19 @@ public class ResourceCastDialog extends MediaRouteControllerDialog implements Re
     }
 
     @Override
+    public void onAuthErrorOccurred() {
+        onErrorOccurred(getContext().getString(R.string.da_session_expired));
+    }
+
+    @Override
     public void onCastStopped() {
         dismiss();
     }
 
     private ResourcePresentationService getResourcePresentationService() {
+        CastRemoteDisplayLocalService localService = ResourcePresentationService.getInstance();
+        if (localService == null) return null;
+
         return (ResourcePresentationService) ResourcePresentationService.getInstance();
     }
 }

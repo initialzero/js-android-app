@@ -28,7 +28,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
 import android.support.v4.print.PrintHelper;
-import android.text.TextUtils;
 import android.webkit.WebView;
 
 import rx.Observable;
@@ -41,26 +40,20 @@ import rx.schedulers.Schedulers;
  * @author Tom Koptel
  * @since 2.1
  */
-final class DashboardPicturePrintJob implements ResourcePrintJob {
+public final class DashboardPicturePrintJob implements ResourcePrintJob {
 
-    private final String printName;
     private final WebView webView;
 
-    DashboardPicturePrintJob(WebView webView, String printName) {
+    public DashboardPicturePrintJob(WebView webView) {
         if (webView == null) {
             throw new IllegalArgumentException("WebView should not be null");
         }
-        if (TextUtils.isEmpty(printName)) {
-            throw new IllegalArgumentException("Print name should not be null");
-        }
-
         this.webView = webView;
-        this.printName = printName;
     }
 
     @NonNull
     @Override
-    public ResourcePrintJob printResource() {
+    public ResourcePrintJob printResource(@NonNull String resourceUri, @NonNull final String printName) {
         getScreenShot()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

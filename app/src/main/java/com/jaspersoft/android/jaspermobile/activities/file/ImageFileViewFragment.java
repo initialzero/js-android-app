@@ -13,8 +13,6 @@ import org.androidannotations.annotations.EFragment;
 
 import java.io.File;
 
-import roboguice.inject.InjectView;
-
 /**
  * @author Andrew Tivodar
  * @since 2.3
@@ -22,14 +20,15 @@ import roboguice.inject.InjectView;
 @EFragment(R.layout.fragment_image_open)
 public class ImageFileViewFragment extends FileLoadFragment {
 
-    @InjectView(R.id.resourceImage)
     protected ImageView resourceImage;
-    @InjectView(R.id.error_text)
     protected TextView errorText;
 
     @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        resourceImage = (ImageView) view.findViewById(R.id.resourceImage);
+        errorText = (TextView) view.findViewById(R.id.error_text);
 
         loadFile();
     }

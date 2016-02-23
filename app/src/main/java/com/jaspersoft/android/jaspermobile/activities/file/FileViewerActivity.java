@@ -1,49 +1,54 @@
 package com.jaspersoft.android.jaspermobile.activities.file;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.network.SimpleRequestListener;
-import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.async.request.GetFileResourceRequest;
+import com.jaspersoft.android.jaspermobile.domain.ResourceDetailsRequest;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsByTypeCase;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
-import com.octo.android.robospice.persistence.exception.SpiceException;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+
+import javax.inject.Inject;
 
 /**
  * @author Andrew Tivodar
  * @since 2.3
  */
 @EActivity(R.layout.activity_file_viewer)
-public class FileViewerActivity extends RoboSpiceActivity {
+public class FileViewerActivity extends ToolbarActivity {
 
     @Extra
     protected ResourceLookup resourceLookup;
 
     @Inject
-    protected JsRestClient jsRestClient;
+    protected GetResourceDetailsByTypeCase mGetResourceDetailsByTypeCase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getBaseActivityComponent().inject(this);
 
         showFileTitle();
         if (savedInstanceState == null) {
             getFileInfo();
-            showProgressDialog();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        mGetResourceDetailsByTypeCase.unsubscribe();
+        super.onDestroy();
     }
 
     @Override
@@ -65,6 +70,10 @@ public class FileViewerActivity extends RoboSpiceActivity {
                 .show();
     }
 
+    private void hideProgressDialog() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
     private void showFileTitle() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -73,26 +82,31 @@ public class FileViewerActivity extends RoboSpiceActivity {
     }
 
     private void getFileInfo() {
-        GetFileResourceRequest fileResourceRequest = new GetFileResourceRequest(jsRestClient, resourceLookup.getUri());
-        long cacheExpiryDuration = DefaultPrefHelper_.getInstance_(this).getRepoCacheExpirationValue();
-        getSpiceManager().execute(fileResourceRequest, fileResourceRequest.createCacheKey(), cacheExpiryDuration, new FileInfoListener());
+        ResourceDetailsRequest request = new ResourceDetailsRequest(resourceLookup.getUri(), "file");
+        mGetResourceDetailsByTypeCase.execute(request, new FileInfoListener());
     }
 
-    private class FileInfoListener extends SimpleRequestListener<FileLookup> {
+    private class FileInfoListener extends SimpleSubscriber<ResourceLookup> {
         @Override
-        protected Context getContext() {
-            return FileViewerActivity.this;
+        public void onStart() {
+            showProgressDialog();
         }
 
         @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            super.onRequestFailure(spiceException);
+        public void onCompleted() {
+            hideProgressDialog();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            RequestExceptionHandler.showCommonErrorMessage(FileViewerActivity.this, e);
+            hideProgressDialog();
             finish();
         }
 
         @Override
-        public void onRequestSuccess(FileLookup fileLookup) {
-            ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        public void onNext(ResourceLookup lookup) {
+            FileLookup fileLookup = (FileLookup) lookup;
             Fragment fileFragment;
             switch (fileLookup.getFileType()) {
                 case html:
@@ -132,7 +146,11 @@ public class FileViewerActivity extends RoboSpiceActivity {
                     .add(R.id.main_frame, fileFragment)
                     .commit();
 
-            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.VIEWED.getValue(), fileLookup.getFileType().name());
+            analytics.sendEvent(
+                    Analytics.EventCategory.RESOURCE.getValue(),
+                    Analytics.EventAction.VIEWED.getValue(),
+                    fileLookup.getFileType().name()
+            );
         }
     }
 }

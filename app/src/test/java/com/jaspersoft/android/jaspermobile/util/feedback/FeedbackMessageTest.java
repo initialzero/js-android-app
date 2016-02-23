@@ -29,7 +29,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,47 +54,43 @@ import static org.robolectric.Shadows.shadowOf;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(sdk = 21, constants = BuildConfig.class)
+@Config(manifest = Config.NONE, sdk = 21, constants = BuildConfig.class)
 public class FeedbackMessageTest {
     @Mock
-    ServerInfoProvider serverInfoProvider;
+    JasperServer mServer;
     Message feedbackMessage;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        feedbackMessage = new Message(RuntimeEnvironment.application, serverInfoProvider);
+        feedbackMessage = new Message(RuntimeEnvironment.application, mServer);
     }
 
     @Test
     public void shouldCreateValidFeedbackMessage() {
         mockPackageManager();
 
-        when(serverInfoProvider.getServerVersion()).thenReturn("6.1");
-        when(serverInfoProvider.getServerEdition()).thenReturn("CE");
+        givenServerVersion("6.1");
+        givenServerEditionCE();
 
         String message = feedbackMessage.create();
 
         assertThat(message, is(notNullValue()));
     }
 
-    @Test
-    public void shouldOmitServerDataIfMissing() {
-        mockPackageManager();
+    private void givenServerEditionCE() {
+        when(mServer.isProEdition()).thenReturn(false);
+    }
 
-        when(serverInfoProvider.getServerVersion()).thenReturn(null);
-        when(serverInfoProvider.getServerEdition()).thenReturn(null);
-
-        String message = feedbackMessage.create();
-
-        assertThat(message, is(notNullValue()));
+    private void givenServerVersion(String version) {
+        when(mServer.getVersion()).thenReturn(version);
     }
 
     @Test
     public void shouldGenerateAppVersionInfo() {
         mockPackageManager();
         String message = feedbackMessage.generateAppVersionInfo();
-        assertThat(message, containsString("Version code: 20100000"));
+        assertThat(message, containsString("App version"));
     }
 
     @Test
@@ -109,30 +105,16 @@ public class FeedbackMessageTest {
 
     @Test
     public void shouldGenerateJrsVersionInfo() {
-        when(serverInfoProvider.getServerVersion()).thenReturn("6.1");
+        givenServerVersion("6.1");
         String message = feedbackMessage.generateServerVersion();
         assertThat(message, containsString("JRS version: 6.1"));
     }
 
     @Test
-    public void shouldGenerateNullForJrsVersion() {
-        when(serverInfoProvider.getServerVersion()).thenReturn(null);
-        String message = feedbackMessage.generateServerVersion();
-        assertThat(message, is(nullValue()));
-    }
-
-    @Test
     public void shouldGenerateJrsEditionInfo() {
-        when(serverInfoProvider.getServerEdition()).thenReturn("CE");
+        givenServerEditionCE();
         String message = feedbackMessage.generateServerEdition();
         assertThat(message, containsString("JRS edition: CE"));
-    }
-
-    @Test
-    public void shouldGenerateNullForEdition() {
-        when(serverInfoProvider.getServerEdition()).thenReturn(null);
-        String message = feedbackMessage.generateServerEdition();
-        assertThat(message, is(nullValue()));
     }
 
     //---------------------------------------------------------------------

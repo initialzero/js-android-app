@@ -29,7 +29,7 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.flow;
  * @since 2.0
  */
 final class EmeraldWebFlow implements WebFlow {
-    private static final String FLOW_URI = "/flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource=";
+    private static final String FLOW_URI = "flow.html?_flowId=dashboardRuntimeFlow&sessionDecorator=no&viewAsDashboardFrame=true&dashboardResource=";
 
     @Override
     public String getFlowUri() {

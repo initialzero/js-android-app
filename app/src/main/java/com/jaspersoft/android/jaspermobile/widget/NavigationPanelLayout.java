@@ -24,10 +24,10 @@
 
 package com.jaspersoft.android.jaspermobile.widget;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -40,11 +40,9 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -52,9 +50,9 @@ import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import roboguice.RoboGuice;
 import timber.log.Timber;
 
 /**
@@ -70,9 +68,6 @@ public class NavigationPanelLayout extends RelativeLayout {
     private View selectedItemView;
     boolean isShowingMenu;
 
-    @Inject
-    protected Analytics analytics;
-
     @ViewById(R.id.vg_navigation_menu)
     ViewGroup navigationMenu;
 
@@ -86,6 +81,8 @@ public class NavigationPanelLayout extends RelativeLayout {
     ImageView ivProfileArrow;
 
     private View footerDivider;
+    private Analytics analytics;
+    private ProfilesAdapter mProfilesAdapter;
 
     //---------------------------------------------------------------------
     // Public methods
@@ -103,18 +100,16 @@ public class NavigationPanelLayout extends RelativeLayout {
         super(context, attrs, defStyleAttr);
     }
 
+    public void setAnalytics(Analytics analytics) {
+        this.analytics = analytics;
+    }
+
     public void setListener(NavigationListener listener) {
         this.mListener = listener;
     }
 
     public void setItemSelected(int viewId) {
         selectItem(findViewById(viewId));
-    }
-
-    public void notifyAccountChange() {
-        initAccountsView();
-        isShowingMenu = true;
-        showActivatedPanel(isShowingMenu);
     }
 
     public void notifyPanelClosed() {
@@ -126,8 +121,6 @@ public class NavigationPanelLayout extends RelativeLayout {
 
     @AfterViews
     final void initNavigationLayout() {
-        RoboGuice.getInjector(getContext()).injectMembersWithoutViews(this);
-
         Timber.tag(TAG);
         isShowingMenu = true;
         View accountsFooter = LayoutInflater.from(getContext()).inflate(R.layout.view_accounts_footer, null, false);
@@ -139,10 +132,8 @@ public class NavigationPanelLayout extends RelativeLayout {
     }
 
     private void initAccountsView() {
-        AccountsAdapter accountsAdapter = new AccountsAdapter(getContext());
-        accountsMenu.setAdapter(accountsAdapter);
-        Account currentAccount = JasperAccountManager.get(getContext()).getActiveAccount();
-        tvProfile.setText(currentAccount != null ? currentAccount.name : getContext().getString(R.string.nd_select_account));
+        mProfilesAdapter = new ProfilesAdapter();
+        accountsMenu.setAdapter(mProfilesAdapter);
     }
 
     /**
@@ -234,13 +225,9 @@ public class NavigationPanelLayout extends RelativeLayout {
     }
 
     @ItemClick(R.id.lv_accounts_menu)
-    public void onAccountSelect(AccountServerData accountsData) {
-        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.CLICKED.getValue(), Analytics.EventLabel.SWITCH_ACCOUNT.getValue());
-
-        Account[] accounts = JasperAccountManager.get(getContext()).getAccounts();
-        for (Account account : accounts) {
-            if (accountsData.getAlias().equals(account.name))
-                if (mListener != null) mListener.onProfileChange(account);
+    public void onAccountSelect(ProfileViewModel profile) {
+        if (mListener != null) {
+            mListener.onActiveProfileChange(profile);
         }
     }
 
@@ -270,6 +257,34 @@ public class NavigationPanelLayout extends RelativeLayout {
         if (savedState.selectedViewId != -1) {
             this.selectedItemView = findViewById(savedState.selectedViewId);
             setItemSelected(selectedItemView, true);
+        }
+    }
+
+    public void loadProfiles(@NonNull List<ProfileViewModel> profiles) {
+        boolean hasProfiles = !profiles.isEmpty();
+        footerDivider.setVisibility(hasProfiles ? VISIBLE : GONE);
+
+        ProfileViewModel activeProfile = selectActiveProfile(profiles);
+        setActiveProfile(activeProfile);
+
+        profiles.remove(activeProfile);
+        mProfilesAdapter.setProfiles(profiles);
+    }
+
+    private ProfileViewModel selectActiveProfile(List<ProfileViewModel> profiles) {
+        for (ProfileViewModel profile : profiles) {
+            if (profile.isActive()) {
+                return profile;
+            }
+        }
+        return ProfileViewModel.getEmpty();
+    }
+
+    private void setActiveProfile(@NonNull ProfileViewModel profile) {
+        if (ProfileViewModel.getEmpty().equals(profile)) {
+            tvProfile.setText(getContext().getString(R.string.nd_select_account));
+        } else {
+            tvProfile.setText(profile.getLabel());
         }
     }
 
@@ -322,37 +337,34 @@ public class NavigationPanelLayout extends RelativeLayout {
     }
 
     private void trackNavigateEvent(String location) {
-        analytics.sendEvent(Analytics.EventCategory.MENU.getValue(), Analytics.EventAction.CLICKED.getValue(), location);
+        analytics.sendEvent(
+                Analytics.EventCategory.MENU.getValue(),
+                Analytics.EventAction.CLICKED.getValue(),
+                location
+        );
     }
 
     //---------------------------------------------------------------------
     // Nested classes
     //---------------------------------------------------------------------
 
-    private class AccountsAdapter extends BaseAdapter {
+    private static class ProfilesAdapter extends BaseAdapter {
+        private final List<ProfileViewModel> mProfiles = new ArrayList<>();
 
-        private List<AccountServerData> mJasperAccounts;
-        LayoutInflater mInflater;
-
-        private AccountsAdapter(Context context) {
-            mJasperAccounts = JasperAccountManager.get(context).getInactiveAccountsData();
-            mInflater = LayoutInflater.from(context);
-
-            if (mJasperAccounts.isEmpty()) {
-                footerDivider.setVisibility(GONE);
-            } else {
-                footerDivider.setVisibility(VISIBLE);
-            }
+        public void setProfiles(List<ProfileViewModel> profiles) {
+            mProfiles.clear();
+            mProfiles.addAll(profiles);
+            notifyDataSetChanged();
         }
 
         @Override
         public int getCount() {
-            return mJasperAccounts.size();
+            return mProfiles.size();
         }
 
         @Override
-        public AccountServerData getItem(int position) {
-            return mJasperAccounts.get(position);
+        public ProfileViewModel getItem(int position) {
+            return mProfiles.get(position);
         }
 
         @Override
@@ -365,7 +377,8 @@ public class NavigationPanelLayout extends RelativeLayout {
             AccountsViewHolder mViewHolder;
 
             if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.item_account, null);
+                LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+                convertView = inflater.inflate(R.layout.item_account, null);
                 mViewHolder = new AccountsViewHolder();
                 mViewHolder.tvAccountName = (TextView) convertView.findViewById(R.id.tv_account_name);
                 mViewHolder.tvAccountVersion = (TextView) convertView.findViewById(R.id.tv_account_version);
@@ -374,11 +387,11 @@ public class NavigationPanelLayout extends RelativeLayout {
                 mViewHolder = (AccountsViewHolder) convertView.getTag();
             }
 
-            mViewHolder.tvAccountName.setText(getItem(position).getAlias());
+            ProfileViewModel item = getItem(position);
+            mViewHolder.tvAccountName.setText(item.getLabel());
 
-            AccountServerData serverData = getItem(position);
             //We need to show only 2 digits of version
-            String serverVersion = serverData.getVersionName().substring(0, 3);
+            String serverVersion = new String(item.getVersion().substring(0, 3));
             // This possible due to migration issues from version 1.8 to 2.0
             // Some instances will have missing version names
             boolean versionNotDefined = Double.parseDouble(serverVersion) == 0d;
@@ -432,7 +445,7 @@ public class NavigationPanelLayout extends RelativeLayout {
          */
         void onNavigate(int viewId);
 
-        void onProfileChange(Account account);
+        void onActiveProfileChange(ProfileViewModel profile);
     }
 
 }

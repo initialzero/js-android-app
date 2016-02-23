@@ -28,8 +28,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.db.migrate.MigrationV3;
-import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.TestResource;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
@@ -52,10 +50,7 @@ import static org.junit.Assert.assertThat;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(
-        constants = BuildConfig.class,
-        sdk = 21
-)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class FavoriteTableColumnsMigrationV3Test {
 
     private ResourceDatabase resourceDatabase;

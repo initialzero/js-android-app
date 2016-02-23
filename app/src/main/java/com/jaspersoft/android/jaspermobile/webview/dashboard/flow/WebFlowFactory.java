@@ -24,67 +24,45 @@
 
 package com.jaspersoft.android.jaspermobile.webview.dashboard.flow;
 
-import android.accounts.Account;
-import android.content.Context;
-
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 public final class WebFlowFactory {
-    private final Context mContext;
+    private final JasperServer mServer;
 
-    private WebFlowFactory(Context context) {
-        mContext = context;
-    }
-
-    public static WebFlowFactory getInstance(Context context) {
-        return new WebFlowFactory(context);
+    public WebFlowFactory(JasperServer server) {
+        mServer = server;
     }
 
     public WebFlowStrategy createFlow(ResourceLookup resource) {
-        Account account = JasperAccountManager.get(mContext).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(mContext, account);
-        return createFlow(accountServerData.getVersionName(), resource);
+        ServerVersion serverVersion = ServerVersion.valueOf(mServer.getVersion());
+        return createFlow(serverVersion, resource);
     }
 
     /**
      * Creates most appropriate strategy
      *
-     * @param versionName represents double string to identify current JRS version
+     * @param version represents double string to identify current JRS version
      * @return specific web flow strategy which varies between JRS releases
      */
-    public WebFlowStrategy createFlow(String versionName, ResourceLookup resource) {
+    public WebFlowStrategy createFlow(ServerVersion version, ResourceLookup resource) {
         WebFlow webFlow;
-        ServerRelease serverRelease = ServerRelease.parseVersion(versionName);
 
         if (resource.getResourceType() == ResourceLookup.ResourceType.legacyDashboard) {
             webFlow = new EmeraldWebFlow();
         } else {
-            switch (serverRelease) {
-                case EMERALD:
-                case EMERALD_MR1:
-                case EMERALD_MR2:
-                case EMERALD_MR3:
-                case EMERALD_MR4:
-                    webFlow = new EmeraldWebFlow();
-                    break;
-                case AMBER:
-                case AMBER_MR1:
-                case AMBER_MR2:
-                case AMBER_MR3:
-                    webFlow = new AmberWebFlow();
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Could not identify web flow strategy for current versionName: " + versionName);
+            if (version.lessThanOrEquals(ServerVersion.v5_6_1)) {
+                webFlow = new EmeraldWebFlow();
+            } else {
+                webFlow = new AmberWebFlow();
             }
         }
 
-        return new WebFlowStrategyImpl(mContext, webFlow, resource);
+        return new WebFlowStrategyImpl(mServer, webFlow, resource);
     }
 }

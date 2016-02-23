@@ -50,6 +50,8 @@ public class JasperChromeClientListenerImpl implements JasperChromeClientListene
         progressBar.setProgress((maxProgress / 100) * progress);
         if (progress == maxProgress) {
             progressBar.setVisibility(View.GONE);
+        } else {
+            progressBar.setVisibility(View.GONE);
         }
     }
 

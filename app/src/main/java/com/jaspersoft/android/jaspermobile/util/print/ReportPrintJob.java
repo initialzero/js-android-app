@@ -24,51 +24,139 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
-import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Bundle;
+import android.os.CancellationSignal;
+import android.os.ParcelFileDescriptor;
+import android.print.PageRange;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
+import android.print.PrintDocumentInfo;
 import android.print.PrintManager;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
+
+import com.jaspersoft.android.jaspermobile.domain.PageRequest;
+import com.jaspersoft.android.jaspermobile.domain.PrintRequest;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetPrintReportPageCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportTotalPagesPropertyCase;
+import com.jaspersoft.android.jaspermobile.internal.di.ActivityContext;
+import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
+
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
  * @since 2.1
  */
-final class ReportPrintJob implements ResourcePrintJob {
+@PerActivity
+public final class ReportPrintJob implements ResourcePrintJob {
 
     private final Context mContext;
-    private final PrintUnit printUnit;
-    private final String printName;
+    private final GetReportTotalPagesPropertyCase mGetReportTotalPagesPropertyCase;
+    private final GetPrintReportPageCase mGetPrintReportPageCase;
 
-    ReportPrintJob(Context mContext, PrintUnit printUnit, String printName) {
-        if (mContext == null) {
-            throw new IllegalArgumentException("Context should not be null");
-        }
-        if (printUnit == null) {
-            throw new IllegalArgumentException("Print unit should not be null");
-        }
-        if (TextUtils.isEmpty(printName)) {
-            throw new IllegalArgumentException("Print name should not be null");
-        }
-
-        this.mContext = mContext;
-        this.printUnit = printUnit;
-        this.printName = printName;
+    @Inject
+    public ReportPrintJob(
+            @ActivityContext Context context,
+            GetReportTotalPagesPropertyCase getReportTotalPagesPropertyCase,
+            GetPrintReportPageCase getPrintReportPageCase
+    ) {
+        mContext = context;
+        mGetReportTotalPagesPropertyCase = getReportTotalPagesPropertyCase;
+        mGetPrintReportPageCase = getPrintReportPageCase;
     }
 
     @NonNull
-    @TargetApi(19)
     @Override
-    public ResourcePrintJob printResource() {
+    public ResourcePrintJob printResource(@NonNull String resourceUri, @NonNull String printName) {
         PrintManager printManager = (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
 
         PrintAttributes printAttributes = new PrintAttributes.Builder().build();
-        PrintDocumentAdapter printAdapter = new PrintReportAdapter(printUnit, printName);
+        PrintDocumentAdapter printAdapter = new Adapter(printName, resourceUri);
 
         printManager.print(printName, printAdapter, printAttributes);
         return this;
     }
 
+    private void cancelTasks() {
+        mGetReportTotalPagesPropertyCase.unsubscribe();
+        mGetPrintReportPageCase.unsubscribe();
+    }
+
+    private class Adapter extends PrintDocumentAdapter {
+        private final String mPrintName;
+        private final String mResourceUri;
+        public PageRangeFormat mPageRangeFormat;
+
+        public Adapter(String printName, String resourceUri) {
+            mPrintName = printName;
+            mResourceUri = resourceUri;
+        }
+
+        @Override
+        public void onLayout(
+                PrintAttributes oldAttributes,
+                PrintAttributes newAttributes,
+                CancellationSignal cancellationSignal,
+                final LayoutResultCallback callback,
+                Bundle extras
+        ) {
+            if (cancellationSignal.isCanceled()) {
+                cancelTasks();
+                callback.onLayoutCancelled();
+                return;
+            }
+            mGetReportTotalPagesPropertyCase.execute(mResourceUri, new SimpleSubscriber<Integer>() {
+                @Override
+                public void onError(Throwable throwable) {
+                    callback.onLayoutFailed(throwable.getMessage());
+                }
+
+                @Override
+                public void onNext(Integer pageCount) {
+                    mPageRangeFormat = new PageRangeFormat(pageCount);
+                    PrintDocumentInfo pdi = new PrintDocumentInfo.Builder(mPrintName)
+                            .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
+                            .setPageCount(pageCount)
+                            .build();
+                    callback.onLayoutFinished(pdi, true);
+                }
+            });
+        }
+
+
+        @Override
+        public void onWrite(
+                final PageRange[] pages,
+                final ParcelFileDescriptor destination,
+                CancellationSignal cancellationSignal,
+                final WriteResultCallback callback
+        ) {
+            if (cancellationSignal.isCanceled()) {
+                cancelTasks();
+                callback.onWriteCancelled();
+                return;
+            }
+
+            String range = mPageRangeFormat.format(pages[0]);
+            PageRequest page = new PageRequest.Builder()
+                    .setRange(range)
+                    .setUri(mResourceUri)
+                    .asPdf()
+                    .build();
+            PrintRequest request = new PrintRequest(page, destination);
+            mGetPrintReportPageCase.execute(request, new SimpleSubscriber<ParcelFileDescriptor>() {
+                @Override
+                public void onError(Throwable e) {
+                    callback.onWriteFailed(e.getMessage());
+                }
+
+                @Override
+                public void onNext(ParcelFileDescriptor page) {
+                    callback.onWriteFinished(pages);
+                }
+            });
+        }
+    }
 }

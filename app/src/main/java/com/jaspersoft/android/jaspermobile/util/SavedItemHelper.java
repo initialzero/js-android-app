@@ -33,8 +33,6 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.SavedItemResource;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
@@ -78,6 +76,11 @@ public class SavedItemHelper {
                 deleteReferenceInDb(reportUri);
             }
         }
+    }
+
+    public void deleteSavedItem(Uri reportUri) {
+        File reportFile = getFile(reportUri);
+        deleteSavedItem(reportFile, reportUri);
     }
 
     public void deleteUnsavedItems() {
@@ -126,5 +129,15 @@ public class SavedItemHelper {
 
     private void deleteReferenceInDb(Uri reportUri) {
         context.getContentResolver().delete(reportUri, null, null);
+    }
+
+    private File getFile(Uri recordUri) {
+        Cursor cursor = context.getContentResolver().query(recordUri, null, null, null, null);
+        if (cursor == null) return null;
+
+        cursor.moveToFirst();
+        File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
+        cursor.close();
+        return file;
     }
 }

@@ -131,7 +131,6 @@
     <string name="st_title_cache_enable">Activar caché</string>
     <string name="st_title_connect_timeout">Tiempo de espera de la conexión</string>
     <string name="st_title_read_timeout">Tiempo de espera de lectura de datos</string>
-    <string name="st_title_animations">Animaciones</string>
     <string name="st_send_crashes">Enviar informes de errores</string>
     <string name="st_summary_sec">%s s</string>
     <string name="st_summary_h">%s h</string>

@@ -25,14 +25,13 @@
 package com.jaspersoft.android.jaspermobile.activities.favorites.fragment;
 
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,25 +41,23 @@ import android.widget.TextView;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.FavoritesResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
-import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.FilterTitleView;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -72,16 +69,12 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.UiThread;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import roboguice.fragment.RoboFragment;
-import roboguice.inject.InjectView;
 
 import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType;
 
@@ -91,7 +84,7 @@ import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.Reso
  */
 @EFragment(R.layout.fragment_resource)
 @OptionsMenu(R.menu.sort_menu)
-public class FavoritesFragment extends RoboFragment
+public class FavoritesFragment extends BaseFragment
         implements LoaderManager.LoaderCallbacks<Cursor>,
         SortDialogFragment.SortDialogClickListener {
 
@@ -106,15 +99,18 @@ public class FavoritesFragment extends RoboFragment
     @FragmentArg
     protected ViewType viewType;
 
-    @InjectView(android.R.id.list)
     JasperRecyclerView listView;
-    @InjectView(android.R.id.empty)
     TextView emptyText;
+
     @OptionsMenuItem(R.id.sort)
     MenuItem sortAction;
 
     @Inject
     protected Analytics analytics;
+    @Inject
+    protected JasperResourceConverter jasperResourceConverter;
+    @Inject
+    protected Profile mProfile;
 
     @Bean
     ResourceOpener resourceOpener;
@@ -124,7 +120,6 @@ public class FavoritesFragment extends RoboFragment
     String searchQuery;
 
     private JasperResourceAdapter mAdapter;
-    private JasperResourceConverter jasperResourceConverter;
 
 
     @OptionsItem(R.id.sort)
@@ -138,12 +133,12 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getBaseActivityComponent().inject(this);
 
         setHasOptionsMenu(true);
         if (savedInstanceState == null) {
             sortOptions.putOrder(SortOrder.LABEL);
         }
-        jasperResourceConverter = new JasperResourceConverter(getActivity());
         analytics.setScreenName(Analytics.ScreenName.FAVORITES.getValue());
     }
 
@@ -155,14 +150,17 @@ public class FavoritesFragment extends RoboFragment
             FilterTitleView filterTitleView = new FilterTitleView(getActivity());
             filterTitleView.init(favoritesResourceFilter);
             filterTitleView.setFilterSelectedListener(new FilterChangeListener());
-            ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
-            ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
+            ((ToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
+            ((ToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
         }
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        listView = (JasperRecyclerView) view.findViewById(android.R.id.list);
+        emptyText = (TextView) view.findViewById(android.R.id.empty);
 
         setEmptyText(0);
         setDataAdapter();
@@ -179,7 +177,7 @@ public class FavoritesFragment extends RoboFragment
     @Override
     public void onResume() {
         super.onResume();
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(searchQuery == null ? getString(R.string.f_title) : getString(R.string.search_result_format, searchQuery));
         }
@@ -187,7 +185,7 @@ public class FavoritesFragment extends RoboFragment
         List<Analytics.Dimension> viewDimension = new ArrayList<>();
         viewDimension.add(new Analytics.Dimension(Analytics.Dimension.FILTER_TYPE_HIT_KEY, favoritesResourceFilter.getCurrent().getName()));
         viewDimension.add(new Analytics.Dimension(Analytics.Dimension.RESOURCE_VIEW_HIT_KEY, viewType.name()));
-        analytics.sendScreenView(Analytics.ScreenName.FAVORITES.getValue(),viewDimension);
+        analytics.sendScreenView(Analytics.ScreenName.FAVORITES.getValue(), viewDimension);
     }
 
     @Override
@@ -215,7 +213,7 @@ public class FavoritesFragment extends RoboFragment
     }
 
     private void setDataAdapter() {
-        mAdapter = new JasperResourceAdapter(getActivity(), Collections.<JasperResource> emptyList(), viewType);
+        mAdapter = new JasperResourceAdapter(getActivity(), Collections.<JasperResource>emptyList(), viewType);
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
             public void onResourceItemClicked(String id) {
@@ -248,7 +246,7 @@ public class FavoritesFragment extends RoboFragment
 
         //Add server profile id and username to WHERE params
         selection.append(FavoritesTable.ACCOUNT_NAME + " =?");
-        selectionArgs.add(JasperAccountManager.get(getActivity()).getActiveAccount().name);
+        selectionArgs.add(mProfile.getKey());
 
         //Add filtration to WHERE params
         selection.append(" AND (");

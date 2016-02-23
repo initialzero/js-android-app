@@ -29,9 +29,8 @@ import android.view.View;
 import android.webkit.WebView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.flow.WebFlowFactory;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.flow.WebFlowFactory;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -70,7 +69,7 @@ public class LegacyDashboardViewerActivity extends BaseDashboardActivity {
 
     @Override
     public void onPageFinished() {
-        webView.loadUrl(ScriptTagFactory.getInstance(this).getTagCreator(resource).createTag());
+        webView.loadUrl(mScriptTagFactory.getTagCreator(resource).createTag());
         webView.setVisibility(View.VISIBLE);
     }
 
@@ -90,7 +89,9 @@ public class LegacyDashboardViewerActivity extends BaseDashboardActivity {
     }
 
     private void loadFlow() {
-        WebFlowFactory.getInstance(this).createFlow(resource).load(webView);
+        new WebFlowFactory(mServer)
+                .createFlow(resource)
+                .load(webView);
     }
 
 }

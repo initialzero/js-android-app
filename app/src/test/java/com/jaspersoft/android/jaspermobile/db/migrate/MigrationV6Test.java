@@ -50,10 +50,7 @@ import static org.junit.Assert.assertThat;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(
-        constants = BuildConfig.class,
-        sdk = 21
-)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class MigrationV6Test {
 
     private ResourceDatabase resourceDatabase;

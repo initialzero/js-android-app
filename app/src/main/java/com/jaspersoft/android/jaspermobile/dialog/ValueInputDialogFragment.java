@@ -30,31 +30,37 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.SystemService;
+import org.androidannotations.annotations.TextChange;
 
 /**
  * @author Andrew Tivodar
  * @since 2.2
  */
 @EFragment
-public class ValueInputDialogFragment extends BaseDialogFragment implements DialogInterface.OnShowListener{
+public class ValueInputDialogFragment extends BaseDialogFragment implements DialogInterface.OnShowListener {
 
     private final static String LABEL_ARG = "label";
     private final static String VALUE_ARG = "value";
+    private final static String REQUIRED_ARG = "required";
 
     private EditText icValue;
 
     private String mLabel;
     private String mValue;
+    private boolean mRequired;
 
     @SystemService
     protected InputMethodManager inputMethodManager;
@@ -69,6 +75,7 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
 
         icValue.setText(mValue);
         icValue.setSelection(mValue.length());
+        icValue.addTextChangedListener(new ValueTextWatcher());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(customLayout);
@@ -112,11 +119,40 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
             if (args.containsKey(VALUE_ARG)) {
                 mValue = args.getString(VALUE_ARG);
             }
+            if (args.containsKey(REQUIRED_ARG)) {
+                mRequired = args.getBoolean(REQUIRED_ARG);
+            }
+        }
+    }
+
+    private void setOkButtonEnabled(boolean enabled) {
+        Dialog dialog = getDialog();
+        if (dialog != null && dialog instanceof AlertDialog) {
+            ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled);
         }
     }
 
     public static ValueInputDialogFragmentBuilder createBuilder(FragmentManager fragmentManager) {
         return new ValueInputDialogFragmentBuilder(fragmentManager);
+    }
+
+    private class ValueTextWatcher implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence value, int start, int before, int count) {
+            if (!mRequired) return;
+
+            boolean isValueEmpty = value.toString().trim().isEmpty();
+            icValue.setError(isValueEmpty ? getString(R.string.sr_error_field_is_empty) : null);
+            setOkButtonEnabled(!isValueEmpty);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
     }
 
     //---------------------------------------------------------------------
@@ -136,6 +172,11 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
 
         public ValueInputDialogFragmentBuilder setValue(String value) {
             args.putString(VALUE_ARG, value);
+            return this;
+        }
+
+        public ValueInputDialogFragmentBuilder setRequired(boolean required) {
+            args.putBoolean(REQUIRED_ARG, required);
             return this;
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -24,14 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -40,6 +39,8 @@ import org.androidannotations.annotations.RootContext;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  * @author Andrew Tivodar
  * @since 2.0
@@ -47,11 +48,24 @@ import java.util.List;
 @EBean
 public class FavoritesResourceFilter extends ResourceFilter {
 
-    private ServerRelease serverRelease;
+    private ServerVersion mServerVersion;
     private boolean isProEdition;
 
     @RootContext
     protected FragmentActivity activity;
+
+    @Inject
+    JasperServer mServer;
+
+    @AfterInject
+    void init() {
+        ComponentProviderDelegate.INSTANCE
+                .getBaseActivityComponent(activity)
+                .inject(this);
+
+        mServerVersion = ServerVersion.valueOf(mServer.getVersion());
+        isProEdition = mServer.isProEdition();
+    }
 
     private enum FavoritesFilterCategory {
         all(R.string.s_fd_option_all),
@@ -70,14 +84,6 @@ public class FavoritesResourceFilter extends ResourceFilter {
         public String getLocalizedTitle(Context context) {
             return context.getString(this.mTitleId);
         }
-    }
-
-    @AfterInject
-    protected void initFilter() {
-        Account account = JasperAccountManager.get(activity).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(activity, account);
-        this.serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
-        this.isProEdition = accountServerData.getEdition().equals("PRO");
     }
 
     @Override
@@ -114,8 +120,8 @@ public class FavoritesResourceFilter extends ResourceFilter {
     private Filter getFilterAll() {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
-        filterValues.addAll(JasperResources.dashboard(serverRelease));
-        filterValues.addAll(JasperResources.files());
+        filterValues.addAll(JasperResources.dashboard(mServerVersion));
+        filterValues.addAll(JasperResources.files());     filterValues.addAll(JasperResources.folder());
         filterValues.addAll(JasperResources.folder());
 
         return new Filter(FavoritesFilterCategory.all.name(), filterValues);
@@ -130,7 +136,7 @@ public class FavoritesResourceFilter extends ResourceFilter {
 
     private Filter getFilterDashboard() {
         ArrayList<String> filterValues = new ArrayList<>();
-        filterValues.addAll(JasperResources.dashboard(serverRelease));
+        filterValues.addAll(JasperResources.dashboard(mServerVersion));
 
         return new Filter(FavoritesFilterCategory.dashboards.name(), filterValues);
     }

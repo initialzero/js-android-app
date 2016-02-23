@@ -24,13 +24,12 @@
 
 package com.jaspersoft.android.jaspermobile.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -38,21 +37,25 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.option.GetReportOptionsCase;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.ReportOptionHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOption;
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOptionResponse;
+import com.jaspersoft.android.sdk.service.data.report.option.ReportOption;
 
-import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.UiThread;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
 
 /**
  * @author Andrew Tivodar
@@ -64,19 +67,31 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
     private static final String REPORT_URI_ARG = "report_uri";
 
     @Inject
-    protected ReportParamsStorage paramsStorage;
-
-    @Inject
-    protected JsRestClient jsRestClient;
-
+    protected GetReportOptionsCase mGetReportOptionsCase;
     @Inject
     protected Analytics analytics;
+    @Inject
+    protected ReportParamsStorage mParamsStorage;
 
     private String reportUri;
     private List<ReportOption> mReportOptions;
 
     private ProgressBar loadingBar;
     private ListView reportOptionsList;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ComponentProviderDelegate.INSTANCE
+                .getBaseActivityComponent(getActivity())
+                .inject(this);
+    }
+
+    @Override
+    public void onDestroyView() {
+        mGetReportOptionsCase.unsubscribe();
+        super.onDestroyView();
+    }
 
     @NonNull
     @Override
@@ -100,14 +115,38 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
 
     @Override
     public void onShow(DialogInterface dialog) {
-        requestReportOptions();
+        mGetReportOptionsCase.execute(reportUri, new SimpleSubscriber<Set<ReportOption>>() {
+            @Override
+            public void onError(Throwable e) {
+                RequestExceptionHandler.showAuthErrorIfExists(getActivity(), e);
+            }
+
+            @Override
+            public void onNext(Set<ReportOption> reportOptions) {
+                mReportOptions = new ArrayList<>(reportOptions.size());
+                ReportOption defaultOption = new ReportOption.Builder()
+                        .withId(reportUri)
+                        .withUri(reportUri)
+                        .withLabel(getString(R.string.ro_default))
+                        .build();
+                mReportOptions.add(defaultOption);
+                mReportOptions.addAll(reportOptions);
+
+                showReportOptions();
+                analytics.sendEvent(
+                        Analytics.EventCategory.RESOURCE.getValue(),
+                        Analytics.EventAction.REPORT_OPTIONS_VIEWED.getValue(),
+                        null
+                );
+            }
+        });
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (mReportOptions != null && position < mReportOptions.size()) {
             List<ReportOptionHolder> reportOptionHolders = convertToHolder(position);
-            paramsStorage.getInputControlHolder(reportUri).setReportOptions(reportOptionHolders);
+            mParamsStorage.getInputControlHolder(reportUri).setReportOptions(reportOptionHolders);
             ((ReportOptionsDialogClickListener) mDialogListener).onOptionSelected(mReportOptions.get(position));
         }
         dismiss();
@@ -122,22 +161,15 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
         return new ReportOptionDialogFragmentBuilder(fragmentManager);
     }
 
-    @Background
-    protected void requestReportOptions() {
-        mReportOptions = new ArrayList<>();
-        mReportOptions.add(new ReportOption(reportUri, reportUri, getString(R.string.ro_default)));
-
-        ReportOptionResponse reportOptionResponse = jsRestClient.getReportOptionsList(reportUri);
-        mReportOptions.addAll(reportOptionResponse.getOptions());
-        showReportOptions();
-        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.REPORT_OPTIONS_VIEWED.getValue(), null);
-    }
-
     @UiThread
     protected void showReportOptions() {
         loadingBar.setVisibility(View.GONE);
-
-        ArrayAdapter<String> reportOptionArrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, convertToStringList());
+        ArrayAdapter<String> reportOptionArrayAdapter = new ArrayAdapter<>(
+                getActivity(),
+                android.R.layout.simple_list_item_1,
+                android.R.id.text1,
+                convertToStringList()
+        );
         reportOptionsList.setAdapter(reportOptionArrayAdapter);
         reportOptionsList.setVisibility(View.VISIBLE);
         reportOptionsList.setOnItemClickListener(this);
@@ -155,20 +187,22 @@ public class ReportOptionsFragmentDialog extends BaseDialogFragment implements D
     }
 
     private List<String> convertToStringList() {
-        if (mReportOptions == null) return new ArrayList<>();
+        if (mReportOptions == null) {
+            return Collections.emptyList();
+        }
 
-        List<String> reportOptionsTitles = new ArrayList<>();
+        List<String> reportOptionsTitles = new ArrayList<>(mReportOptions.size());
         for (ReportOption mReportOption : mReportOptions) {
             reportOptionsTitles.add(mReportOption.getLabel());
         }
         return reportOptionsTitles;
     }
 
-    private List<ReportOptionHolder> convertToHolder(int seelctedIndex) {
+    private List<ReportOptionHolder> convertToHolder(int selectedIndex) {
         List<ReportOptionHolder> reportOptionHolders = new ArrayList<>();
         for (int i = 0; i < mReportOptions.size(); i++) {
             ReportOptionHolder reportOptionHolder = new ReportOptionHolder(mReportOptions.get(i), null);
-            reportOptionHolder.setSelected(seelctedIndex == i);
+            reportOptionHolder.setSelected(selectedIndex == i);
             reportOptionHolders.add(reportOptionHolder);
         }
         return reportOptionHolders;

@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -24,12 +24,16 @@
 
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import java.util.ArrayList;
 
-import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.*;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.dashboard;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.file;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.folder;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.legacyDashboard;
+import static com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup.ResourceType.reportUnit;
 
 /**
  * @author Andrew Tivodar
@@ -49,8 +53,8 @@ public class JasperResources {
         return JasperFilter.FILES.getAsList();
     }
 
-    public static ArrayList<String> dashboard(ServerRelease serverRelease) {
-        boolean isPreAmber = serverRelease.code() < ServerRelease.AMBER.code();
+    public static ArrayList<String> dashboard(ServerVersion version) {
+        boolean isPreAmber = version.lessThan(ServerVersion.v6);
         if (isPreAmber) {
             return JasperFilter.DASHBOARD_PRE_AMBER.getAsList();
         } else {

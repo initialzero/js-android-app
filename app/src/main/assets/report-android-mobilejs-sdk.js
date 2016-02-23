@@ -552,7 +552,11 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       };
 
       ReportController.prototype._notifyPageChangeError = function(error) {
-        return this.callback.onPageLoadError(error.message, parseInt(this.report.pages()));
+        if (error.errorCode === "authentication.error") {
+            this.callback.onAuthError(error.message);
+        } else {
+            this.callback.onPageLoadError(error.message, parseInt(this.report.pages()));
+        }
       };
 
       ReportController.prototype._exportReport = function(format) {
@@ -586,7 +590,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
             };
           })(this)
         };
-        return jQuery.ajax(window.location.href + "/rest_v2/serverInfo", params);
+        return jQuery.ajax(window.location.href + "rest_v2/serverInfo", params);
       };
 
       ReportController.prototype._parseServerVersion = function(response) {

@@ -54,11 +54,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(
-        shadows = {ShadowApplicationImpl.class},
-        constants = BuildConfig.class,
-        sdk = 21
-)
+@Config(constants = BuildConfig.class, sdk = 21, shadows = {ShadowApplicationImpl.class})
 public class SavedItemsMigrationV3Test {
     private static final String SHARED_DIR = "com.jaspersoft.account.none";
 

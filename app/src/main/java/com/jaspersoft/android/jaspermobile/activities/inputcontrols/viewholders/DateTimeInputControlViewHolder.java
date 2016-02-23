@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders
 import com.jaspersoft.android.jaspermobile.util.IcDateHelper;
 import com.jaspersoft.android.jaspermobile.widget.DateTimeView;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
+
 import java.util.Calendar;
 
 /**
@@ -50,6 +51,7 @@ public class DateTimeInputControlViewHolder extends BaseInputControlViewHolder {
         Calendar calendarDate = IcDateHelper.convertToDate(inputControl);
         dateTimeView.setDate(calendarDate);
         dateTimeView.setLabel(getUpdatedLabelText(inputControl));
+        dateTimeView.setRequestCode(getAdapterPosition());
 
         showError(dateTimeView.getErrorView(), inputControl);
     }

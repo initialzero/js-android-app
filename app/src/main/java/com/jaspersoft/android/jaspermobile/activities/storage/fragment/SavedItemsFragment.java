@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.storage.fragment;
 
-import android.accounts.Account;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.database.Cursor;
@@ -41,20 +40,20 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
-import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService_;
+import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.SavedReportHtmlViewerActivity_;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
-import com.jaspersoft.android.sdk.client.JsRestClient;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
 import org.androidannotations.annotations.Bean;
@@ -65,7 +64,6 @@ import org.androidannotations.annotations.UiThread;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -73,15 +71,12 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import roboguice.fragment.RoboFragment;
-import roboguice.inject.InjectView;
-
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment(R.layout.fragment_resource)
-public class SavedItemsFragment extends RoboFragment
+public class SavedItemsFragment extends BaseFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String TAG = SavedItemsFragment.class.getSimpleName();
@@ -92,10 +87,12 @@ public class SavedItemsFragment extends RoboFragment
 
     @Inject
     protected Analytics analytics;
+    @Inject
+    protected Profile mProfile;
+    @Inject
+    protected JasperResourceConverter jasperResourceConverter;
 
-    @InjectView(android.R.id.list)
     protected JasperRecyclerView listView;
-    @InjectView(android.R.id.empty)
     protected TextView emptyText;
 
     @FragmentArg
@@ -110,18 +107,21 @@ public class SavedItemsFragment extends RoboFragment
     protected StorageResourceFilter storageResourceFilter;
 
     private JasperResourceAdapter mAdapter;
-    private JasperResourceConverter jasperResourceConverter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        jasperResourceConverter = new JasperResourceConverter(getActivity());
+        getBaseActivityComponent().inject(this);
+
         analytics.setScreenName(Analytics.ScreenName.SAVED_ITEMS.getValue());
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        listView = (JasperRecyclerView) view.findViewById(android.R.id.list);
+        emptyText = (TextView) view.findViewById(android.R.id.empty);
 
         setEmptyText(0);
         setDataAdapter();
@@ -220,8 +220,7 @@ public class SavedItemsFragment extends RoboFragment
                             .jasperResource(jasperResource)
                             .start();
                 } else {
-                    File file = jasperResourceConverter.convertToFile(jasperResource.getId(), getActivity());
-                    SaveReportService_.intent(getContext()).cancelSaving(jasperResource.getId(), file).start();
+                    SaveReportService.cancel(getContext(), Uri.parse(jasperResource.getId()));
                 }
             }
         });
@@ -244,7 +243,6 @@ public class SavedItemsFragment extends RoboFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int code, Bundle bundle) {
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
         StringBuilder selection = new StringBuilder("");
         ArrayList<String> selectionArgs = new ArrayList<String>();
 
@@ -258,7 +256,7 @@ public class SavedItemsFragment extends RoboFragment
 
         //Add server profile id to WHERE params
         selection.append(SavedItemsTable.ACCOUNT_NAME + " =?");
-        selectionArgs.add(account.name);
+        selectionArgs.add(mProfile.getKey());
 
         // Close select brackets
         selection.append(")");

@@ -28,7 +28,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import java.net.CookieManager;
 
 /**
  * @author Andrew Tivodar
@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 public class LocaleChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        JasperAccountManager.get(context).invalidateActiveToken();
+        CookieManager cookieManager = (CookieManager) CookieManager.getDefault();
+        cookieManager.getCookieStore().removeAll();
     }
 }

@@ -33,12 +33,13 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.sorting.SortOrder;
+import com.jaspersoft.android.jaspermobile.util.JobOutputFormatConverter;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 import com.jaspersoft.android.sdk.service.data.schedule.JobOutputFormat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Andrew Tivodar
@@ -56,11 +57,11 @@ public class OutputFormatDialogFragment extends BaseDialogFragment implements Di
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        builder.setTitle(R.string.s_ab_sort_by);
+        builder.setTitle(R.string.sr_output_format);
 
         createSupportedJobOutputFormatsList();
 
-        builder.setMultiChoiceItems(getFormatsTitles(), getSelected(), this);
+        builder.setMultiChoiceItems(JobOutputFormatConverter.toStringsArray(getContext(), supportedFormats), getSelected(), this);
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -114,13 +115,16 @@ public class OutputFormatDialogFragment extends BaseDialogFragment implements Di
         supportedFormats = new ArrayList<>();
         supportedFormats.add(JobOutputFormat.CSV);
         supportedFormats.add(JobOutputFormat.DOCX);
+        supportedFormats.add(JobOutputFormat.XLS_NOPAG);
+        supportedFormats.add(JobOutputFormat.XLS);
         supportedFormats.add(JobOutputFormat.HTML);
         supportedFormats.add(JobOutputFormat.ODS);
         supportedFormats.add(JobOutputFormat.ODT);
         supportedFormats.add(JobOutputFormat.PDF);
         supportedFormats.add(JobOutputFormat.RTF);
-        supportedFormats.add(JobOutputFormat.XLS);
+        supportedFormats.add(JobOutputFormat.XLSX_NOPAG);
         supportedFormats.add(JobOutputFormat.XLSX);
+        supportedFormats.add(JobOutputFormat.PPTX);
     }
 
     private boolean[] getSelected() {
@@ -130,14 +134,6 @@ public class OutputFormatDialogFragment extends BaseDialogFragment implements Di
             selected[index] = true;
         }
         return selected;
-    }
-
-    private CharSequence[] getFormatsTitles() {
-        CharSequence[] titles = new CharSequence[supportedFormats.size()];
-        for (int i = 0; i < supportedFormats.size(); i++) {
-            titles[i] = supportedFormats.get(i).name();
-        }
-        return titles;
     }
 
     //---------------------------------------------------------------------

@@ -28,17 +28,17 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.storage.fragment.SavedItemsSearchFragment_;
 import com.jaspersoft.android.jaspermobile.dialog.SortDialogFragment;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 import com.jaspersoft.android.jaspermobile.util.filtering.StorageResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.sorting.SortOptions;
@@ -51,7 +51,7 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
-import roboguice.fragment.RoboFragment;
+import javax.inject.Inject;
 
 /**
  * @author Ivan Gadzhega
@@ -60,7 +60,7 @@ import roboguice.fragment.RoboFragment;
  */
 @EFragment (R.layout.content_layout)
 @OptionsMenu(R.menu.sort_menu)
-public class SavedReportsFragment extends RoboFragment implements SortDialogFragment.SortDialogClickListener{
+public class SavedReportsFragment extends BaseFragment implements SortDialogFragment.SortDialogClickListener{
 
     private SavedItemsControllerFragment savedItemsController;
     @Inject
@@ -77,6 +77,7 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getBaseActivityComponent().inject(this);
         setHasOptionsMenu(true);
     }
 
@@ -109,14 +110,14 @@ public class SavedReportsFragment extends RoboFragment implements SortDialogFrag
         FilterTitleView filterTitleView = new FilterTitleView(getActivity());
         filterTitleView.init(storageResourceFilter);
         filterTitleView.setFilterSelectedListener(new FilterChangeListener());
-        ((RoboToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
-        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
+        ((ToolbarActivity) getActivity()).setDisplayCustomToolbarEnable(true);
+        ((ToolbarActivity) getActivity()).setCustomToolbarView(filterTitleView);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.sdr_ab_title);
         }

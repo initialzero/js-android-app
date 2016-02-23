@@ -24,54 +24,46 @@
 
 package com.jaspersoft.android.jaspermobile.activities.schedule;
 
-import android.accounts.Account;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceFragment;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
+import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
+import com.jaspersoft.android.jaspermobile.util.rx.RxTransformer;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
-import com.jaspersoft.android.jaspermobile.util.security.PasswordManager;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
-import com.jaspersoft.android.sdk.network.AuthorizedClient;
-import com.jaspersoft.android.sdk.network.Server;
-import com.jaspersoft.android.sdk.network.SpringCredentials;
 import com.jaspersoft.android.sdk.service.data.schedule.JobUnit;
 import com.jaspersoft.android.sdk.service.report.schedule.JobSearchCriteria;
 import com.jaspersoft.android.sdk.service.report.schedule.JobSortType;
-import com.jaspersoft.android.sdk.service.rx.report.schedule.RxJobSearchTask;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import roboguice.inject.InjectView;
+import javax.inject.Inject;
+
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -83,32 +75,27 @@ import rx.subscriptions.CompositeSubscription;
  * @since 2.3
  */
 @EFragment(R.layout.fragment_refreshable_resource)
-public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener, DeleteDialogFragment.DeleteDialogClickListener {
 
-    @InjectView(android.R.id.list)
     protected JasperRecyclerView listView;
-    @InjectView(R.id.refreshLayout)
     protected SwipeRefreshLayout swipeRefreshLayout;
-    @InjectView(android.R.id.empty)
     protected TextView message;
 
     @Inject
     protected Analytics analytics;
     @Inject
-    protected JsRestClient jsRestClient;
-
-    @Bean
-    protected PasswordManager mPasswordManager;
+    protected JasperRestClient mRestClient;
+    @Inject
+    protected JasperResourceConverter jasperResourceConverter;
 
     private JasperResourceAdapter mAdapter;
-    private RxReportScheduleService mScheduleService;
-    private RxJobSearchTask mJobSearchTask;
     private CompositeSubscription mCompositeSubscription;
     private LinkedHashMap<Integer, JobUnit> mJobs;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getBaseActivityComponent().inject(this);
 
         mCompositeSubscription = new CompositeSubscription();
 
@@ -116,12 +103,16 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
             analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.JOBS.getValue());
         }
 
-        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+        ((ToolbarActivity) getActivity()).setCustomToolbarView(null);
     }
 
     @Override
     public void onViewCreated(View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        listView = (JasperRecyclerView) view.findViewById(android.R.id.list);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refreshLayout);
+        message = (TextView) view.findViewById(android.R.id.empty);
 
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
@@ -131,13 +122,12 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
                 R.color.js_dark_blue);
 
         setDataAdapter();
-        createJobSearchTask();
+        loadJobs();
     }
 
     @Override
     public void onRefresh() {
-        createJobSearchTask();
-
+        loadJobs();
         analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.JOBS.getValue());
     }
 
@@ -145,7 +135,7 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
     public void onResume() {
         super.onResume();
 
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(getString(R.string.sch_jobs));
         }
@@ -168,10 +158,68 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
         mCompositeSubscription.unsubscribe();
     }
 
-    private void createJobSearchTask() {
-        initRestClient()
-                .compose(RxTransformers.<RxReportScheduleService>applySchedulers())
-                .subscribe(new Subscriber<RxReportScheduleService>() {
+    @Override
+    public void onDeleteConfirmed(final JasperResource resource) {
+        try {
+            final int jobId = Integer.parseInt(resource.getId());
+            final Set<Integer> idToDel = new HashSet<>();
+            idToDel.add(jobId);
+
+            ProgressDialogFragment.builder(getFragmentManager())
+                    .setLoadingMessage(R.string.loading_msg)
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            mCompositeSubscription.unsubscribe();
+                            mCompositeSubscription = new CompositeSubscription();
+                        }
+                    })
+                    .show();
+
+            mCompositeSubscription.add(mRestClient.scheduleService()
+                    .flatMap(new Func1<RxReportScheduleService, Observable<Set<Integer>>>() {
+                        @Override
+                        public Observable<Set<Integer>> call(RxReportScheduleService scheduleService) {
+                            return scheduleService.deleteJobs(idToDel);
+                        }
+                    })
+                    .compose(RxTransformers.<Set<Integer>>applySchedulers())
+                    .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<Set<Integer>>() {
+                        @Override
+                        public void onCompleted() {
+                            Toast.makeText(getActivity(), R.string.sch_deleted, Toast.LENGTH_SHORT).show();
+
+                            mJobs.remove(jobId);
+                            mAdapter.remove(resource);
+
+                            if (mJobs.isEmpty()) {
+                                showMessage(getString(R.string.sch_not_found));
+                            }
+                            analytics.sendEvent(
+                                    Analytics.EventCategory.RESOURCE.getValue(),
+                                    Analytics.EventAction.REMOVED.getValue(),
+                                    Analytics.EventLabel.JOB.getValue()
+                            );
+                        }
+                    })));
+        } catch (NumberFormatException ex) {
+            Toast.makeText(getActivity(), R.string.wrong_action, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void loadJobs() {
+        Subscription subscription = mRestClient.scheduleService()
+                .flatMap(new Func1<RxReportScheduleService, Observable<List<JobUnit>>>() {
+                    @Override
+                    public Observable<List<JobUnit>> call(RxReportScheduleService service) {
+                        JobSearchCriteria jobSearchCriteria = JobSearchCriteria.builder()
+                                .withSortType(JobSortType.SORTBY_JOBNAME)
+                                .build();
+                        return service.search(jobSearchCriteria).nextLookup();
+                    }
+                })
+                .compose(RxTransformer.<List<JobUnit>>applySchedulers())
+                .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<List<JobUnit>>() {
                     @Override
                     public void onStart() {
                         mJobs = new LinkedHashMap<>();
@@ -180,83 +228,24 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
 
                     @Override
                     public void onCompleted() {
-                        loadJobs();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        // TODO: handle error
-                        showMessage(getString(R.string.failed_load_data));
-                    }
-
-                    @Override
-                    public void onNext(RxReportScheduleService service) {
-                        JobSearchCriteria jobSearchCriteria = JobSearchCriteria.builder()
-                                .withSortType(JobSortType.SORTBY_JOBNAME)
-                                .build();
-                        mScheduleService = service;
-                        mJobSearchTask = service.search(jobSearchCriteria);
-                    }
-                });
-    }
-
-    private void loadJobs() {
-        Subscription subscription = mJobSearchTask.nextLookup()
-                .compose(RxTransformers.<List<JobUnit>>applySchedulers())
-                .subscribe(new Subscriber<List<JobUnit>>() {
-                    @Override
-                    public void onStart() {
-                        setRefreshState(true);
-                    }
-
-                    @Override
-                    public void onCompleted() {
                         showMessage(mJobs.isEmpty() ? getString(R.string.sch_not_found) : null);
-                        setRefreshState(false);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        // TODO: handle error
                         showMessage(getString(R.string.failed_load_data));
-                        setRefreshState(false);
                     }
 
                     @Override
                     public void onNext(List<JobUnit> jobUnits) {
-                        JasperResourceConverter jasperResourceConverter = new JasperResourceConverter(getActivity());
-
-                        mAdapter.addAll(jasperResourceConverter.convertToJasperResources(jobUnits));
+                        mAdapter.addAll(jasperResourceConverter.convertToJasperResources(getActivity(), jobUnits));
 
                         for (JobUnit job : jobUnits) {
                             mJobs.put(job.getId(), job);
                         }
                     }
-                });
+                }));
         mCompositeSubscription.add(subscription);
-    }
-
-    private Observable<RxReportScheduleService> initRestClient() {
-        Account account = JasperAccountManager.get(getActivity()).getActiveAccount();
-        return mPasswordManager.get(account).map(new Func1<String, RxReportScheduleService>() {
-            @Override
-            public RxReportScheduleService call(String password) {
-                JsServerProfile serverProfile = jsRestClient.getServerProfile();
-                Server server = Server.builder()
-                        .withBaseUrl(serverProfile.getServerUrl() + "/")
-                        .build();
-                SpringCredentials credentials = SpringCredentials.builder()
-                        .withOrganization(serverProfile.getOrganization())
-                        .withUsername(serverProfile.getUsername())
-                        .withPassword(password)
-                        .build();
-
-                AuthorizedClient client = server.newClient(credentials)
-                        .withCookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER))
-                        .create();
-                return RxReportScheduleService.newService(client);
-            }
-        });
     }
 
     private void setDataAdapter() {
@@ -266,70 +255,28 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
             public void onResourceItemClicked(String id) {
                 try {
                     int jobId = Integer.parseInt(id);
-                    JobUnit job = mJobs.get(jobId);
 
-                    SimpleDialogFragment.createBuilder(getActivity(), getFragmentManager())
-                            .setTitle(job.getLabel())
-                            .setMessage(createJobInfo(job))
-                            .setPositiveButtonText(R.string.ok)
-                            .show();
+                    EditScheduleActivity_.intent(getContext())
+                            .jobId(jobId)
+                            .start();
                 } catch (NumberFormatException ex) {
                     Toast.makeText(getActivity(), R.string.wrong_action, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onSecondaryActionClicked(final JasperResource jasperResource) {
-                if (mScheduleService != null) {
-                    try {
-                        final int jobId = Integer.parseInt(jasperResource.getId());
-                        Set<Integer> idToDel = new HashSet<>();
-                        idToDel.add(jobId);
+            public void onSecondaryActionClicked(JasperResource jasperResource) {
+                String deleteMessage = getActivity().getString(R.string.sdr_delete_message);
 
-                        ProgressDialogFragment.builder(getFragmentManager())
-                                .setLoadingMessage(R.string.loading_msg)
-                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                    @Override
-                                    public void onCancel(DialogInterface dialog) {
-                                        mCompositeSubscription.unsubscribe();
-                                        mCompositeSubscription = new CompositeSubscription();
-                                    }
-                                })
-                                .show();
-
-                        mCompositeSubscription.add(mScheduleService.deleteJobs(idToDel)
-                                .compose(RxTransformers.<Set<Integer>>applySchedulers())
-                                .subscribe(new Subscriber<Set<Integer>>() {
-                                    @Override
-                                    public void onCompleted() {
-                                        ProgressDialogFragment.dismiss(getFragmentManager());
-                                        Toast.makeText(getActivity(), R.string.sch_deleted, Toast.LENGTH_SHORT).show();
-
-                                        mJobs.remove(jobId);
-                                        mAdapter.remove(jasperResource);
-
-                                        if (mJobs.isEmpty()) {
-                                            showMessage(getString(R.string.sch_not_found));
-                                        }
-                                        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.REMOVED.getValue(), Analytics.EventLabel.JOB.getValue());
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable e) {
-                                        // TODO: Handle error
-                                        ProgressDialogFragment.dismiss(getFragmentManager());
-                                    }
-
-                                    @Override
-                                    public void onNext(Set<Integer> integers) {
-
-                                    }
-                                }));
-                    } catch (NumberFormatException ex) {
-                        Toast.makeText(getActivity(), R.string.wrong_action, Toast.LENGTH_SHORT).show();
-                    }
-
-                }
+                DeleteDialogFragment.createBuilder(getActivity(), getFragmentManager())
+                        .setResource(jasperResource)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle(R.string.sdr_delete_title)
+                        .setMessage(deleteMessage)
+                        .setPositiveButtonText(R.string.spm_delete_btn)
+                        .setNegativeButtonText(R.string.cancel)
+                        .setTargetFragment(JobsFragment.this)
+                        .show();
             }
         });
 
@@ -350,10 +297,40 @@ public class JobsFragment extends RoboSpiceFragment implements SwipeRefreshLayou
         }
     }
 
-    private String createJobInfo(JobUnit jobUnit) {
-        String prevDate = jobUnit.getPreviousFireTime() != null ? "" + jobUnit.getPreviousFireTime() : "-";
-        String nextDate = jobUnit.getNextFireTime() != null ? "" + jobUnit.getNextFireTime() : "-";
-        return getString(R.string.sch_info, jobUnit.getDescription(), jobUnit.getReportUri(), prevDate,
-                nextDate, jobUnit.getOwner().getUsername(), jobUnit.getOwner().getOrganization());
+    private void hideLoading() {
+        ProgressDialogFragment.dismiss(getFragmentManager());
+    }
+
+    private class ErrorSubscriber<R> extends Subscriber<R> {
+        private final Subscriber<R> mDelegate;
+
+        private ErrorSubscriber(Subscriber<R> delegate) {
+            mDelegate = delegate;
+        }
+
+        @Override
+        public void onStart() {
+            mDelegate.onStart();
+        }
+
+        @Override
+        public void onCompleted() {
+            setRefreshState(false);
+            hideLoading();
+            mDelegate.onCompleted();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            RequestExceptionHandler.showAuthErrorIfExists(getActivity(), e);
+            hideLoading();
+            setRefreshState(false);
+            mDelegate.onError(e);
+        }
+
+        @Override
+        public void onNext(R r) {
+            mDelegate.onNext(r);
+        }
     }
 }

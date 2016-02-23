@@ -24,8 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile;
 
-import android.app.Application;
-
 import java.util.List;
 
 /**
@@ -63,6 +61,7 @@ public interface Analytics {
         ACCOUNT("Account"),
         CATALOG("Catalog"),
         RESOURCE("Resource"),
+        JOB("Job"),
         CAST("Cast");
 
         String mName;
@@ -94,7 +93,7 @@ public interface Analytics {
         CHANGED("Changed"),
         MARKED_AS_FAVORITE("Marked as favorite"),
         PRINTED("Printed"),
-        SCHEDULED("Scheduled"),
+        ADDED("Added"),
         REMOVED("Removed");
 
         String mName;

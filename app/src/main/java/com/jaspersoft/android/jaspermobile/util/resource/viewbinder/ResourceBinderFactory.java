@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
+
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 
 /**
@@ -43,6 +44,7 @@ public class ResourceBinderFactory {
         switch (type) {
             case folder:
                 return new FolderResourceBinder(mContext);
+            case legacyDashboard:
             case dashboard:
                 return new DashboardResourceBinder(mContext);
             case report:

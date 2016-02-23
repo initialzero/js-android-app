@@ -24,14 +24,29 @@
 
 package com.jaspersoft.android.jaspermobile.util.resource;
 
+import java.util.Date;
+
 /**
  * @author Andrew Tivodar
  * @since 2.0
  */
 public class JobResource extends JasperResource {
 
-    public JobResource(String id, String label, String description) {
+    private Date mDate;
+    private String mState;
+
+    public JobResource(String id, String label, String description, Date date, String state) {
         super(id, label, description);
+        mDate = date;
+        mState = state;
+    }
+
+    public Date getDate() {
+        return mDate;
+    }
+
+    public String getState() {
+        return mState;
     }
 
     @Override

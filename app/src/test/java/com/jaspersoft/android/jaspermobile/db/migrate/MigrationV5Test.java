@@ -21,7 +21,7 @@ import static org.hamcrest.core.Is.is;
  * @since 2.3
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, sdk = 21)
 public class MigrationV5Test {
     private static final String JASPER_ACCOUNT_TYPE = "com.jaspersoft";
     private static final String JASPER_AUTH_TOKEN_TYPE = "FULL ACCESS";

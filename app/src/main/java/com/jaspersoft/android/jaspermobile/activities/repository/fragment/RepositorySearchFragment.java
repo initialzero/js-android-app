@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.repository.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
@@ -41,15 +42,13 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 
-import roboguice.fragment.RoboFragment;
-
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment
 @OptionsMenu(R.menu.search_menu)
-public class RepositorySearchFragment extends RoboFragment implements SearchView.OnQueryTextListener {
+public class RepositorySearchFragment extends Fragment implements SearchView.OnQueryTextListener {
 
     @OptionsMenuItem(R.id.search)
     public MenuItem searchMenuItem;

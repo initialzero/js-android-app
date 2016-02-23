@@ -30,43 +30,39 @@ import android.net.Uri;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.model.Favorites;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
-import com.jaspersoft.android.sdk.client.JsServerProfile;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.EBean;
-import org.androidannotations.annotations.RootContext;
-
-import roboguice.RoboGuice;
-import roboguice.inject.RoboInjector;
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-@EBean
+@PerProfile
 public class FavoritesHelper {
-    @RootContext
-    Context context;
+    private final Context context;
+    private final Analytics analytics;
+    private final Profile profile;
+    private final Toast toast;
 
     @Inject
-    JsRestClient jsRestClient;
-
-    @Inject
-    protected Analytics analytics;
-
-    @AfterInject
-    void injectRoboGuiceDependencies() {
-        final RoboInjector injector = RoboGuice.getInjector(context);
-        injector.injectMembersWithoutViews(this);
+    public FavoritesHelper(
+            @ApplicationContext Context context,
+            Analytics analytics,
+            Profile profile
+    ) {
+        this.context = context;
+        this.analytics = analytics;
+        this.profile = profile;
+        this.toast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
     }
 
     public void switchFavoriteState(ResourceLookup resource, MenuItem favoriteIcon) {
@@ -112,7 +108,7 @@ public class FavoritesHelper {
 
         //Add account name to WHERE params
         selection.append(FavoritesTable.ACCOUNT_NAME + " =?");
-        selectionArgs[0] = JasperAccountManager.get(context).getActiveAccount().name;
+        selectionArgs[0] = profile.getKey();
 
         //Add and to WHERE params
         selection.append(" AND ");
@@ -147,16 +143,13 @@ public class FavoritesHelper {
     }
 
     private boolean addToFavorites(ResourceLookup resource) {
-        JsServerProfile profile = jsRestClient.getServerProfile();
         Favorites favoriteEntry = new Favorites();
 
         favoriteEntry.setUri(resource.getUri());
         favoriteEntry.setTitle(resource.getLabel());
         favoriteEntry.setDescription(resource.getDescription());
         favoriteEntry.setWstype(resource.getResourceType().toString());
-        favoriteEntry.setUsername(profile.getUsername());
-        favoriteEntry.setOrganization(profile.getOrganization());
-        favoriteEntry.setAccountName(JasperAccountManager.get(context).getActiveAccount().name);
+        favoriteEntry.setAccountName(profile.getKey());
         favoriteEntry.setCreationTime(resource.getCreationDate());
 
         return context.getContentResolver().insert(JasperMobileDbProvider.FAVORITES_CONTENT_URI,
@@ -180,7 +173,12 @@ public class FavoritesHelper {
             }
         }
 
-        Toast.makeText(context, context.getString(messageId), Toast.LENGTH_SHORT).show();
+        toast.setText(context.getString(messageId));
+        toast.show();
+    }
+
+    public Toast getToast() {
+        return toast;
     }
 
     private void updateFavoriteIconState(MenuItem favoriteAction, boolean isFavorite) {

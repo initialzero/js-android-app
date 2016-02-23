@@ -24,14 +24,13 @@
 
 package com.jaspersoft.android.jaspermobile.util.filtering;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.server.ServerRelease;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -40,6 +39,8 @@ import org.androidannotations.annotations.RootContext;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  * @author Andrew Tivodar
  * @since 2.0
@@ -47,11 +48,13 @@ import java.util.List;
 @EBean
 public class LibraryResourceFilter extends ResourceFilter {
 
-    private ServerRelease serverRelease;
-    private boolean isProEdition;
-
     @RootContext
     protected FragmentActivity activity;
+    @Inject
+    protected JasperServer mServer;
+
+    private ServerVersion mVersion;
+    private boolean mIsPro;
 
     private enum LibraryFilterCategory {
         all(R.string.s_fd_option_all),
@@ -70,11 +73,12 @@ public class LibraryResourceFilter extends ResourceFilter {
     }
 
     @AfterInject
-    protected void initFilter() {
-        Account account = JasperAccountManager.get(activity).getActiveAccount();
-        AccountServerData accountServerData = AccountServerData.get(activity, account);
-        this.serverRelease = ServerRelease.parseVersion(accountServerData.getVersionName());
-        this.isProEdition = accountServerData.getEdition().equals("PRO");
+    void init() {
+        ComponentProviderDelegate.INSTANCE
+                .getBaseActivityComponent(activity)
+                .inject(this);
+        mVersion = ServerVersion.valueOf(mServer.getVersion());
+        mIsPro = mServer.isProEdition();
     }
 
     @Override
@@ -90,7 +94,7 @@ public class LibraryResourceFilter extends ResourceFilter {
         availableFilters.add(getFilterAll());
 
         // Filtration is not available for CE servers
-        if (isProEdition) {
+        if (mIsPro) {
             availableFilters.add(getFilterReport());
             availableFilters.add(getFilterDashboard());
         }
@@ -111,7 +115,7 @@ public class LibraryResourceFilter extends ResourceFilter {
     private Filter getFilterAll() {
         ArrayList<String> filterValues = new ArrayList<>();
         filterValues.addAll(JasperResources.report());
-        filterValues.addAll(JasperResources.dashboard(serverRelease));
+        filterValues.addAll(JasperResources.dashboard(mVersion));
 
         return new Filter(LibraryFilterCategory.all.name(), filterValues);
     }
@@ -125,7 +129,7 @@ public class LibraryResourceFilter extends ResourceFilter {
 
     private Filter getFilterDashboard() {
         ArrayList<String> filterValues = new ArrayList<>();
-        filterValues.addAll(JasperResources.dashboard(serverRelease));
+        filterValues.addAll(JasperResources.dashboard(mVersion));
 
         return new Filter(LibraryFilterCategory.dashboards.name(), filterValues);
     }

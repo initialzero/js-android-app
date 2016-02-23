@@ -28,9 +28,10 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteDialogFragment;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
@@ -39,9 +40,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Activity that performs report viewing in HTML format.
@@ -52,7 +50,7 @@ import java.util.List;
 
 @EActivity
 @OptionsMenu(R.menu.saved_report)
-public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
+public class SavedReportHtmlViewerActivity extends ToolbarActivity
         implements WebViewFragment.OnWebViewCreated, DeleteDialogFragment.DeleteDialogClickListener {
 
     @Extra
@@ -89,11 +87,7 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
 
     @OptionsItem
     final void deleteItem() {
-        Uri uri = Uri.parse(recordUri);
-
         DeleteDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setFile(reportFile)
-                .setRecordsUri(uri.toString())
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.sdr_drd_title)
                 .setMessage(getString(R.string.sdr_drd_msg, resourceLabel))
@@ -112,13 +106,8 @@ public class SavedReportHtmlViewerActivity extends RoboToolbarActivity
     //---------------------------------------------------------------------
 
     @Override
-    public void onDeleteConfirmed(String itemsToDelete, File filesToDelete) {
-        long id = Long.valueOf(Uri.parse(itemsToDelete).getLastPathSegment());
-        savedItemHelper.deleteSavedItem(reportFile, id);
+    public void onDeleteConfirmed(JasperResource resource) {
+        savedItemHelper.deleteSavedItem(Uri.parse(recordUri));
         finish();
-    }
-
-    @Override
-    public void onDeleteCanceled() {
     }
 }

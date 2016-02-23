@@ -77,6 +77,9 @@ public class VoiceRecognitionHelper {
     }
 
     public static boolean isVoiceRecognizerAvailable(Context context) {
+        if (context == null) {
+            return false;
+        }
         PackageManager packageManager = context.getPackageManager();
         List<ResolveInfo> activities = packageManager.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
         return !activities.isEmpty();

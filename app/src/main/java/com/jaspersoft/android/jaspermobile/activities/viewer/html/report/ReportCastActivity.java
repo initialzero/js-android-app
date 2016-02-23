@@ -367,7 +367,13 @@ public class ReportCastActivity extends CastActivity
 
     @Override
     public void onMultiPage() {
-        showPaginationBar(true);
+        if (paginationBar.getTotalPages() == 0) {
+            showEmptyView();
+            showPaginationBar(false);
+        } else {
+            showPaginationBar(true);
+        }
+
     }
 
     @Override

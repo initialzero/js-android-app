@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.data.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.File;
 
@@ -19,17 +20,17 @@ public class ExportBundle implements Parcelable {
     private final String mDescription;
     @NonNull
     private final String mFormat;
-    @NonNull
+    @Nullable
     private final String mPageRange;
     @NonNull
     private final File mFile;
 
-    public ExportBundle(
+    private ExportBundle(
             @NonNull String uri,
             @NonNull String label,
             @NonNull String description,
             @NonNull String format,
-            @NonNull String pageRange,
+            @Nullable String pageRange,
             @NonNull File file) {
         mUri = uri;
         mLabel = label;
@@ -54,7 +55,7 @@ public class ExportBundle implements Parcelable {
         return mLabel;
     }
 
-    @NonNull
+    @Nullable
     public String getPageRange() {
         return mPageRange;
     }
@@ -70,23 +71,23 @@ public class ExportBundle implements Parcelable {
     }
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ExportBundle)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        ExportBundle bundle = (ExportBundle) o;
+        ExportBundle that = (ExportBundle) o;
 
-        if (!mUri.equals(bundle.mUri)) return false;
-        if (!mLabel.equals(bundle.mLabel)) return false;
-        if (!mDescription.equals(bundle.mDescription)) return false;
-        if (!mFormat.equals(bundle.mFormat)) return false;
-        if (!mPageRange.equals(bundle.mPageRange)) return false;
-        return mFile.equals(bundle.mFile);
+        if (!mUri.equals(that.mUri)) return false;
+        if (!mLabel.equals(that.mLabel)) return false;
+        if (!mDescription.equals(that.mDescription)) return false;
+        if (!mFormat.equals(that.mFormat)) return false;
+        if (!mPageRange.equals(that.mPageRange)) return false;
+        return mFile.equals(that.mFile);
 
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         int result = mUri.hashCode();
         result = 31 * result + mLabel.hashCode();
         result = 31 * result + mDescription.hashCode();
@@ -143,9 +144,6 @@ public class ExportBundle implements Parcelable {
             }
             if (mFormat == null) {
                 throw new NullPointerException("Format should not be null");
-            }
-            if (mPageRange == null) {
-                throw new NullPointerException("Page range should not be null");
             }
             return new ExportBundle(
                     mUri,

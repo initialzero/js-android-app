@@ -152,7 +152,11 @@ public class ReportDownloadManager {
         File file = bundle.getFile();
 
         ReportFormat reportFormat = ReportFormat.valueOf(format);
-        PageRange pageRange = PageRange.parse(range);
+
+        PageRange pageRange = null;
+        if (range != null) {
+            pageRange = PageRange.parse(range);
+        }
 
         List<ReportParameter> parameters = mReportParamsCache.get(reportUri);
         List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> params =

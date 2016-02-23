@@ -25,7 +25,9 @@
 package com.jaspersoft.android.jaspermobile.dialog;
 
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -45,6 +47,7 @@ import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.CheckPasswordUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetCurrentProfileFormUseCase;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
@@ -202,6 +205,10 @@ public class PasswordDialogFragment extends DialogFragment implements DialogInte
             @Override
             public void onNext(Void item) {
                 dismiss();
+
+                Intent restartIntent = NavigationActivity_.intent(getActivity()).get();
+                restartIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                getActivity().startActivity(restartIntent);
             }
         });
     }

@@ -172,7 +172,10 @@ public class SaveReportService extends Service implements ReportDownloadManager.
     }
 
     private PendingIntent getSavedItemIntent() {
-        Intent notificationIntent = new Intent(this, NavigationActivity_.class);
+        Intent notificationIntent = NavigationActivity_.intent(this)
+                .currentSelection(R.id.vg_saved_items)
+                .get();
+
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }

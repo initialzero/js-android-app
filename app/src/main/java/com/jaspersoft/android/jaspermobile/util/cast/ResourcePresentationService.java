@@ -215,6 +215,8 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     }
 
     public void startPresentation(ResourceLookup resourceLookup) {
+        if (resourceLookup.equals(mCurrentResource)) return;
+
         mCurrentResource = resourceLookup;
         mPresentation.castReport(resourceLookup.getUri());
 
@@ -606,7 +608,11 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                     if (mState == INITIALIZED) return;
 
                     mPresentation.hideLoading();
-                    mPresentation.showReport();
+                    if (mPageCount != 0) {
+                        mPresentation.showReport();
+                    } else {
+                        mPresentation.hideReport();
+                    }
 
                     changeState(PRESENTING);
                     updateCastNotification();
@@ -635,7 +641,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                 public void run() {
                     mPageCount = pages;
                     if (pages == 0) {
-                        webView.setVisibility(View.GONE);
+                        hideReport();
                     }
 
                     for (ResourcePresentationCallback reportPresentationListener : mReportPresentationListeners) {

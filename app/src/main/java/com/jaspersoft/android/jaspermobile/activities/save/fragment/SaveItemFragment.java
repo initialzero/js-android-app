@@ -291,6 +291,8 @@ public class SaveItemFragment extends BaseFragment implements NumberDialogFragme
     }
 
     private String calculatePages(int fromPage, int toPage) {
+        if (toPage == 0) return null;
+
         boolean pagesNumbersIsValid = fromPage > 0 && toPage > 0 && toPage >= fromPage;
         if (pagesNumbersIsValid) {
             boolean isRange = fromPage < toPage;

@@ -67,7 +67,6 @@ public class ReportInfoFragment extends ResourceInfoFragment
         if (FileUtils.isExternalStorageWritable()) {
             SaveReportActivity_.intent(this)
                     .resource(mResourceLookup)
-                    .pageCount(0)
                     .start();
         } else {
             Toast.makeText(getActivity(),

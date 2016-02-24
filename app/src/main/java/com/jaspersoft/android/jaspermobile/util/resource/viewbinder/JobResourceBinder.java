@@ -61,7 +61,7 @@ class JobResourceBinder extends ResourceBinder {
         if (item instanceof JobResource) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT);
             String date = simpleDateFormat.format(((JobResource) item).getDate());
-            resourceView.setSubTitle(getContext().getString(R.string.sch_next_run_label, date));
+            resourceView.setSubTitle(getContext().getString(R.string.sch_next_run_label, date, ((JobResource) item).getState()));
             return;
         }
 
@@ -71,7 +71,7 @@ class JobResourceBinder extends ResourceBinder {
     @Override
     protected void setTitle(ResourceView resourceView, JasperResource item) {
         if (item instanceof JobResource) {
-            resourceView.setTitle(getContext().getString(R.string.sch_state_label, item.getLabel(), ((JobResource) item).getState()));
+            resourceView.setTitle(item.getLabel());
             return;
         }
 

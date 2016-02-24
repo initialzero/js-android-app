@@ -278,13 +278,6 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
         mGetRootFoldersCase.execute(new GetRootFolderDataRequestListener());
     }
 
-    public void loadFirstPage() {
-        clearData();
-        mSearchCriteria.setOffset(0);
-        mSearchResourcesCase.unsubscribe();
-        loadResources();
-    }
-
     private void loadNextPage() {
         if (!mLoading && mHasNextPage) {
             int currentOffset = mSearchCriteria.getOffset();
@@ -319,10 +312,15 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
     private void loadPage() {
         boolean isRoot = TextUtils.isEmpty(resourceUri);
         boolean isProJrs = mServer.isProEdition();
+
+        clearData();
+        mSearchCriteria.setOffset(0);
+        mSearchResourcesCase.unsubscribe();
+
         if (isRoot && isProJrs) {
             loadRootFolders();
         } else {
-            loadFirstPage();
+            loadResources();
         }
     }
 

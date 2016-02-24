@@ -93,10 +93,7 @@ public class EditScheduleActivity extends ToolbarActivity {
             mScheduleFragment = (ScheduleFragment) getSupportFragmentManager().findFragmentByTag(ScheduleFragment.TAG);
         }
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(R.string.sch_edit);
-        }
+        setActionBarTitle(getString(R.string.sch_edit));
 
         requestJobInfo();
     }
@@ -163,6 +160,13 @@ public class EditScheduleActivity extends ToolbarActivity {
         );
     }
 
+    private void setActionBarTitle(String title) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(title);
+        }
+    }
+
     private void hideLoading() {
         ProgressDialogFragment.dismiss(getSupportFragmentManager());
     }
@@ -223,6 +227,8 @@ public class EditScheduleActivity extends ToolbarActivity {
                                 transaction
                                         .replace(R.id.content, mScheduleFragment, ScheduleFragment.TAG)
                                         .commit();
+
+                                setActionBarTitle(currentJobForm.getLabel());
                             }
                         })
         );

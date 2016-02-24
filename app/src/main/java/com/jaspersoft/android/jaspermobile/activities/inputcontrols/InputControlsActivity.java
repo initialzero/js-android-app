@@ -159,11 +159,11 @@ public class InputControlsActivity extends ToolbarActivity
     private InputControlsAdapter mAdapter;
     private ArrayAdapter<String> mReportOptionsAdapter;
     private boolean mIsProJrs;
+    private Bundle mSavedInstanceState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         getProfileComponent()
                 .plusControlsPage(
                         new ActivityModule(this),
@@ -171,6 +171,7 @@ public class InputControlsActivity extends ToolbarActivity
                 )
                 .inject(this);
 
+        mSavedInstanceState = savedInstanceState;
         mIsProJrs = mJasperServer.isProEdition();
 
         mInputControls = paramsStorage.getInputControlHolder(reportUri).getInputControls();
@@ -179,21 +180,26 @@ public class InputControlsActivity extends ToolbarActivity
         }
         mReportOptions = paramsStorage.getInputControlHolder(reportUri).getReportOptions();
         mReportOptionsTitles = new ArrayList<>();
-
-        if (savedInstanceState == null) {
-            updateInputControlsFromReportParams();
-        }
-
-        if (mReportOptions.isEmpty() && !dashboardInputControl) {
-            loadReportOptions();
-        }
     }
 
     @AfterViews
     protected void init() {
         initToolbar();
         showInputControls();
-        showReportOptions();
+
+        boolean noReportOptions = mReportOptions.isEmpty();
+        boolean isReportControlsPage = !dashboardInputControl;
+        if (isReportControlsPage) {
+            if (noReportOptions) {
+                loadReportOptions();
+            } else {
+                showReportOptions();
+            }
+        }
+
+        if (mSavedInstanceState == null) {
+            updateInputControlsFromReportParams();
+        }
     }
 
     @Override

@@ -34,7 +34,6 @@ import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 import com.jaspersoft.android.jaspermobile.util.resource.ReportResource;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 
 
 /**
@@ -77,14 +76,7 @@ class ReportResourceBinder extends ResourceBinder {
                 .considerExifParams(true)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
-                .preProcessor(new BitmapProcessor() {
-                    @Override
-                    public Bitmap process(Bitmap bitmap) {
-                        int scaledWidth = (int) (bitmap.getWidth() * 0.66);
-                        int newHeight = scaledWidth < bitmap.getHeight() ? scaledWidth : bitmap.getHeight();
-                        return Bitmap.createBitmap(bitmap, 3, 3, bitmap.getWidth() - 6, newHeight - 6);
-                    }
-                })
+                .preProcessor(new CustomBitmapProcessor(getContext(), R.drawable.ic_report))
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .build();
     }

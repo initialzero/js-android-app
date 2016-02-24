@@ -122,7 +122,6 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
                 R.color.js_dark_blue);
 
         setDataAdapter();
-        loadJobs();
     }
 
     @Override
@@ -139,6 +138,8 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
         if (actionBar != null) {
             actionBar.setTitle(getString(R.string.sch_jobs));
         }
+
+        loadJobs();
 
         List<Analytics.Dimension> viewDimension = new ArrayList<>();
         analytics.sendScreenView(Analytics.ScreenName.JOBS.getValue(), viewDimension);

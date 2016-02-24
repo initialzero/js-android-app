@@ -113,7 +113,7 @@ public class EditScheduleActivity extends ToolbarActivity {
 
     @Override
     protected String getScreenName() {
-        return getString(R.string.ja_sch);
+        return getString(R.string.ja_edit_sch);
     }
 
     @OptionsItem(R.id.editSchedule)

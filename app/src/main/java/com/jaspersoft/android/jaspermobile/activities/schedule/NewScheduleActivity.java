@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.schedule;
 
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -181,11 +182,19 @@ public class NewScheduleActivity extends ToolbarActivity {
         ArrayList<JobOutputFormat> formats = new ArrayList<>();
         formats.add(JobOutputFormat.PDF);
 
+        String reportFolder;
+        int endIndex = jasperResource.getId().lastIndexOf("/");
+        if (endIndex != -1) {
+            reportFolder = jasperResource.getId().substring(0, endIndex); // not forgot to put check if(endIndex != -1)
+        } else {
+            reportFolder = DEFAULT_OUTPUT_PATH;
+        }
+
         return new JobForm.Builder()
                 .withBaseOutputFilename(outputFileName)
                 .withLabel(getString(R.string.sch_new))
                 .withJobSource(new JobSource.Builder().withUri(jasperResource.getId()).build())
-                .withRepositoryDestination(new RepositoryDestination.Builder().withFolderUri(DEFAULT_OUTPUT_PATH).build())
+                .withRepositoryDestination(new RepositoryDestination.Builder().withFolderUri(reportFolder).build())
                 .withOutputFormats(formats)
                 .build();
     }

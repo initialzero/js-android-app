@@ -32,9 +32,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.KeyListener;
+import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -75,7 +79,7 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
 
         icValue.setText(mValue);
         icValue.setSelection(mValue.length());
-        icValue.addTextChangedListener(new ValueTextWatcher());
+        icValue.setOnKeyListener(new KeyTextWatcher());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(customLayout);
@@ -128,30 +132,32 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
     private void setOkButtonEnabled(boolean enabled) {
         Dialog dialog = getDialog();
         if (dialog != null && dialog instanceof AlertDialog) {
-            ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled);
+            Button okButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+            okButton.setEnabled(enabled);
+            // Fix for pre Lollipop devices. Changing disabled button color manually
+            okButton.setTextColor(enabled ? getThemeAccentColor() : getResources().getColor(R.color.js_lightest_gray));
         }
+    }
+
+    private int getThemeAccentColor() {
+        final TypedValue value = new TypedValue();
+        getActivity().getTheme().resolveAttribute(R.attr.colorAccent, value, true);
+        return value.data;
     }
 
     public static ValueInputDialogFragmentBuilder createBuilder(FragmentManager fragmentManager) {
         return new ValueInputDialogFragmentBuilder(fragmentManager);
     }
 
-    private class ValueTextWatcher implements TextWatcher {
+    private class KeyTextWatcher implements View.OnKeyListener {
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
+        public boolean onKey(View v, int keyCode, KeyEvent event) {
+            if (!mRequired || icValue == null) return false;
 
-        @Override
-        public void onTextChanged(CharSequence value, int start, int before, int count) {
-            if (!mRequired) return;
-
-            boolean isValueEmpty = value.toString().trim().isEmpty();
+            boolean isValueEmpty = icValue.getText().toString().trim().isEmpty();
             icValue.setError(isValueEmpty ? getString(R.string.sr_error_field_is_empty) : null);
             setOkButtonEnabled(!isValueEmpty);
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
+            return false;
         }
     }
 

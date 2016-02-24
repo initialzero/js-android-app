@@ -173,8 +173,7 @@
     <string name="sch_jobs" translatable="false">Schedules</string>
     <string name="sch_not_found" translatable="false">No job is scheduled.</string>
     <string name="sch_format_paginated" translatable="false">%s(Paginated)</string>
-    <string name="sch_state_label" translatable="false">%s (state: %s)</string>
-    <string name="sch_next_run_label" translatable="false">Next run: %s</string>
+    <string name="sch_next_run_label" translatable="false">Next run: %s (state: %s)</string>
     <string name="sch_state_normal" translatable="false">Normal</string>
     <string name="sch_state_complete" translatable="false">Complete</string>
     <string name="sch_state_executing" translatable="false">Executing</string>

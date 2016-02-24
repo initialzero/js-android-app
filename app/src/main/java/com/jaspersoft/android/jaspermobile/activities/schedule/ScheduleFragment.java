@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.schedule;
 
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
@@ -59,7 +58,7 @@ import java.util.Date;
  * @author Andrew Tivodar
  * @since 2.3
  */
-@EFragment(R.layout.activity_schedule)
+@EFragment(R.layout.fragment_schedule)
 public class ScheduleFragment extends BaseFragment implements DateDialogFragment.DateDialogClickListener,
         OutputFormatDialogFragment.OutputFormatClickListener, ValueInputDialogFragment.ValueDialogCallback {
 

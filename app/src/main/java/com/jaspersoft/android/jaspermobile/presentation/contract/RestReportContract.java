@@ -33,9 +33,11 @@ public interface RestReportContract {
 
         void showReloadMessage();
 
-        void showPageLoader();
+        void showPageLoader(boolean visibility);
 
         ReportPageState getState();
+
+        void showWebView(boolean visibility);
     }
 
     interface Action {

@@ -93,12 +93,17 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
     }
 
     private void loadPageByPosition(final String position) {
-        showPageLoader();
         PageRequest request = new PageRequest.Builder()
                 .setUri(mReportUri)
                 .setRange(position)
                 .build();
         mGetReportPageContentCase.execute(request, new ErrorSubscriber<>(new SimpleSubscriber<ReportPage>() {
+            @Override
+            public void onStart() {
+                getView().showWebView(false);
+                getView().showPageLoader(true);
+            }
+
             @Override
             public void onNext(ReportPage item) {
                 if (item.isEmpty()) {
@@ -106,6 +111,11 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
                 } else {
                     showPage(position, item);
                 }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                getView().showPageLoader(false);
             }
         }));
     }
@@ -240,9 +250,6 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
         }));
     }
 
-    private void showPageLoader() {
-        getView().showPageLoader();
-    }
 
     private void showPageOutOfRangeError() {
         getView().showPageOutOfRangeError();
@@ -331,6 +338,12 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
 
         private ErrorSubscriber(Subscriber<R> delegate) {
             mDelegate = delegate;
+        }
+
+        @Override
+        public void onStart() {
+            getView().hideError();
+            mDelegate.onStart();
         }
 
         @Override

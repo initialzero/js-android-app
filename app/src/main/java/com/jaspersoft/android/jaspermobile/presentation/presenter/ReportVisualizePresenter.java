@@ -395,6 +395,8 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<PageLoadCompleteEvent>() {
                             @Override
                             public void onNext(PageLoadCompleteEvent event) {
+                                getView().showWebView(true);
+                                getView().hideError();
                                 getView().setPaginationEnabled(true);
                                 getView().setPaginationCurrentPage(event.getPage());
                             }
@@ -412,6 +414,7 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
                             public void onNext(PageLoadErrorEvent event) {
                                 getView().setPaginationEnabled(true);
                                 getView().setPaginationCurrentPage(event.getPage());
+                                getView().showWebView(false);
                                 getView().showError(event.getErrorMessage());
                             }
                         }))

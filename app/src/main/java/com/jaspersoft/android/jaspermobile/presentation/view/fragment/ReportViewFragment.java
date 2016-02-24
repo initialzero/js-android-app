@@ -394,14 +394,17 @@ public class ReportViewFragment extends BaseFragment
     }
 
     @Override
-    public void showPageLoader() {
-        webView.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
+    public void showPageLoader(boolean visibility) {
+        progressBar.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
-
     @Override
     public ReportPageState getState() {
         return mReportPageState;
+    }
+
+    @Override
+    public void showWebView(boolean visibility) {
+        webView.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 
     @OptionsItem

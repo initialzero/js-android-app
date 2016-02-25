@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.util.print;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Bundle;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
@@ -23,7 +24,9 @@ public final class DashboardViewPrintJob implements ResourcePrintJob {
     @NonNull
     @TargetApi(19)
     @Override
-    public ResourcePrintJob printResource(@NonNull String resourceUri, @NonNull String printName) {
+    public ResourcePrintJob printResource(@NonNull Bundle args) {
+        String printName = args.getString(ResourcePrintJob.PRINT_NAME_KEY);
+
         PrintManager printManager = (PrintManager) webView.getContext().getSystemService(Context.PRINT_SERVICE);
         PrintDocumentAdapter printAdapter;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {

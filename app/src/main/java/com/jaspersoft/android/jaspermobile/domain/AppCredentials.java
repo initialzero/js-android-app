@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
  * @since 2.3
  */
 public class AppCredentials {
+    public static final String NO_PASSWORD = "none";
+
     private final String username;
     private final String password;
     private final String organization;
@@ -97,6 +99,9 @@ public class AppCredentials {
         }
 
         public AppCredentials create() {
+            if (mPassword == null) {
+                mPassword = NO_PASSWORD;
+            }
             return new AppCredentials(mUsername, mPassword, mOrganization);
         }
     }

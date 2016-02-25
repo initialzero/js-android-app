@@ -36,6 +36,7 @@
             <intent-filter>
                 <action android:name="jaspermobile.util.action.REMOVE_COOKIES" />
                 <action android:name="jaspermobile.util.action.REMOVE_ALL_ACCOUNTS" />
+                <action android:name="jaspermobile.util.action.INVALIDATE_PASSWORD" />
             </intent-filter>
         </receiver>
     </application>

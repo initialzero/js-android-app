@@ -39,7 +39,6 @@ import com.jaspersoft.android.jaspermobile.domain.PageRequest;
 import com.jaspersoft.android.jaspermobile.domain.PrintRequest;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetPrintReportPageCase;
-import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportTotalPagesPropertyCase;
 import com.jaspersoft.android.jaspermobile.internal.di.ActivityContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
@@ -51,47 +50,52 @@ import javax.inject.Inject;
  */
 @PerActivity
 public final class ReportPrintJob implements ResourcePrintJob {
+    public static final String TOTAL_PAGES_KEY = "total_pages";
+    public static final String REPORT_URI_KEY = "resource_key";
 
     private final Context mContext;
-    private final GetReportTotalPagesPropertyCase mGetReportTotalPagesPropertyCase;
     private final GetPrintReportPageCase mGetPrintReportPageCase;
 
     @Inject
     public ReportPrintJob(
             @ActivityContext Context context,
-            GetReportTotalPagesPropertyCase getReportTotalPagesPropertyCase,
             GetPrintReportPageCase getPrintReportPageCase
     ) {
         mContext = context;
-        mGetReportTotalPagesPropertyCase = getReportTotalPagesPropertyCase;
         mGetPrintReportPageCase = getPrintReportPageCase;
     }
 
     @NonNull
     @Override
-    public ResourcePrintJob printResource(@NonNull String resourceUri, @NonNull String printName) {
+    public ResourcePrintJob printResource(@NonNull Bundle args) {
+        String printName = args.getString(ResourcePrintJob.PRINT_NAME_KEY);
+        String resourceUri = args.getString(REPORT_URI_KEY);
+        int totalPages = args.getInt(TOTAL_PAGES_KEY);
+
         PrintManager printManager = (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
 
         PrintAttributes printAttributes = new PrintAttributes.Builder().build();
-        PrintDocumentAdapter printAdapter = new Adapter(printName, resourceUri);
+        PrintDocumentAdapter printAdapter = new Adapter(printName, resourceUri, totalPages);
 
         printManager.print(printName, printAdapter, printAttributes);
         return this;
     }
 
     private void cancelTasks() {
-        mGetReportTotalPagesPropertyCase.unsubscribe();
         mGetPrintReportPageCase.unsubscribe();
     }
 
     private class Adapter extends PrintDocumentAdapter {
         private final String mPrintName;
         private final String mResourceUri;
-        public PageRangeFormat mPageRangeFormat;
+        private final int mTotalPages;
+        private final PageRangeFormat mPageRangeFormat;
 
-        public Adapter(String printName, String resourceUri) {
+        public Adapter(String printName, String resourceUri, int totalPages) {
             mPrintName = printName;
             mResourceUri = resourceUri;
+            mTotalPages = totalPages;
+            mPageRangeFormat = new PageRangeFormat(mTotalPages);
         }
 
         @Override
@@ -107,22 +111,12 @@ public final class ReportPrintJob implements ResourcePrintJob {
                 callback.onLayoutCancelled();
                 return;
             }
-            mGetReportTotalPagesPropertyCase.execute(mResourceUri, new SimpleSubscriber<Integer>() {
-                @Override
-                public void onError(Throwable throwable) {
-                    callback.onLayoutFailed(throwable.getMessage());
-                }
 
-                @Override
-                public void onNext(Integer pageCount) {
-                    mPageRangeFormat = new PageRangeFormat(pageCount);
-                    PrintDocumentInfo pdi = new PrintDocumentInfo.Builder(mPrintName)
-                            .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-                            .setPageCount(pageCount)
-                            .build();
-                    callback.onLayoutFinished(pdi, true);
-                }
-            });
+            PrintDocumentInfo pdi = new PrintDocumentInfo.Builder(mPrintName)
+                    .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
+                    .setPageCount(mTotalPages)
+                    .build();
+            callback.onLayoutFinished(pdi, true);
         }
 
 

@@ -40,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AuthenticatorActivityComponent;
 import com.jaspersoft.android.jaspermobile.presentation.contract.AuthenticationContract;
+import com.jaspersoft.android.jaspermobile.presentation.page.AuthPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.BaseUrlNormalizer;
@@ -47,6 +48,7 @@ import com.jaspersoft.android.jaspermobile.util.BaseUrlNormalizer;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
 import javax.inject.Inject;
@@ -82,6 +84,9 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     @Inject
     AuthenticationContract.ActionListener mActionListener;
 
+    @InstanceState
+    AuthPageState mState = new AuthPageState();
+
     @Inject
     @Named("accountType")
     String accountType;
@@ -89,6 +94,7 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         if (mPresenter == null) {
             injectComponents();
         }
@@ -129,8 +135,8 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onDestroy() {
+        super.onDestroy();
         if (mPresenter != null) {
             mPresenter.destroy();
         }
@@ -238,6 +244,11 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     @Override
     public void showTryDemo(boolean visible) {
         tryDemoLayout.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public AuthPageState getState() {
+        return mState;
     }
 
     private AuthenticatorActivity getAccountAuthenticatorActivity() {

@@ -56,6 +56,7 @@ import com.jaspersoft.android.jaspermobile.presentation.contract.RestReportContr
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
+import com.jaspersoft.android.jaspermobile.util.print.ReportPrintJob;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
@@ -172,6 +173,7 @@ public class ReportViewFragment extends BaseFragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
         favoritesHelper.updateFavoriteIconState(favoriteAction, resource.getUri());
         saveReport.setVisible(saveMenuItemVisibilityFlag);
+        printReport.setVisible(saveMenuItemVisibilityFlag);
         showFilters.setVisible(filtersMenuItemVisibilityFlag);
     }
 
@@ -410,10 +412,7 @@ public class ReportViewFragment extends BaseFragment
     @OptionsItem
     final void saveReport() {
         if (FileUtils.isExternalStorageWritable()) {
-            boolean isTotalPagesDefined =
-                    paginationControl.getTotalPages() != AbstractPaginationView.UNDEFINED_PAGE_NUMBER;
-            int pages = isTotalPagesDefined ? paginationControl.getTotalPages() :
-                    AbstractPaginationView.FIRST_PAGE;
+            int pages = getPaginationTotalPages();
 
             SaveReportActivity_.intent(this)
                     .resource(resource)
@@ -423,6 +422,13 @@ public class ReportViewFragment extends BaseFragment
             Toast.makeText(getActivity(),
                     R.string.rv_t_external_storage_not_available, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private int getPaginationTotalPages() {
+        boolean isTotalPagesDefined =
+                paginationControl.getTotalPages() != AbstractPaginationView.UNDEFINED_PAGE_NUMBER;
+        return isTotalPagesDefined ? paginationControl.getTotalPages() :
+                AbstractPaginationView.FIRST_PAGE;
     }
 
     @OptionsItem
@@ -448,7 +454,13 @@ public class ReportViewFragment extends BaseFragment
                 Analytics.EventAction.PRINTED.getValue(),
                 Analytics.EventLabel.REPORT.getValue()
         );
-        mResourcePrintJob.printResource(resource.getUri(), resource.getLabel());
+
+        Bundle args = new Bundle();
+        args.putString(ReportPrintJob.REPORT_URI_KEY, resource.getUri());
+        args.putInt(ReportPrintJob.TOTAL_PAGES_KEY, getPaginationTotalPages());
+        args.putString(ResourcePrintJob.PRINT_NAME_KEY, resource.getLabel());
+
+        mResourcePrintJob.printResource(args);
     }
 
     @OptionsItem

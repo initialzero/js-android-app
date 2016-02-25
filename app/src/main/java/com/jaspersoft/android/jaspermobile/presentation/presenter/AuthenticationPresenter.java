@@ -14,6 +14,7 @@ import com.jaspersoft.android.jaspermobile.domain.validator.exception.ServerVers
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.contract.AuthenticationContract;
+import com.jaspersoft.android.jaspermobile.presentation.page.AuthPageState;
 import com.jaspersoft.android.jaspermobile.presentation.validation.AliasMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.PasswordMissingException;
 import com.jaspersoft.android.jaspermobile.presentation.validation.ProfileFormValidation;
@@ -53,10 +54,17 @@ public final class AuthenticationPresenter extends Presenter<AuthenticationContr
 
     @Override
     public void resume() {
+        AuthPageState state = getView().getState();
+        if (state.isLoading()) {
+            getView().showLoading();
+        } else {
+            getView().hideLoading();
+        }
     }
 
     @Override
     public void pause() {
+        getView().hideLoading();
     }
 
     @Override
@@ -116,14 +124,26 @@ public final class AuthenticationPresenter extends Presenter<AuthenticationContr
         }
     }
 
+    private void setPageLoadingState(boolean loading) {
+        AuthPageState state = getView().getState();
+        state.setLoading(loading);
+    }
+
     private class ProfileSaveListener extends Subscriber<Profile> {
         @Override
+        public void onStart() {
+            setPageLoadingState(true);
+        }
+
+        @Override
         public void onCompleted() {
+            setPageLoadingState(false);
             getView().hideLoading();
         }
 
         @Override
         public void onError(Throwable e) {
+            setPageLoadingState(false);
             handleProfileSaveFailure(e);
             getView().hideLoading();
         }

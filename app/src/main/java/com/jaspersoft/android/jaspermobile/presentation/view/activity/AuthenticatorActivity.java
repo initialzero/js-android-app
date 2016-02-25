@@ -71,6 +71,7 @@ public class AuthenticatorActivity extends BaseActivity implements HasComponent<
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_authentication);
 
         getComponent().inject(this);
         mAnalytics.setScreenName(getString(R.string.ja_aas));
@@ -84,7 +85,7 @@ public class AuthenticatorActivity extends BaseActivity implements HasComponent<
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, AuthenticatorFragment_.builder().build())
+                    .add(R.id.main_frame, AuthenticatorFragment_.builder().build())
                     .commit();
         }
     }

@@ -31,6 +31,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
 import android.util.TypedValue;
@@ -65,6 +66,7 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
     private String mLabel;
     private String mValue;
     private boolean mRequired;
+    AlertDialog mValueDialog;
 
     @SystemService
     protected InputMethodManager inputMethodManager;
@@ -79,31 +81,47 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
 
         icValue.setText(mValue);
         icValue.setSelection(mValue.length());
-        icValue.setOnKeyListener(new KeyTextWatcher());
+        icValue.addTextChangedListener(new SimpleTextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                super.onTextChanged(s, start, before, count);
+                icValue.setError(null);
+            }
+        });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(customLayout);
         builder.setTitle(mLabel);
         builder.setCancelable(false);
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String newIcValue = ValueInputDialogFragment.this.icValue.getText().toString();
-                if (mDialogListener != null) {
-                    ((ValueDialogCallback) mDialogListener).onTextValueEntered(requestCode, newIcValue);
-                }
-            }
-        });
+        builder.setPositiveButton(R.string.ok, null);
         builder.setNegativeButton(R.string.cancel, null);
 
-        AlertDialog icValueDialog = builder.create();
-        icValueDialog.setOnShowListener(this);
-        return icValueDialog;
+        mValueDialog = builder.create();
+        mValueDialog.setOnShowListener(this);
+        return mValueDialog;
     }
 
     @Override
     public void onShow(DialogInterface dialog) {
         inputMethodManager.showSoftInput(icValue, 0);
+
+        final Button positiveBnt = mValueDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        positiveBnt.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                String newIcValue = ValueInputDialogFragment.this.icValue.getText().toString();
+                if (mRequired && newIcValue.isEmpty()) {
+                    icValue.setError(getString(R.string.sr_error_field_is_empty));
+                    return;
+                }
+                if (mDialogListener != null) {
+                    ((ValueDialogCallback) mDialogListener).onTextValueEntered(requestCode, newIcValue);
+                }
+
+                mValueDialog.dismiss();
+            }
+        });
     }
 
     @Override
@@ -129,36 +147,8 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
         }
     }
 
-    private void setOkButtonEnabled(boolean enabled) {
-        Dialog dialog = getDialog();
-        if (dialog != null && dialog instanceof AlertDialog) {
-            Button okButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-            okButton.setEnabled(enabled);
-            // Fix for pre Lollipop devices. Changing disabled button color manually
-            okButton.setTextColor(enabled ? getThemeAccentColor() : getResources().getColor(R.color.js_lightest_gray));
-        }
-    }
-
-    private int getThemeAccentColor() {
-        final TypedValue value = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.colorAccent, value, true);
-        return value.data;
-    }
-
     public static ValueInputDialogFragmentBuilder createBuilder(FragmentManager fragmentManager) {
         return new ValueInputDialogFragmentBuilder(fragmentManager);
-    }
-
-    private class KeyTextWatcher implements View.OnKeyListener {
-        @Override
-        public boolean onKey(View v, int keyCode, KeyEvent event) {
-            if (!mRequired || icValue == null) return false;
-
-            boolean isValueEmpty = icValue.getText().toString().trim().isEmpty();
-            icValue.setError(isValueEmpty ? getString(R.string.sr_error_field_is_empty) : null);
-            setOkButtonEnabled(!isValueEmpty);
-            return false;
-        }
     }
 
     //---------------------------------------------------------------------

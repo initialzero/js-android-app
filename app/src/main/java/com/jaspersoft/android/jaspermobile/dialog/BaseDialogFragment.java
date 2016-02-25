@@ -55,6 +55,18 @@ public abstract class BaseDialogFragment extends DialogFragment {
         attachListener(activity, getDialogCallbackClass());
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Fragment targetFragment = getTargetFragment();
+        if (targetFragment == null) return;
+
+        if (getFragmentManager().getFragments().contains(targetFragment)) {
+            setTargetFragment(null, -1);
+        }
+    }
+
     protected void initDialogParams() {
         Bundle args = getArguments();
         if (args != null) {

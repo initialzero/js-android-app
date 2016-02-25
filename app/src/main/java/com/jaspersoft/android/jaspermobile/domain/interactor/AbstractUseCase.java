@@ -45,6 +45,11 @@ public abstract class AbstractUseCase<Result, Argument> implements UseCase<Resul
         return subscription;
     }
 
+    public Result execute(@NonNull Argument argument) {
+        Observable<Result> command = this.buildUseCaseObservable(argument);
+        return command.toBlocking().firstOrDefault(null);
+    }
+
     /**
      * Unsubscribes from current {@link rx.Subscription}.
      */

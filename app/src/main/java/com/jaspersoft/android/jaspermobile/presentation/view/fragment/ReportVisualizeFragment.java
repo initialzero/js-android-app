@@ -35,6 +35,7 @@ import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportVisualizePresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
+import com.jaspersoft.android.jaspermobile.util.print.ReportPrintJob;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
@@ -148,6 +149,7 @@ public class ReportVisualizeFragment extends BaseFragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
         favoritesHelper.updateFavoriteIconState(favoriteAction, resource.getUri());
         saveReport.setVisible(saveMenuItemVisibilityFlag);
+        printReport.setVisible(saveMenuItemVisibilityFlag);
         showFilters.setVisible(filtersMenuItemVisibilityFlag);
     }
 
@@ -255,7 +257,13 @@ public class ReportVisualizeFragment extends BaseFragment
                 Analytics.EventAction.PRINTED.getValue(),
                 Analytics.EventLabel.REPORT.getValue()
         );
-        mResourcePrintJob.printResource(resource.getUri(), resource.getLabel());
+
+        Bundle args = new Bundle();
+        args.putString(ReportPrintJob.REPORT_URI_KEY, resource.getUri());
+        args.putInt(ReportPrintJob.TOTAL_PAGES_KEY, getPaginationTotalPages());
+        args.putString(ResourcePrintJob.PRINT_NAME_KEY, resource.getLabel());
+
+        mResourcePrintJob.printResource(args);
     }
 
     @OptionsItem
@@ -354,7 +362,10 @@ public class ReportVisualizeFragment extends BaseFragment
 
     @Override
     public int getPaginationTotalPages() {
-        return paginationControl.getTotalPages();
+        boolean isTotalPagesDefined =
+                paginationControl.getTotalPages() != AbstractPaginationView.UNDEFINED_PAGE_NUMBER;
+        return isTotalPagesDefined ? paginationControl.getTotalPages() :
+                AbstractPaginationView.FIRST_PAGE;
     }
 
     @Override

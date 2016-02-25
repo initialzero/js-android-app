@@ -205,7 +205,7 @@ public class PasswordDialogFragment extends DialogFragment implements DialogInte
                 dismiss();
 
                 Intent restartIntent = NavigationActivity_.intent(getActivity()).get();
-                restartIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                restartIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 getActivity().startActivity(restartIntent);
             }
         });

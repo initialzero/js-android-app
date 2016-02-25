@@ -9,6 +9,8 @@ import com.jaspersoft.android.sdk.network.AuthorizedClient;
 import com.jaspersoft.android.sdk.network.Credentials;
 import com.jaspersoft.android.sdk.network.Server;
 import com.jaspersoft.android.sdk.network.SpringCredentials;
+import com.jaspersoft.android.sdk.service.exception.ServiceException;
+import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 import com.jaspersoft.android.sdk.service.filter.FiltersService;
 import com.jaspersoft.android.sdk.service.report.ReportService;
 import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
@@ -104,11 +106,19 @@ public class RealJasperRestClient implements JasperRestClient {
             @Override
             public Observable<AuthorizedClient> call() {
                 AppCredentials appCredentials = mCredentialsCache.get(mProfile);
+                boolean passwordMissing = AppCredentials.NO_PASSWORD.equals(appCredentials.getPassword());
+                if (passwordMissing) {
+                    ServiceException serviceException =
+                            new ServiceException("User is not authorized", null, StatusCodes.AUTHORIZATION_ERROR);
+                    return Observable.error(serviceException);
+                }
+
                 Credentials credentials = SpringCredentials.builder()
                         .withUsername(appCredentials.getUsername())
                         .withPassword(appCredentials.getPassword())
                         .withOrganization(appCredentials.getOrganization())
                         .build();
+
                 AuthorizedClient authorizedClient = provideServer().newClient(credentials)
                         .withCookieHandler(mCookieHandler)
                         .create();

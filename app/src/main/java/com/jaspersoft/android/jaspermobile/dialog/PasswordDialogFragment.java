@@ -25,7 +25,6 @@
 package com.jaspersoft.android.jaspermobile.dialog;
 
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -101,7 +100,6 @@ public class PasswordDialogFragment extends DialogFragment implements DialogInte
                 .getBaseActivityComponent(getActivity())
                 .inject(this);
 
-        setRetainInstance(true);
         mToast = Toast.makeText(getActivity(), "", Toast.LENGTH_LONG);
     }
 

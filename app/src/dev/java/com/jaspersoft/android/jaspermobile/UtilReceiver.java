@@ -31,6 +31,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
+import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import java.net.CookieManager;
@@ -46,6 +48,7 @@ import java.util.List;
 public class UtilReceiver extends BroadcastReceiver {
     private static final String REMOVE_COOKIES = "jaspermobile.util.action.REMOVE_COOKIES";
     private static final String REMOVE_ALL_ACCOUNTS = "jaspermobile.util.action.REMOVE_ALL_ACCOUNTS";
+    private static final String INVALIDATE_PASSWORD = "jaspermobile.util.action.INVALIDATE_PASSWORD";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -57,7 +60,20 @@ public class UtilReceiver extends BroadcastReceiver {
         } else if (action.equals(REMOVE_ALL_ACCOUNTS)) {
             removeAccounts(context);
             showMessage(context, "Accounts removed");
+        } else if (action.equals(INVALIDATE_PASSWORD)) {
+            invalidatePassword(context);
+            deleteToken();
+            showMessage(context, "Password invalidated and cookies removed");
         }
+    }
+
+    private void invalidatePassword(Context context) {
+        PreferencesActiveProfileCache activeProfileCache = new PreferencesActiveProfileCache(context);
+        Profile profile = activeProfileCache.get();
+
+        AccountManager manager = AccountManager.get(context);
+        Account account = new Account(profile.getKey(), JasperSettings.JASPER_ACCOUNT_TYPE);
+        manager.setPassword(account, null);
     }
 
     private void deleteToken() {
@@ -87,7 +103,6 @@ public class UtilReceiver extends BroadcastReceiver {
     private static class NullCookieStore implements CookieStore {
         @Override
         public void add(URI uri, HttpCookie cookie) {
-
         }
 
         @Override

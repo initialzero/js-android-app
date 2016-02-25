@@ -73,7 +73,7 @@ public class RequestExceptionHandler {
 
         if (exception instanceof ServiceException) {
             ServiceException serviceException = ((ServiceException) exception);
-            return adaptServiceMessage(serviceException.code());
+            return adaptServiceMessage(serviceException);
         }
 
         return exception.getLocalizedMessage();
@@ -123,7 +123,8 @@ public class RequestExceptionHandler {
     }
 
 
-    private String adaptServiceMessage(int code) {
+    private String adaptServiceMessage(ServiceException exception) {
+        int code = exception.code();
         switch (code) {
             case StatusCodes.NETWORK_ERROR:
                 return mContext.getString(R.string.no_network);
@@ -155,6 +156,12 @@ public class RequestExceptionHandler {
                 return mContext.getString(R.string.error_schedule_folder_not_exist);
             case StatusCodes.JOB_OUTPUT_FOLDER_IS_NOT_WRITABLE:
                 return mContext.getString(R.string.error_schedule_folder_not_writable);
+            case StatusCodes.JOB_OUTPUT_FILENAME_TOO_LONG:
+                String fileLength = exception.getArguments().get(0);
+                return mContext.getString(R.string.error_schedule_output_filename_too_long, fileLength);
+            case StatusCodes.JOB_LABEL_TOO_LONG:
+                String labelLength = exception.getArguments().get(0);
+                return mContext.getString(R.string.error_schedule_label_too_long, labelLength);
             default:
                 return mContext.getString(R.string.error_undefined);
         }

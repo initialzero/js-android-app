@@ -10,6 +10,9 @@ import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookieStore;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -21,6 +24,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class ComponentManager {
+    private final CookieHandler mCookieHandler;
     private final ActiveProfileCache mActiveProfileCache;
     private final ProfileCache mProfileCache;
     private final GraphObject mGraphObject;
@@ -28,10 +32,12 @@ public class ComponentManager {
     @Inject
     public ComponentManager(
             GraphObject graphObject,
+            CookieHandler cookieHandler,
             ActiveProfileCache activeProfileCache,
             ProfileCache profileCache
     ) {
         mGraphObject = graphObject;
+        mCookieHandler = cookieHandler;
         mActiveProfileCache = activeProfileCache;
         mProfileCache = profileCache;
     }
@@ -43,6 +49,7 @@ public class ComponentManager {
             return tryToSetupFirstAvailable();
         } else {
             setupProfileComponent(activeProfile);
+            flushCookies();
             return activeProfile;
         }
     }
@@ -50,6 +57,7 @@ public class ComponentManager {
     public void setupActiveProfile(Profile profile) {
         activateProfile(profile);
         setupProfileComponent(profile);
+        flushCookies();
     }
 
     private void activateProfile(Profile profile) {
@@ -64,6 +72,7 @@ public class ComponentManager {
         } else {
             activateProfile(profile);
             setupProfileComponent(profile);
+            flushCookies();
             return profile;
         }
     }
@@ -90,5 +99,16 @@ public class ComponentManager {
         AppComponent component = mGraphObject.getComponent();
         ProfileComponent newComponent = component.plus(new ProfileModule(profile));
         mGraphObject.setProfileComponent(newComponent);
+    }
+
+    private void flushCookies() {
+        if (mCookieHandler instanceof CookieManager) {
+            CookieManager cookieHandler = (CookieManager) mCookieHandler;
+            CookieStore cookieStore = cookieHandler.getCookieStore();
+
+            if (cookieStore != null) {
+                cookieStore.removeAll();
+            }
+        }
     }
 }

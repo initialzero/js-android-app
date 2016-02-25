@@ -134,7 +134,7 @@ public class ReportViewPresenterTest {
 
         presenter.loadPage("10");
 
-        verify(mView).showPageLoader();
+        verify(mView).showPageLoader(true);
         verify(mFakeGetReportPageContentCase).execute(eq(_10page), any(Subscriber.class));
         verify(mReportPageState).setRequestedPage("10");
         verify(mReportPageState).setCurrentPage("10");

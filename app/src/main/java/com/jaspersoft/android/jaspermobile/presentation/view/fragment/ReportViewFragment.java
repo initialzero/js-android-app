@@ -424,7 +424,8 @@ public class ReportViewFragment extends BaseFragment
         }
     }
 
-    private int getPaginationTotalPages() {
+    @Override
+    public int getPaginationTotalPages() {
         boolean isTotalPagesDefined =
                 paginationControl.getTotalPages() != AbstractPaginationView.UNDEFINED_PAGE_NUMBER;
         return isTotalPagesDefined ? paginationControl.getTotalPages() :

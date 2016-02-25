@@ -23,6 +23,8 @@ public interface RestReportContract {
 
         void resetPaginationControl();
 
+        int getPaginationTotalPages();
+
         void showTotalPages(int totalPages);
 
         void showCurrentPage(int page);

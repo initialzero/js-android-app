@@ -429,7 +429,7 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<MultiPageLoadEvent>() {
                             @Override
                             public void onNext(MultiPageLoadEvent event) {
-                                boolean needToShowPagination = event.isMultiPage() && getView().getPaginationTotalPages() > 0;
+                                boolean needToShowPagination = event.isMultiPage() && getView().getPaginationTotalPages() > 1;
                                 getView().showPagination(needToShowPagination);
                             }
                         }))

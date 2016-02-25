@@ -13,6 +13,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
+import java.net.CookieManager;
+import java.net.CookieStore;
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,6 +41,10 @@ public class ComponentManagerTest {
     AppComponent mAppComponent;
     @Mock
     ProfileComponent mProfileComponent;
+    @Mock
+    CookieManager mCookieHandler;
+    @Mock
+    CookieStore mCookieStore;
 
     @Mock
     GraphObject mGraphObject;
@@ -55,12 +61,14 @@ public class ComponentManagerTest {
         setupMocks();
         mComponentManager = new ComponentManager(
                 mGraphObject,
+                mCookieHandler,
                 mActiveProfileCache,
                 mProfileCache
         );
     }
 
     private void setupMocks() {
+        when(mCookieHandler.getCookieStore()).thenReturn(mCookieStore);
         when(mProfileCache.getAll()).thenReturn(Collections.<Profile>emptyList());
     }
 
@@ -99,6 +107,7 @@ public class ComponentManagerTest {
 
         thenShouldSetupProfileComponent();
         thenReturnActiveProfile(profile);
+        thenShouldFlushAllCookies();
     }
 
     private void thenReturnActiveProfile(Profile profile) {
@@ -107,6 +116,10 @@ public class ComponentManagerTest {
 
     private void thenShouldSetupProfileComponent() {
         verify(mGraphObject).setProfileComponent(any(ProfileComponent.class));
+    }
+
+    private void thenShouldFlushAllCookies() {
+        verify(mCookieStore).removeAll();
     }
 
     private Profile whenSetupProfileComponent() {
@@ -122,6 +135,7 @@ public class ComponentManagerTest {
 
         thenShouldWriteToActiveCache();
         thenShouldSetupProfileComponent();
+        thenShouldFlushAllCookies();
     }
 
     private void whenSetupActiveProfile() {
@@ -162,6 +176,7 @@ public class ComponentManagerTest {
         thenShouldWriteToActiveCache();
         thenReturnActiveProfile(profile);
         thenShouldSetupProfileComponent();
+        thenShouldFlushAllCookies();
     }
 
     private void givenOneRegisteredProfile() {

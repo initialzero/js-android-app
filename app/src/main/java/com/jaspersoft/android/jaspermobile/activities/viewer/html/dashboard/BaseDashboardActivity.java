@@ -168,7 +168,10 @@ public abstract class BaseDashboardActivity extends ToolbarActivity
             onHomeAsUpCalled();
         }
         if (itemId == R.id.printAction) {
-            mResourcePrintJob.printResource(resource.getUri(), resource.getLabel());
+            Bundle args = new Bundle();
+            args.putString(ResourcePrintJob.PRINT_NAME_KEY, resource.getLabel());
+
+            mResourcePrintJob.printResource(args);
         }
 
         return true;

@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.util.print;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.print.PrintHelper;
 import android.webkit.WebView;
@@ -53,7 +54,9 @@ public final class DashboardPicturePrintJob implements ResourcePrintJob {
 
     @NonNull
     @Override
-    public ResourcePrintJob printResource(@NonNull String resourceUri, @NonNull final String printName) {
+    public ResourcePrintJob printResource(@NonNull Bundle args) {
+        final String printName = args.getString(ResourcePrintJob.PRINT_NAME_KEY);
+
         getScreenShot()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

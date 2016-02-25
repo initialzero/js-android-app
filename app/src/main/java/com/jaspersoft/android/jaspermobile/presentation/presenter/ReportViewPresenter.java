@@ -190,6 +190,8 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
         mGetReportMultiPagePropertyCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<Boolean>() {
             @Override
             public void onNext(Boolean multiPage) {
+                int paginationTotalPages = getView().getPaginationTotalPages();
+                multiPage &= paginationTotalPages > 1;
                 togglePaginationControl(multiPage);
             }
         }));

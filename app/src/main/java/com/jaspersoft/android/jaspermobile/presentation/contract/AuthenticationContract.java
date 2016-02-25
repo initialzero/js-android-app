@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.presentation.contract;
 
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
+import com.jaspersoft.android.jaspermobile.presentation.page.AuthPageState;
 import com.jaspersoft.android.jaspermobile.presentation.view.LoadDataView;
 
 /**
@@ -21,6 +22,8 @@ public interface AuthenticationContract {
         void showFailedToAddProfile(String message);
         void navigateToApp(Profile profile);
         void showTryDemo(boolean visible);
+
+        AuthPageState getState();
     }
 
     interface ActionListener {

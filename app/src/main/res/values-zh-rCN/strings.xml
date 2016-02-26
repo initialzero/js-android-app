@@ -138,15 +138,14 @@
     <string name="st_category_more">更多</string>
 
     <!-- Error messages -->
-    <string name="error_http_400">400 - 请求错误。请求无效。</string>
-    <string name="error_http_401">401 - 未经授权。
-                                  \n身份验证凭据丢失或不正确。</string>
-    <string name="error_http_403">403 - 权限已被拒绝。已了解请求，但被拒绝。</string>
-    <string name="error_http_404">404 - 未找到。请求的 URI 无效，或请求的资源不存在。</string>
-    <string name="error_http_500">500 - 内部服务器错误。</string>
-    <string name="error_http_502">502 - 网关错误。</string>
-    <string name="error_http_503">503 - 服务不可用。</string>
-    <string name="error_http_504">504 - 网关超时。</string>
+    <string name="error_http_400">请求错误。请求无效。</string>
+    <string name="error_http_401">身份验证凭据丢失或不正确。</string>
+    <string name="error_http_403">权限已被拒绝。已了解请求，但被拒绝。</string>
+    <string name="error_http_404">未找到。请求的 URI 无效，或请求的资源不存在。</string>
+    <string name="error_http_500">内部服务器错误。</string>
+    <string name="error_http_502">网关错误。</string>
+    <string name="error_http_503">服务不可用。</string>
+    <string name="error_http_504">网关超时。</string>
 
     <!-- Others -->
     <string name="loading_msg">正在加载...</string>

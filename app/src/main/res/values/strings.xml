@@ -113,7 +113,7 @@
 
     <!-- Settings Activity -->
     <string name="sa_show_about">About</string>
-    <string name="sa_about_info" translatable="false"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Management tool and report viewer for TIBCO JasperReports® Server 5.5 and greater.<br><br>For more information visit:<br><a href="http://community.jaspersoft.com/project/tibco-jaspermobile-android">http://community.jaspersoft.com/project/tibco-jaspermobile-android</a><br><br>For privacy policy information visit:<br><a href="http://www.tibco.com/company/privacy-cma">http://www.tibco.com/company/privacy-cma</a><br><br>For latest update information visit:<br><a href="https://github.com/Jaspersoft/js-android-app/wiki/What\'s-new">https://github.com/Jaspersoft/js-android-app/wiki/What\'s-new</a><br><br>Copyright © 2005-2015 TIBCO Software, Inc.]]></string>
+    <string name="sa_about_info" translatable="false"><![CDATA[TIBCO® JasperMobile™ v%s<br><br>Management tool and report viewer for TIBCO JasperReports® Server 5.5 and greater.<br><br>For more information visit:<br><a href="http://community.jaspersoft.com/project/tibco-jaspermobile-android">http://community.jaspersoft.com/project/tibco-jaspermobile-android</a><br><br>For privacy policy information visit:<br><a href="http://www.tibco.com/company/privacy-cma">http://www.tibco.com/company/privacy-cma</a><br><br>For latest update information visit:<br><a href="https://github.com/Jaspersoft/js-android-app/wiki/What\'s-new">https://github.com/Jaspersoft/js-android-app/wiki/What\'s-new</a><br><br>Copyright © 2005-2016 TIBCO Software, Inc.]]></string>
     <string name="sa_about_privacy">Privacy Policy</string>
     <string name="sa_show_feedback">Feedback</string>
 
@@ -180,8 +180,8 @@
     <string name="sch_state_error" translatable="false">Error</string>
     <string name="sch_state_paused" translatable="false">Paused</string>
     <string name="sch_state_unknown" translatable="false">Unknown</string>
-    <string name="sdr_delete_title">Delete schedule</string>
-    <string name="sdr_delete_message">Do you really want to delete this schedule?</string>
+    <string name="sdr_delete_title" translatable="false">Delete schedule</string>
+    <string name="sdr_delete_message" translatable="false">Do you really want to delete this schedule?</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>
@@ -278,15 +278,14 @@
     <string name="r_error_server_not_supported">Server version is either older than 5.5 (not supported) or URL is incorrect.</string>
     <string name="r_error_server_not_found">Server not found.</string>
     <string name="r_error_incorrect_credentials">Invalid credentials.</string>
-    <string name="error_http_400">400 - Bad Request. The request was invalid.</string>
-    <string name="error_http_401">401 - Unauthorized.
-                                  \nAuthentication credentials were missing or incorrect.</string>
-    <string name="error_http_403">403 - Permission Denied. The request is understood, but it has been refused.</string>
-    <string name="error_http_404">404 - Not Found. The URI requested is invalid or the resource requested does not exists.</string>
-    <string name="error_http_500">500 - Internal Server Error.</string>
-    <string name="error_http_502">502 - Bad Gateway.</string>
-    <string name="error_http_503">503 - Service Unavailable.</string>
-    <string name="error_http_504">504 - Gateway Timeout.</string>
+    <string name="error_http_400">Bad Request. The request was invalid.</string>
+    <string name="error_http_401">Authentication credentials were missing or incorrect.</string>
+    <string name="error_http_403">Permission Denied. The request is understood, but it has been refused.</string>
+    <string name="error_http_404">Not Found. The URI requested is invalid or the resource requested does not exists.</string>
+    <string name="error_http_500">Internal Server Error.</string>
+    <string name="error_http_502">Bad Gateway.</string>
+    <string name="error_http_503">Service Unavailable.</string>
+    <string name="error_http_504">Gateway Timeout.</string>
     <string name="error_report_cancelled" translatable="false">Report execution cancelled</string>
     <string name="error_report_failed" translatable="false">Report execution failed</string>
     <string name="error_export_failed" translatable="false">Report export failed</string>

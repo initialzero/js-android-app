@@ -349,7 +349,13 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
                             @Override
                             public void onNext(ErrorEvent errorEvent) {
                                 getView().hideLoading();
-                                getView().showError(errorEvent.getErrorMessage());
+                                if (errorEvent.isEmptyPage()) {
+                                    getView().showEmptyPageMessage();
+                                    getView().showPagination(false);
+                                } else {
+                                    String errorMessage = errorEvent.getErrorMessage();
+                                    getView().showError(errorMessage);
+                                }
                             }
                         }))
         );
@@ -487,7 +493,9 @@ public class ReportVisualizePresenter extends Presenter<VisualizeReportContract.
                         .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ErrorEvent>() {
                             @Override
                             public void onNext(ErrorEvent event) {
-                                getView().showError(event.getErrorMessage());
+                                if (!event.isEmptyPage()) {
+                                    getView().showError(event.getErrorMessage());
+                                }
                             }
                         }))
         );

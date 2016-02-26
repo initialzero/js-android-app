@@ -37,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,52 +53,34 @@ public class SavedItemHelper {
     @RootContext
     protected Context context;
 
-    /**
-     * Removes item both from file system and database
-     *
-     * @param reportFile saved item file. It can be PDF, HTML, XLS
-     * @param reportId   id of saved item inside saved_items table
-     */
-    public void deleteSavedItem(File reportFile, long reportId) {
-        File reportFolderFile = reportFile.getParentFile();
-        if (reportFolderFile.isDirectory()) {
-            boolean reportFolderDeleted = deleteReportFolder(reportFolderFile);
-            if (reportFolderDeleted) {
-                deleteReferenceInDb(reportId);
-            }
-        }
-    }
-
-    public void deleteSavedItem(File reportFile, Uri reportUri) {
-        File reportFolderFile = reportFile.getParentFile();
-        if (reportFolderFile.isDirectory()) {
-            boolean reportFolderDeleted = deleteReportFolder(reportFolderFile);
-            if (reportFolderDeleted) {
-                deleteReferenceInDb(reportUri);
-            }
-        }
-    }
-
     public void deleteSavedItem(Uri reportUri) {
         File reportFile = getFile(reportUri);
-        deleteSavedItem(reportFile, reportUri);
+        if (reportFile == null) return;
+
+        File reportFolderFile = reportFile.getParentFile();
+        deleteReportFolder(reportFolderFile);
+
+        if (!reportFolderFile.exists()) {
+            deleteReferenceInDb(reportUri);
+        }
     }
 
     public void deleteUnsavedItems() {
         String selection = SavedItemsTable.DOWNLOADED + " =?";
         Cursor cursor = context.getContentResolver().query(MobileDbProvider.SAVED_ITEMS_CONTENT_URI, new String[]{SavedItemsTable._ID, SavedItemsTable.FILE_PATH}, selection, new String[]{"0"}, null);
 
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                do {
-                    int id = cursor.getInt(cursor.getColumnIndex(SavedItemsTable._ID));
-                    File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
-                    deleteSavedItem(file, id);
-                } while (cursor.moveToNext());
-            }
+        if (cursor == null) return;
 
-            cursor.close();
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndex(SavedItemsTable._ID));
+                Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
+                        String.valueOf(id));
+                deleteSavedItem(uri);
+            } while (cursor.moveToNext());
         }
+
+        cursor.close();
     }
 
     public boolean itemExist(String name, String format) {
@@ -110,21 +93,15 @@ public class SavedItemHelper {
         return itemExist;
     }
 
-    private boolean deleteReportFolder(File reportFolderFile) {
+    private void deleteReportFolder(File reportFolderFile) {
+        if (!reportFolderFile.isDirectory()) return;
+
         try {
             FileUtils.deleteDirectory(reportFolderFile);
-            return true;
         } catch (IOException e) {
             Timber.e(e.getMessage(), "Failed to delete folder. Path: " + reportFolderFile.getPath());
             Toast.makeText(context, R.string.sdr_t_report_deletion_error, Toast.LENGTH_SHORT).show();
-            return false;
         }
-    }
-
-    private void deleteReferenceInDb(long reportId) {
-        Uri uri = Uri.withAppendedPath(JasperMobileDbProvider.SAVED_ITEMS_CONTENT_URI,
-                String.valueOf(reportId));
-        deleteReferenceInDb(uri);
     }
 
     private void deleteReferenceInDb(Uri reportUri) {
@@ -133,9 +110,8 @@ public class SavedItemHelper {
 
     private File getFile(Uri recordUri) {
         Cursor cursor = context.getContentResolver().query(recordUri, null, null, null, null);
-        if (cursor == null) return null;
+        if (cursor == null || !cursor.moveToFirst()) return null;
 
-        cursor.moveToFirst();
         File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
         cursor.close();
         return file;

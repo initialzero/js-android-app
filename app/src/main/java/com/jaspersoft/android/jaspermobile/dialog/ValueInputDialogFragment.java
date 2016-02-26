@@ -110,7 +110,7 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
 
             @Override
             public void onClick(View view) {
-                String newIcValue = ValueInputDialogFragment.this.icValue.getText().toString();
+                String newIcValue = ValueInputDialogFragment.this.icValue.getText().toString().trim();
                 if (mRequired && newIcValue.isEmpty()) {
                     icValue.setError(getString(R.string.sr_error_field_is_empty));
                     return;

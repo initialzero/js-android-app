@@ -138,15 +138,14 @@
     <string name="st_category_more">Plus</string>
 
     <!-- Error messages -->
-    <string name="error_http_400">400 - Demande incorrecte. Demande non valide.</string>
-    <string name="error_http_401">401 - Non autorisé.
-                                  \nInformations d\'identification d\'authentification manquantes ou incorrectes.</string>
-    <string name="error_http_403">403 - Autorisation refusée. La demande est comprise mais a été refusée.</string>
-    <string name="error_http_404">404 - Introuvable. L\'URI demandé n\'est pas valide ou la ressource demandée n\'existe pas.</string>
-    <string name="error_http_500">500 - Erreur interne du serveur.</string>
-    <string name="error_http_502">502 - Passerelle incorrecte.</string>
-    <string name="error_http_503">503 - Service non disponible.</string>
-    <string name="error_http_504">504 - Dépassement du délai de la passerelle.</string>
+    <string name="error_http_400">Demande incorrecte. Demande non valide.</string>
+    <string name="error_http_401">Informations d\'identification d\'authentification manquantes ou incorrectes.</string>
+    <string name="error_http_403">Autorisation refusée. La demande est comprise mais a été refusée.</string>
+    <string name="error_http_404">Introuvable. L\'URI demandé n\'est pas valide ou la ressource demandée n\'existe pas.</string>
+    <string name="error_http_500">Erreur interne du serveur.</string>
+    <string name="error_http_502">Passerelle incorrecte.</string>
+    <string name="error_http_503">Service non disponible.</string>
+    <string name="error_http_504">Dépassement du délai de la passerelle.</string>
 
     <!-- Others -->
     <string name="loading_msg">Chargement en cours...</string>

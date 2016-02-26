@@ -138,15 +138,14 @@
     <string name="st_category_more">Altro</string>
 
     <!-- Error messages -->
-    <string name="error_http_400">400 - Richiesta non valida. La richiesta non è valida.</string>
-    <string name="error_http_401">401 - Non autorizzato.
-                                  \nCredenziali di autenticazione mancanti o errate.</string>
-    <string name="error_http_403">403 - Autorizzazione negata. La richiesta è stata compresa ma è stata respinta.</string>
-    <string name="error_http_404">404 - Non trovato. L\'URI richiesto non è valido o la risorsa richiesta non esiste.</string>
-    <string name="error_http_500">500 - Errore server interno.</string>
-    <string name="error_http_502">502 - Gateway non valido.</string>
-    <string name="error_http_503">503 - Servizio non disponibile.</string>
-    <string name="error_http_504">504 - Timeout del gateway.</string>
+    <string name="error_http_400">Richiesta non valida. La richiesta non è valida.</string>
+    <string name="error_http_401">Credenziali di autenticazione mancanti o errate.</string>
+    <string name="error_http_403">Autorizzazione negata. La richiesta è stata compresa ma è stata respinta.</string>
+    <string name="error_http_404">Non trovato. L\'URI richiesto non è valido o la risorsa richiesta non esiste.</string>
+    <string name="error_http_500">Errore server interno.</string>
+    <string name="error_http_502">Gateway non valido.</string>
+    <string name="error_http_503">Servizio non disponibile.</string>
+    <string name="error_http_504">Timeout del gateway.</string>
 
     <!-- Others -->
     <string name="loading_msg">Caricamento in corso...</string>

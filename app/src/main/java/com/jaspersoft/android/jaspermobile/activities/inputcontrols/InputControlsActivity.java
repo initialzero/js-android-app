@@ -510,7 +510,13 @@ public class InputControlsActivity extends ToolbarActivity
             mGetInputControlsValuesCase.execute(reportUri, new GenericSubscriber<>(new GetInputControlsValuesListener()));
         }
         updateReportOptionsTitlesList();
-        mReportOptionsAdapter.notifyDataSetChanged();
+        notifyReportOptionsChange();
+    }
+
+    private void notifyReportOptionsChange() {
+        if (mReportOptionsAdapter != null) {
+            mReportOptionsAdapter.notifyDataSetChanged();
+        }
     }
 
     private void runReport() {
@@ -703,7 +709,7 @@ public class InputControlsActivity extends ToolbarActivity
 
             invalidateOptionsMenu();
             updateReportOptionsTitlesList();
-            mReportOptionsAdapter.notifyDataSetChanged();
+            notifyReportOptionsChange();
         }
     }
 
@@ -727,7 +733,7 @@ public class InputControlsActivity extends ToolbarActivity
 
             addReportOption(reportOption);
             updateReportOptionsTitlesList();
-            mReportOptionsAdapter.notifyDataSetChanged();
+            notifyReportOptionsChange();
         }
     }
 

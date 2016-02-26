@@ -14,6 +14,10 @@ public class ErrorEvent {
         mErrorMessage = errorMessage;
     }
 
+    public boolean isEmptyPage() {
+        return mErrorMessage.matches("Resource .* not found.");
+    }
+
     @NonNull
     public String getErrorMessage() {
         return mErrorMessage;

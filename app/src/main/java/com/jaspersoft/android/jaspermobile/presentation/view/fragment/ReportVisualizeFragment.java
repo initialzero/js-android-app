@@ -149,8 +149,11 @@ public class ReportVisualizeFragment extends BaseFragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
         favoritesHelper.updateFavoriteIconState(favoriteAction, resource.getUri());
         saveReport.setVisible(saveMenuItemVisibilityFlag);
-        printReport.setVisible(saveMenuItemVisibilityFlag);
         showFilters.setVisible(filtersMenuItemVisibilityFlag);
+
+        if (printReport != null) {
+            printReport.setVisible(saveMenuItemVisibilityFlag);
+        }
     }
 
     @Override

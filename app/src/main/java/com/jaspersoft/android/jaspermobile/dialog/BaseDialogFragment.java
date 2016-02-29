@@ -62,7 +62,7 @@ public abstract class BaseDialogFragment extends DialogFragment {
         Fragment targetFragment = getTargetFragment();
         if (targetFragment == null) return;
 
-        if (getFragmentManager().getFragments().contains(targetFragment)) {
+        if (!getFragmentManager().getFragments().contains(targetFragment)) {
             setTargetFragment(null, -1);
         }
     }

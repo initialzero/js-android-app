@@ -40,8 +40,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.SystemService;
 
@@ -65,6 +67,9 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
 
     private AlertDialog mDialog;
     private EditText reportNameEdit;
+
+    @Bean
+    protected SavedItemHelper savedItemHelper;
 
     @SystemService
     protected InputMethodManager inputMethodManager;
@@ -105,40 +110,19 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
         return RenameDialogClickListener.class;
     }
 
-    private boolean renameSavedReportFile(File srcFile, File destFile) {
-        // rename base file
-        boolean result = srcFile.renameTo(destFile);
-        // rename sub-files
-        if (result && destFile.isDirectory()) {
-            String srcName = srcFile.getName();
-            String destName = destFile.getName();
-
-            FilenameFilter reportNameFilter = new ReportFilenameFilter(srcName);
-            File[] subFiles = destFile.listFiles(reportNameFilter);
-            for (File subFile : subFiles) {
-                File newSubFile = new File(subFile.getParentFile(), destName);
-                result &= subFile.renameTo(newSubFile);
-            }
-        }
-
-        return result;
-    }
-
     protected void initDialogParams() {
         super.initDialogParams();
 
         Bundle args = getArguments();
         if (args != null) {
             if (args.containsKey(SELECTED_FILE_ARG)) {
-                Uri fileUri = args.getParcelable(SELECTED_FILE_ARG);
-                selectedFile = new File(fileUri.getPath());
+                selectedFile = (File) args.getSerializable(SELECTED_FILE_ARG);
             }
             if (args.containsKey(EXTENSION_ARG)) {
                 extension = args.getString(EXTENSION_ARG);
             }
             if (args.containsKey(RECORD_URI_ARG)) {
-                String recordUriString = args.getString(RECORD_URI_ARG);
-                recordUri = Uri.parse(recordUriString);
+                recordUri = args.getParcelable(RECORD_URI_ARG);
             }
         }
     }
@@ -158,7 +142,7 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
         }
 
         public RenameDialogFragmentBuilder setSelectedFile(File file) {
-            args.putParcelable(SELECTED_FILE_ARG, Uri.fromFile(file));
+            args.putSerializable(SELECTED_FILE_ARG, file);
             return this;
         }
 
@@ -168,7 +152,7 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
         }
 
         public RenameDialogFragmentBuilder setRecordUri(Uri recordUri) {
-            args.putString(RECORD_URI_ARG, recordUri.toString());
+            args.putParcelable(RECORD_URI_ARG, recordUri);
             return this;
         }
 
@@ -183,31 +167,17 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
     //---------------------------------------------------------------------
 
     public interface RenameDialogClickListener extends DialogClickListener {
-        void onRenamed(String newFileName, String newFilePath, Uri recordUri);
+        void onRenamed(String newFileName, Uri recordUri);
     }
 
     //---------------------------------------------------------------------
     // Nested Classes
     //---------------------------------------------------------------------
 
-    private static class ReportFilenameFilter implements FilenameFilter {
-        private String reportName;
-
-        private ReportFilenameFilter(String reportName) {
-            this.reportName = reportName;
-        }
-
-        @Override
-        public boolean accept(File dir, String filename) {
-            return filename.equals(reportName);
-        }
-    }
-
     private class OnPositiveClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             String reportName = reportNameEdit.getText().toString().trim();
-            String newReportFolderName = reportNameEdit.getText().toString().trim() + "." + extension;
 
             if (reportName.isEmpty()) {
                 reportNameEdit.setError(getString(R.string.sdr_rrd_error_name_is_empty));
@@ -219,20 +189,15 @@ public class RenameDialogFragment extends BaseDialogFragment implements DialogIn
                 return;
             }
 
-            File destFile = new File(selectedFile.getParentFile(), newReportFolderName);
-            if (destFile.exists()) {
+            if (savedItemHelper.itemExist(reportName, extension)) {
                 reportNameEdit.setError(getString(R.string.sdr_rrd_error_report_exists));
-            } else {
-                if (renameSavedReportFile(selectedFile, destFile)) {
-                    if (mDialogListener != null) {
-                        String newFilePath = new File(destFile, newReportFolderName).getPath();
-                        ((RenameDialogClickListener) mDialogListener).onRenamed(reportName, newFilePath, recordUri);
-                    }
-                } else {
-                    Toast.makeText(getActivity(), R.string.sdr_t_report_renaming_error, Toast.LENGTH_SHORT).show();
-                }
-                dismiss();
+                return;
             }
+
+            if (mDialogListener != null) {
+                ((RenameDialogClickListener) mDialogListener).onRenamed(reportName, recordUri);
+            }
+            dismiss();
         }
     }
 

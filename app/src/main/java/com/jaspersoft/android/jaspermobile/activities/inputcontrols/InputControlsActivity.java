@@ -200,6 +200,9 @@ public class InputControlsActivity extends ToolbarActivity
         if (mSavedInstanceState == null) {
             updateInputControlsFromReportParams();
         }
+
+        updateReportOptionsTitlesList();
+        notifyReportOptionsChange();
     }
 
     @Override
@@ -576,25 +579,23 @@ public class InputControlsActivity extends ToolbarActivity
             valueList.addAll(valueSet);
         }
 
-        if (!valueList.isEmpty()) {
-            switch (inputControl.getType()) {
-                case bool:
-                case singleValueText:
-                case singleValueNumber:
-                case singleValueTime:
-                case singleValueDate:
-                case singleValueDatetime:
-                    state.setValue(valueList.get(0));
-                    break;
-                case multiSelect:
-                case multiSelectCheckbox:
-                case singleSelect:
-                case singleSelectRadio:
-                    for (InputControlOption option : options) {
-                        option.setSelected(valueList.contains(option.getValue()));
-                    }
-                    break;
-            }
+        switch (inputControl.getType()) {
+            case bool:
+            case singleValueText:
+            case singleValueNumber:
+            case singleValueTime:
+            case singleValueDate:
+            case singleValueDatetime:
+                state.setValue(valueList.get(0));
+                break;
+            case multiSelect:
+            case multiSelectCheckbox:
+            case singleSelect:
+            case singleSelectRadio:
+                for (InputControlOption option : options) {
+                    option.setSelected(valueList.contains(option.getValue()));
+                }
+                break;
         }
     }
 

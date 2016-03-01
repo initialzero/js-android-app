@@ -15,6 +15,9 @@ import com.jaspersoft.android.jaspermobile.presentation.model.mapper.ProfileView
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.PageFactory;
 
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookieStore;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -27,6 +30,7 @@ import timber.log.Timber;
  */
 @PerActivity
 public final class NavigationPresenter extends Presenter<NavigationContract.View> implements NavigationContract.ActionListener {
+    private final CookieHandler mCookieHandler;
     private final Navigator mNavigator;
     private final PageFactory mPageFactory;
     private final ComponentManager mComponentManager;
@@ -36,12 +40,14 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
 
     @Inject
     public NavigationPresenter(
+            CookieHandler cookieHandler,
             Navigator navigator,
             PageFactory pageFactory,
             ComponentManager componentManager,
             ProfileViewModelMapper profileViewModelMapper,
             GetProfilesMetadataUseCase getProfilesMetadataUseCase,
             GetActiveProfileUseCase getActiveProfileUseCase) {
+        mCookieHandler = cookieHandler;
         mNavigator = navigator;
         mPageFactory = pageFactory;
         mComponentManager = componentManager;
@@ -95,7 +101,19 @@ public final class NavigationPresenter extends Presenter<NavigationContract.View
 
     @Override
     public void activateProfile(Profile profile) {
+        flushCookies();
         mComponentManager.setupActiveProfile(profile);
         mNavigator.navigate(mPageFactory.createMainPage(), true);
+    }
+
+    private void flushCookies() {
+        if (mCookieHandler instanceof CookieManager) {
+            CookieManager cookieHandler = (CookieManager) mCookieHandler;
+            CookieStore cookieStore = cookieHandler.getCookieStore();
+
+            if (cookieStore != null) {
+                cookieStore.removeAll();
+            }
+        }
     }
 }

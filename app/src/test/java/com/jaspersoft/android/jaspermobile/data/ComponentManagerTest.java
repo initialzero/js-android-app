@@ -13,8 +13,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import java.net.CookieManager;
-import java.net.CookieStore;
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,6 +21,7 @@ import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -41,10 +40,6 @@ public class ComponentManagerTest {
     AppComponent mAppComponent;
     @Mock
     ProfileComponent mProfileComponent;
-    @Mock
-    CookieManager mCookieHandler;
-    @Mock
-    CookieStore mCookieStore;
 
     @Mock
     GraphObject mGraphObject;
@@ -55,20 +50,20 @@ public class ComponentManagerTest {
     @Rule
     public ExpectedException expected = none();
 
+    private Profile mActivatedProfile;
+
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         setupMocks();
         mComponentManager = new ComponentManager(
                 mGraphObject,
-                mCookieHandler,
                 mActiveProfileCache,
                 mProfileCache
         );
     }
 
     private void setupMocks() {
-        when(mCookieHandler.getCookieStore()).thenReturn(mCookieStore);
         when(mProfileCache.getAll()).thenReturn(Collections.<Profile>emptyList());
     }
 
@@ -79,22 +74,10 @@ public class ComponentManagerTest {
         givenNoActiveProfile();
         givenNoRegisteredProfiles();
 
-        Profile profile = whenSetupProfileComponent();
+        whenSetupProfileComponent();
 
         thenShouldRetrieveAllProfiles();
-        thenShouldReturnFakeProfile(profile);
-    }
-
-    private void thenShouldRetrieveAllProfiles() {
-        verify(mProfileCache, times(2)).getAll();
-    }
-
-    private void givenNoRegisteredProfiles() {
-        when(mProfileCache.getAll()).thenReturn(Collections.<Profile>emptyList());
-    }
-
-    private void thenShouldReturnFakeProfile(Profile profile) {
-        assertThat(profile, is(Profile.getFake()));
+        thenShouldReturnFakeProfile();
     }
 
     @Test
@@ -103,27 +86,10 @@ public class ComponentManagerTest {
         givenNoProfileComponent();
         givenActiveProfile();
 
-        Profile profile = whenSetupProfileComponent();
+        whenSetupProfileComponent();
 
         thenShouldSetupProfileComponent();
-        thenReturnActiveProfile(profile);
-        thenShouldFlushAllCookies();
-    }
-
-    private void thenReturnActiveProfile(Profile profile) {
-        assertThat(profile, is(activeProfile));
-    }
-
-    private void thenShouldSetupProfileComponent() {
-        verify(mGraphObject).setProfileComponent(any(ProfileComponent.class));
-    }
-
-    private void thenShouldFlushAllCookies() {
-        verify(mCookieStore).removeAll();
-    }
-
-    private Profile whenSetupProfileComponent() {
-       return mComponentManager.setupProfileComponent();
+        thenReturnActiveProfile();
     }
 
     @Test
@@ -135,15 +101,33 @@ public class ComponentManagerTest {
 
         thenShouldWriteToActiveCache();
         thenShouldSetupProfileComponent();
-        thenShouldFlushAllCookies();
     }
 
-    private void whenSetupActiveProfile() {
-        mComponentManager.setupActiveProfile(activeProfile);
+    @Test
+    public void should_activate_first_available_account() throws Exception {
+        givenAppComponent();
+        givenNoProfileComponent();
+        givenNoActiveProfile();
+        givenOneRegisteredProfile();
+
+        whenSetupProfileComponent();
+
+        thenShouldRetrieveAllProfiles();
+        thenShouldWriteToActiveCache();
+        thenReturnActiveProfile();
+        thenShouldSetupProfileComponent();
     }
 
-    private void thenShouldWriteToActiveCache() {
-        verify(mActiveProfileCache).put(activeProfile);
+    @Test
+    public void should_reuse_available_profile_component() throws Exception {
+        givenAppComponent();
+        givenActiveProfile();
+        givenProfileComponent();
+        givenProfileComponentRepresentsActiveProfile();
+
+        whenSetupProfileComponent();
+
+        thenShouldNotSetupAnyProfile();
     }
 
     private void givenNoActiveProfile() {
@@ -155,6 +139,14 @@ public class ComponentManagerTest {
         when(mProfileCache.getAll()).thenReturn(Collections.singletonList(activeProfile));
     }
 
+    private void givenProfileComponent() {
+        when(mGraphObject.getProfileComponent()).thenReturn(mProfileComponent);
+    }
+
+    private void givenProfileComponentRepresentsActiveProfile() {
+        when(mProfileComponent.getProfile()).thenReturn(activeProfile);
+    }
+
     private void givenNoProfileComponent() {
         when(mGraphObject.getProfileComponent()).thenReturn(null);
     }
@@ -163,23 +155,43 @@ public class ComponentManagerTest {
         when(mGraphObject.getComponent()).thenReturn(mAppComponent);
     }
 
-    @Test
-    public void should_activate_first_available_account() throws Exception {
-        givenAppComponent();
-        givenNoProfileComponent();
-        givenNoActiveProfile();
-        givenOneRegisteredProfile();
-
-        Profile profile = whenSetupProfileComponent();
-
-        thenShouldRetrieveAllProfiles();
-        thenShouldWriteToActiveCache();
-        thenReturnActiveProfile(profile);
-        thenShouldSetupProfileComponent();
-        thenShouldFlushAllCookies();
-    }
-
     private void givenOneRegisteredProfile() {
         when(mProfileCache.getAll()).thenReturn(Collections.singletonList(activeProfile));
+    }
+
+    private void givenNoRegisteredProfiles() {
+        when(mProfileCache.getAll()).thenReturn(Collections.<Profile>emptyList());
+    }
+
+    private void whenSetupProfileComponent() {
+        mActivatedProfile = mComponentManager.setupProfileComponent();
+    }
+
+    private void whenSetupActiveProfile() {
+        mComponentManager.setupActiveProfile(activeProfile);
+    }
+
+    private void thenReturnActiveProfile() {
+        assertThat(mActivatedProfile, is(activeProfile));
+    }
+
+    private void thenShouldSetupProfileComponent() {
+        verify(mGraphObject).setProfileComponent(any(ProfileComponent.class));
+    }
+
+    private void thenShouldWriteToActiveCache() {
+        verify(mActiveProfileCache).put(activeProfile);
+    }
+
+    private void thenShouldRetrieveAllProfiles() {
+        verify(mProfileCache, times(2)).getAll();
+    }
+
+    private void thenShouldReturnFakeProfile() {
+        assertThat(mActivatedProfile, is(Profile.getFake()));
+    }
+
+    private void thenShouldNotSetupAnyProfile() {
+        verifyNoMoreInteractions(mAppComponent);
     }
 }

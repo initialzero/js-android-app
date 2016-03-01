@@ -15,13 +15,14 @@ import com.jaspersoft.android.jaspermobile.presentation.navigation.FakePageFacto
 import com.jaspersoft.android.jaspermobile.presentation.navigation.MainPage;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.presentation.navigation.Page;
-import com.jaspersoft.android.jaspermobile.presentation.page.BasePageState;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.net.CookieManager;
+import java.net.CookieStore;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,14 +64,17 @@ public class NavigationPresenterTest {
     ProfileViewModelMapper profileViewModelMapper;
     @Mock
     ComponentManager mComponentManager;
+    @Mock
+    CookieManager mCookieHandler;
+    @Mock
+    CookieStore mCookieStore;
 
     @Mock
     ProfileMetadataCollection mProfileMetadataCollection;
 
     @Mock
     NavigationContract.View mView;
-    @Mock
-    BasePageState mState;
+
 
     private FakePageFactory mFakePageFactory;
     private FakeGetProfilesMetadataUseCase mGetProfilesUseCase;
@@ -86,6 +90,7 @@ public class NavigationPresenterTest {
         mockMapper();
 
         mNavigationPresenter = new NavigationPresenter(
+                mCookieHandler,
                 mNavigator,
                 mFakePageFactory,
                 mComponentManager,
@@ -106,6 +111,7 @@ public class NavigationPresenterTest {
     }
 
     private void mockMapper() {
+        when(mCookieHandler.getCookieStore()).thenReturn(mCookieStore);
         when(profileViewModelMapper.transform(anyListOf(ProfileMetadata.class)))
                 .thenReturn(VIEW_PROFILES);
         when(profileViewModelMapper.transform(any(ProfileMetadata.class)))
@@ -144,9 +150,29 @@ public class NavigationPresenterTest {
         whenLoadsActiveProfile();
 
         thenShouldExecuteGetActiveProfileCase();
-        thenShouldMapDomainProfile();
-        thenShouldShowActiveProfile();
         thenShouldToggleRecentlyViewed();
+    }
+
+    @Test
+    public void should_activate_new_profile() throws Exception {
+        whenActivatesProfile();
+
+        thenShouldActivateProfileWithComponent();
+        thenShouldNavigatesToMainPage();
+        thenShouldFlushAllCookies();
+    }
+
+    @Test
+    public void should_exit_current_session() throws Exception {
+        givenNotActiveProfiles();
+
+        whenLoadProfiles();
+
+        thenShouldExecuteGetProfilesCase();
+    }
+
+    private void givenNotActiveProfiles() {
+        when(mProfileMetadataCollection.containsActiveProfile()).thenReturn(false);
     }
 
     private void givenProfilesCollectionWithActiveOne() {
@@ -154,11 +180,16 @@ public class NavigationPresenterTest {
         when(mProfileMetadataCollection.containsActiveProfile()).thenReturn(true);
     }
 
-    private void thenShouldToggleRecentlyViewed() {
-        verify(mView).toggleRecentlyViewedNavigation(true);
+    private void whenLoadsActiveProfile() {
+        mNavigationPresenter.loadActiveProfile();
     }
 
-    private void thenShouldShowActiveProfile() {
+    private void whenActivatesProfile() {
+        mNavigationPresenter.activateProfile(fakeProfile);
+    }
+
+    private void thenShouldToggleRecentlyViewed() {
+        verify(mView).toggleRecentlyViewedNavigation(true);
     }
 
     private void thenShouldExecuteGetActiveProfileCase() {
@@ -169,16 +200,8 @@ public class NavigationPresenterTest {
         verify(profileViewModelMapper).transform(DOMAIN_PROFILE);
     }
 
-    private void whenLoadsActiveProfile() {
-        mNavigationPresenter.loadActiveProfile();
-    }
-
-    @Test
-    public void should_activate_new_profile() throws Exception {
-        whenActivatesProfile();
-
-        thenShouldActivateProfileWithComponent();
-        thenShouldNavigatesToMainPage();
+    private void thenShouldActivateProfileWithComponent() {
+        verify(mComponentManager).setupActiveProfile(fakeProfile);
     }
 
     private void thenShouldNavigatesToMainPage() {
@@ -187,47 +210,8 @@ public class NavigationPresenterTest {
         assertThat(argument.getValue(), is(instanceOf(MainPage.class)));
     }
 
-    private void thenShouldActivateProfileWithComponent() {
-        verify(mComponentManager).setupActiveProfile(fakeProfile);
-    }
-
-    private void whenActivatesProfile() {
-        mNavigationPresenter.activateProfile(fakeProfile);
-    }
-
-    @Test
-    public void should_exit_current_session() throws Exception {
-        givenNotActiveProfiles();
-
-        whenLoadProfiles();
-
-        thenShouldExecuteGetProfilesCase();
-        thenShouldFlagPageForExit();
-    }
-
-    private void thenShouldFlagPageForExit() {
-        verify(mState).setShouldExit(true);
-    }
-
-    private void givenNotActiveProfiles() {
-        when(mProfileMetadataCollection.containsActiveProfile()).thenReturn(false);
-    }
-
-    @Test
-    public void if_state_flagged_for_exit_should_finish_page() throws Exception {
-        givenStateMarkedForFinish();
-
-        whenPresenterResumes();
-
-        thenShouldNavigatesToMainPage();
-    }
-
-    private void whenPresenterResumes() {
-        mNavigationPresenter.resume();
-    }
-
-    private void givenStateMarkedForFinish() {
-        when(mState.shouldExit()).thenReturn(true);
+    private void thenShouldFlushAllCookies() {
+        verify(mCookieStore).removeAll();
     }
 
     private class FakeGetActiveProfileUseCase extends GetActiveProfileUseCase {

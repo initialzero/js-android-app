@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.DrawableRes;
 import android.widget.ImageView;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -69,14 +70,14 @@ class ReportResourceBinder extends ResourceBinder {
         }
     }
 
-    private DisplayImageOptions getDisplayImageOptions(int placeholderResource) {
+    private DisplayImageOptions getDisplayImageOptions(@DrawableRes int placeholderResource) {
         return new DisplayImageOptions.Builder()
                 .showImageOnLoading(placeholderResource)
                 .showImageForEmptyUri(placeholderResource)
                 .considerExifParams(true)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
-                .preProcessor(new CustomBitmapProcessor(getContext(), R.drawable.ic_report))
+                .preProcessor(new CustomBitmapProcessor(getContext(), placeholderResource))
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .build();
     }

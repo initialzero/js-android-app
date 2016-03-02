@@ -38,7 +38,7 @@ public final class InMemoryReportPageCache implements ReportPageCache {
     }
 
     @Override
-    public void evict(String uri) {
-        mStorage.remove(uri);
+    public void evictAll() {
+        mStorage.evictAll();
     }
 }

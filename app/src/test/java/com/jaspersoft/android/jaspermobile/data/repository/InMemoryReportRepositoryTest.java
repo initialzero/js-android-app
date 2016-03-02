@@ -104,7 +104,7 @@ public class InMemoryReportRepositoryTest {
 
         inMemoryReportRepository.reloadReport(REPORT_URI).subscribe(test);
 
-        verify(mReportPageCache).evict(REPORT_URI);
+        verify(mReportPageCache).evictAll();
         verify(mReportCache).evict(REPORT_URI);
         verify(mRxReportService).run(REPORT_URI, EXECUTION_OPTIONS);
         verify(mReportCache).put(eq(REPORT_URI), any(RxReportExecution.class));
@@ -115,7 +115,7 @@ public class InMemoryReportRepositoryTest {
         TestSubscriber<RxReportExecution> test = new TestSubscriber<>();
         inMemoryReportRepository.updateReport(REPORT_URI).subscribe(test);
 
-        verify(mReportPageCache).evict(REPORT_URI);
+        verify(mReportPageCache).evictAll();
         verify(mReportCache).evict(REPORT_URI);
         verify(mRxReportExecution).updateExecution(REPORT_PARAMS);
         verify(mReportCache).put(eq(REPORT_URI), any(RxReportExecution.class));
@@ -124,7 +124,7 @@ public class InMemoryReportRepositoryTest {
     @Test
     public void should_evict_caches() throws Exception {
         inMemoryReportRepository.flushReport(REPORT_URI);
-        verify(mReportPageCache).evict(REPORT_URI);
+        verify(mReportPageCache).evictAll();
         verify(mReportParamsCache).evict(REPORT_URI);
     }
 

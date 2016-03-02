@@ -11,6 +11,7 @@ public class ReportPageState implements Parcelable {
     private boolean mSessionExpired;
     private boolean mControlsPageShown;
     private boolean mNeedControls;
+    private Integer mTotalPages;
     private String mCurrentPage;
     private String mRequestedPage;
 
@@ -54,6 +55,14 @@ public class ReportPageState implements Parcelable {
         return mSessionExpired;
     }
 
+    public Integer getTotalPages() {
+        return mTotalPages;
+    }
+
+    public void setTotalPages(Integer totalPages) {
+        mTotalPages = totalPages;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -64,6 +73,7 @@ public class ReportPageState implements Parcelable {
         dest.writeByte(mSessionExpired ? (byte) 1 : (byte) 0);
         dest.writeByte(mControlsPageShown ? (byte) 1 : (byte) 0);
         dest.writeByte(mNeedControls ? (byte) 1 : (byte) 0);
+        dest.writeValue(this.mTotalPages);
         dest.writeString(this.mCurrentPage);
         dest.writeString(this.mRequestedPage);
     }
@@ -75,6 +85,7 @@ public class ReportPageState implements Parcelable {
         this.mSessionExpired = in.readByte() != 0;
         this.mControlsPageShown = in.readByte() != 0;
         this.mNeedControls = in.readByte() != 0;
+        this.mTotalPages = (Integer) in.readValue(Integer.class.getClassLoader());
         this.mCurrentPage = in.readString();
         this.mRequestedPage = in.readString();
     }

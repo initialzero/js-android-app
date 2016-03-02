@@ -228,7 +228,7 @@ public class ReportViewPresenterTest {
     public void should_toggle_pagination_control_if_multi_page_loaded() throws Exception {
         mFakeGetReportMultiPagePropertyCase.setIsMultiPage(false);
         presenter.loadMultiPageProperty();
-        verify(mView).setPaginationControlVisibility(false);
+        verify(mView).showPaginationControl(false);
     }
 
     @Test

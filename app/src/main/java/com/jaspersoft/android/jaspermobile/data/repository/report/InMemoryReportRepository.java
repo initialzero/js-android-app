@@ -30,10 +30,12 @@ import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPropertyCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
+import com.jaspersoft.android.sdk.service.internal.ReportExceptionMapper;
 import com.jaspersoft.android.sdk.service.report.ReportExecutionOptions;
 import com.jaspersoft.android.sdk.service.report.ReportFormat;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportExecution;
@@ -59,6 +61,7 @@ public final class InMemoryReportRepository implements ReportRepository {
     private final ReportParamsCache mReportParamsCache;
     private final ReportParamsMapper mReportParamsMapper;
     private final ReportCache mReportCache;
+    private final ReportPropertyCache mReportPropertyCache;
     private final JasperRestClient mJasperRestClient;
 
     @Inject
@@ -66,13 +69,15 @@ public final class InMemoryReportRepository implements ReportRepository {
                                     ReportPageCache reportPageCache,
                                     ReportParamsCache reportParamsCache,
                                     ReportParamsMapper reportParamsMapper,
-                                    ReportCache reportCache
+                                    ReportCache reportCache,
+                                    ReportPropertyCache reportPropertyCache
     ) {
         mJasperRestClient = jasperRestClient;
         mReportPageCache = reportPageCache;
         mReportParamsCache = reportParamsCache;
         mReportParamsMapper = reportParamsMapper;
         mReportCache = reportCache;
+        mReportPropertyCache = reportPropertyCache;
     }
 
     @NonNull
@@ -126,8 +131,7 @@ public final class InMemoryReportRepository implements ReportRepository {
         return Observable.defer(new Func0<Observable<RxReportExecution>>() {
             @Override
             public Observable<RxReportExecution> call() {
-                mReportCache.evict(uri);
-                mReportPageCache.evictAll();
+                evictReportCache(uri);
                 return getReport(uri);
             }
         });
@@ -139,8 +143,7 @@ public final class InMemoryReportRepository implements ReportRepository {
         return Observable.defer(new Func0<Observable<RxReportExecution>>() {
                 @Override
                 public Observable<RxReportExecution> call() {
-                    mReportPageCache.evictAll();
-                    mReportCache.evict(uri);
+                    evictReportCache(uri);
 
                     return getReport(uri).flatMap(new Func1<RxReportExecution, Observable<RxReportExecution>>() {
                         @Override
@@ -162,8 +165,17 @@ public final class InMemoryReportRepository implements ReportRepository {
 
     @Override
     public void flushReport(String reportUri) {
-        mReportCache.evict(reportUri);
+        evictReportCache(reportUri);
+        evictParamsCache(reportUri);
+    }
+
+    private void evictReportCache(@NonNull String uri) {
+        mReportCache.evict(uri);
         mReportPageCache.evictAll();
+        mReportPropertyCache.evict(uri);
+    }
+
+    private void evictParamsCache(String reportUri) {
         mReportParamsCache.evict(reportUri);
     }
 }

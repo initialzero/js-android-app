@@ -19,7 +19,7 @@ public interface RestReportContract {
 
         void showPage(String pageContent);
 
-        void setPaginationControlVisibility(boolean visibility);
+        void showPaginationControl(boolean visibility);
 
         void resetPaginationControl();
 

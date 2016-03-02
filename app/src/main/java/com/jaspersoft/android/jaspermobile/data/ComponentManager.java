@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.data;
 
 import android.support.annotation.Nullable;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
@@ -9,6 +10,7 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
+import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 
 import java.util.List;
 
@@ -23,14 +25,17 @@ import javax.inject.Singleton;
 public class ComponentManager {
     private final ActiveProfileCache mActiveProfileCache;
     private final ProfileCache mProfileCache;
+    private final Analytics mAnalytics;
     private final GraphObject mGraphObject;
 
     @Inject
     public ComponentManager(
+            Analytics analytics,
             GraphObject graphObject,
             ActiveProfileCache activeProfileCache,
             ProfileCache profileCache
     ) {
+        mAnalytics = analytics;
         mGraphObject = graphObject;
         mActiveProfileCache = activeProfileCache;
         mProfileCache = profileCache;
@@ -60,6 +65,9 @@ public class ComponentManager {
 
     private void activateProfile(Profile profile) {
         mActiveProfileCache.put(profile);
+
+        mAnalytics.sendUserChangedEvent();
+        ResourcePresentationService.stopService();
     }
 
     private Profile tryToSetupFirstAvailable() {

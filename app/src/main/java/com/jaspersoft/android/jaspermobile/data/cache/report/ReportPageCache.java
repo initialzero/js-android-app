@@ -17,5 +17,5 @@ public interface ReportPageCache {
     @NonNull
     ReportPage put(@NonNull PageRequest pageRequest, @NonNull ReportPage content);
 
-    void evict(String uri);
+    void evictAll();
 }

@@ -127,7 +127,7 @@ public final class InMemoryReportRepository implements ReportRepository {
             @Override
             public Observable<RxReportExecution> call() {
                 mReportCache.evict(uri);
-                mReportPageCache.evict(uri);
+                mReportPageCache.evictAll();
                 return getReport(uri);
             }
         });
@@ -139,7 +139,7 @@ public final class InMemoryReportRepository implements ReportRepository {
         return Observable.defer(new Func0<Observable<RxReportExecution>>() {
                 @Override
                 public Observable<RxReportExecution> call() {
-                    mReportPageCache.evict(uri);
+                    mReportPageCache.evictAll();
                     mReportCache.evict(uri);
 
                     return getReport(uri).flatMap(new Func1<RxReportExecution, Observable<RxReportExecution>>() {
@@ -163,7 +163,7 @@ public final class InMemoryReportRepository implements ReportRepository {
     @Override
     public void flushReport(String reportUri) {
         mReportCache.evict(reportUri);
-        mReportPageCache.evict(reportUri);
+        mReportPageCache.evictAll();
         mReportParamsCache.evict(reportUri);
     }
 }

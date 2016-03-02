@@ -18,6 +18,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.UpdateReport
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.contract.RestReportContract;
+import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
@@ -76,12 +77,13 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
         if (getView() == null) {
             throw new NullPointerException("Please inject view before calling this method");
         }
-        if (getView().getState().isControlsPageShown()) {
+        ReportPageState state = getView().getState();
+        if (state.isControlsPageShown() && state.getCurrentPage() != null) {
             loadLastSavedPage();
             loadMultiPageProperty();
             loadTotalPagesProperty();
 
-            boolean hasControls = getView().getState().hasControls();
+            boolean hasControls = state.hasControls();
             toggleFiltersAction(hasControls);
         } else {
             loadReportMetadata();

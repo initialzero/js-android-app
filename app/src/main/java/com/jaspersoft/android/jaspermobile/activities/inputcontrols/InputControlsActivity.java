@@ -232,7 +232,7 @@ public class InputControlsActivity extends ToolbarActivity
     @OptionsItem(R.id.saveReportOption)
     protected void saveReportOptionAction() {
         setProgressDialogState(true);
-        mValidateReportInputControlsCase.execute(reportUri, new ValidateReportOptionsValuesListener());
+        mValidateReportInputControlsCase.execute(reportUri, new GenericSubscriber<>(new ValidateReportOptionsValuesListener()));
     }
 
     @OptionsItem(R.id.resetReportOption)

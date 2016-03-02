@@ -154,6 +154,7 @@ public class ReportCastActivity extends CastActivity
             actionBar.setTitle(resource.getLabel());
         }
         paginationBar.setOnPageChangeListener(this);
+        paginationBar.setOnPickerSelectedListener(this);
     }
 
     @Override

@@ -33,6 +33,7 @@ import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.JobResource;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author Tom Koptel
@@ -59,9 +60,17 @@ class JobResourceBinder extends ResourceBinder {
     @Override
     protected void setSubtitle(ResourceView resourceView, JasperResource item) {
         if (item instanceof JobResource) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT);
-            String date = simpleDateFormat.format(((JobResource) item).getDate());
-            resourceView.setSubTitle(getContext().getString(R.string.sch_next_run_label, date, ((JobResource) item).getState()));
+            Date runDate = ((JobResource) item).getDate();
+            String runDateString;
+
+            if (runDate != null) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT);
+                runDateString = simpleDateFormat.format(((JobResource) item).getDate());
+            } else {
+                runDateString = "--";
+            }
+
+            resourceView.setSubTitle(getContext().getString(R.string.sch_next_run_label, runDateString, ((JobResource) item).getState()));
             return;
         }
 

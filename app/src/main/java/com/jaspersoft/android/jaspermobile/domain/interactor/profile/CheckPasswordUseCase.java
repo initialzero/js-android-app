@@ -68,6 +68,10 @@ public class CheckPasswordUseCase extends AbstractUseCase<Void, String> {
                 try {
                     mProfileAuthorizedValidation.validate(profileForm);
                     mCredentialsRepository.saveCredentials(profile, newCredentials);
+
+                    JasperServer updatedServer = mServerRepository.loadServer(server.getBaseUrl());
+                    mServerRepository.saveServer(profile, updatedServer);
+
                     return Observable.just(null);
                 } catch (Exception e) {
                     return Observable.error(e);

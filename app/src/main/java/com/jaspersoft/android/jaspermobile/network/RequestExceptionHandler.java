@@ -162,6 +162,11 @@ public class RequestExceptionHandler {
             case StatusCodes.JOB_LABEL_TOO_LONG:
                 String labelLength = exception.getArguments().get(0);
                 return mContext.getString(R.string.error_schedule_label_too_long, labelLength);
+            case StatusCodes.SAVED_VALUES_EXIST_IN_FOLDER:
+                return mContext.getString(R.string.error_saved_values_duplicate);
+            case StatusCodes.SAVED_VALUES_LABEL_TOO_LONG:
+                String savedValesLabelLength = exception.getArguments().get(0);
+                return mContext.getString(R.string.error_saved_values_label_too_long, savedValesLabelLength);
             default:
                 return mContext.getString(R.string.error_undefined);
         }

@@ -298,6 +298,8 @@
     <string name="error_schedule_output_filename_too_long" translatable="false">The job output file name too long. Accepted length: %s</string>
     <string name="error_schedule_label_too_long" translatable="false">The job label name too long. Accepted length: %s</string>
     <string name="error_undefined" translatable="false">Undefined error happened</string>
+    <string name="error_saved_values_duplicate" translatable="false">A Saved Options with that name already exists in this folder, under another report.</string>
+    <string name="error_saved_values_label_too_long" translatable="false">A Saved Options label is too long. The maximum length is %s characters.</string>
 
     <!-- Others -->
     <string name="loading_msg">Loading…</string>

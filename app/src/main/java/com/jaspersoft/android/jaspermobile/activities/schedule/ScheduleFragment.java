@@ -106,7 +106,11 @@ public class ScheduleFragment extends BaseFragment implements DateDialogFragment
     }
 
     public ScheduleViewModel provideJob() {
-        return scheduleViewModel;
+        ScheduleViewModel job = scheduleViewModel.clone();
+        if (runImmediately.isChecked()) {
+            job.setDate(null);
+        }
+        return job;
     }
 
     @Click(R.id.runImmediately)

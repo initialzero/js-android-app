@@ -112,7 +112,6 @@ public class ReportCastActivity extends CastActivity
     @ViewById(R.id.paginationControl)
     protected PaginationBarView paginationBar;
 
-
     @ViewById(R.id.reload)
     protected View reloadControl;
 
@@ -250,6 +249,38 @@ public class ReportCastActivity extends CastActivity
             }
         });
         return false;
+    }
+
+    @Touch(R.id.btnScrollLeft)
+    protected boolean scrollLeftAction(MotionEvent event) {
+        scrollTo(event, new TimerTask() {
+            @Override
+            public void run() {
+                mResourcePresentationService.scrollLeft();
+            }
+        });
+        return false;
+    }
+
+    @Touch(R.id.btnScrollRight)
+    protected boolean scrollRightAction(MotionEvent event) {
+        scrollTo(event, new TimerTask() {
+            @Override
+            public void run() {
+                mResourcePresentationService.scrollRight();
+            }
+        });
+        return false;
+    }
+
+    @Click(R.id.btnZoomIn)
+    void zoomInAction() {
+        mResourcePresentationService.zoomIn();
+    }
+
+    @Click(R.id.btnZoomOut)
+    void zoomOutAction() {
+        mResourcePresentationService.zoomOut();
     }
 
     @Click(R.id.reload)

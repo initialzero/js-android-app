@@ -54,7 +54,7 @@ public class SortDialogFragment extends BaseDialogFragment implements DialogInte
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.Theme_JasperMobile_Dialog_Alert_Sort);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setTitle(R.string.s_ab_sort_by);
 

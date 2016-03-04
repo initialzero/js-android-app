@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.activities.schedule;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -54,7 +55,9 @@ import com.jaspersoft.android.sdk.service.report.schedule.JobSearchCriteria;
 import com.jaspersoft.android.sdk.service.report.schedule.JobSortType;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -77,9 +80,14 @@ import rx.subscriptions.CompositeSubscription;
 @EFragment(R.layout.fragment_jobs)
 public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener, DeleteDialogFragment.DeleteDialogClickListener {
 
+    @ViewById(android.R.id.list)
     protected JasperRecyclerView listView;
+    @ViewById(R.id.refreshLayout)
     protected SwipeRefreshLayout swipeRefreshLayout;
+    @ViewById(android.R.id.empty)
     protected TextView message;
+    @ViewById(R.id.newJob)
+    protected FloatingActionButton newJob;
 
     @Inject
     protected Analytics analytics;
@@ -106,20 +114,21 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
         ((ToolbarActivity) getActivity()).setCustomToolbarView(null);
     }
 
-    @Override
-    public void onViewCreated(View view, final Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        listView = (JasperRecyclerView) view.findViewById(android.R.id.list);
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refreshLayout);
-        message = (TextView) view.findViewById(android.R.id.empty);
-
+    @AfterViews
+    protected void init(){
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.js_blue,
                 R.color.js_dark_blue,
                 R.color.js_blue,
                 R.color.js_dark_blue);
+
+        newJob.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         setDataAdapter();
     }

@@ -74,7 +74,7 @@ import rx.subscriptions.CompositeSubscription;
  * @author Andrew Tivodar
  * @since 2.3
  */
-@EFragment(R.layout.fragment_refreshable_resource)
+@EFragment(R.layout.fragment_jobs)
 public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener, DeleteDialogFragment.DeleteDialogClickListener {
 
     protected JasperRecyclerView listView;

@@ -466,12 +466,6 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
             if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
                 loadNextPage();
             }
-            enableRefreshLayout(listView);
-        }
-
-        private void enableRefreshLayout(RecyclerView listView) {
-            boolean enable = !listView.canScrollVertically(-1);
-            swipeRefreshLayout.setEnabled(enable);
         }
     }
 }

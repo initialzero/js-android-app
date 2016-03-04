@@ -6,9 +6,16 @@
     android:layout_height="match_parent"
     tools:context="com.jaspersoft.sample.dark.theme.common.ResourceListFragment">
 
-    <include
+    <com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView
+        android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        layout="@layout/fragment_resource" />
+        android:columnWidth="@dimen/grid_item_width" />
+
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center" />
 
 </android.support.v4.widget.SwipeRefreshLayout>

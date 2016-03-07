@@ -42,7 +42,6 @@ import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.google.android.gms.common.api.Status;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourceCastDialogFactory;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
@@ -50,8 +49,6 @@ import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
-
-import javax.inject.Inject;
 
 /**
  * @author Andrew Tivodar
@@ -68,9 +65,6 @@ public abstract class CastActivity extends ToolbarActivity {
     private MediaRouteSelector mMediaRouteSelector;
     private MediaRouter.Callback mMediaRouterCallback;
     private boolean mCastAvailable;
-
-    @Inject
-    JasperServer mServer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

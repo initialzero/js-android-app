@@ -42,6 +42,7 @@ import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.SecurityProviderUpdater;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 
 import org.androidannotations.api.ViewServer;
 
@@ -72,6 +73,9 @@ public class ToolbarActivity extends BaseActivity {
     protected SecurityProviderUpdater mSecurityProviderUpdater;
     @Inject
     protected Analytics analytics;
+    @Inject
+    protected JasperServer mServer;
+
     private StartupDelegate mStartupDelegate;
 
     public boolean isDevMode() {

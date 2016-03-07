@@ -257,11 +257,27 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     }
 
     public void scrollUp() {
-        mPresentation.scrollTo(-8);
+        mPresentation.scrollVertical(-8);
     }
 
     public void scrollDown() {
-        mPresentation.scrollTo(8);
+        mPresentation.scrollVertical(8);
+    }
+
+    public void scrollLeft() {
+        mPresentation.scrollHorizontal(-8);
+    }
+
+    public void scrollRight() {
+        mPresentation.scrollHorizontal(8);
+    }
+
+    public void zoomIn() {
+        mPresentation.zoomIn();
+    }
+
+    public void zoomOut() {
+        mPresentation.zoomOut();
     }
 
     //---------------------------------------------------------------------
@@ -470,10 +486,24 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             webView.loadUrl(String.format("javascript:MobileReport.selectPage(%d)", pageNumber));
         }
 
-        private void scrollTo(int scrollValue) {
+        private void scrollVertical(int scrollValue) {
             if (webView.canScrollVertically(scrollValue)) {
                 webView.scrollBy(0, scrollValue);
             }
+        }
+
+        private void scrollHorizontal(int scrollValue) {
+            if (webView.canScrollHorizontally(scrollValue)) {
+                webView.scrollBy(scrollValue, 0);
+            }
+        }
+
+        private void zoomIn() {
+            webView.zoomIn();
+        }
+
+        private void zoomOut() {
+            webView.zoomOut();
         }
 
         private void showReport() {
@@ -482,6 +512,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
         private void hideReport() {
             webView.setVisibility(View.INVISIBLE);
+            while (webView.zoomOut());
         }
 
         private void showLoading() {

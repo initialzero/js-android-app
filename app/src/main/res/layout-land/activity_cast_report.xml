@@ -42,88 +42,104 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/paginationControl"
         android:gravity="center"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_centerHorizontal="true"
         android:visibility="gone">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:gravity="center">
 
-            <ImageButton
-                android:id="@+id/btnZoomOut"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingBottom="12dp"
-                android:paddingLeft="24dp"
-                android:paddingRight="24dp"
-                android:paddingTop="12dp"
-                android:src="@drawable/ic_zoom_out" />
+                android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/btnZoomIn"
+                <ImageButton
+                    android:id="@+id/btnZoomOut"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="12dp"
+                    android:paddingLeft="24dp"
+                    android:paddingRight="24dp"
+                    android:paddingTop="12dp"
+                    android:src="@drawable/ic_zoom_out" />
+
+                <ImageButton
+                    android:id="@+id/btnZoomIn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="12dp"
+                    android:paddingLeft="24dp"
+                    android:paddingRight="24dp"
+                    android:paddingTop="12dp"
+                    android:src="@drawable/ic_zoom_in" />
+
+            </LinearLayout>
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingBottom="12dp"
-                android:paddingLeft="24dp"
-                android:paddingRight="24dp"
-                android:paddingTop="12dp"
-                android:src="@drawable/ic_zoom_in" />
-
+                android:layout_margin="12dp"
+                android:gravity="center_horizontal"
+                android:text="@string/cast_zoom_message" />
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:gravity="center_horizontal"
-            android:text="@string/cast_zoom_message" />
+            android:gravity="center">
 
-        <GridLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:columnCount="3"
-            android:rowCount="4"
-            android:layout_marginTop="16dp">
-
-            <ImageButton
-                android:id="@+id/btnScrollUp"
-                android:layout_column="1"
-                android:padding="16dp"
-                android:src="@drawable/ic_arrow_upward" />
-
-            <ImageButton
-                android:id="@+id/btnScrollLeft"
+            <GridLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_column="0"
-                android:layout_row="1"
-                android:padding="16dp"
-                android:src="@drawable/ic_arrow_left" />
+                android:columnCount="3"
+                android:rowCount="2">
 
-            <ImageButton
-                android:id="@+id/btnScrollRight"
-                android:layout_column="2"
-                android:layout_row="1"
-                android:padding="16dp"
-                android:src="@drawable/ic_arrow_right" />
+                <ImageButton
+                    android:id="@+id/btnScrollUp"
+                    android:layout_column="1"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_arrow_upward"
+                    android:layout_marginLeft="6dp" />
 
-            <ImageButton
-                android:id="@+id/btnScrollDown"
-                android:layout_column="1"
-                android:layout_row="2"
-                android:padding="16dp"
-                android:src="@drawable/ic_arrow_downward" />
+                <ImageButton
+                    android:id="@+id/btnScrollLeft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_row="1"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_arrow_left" />
 
-        </GridLayout>
+                <ImageButton
+                    android:id="@+id/btnScrollRight"
+                    android:layout_column="2"
+                    android:layout_row="1"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_arrow_right"
+                    android:layout_marginLeft="6dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:gravity="center_horizontal"
-            android:text="@string/cast_scroll_message" />
+                <ImageButton
+                    android:id="@+id/btnScrollDown"
+                    android:layout_column="1"
+                    android:layout_row="1"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_arrow_downward"
+                    android:layout_marginLeft="6dp" />
+
+            </GridLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:gravity="center_horizontal"
+                android:text="@string/cast_scroll_message" />
+        </LinearLayout>
 
     </LinearLayout>
 

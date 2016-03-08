@@ -703,10 +703,17 @@ public class InputControlsActivity extends ToolbarActivity
         public void onNext(List<InputControlState> stateList) {
             super.onNext(stateList);
 
-            mReportOptions.get(getSelectedReportOptionPosition()).setSelected(false);
-            mReportOptions.get(reportOptionsList.getSelectedItemPosition()).setSelected(true);
+            if (mIsProJrs) {
+                int positionInSpinner = reportOptionsList.getSelectedItemPosition();
+                int currentSelection = getSelectedReportOptionPosition();
+                ReportOptionHolder currentOption = mReportOptions.get(currentSelection);
+                ReportOptionHolder selectedOption = mReportOptions.get(positionInSpinner);
 
-            mReportOptions.get(getSelectedReportOptionPosition()).setHashCode(mInputControls.hashCode());
+                currentOption.setSelected(false);
+                currentOption.setHashCode(mInputControls.hashCode());
+
+                selectedOption.setSelected(true);
+            }
 
             invalidateOptionsMenu();
             updateReportOptionsTitlesList();

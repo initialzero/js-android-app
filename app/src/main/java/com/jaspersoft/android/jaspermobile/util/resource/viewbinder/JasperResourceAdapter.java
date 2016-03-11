@@ -22,10 +22,14 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
 
     private OnResourceInteractionListener mItemInteractionListener;
     private List<JasperResource> jasperResources;
-    private ViewType viewType;
-    private boolean mNextPageIsLoading;
+    private int mViewType;
+    private boolean mIsLoading;
     private ResourceViewHolderFactory mResourceViewHolderFactory;
     private ResourceBinderFactory mResourceBinderFactory;
+
+    public JasperResourceAdapter(Context context, List<JasperResource> jasperResources) {
+        this(context, jasperResources, ViewType.LIST);
+    }
 
     public JasperResourceAdapter(Context context, List<JasperResource> jasperResources, ViewType viewType) {
         if (jasperResources != null) {
@@ -33,7 +37,7 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
         } else {
             this.jasperResources = new ArrayList<>();
         }
-        this.viewType = viewType;
+        setViewType(viewType);
 
         mResourceViewHolderFactory = new ResourceViewHolderFactory(context);
         mResourceBinderFactory = new ResourceBinderFactory(context);
@@ -48,7 +52,7 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
 
     @Override
     public void onBindViewHolder(BaseResourceViewHolder baseViewHolder, int position) {
-        if (position == jasperResources.size()) {
+        if (getItemViewType(position) == LOADING_TYPE) {
             return;
         }
         JasperResource jasperResource = jasperResources.get(position);
@@ -58,25 +62,27 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
 
     @Override
     public int getItemCount() {
-        int itemCount = jasperResources.size();
-        if (mNextPageIsLoading && itemCount != 0) {
-            itemCount++;
-        }
-        return itemCount;
+        return (mIsLoading && jasperResources.size() != 0) ? jasperResources.size() + 1 : jasperResources.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position >= jasperResources.size()) {
-            return LOADING_TYPE;
-        } else if (viewType == ViewType.LIST) {
-            return LIST_TYPE;
-        }
-        return GRID_TYPE;
+        return position < jasperResources.size() ? mViewType : LOADING_TYPE;
     }
 
     public void setOnItemInteractionListener(OnResourceInteractionListener itemInteractionListener) {
         this.mItemInteractionListener = itemInteractionListener;
+    }
+
+    public void setViewType(ViewType viewType) {
+        this.mViewType = viewType == ViewType.LIST ? LIST_TYPE : GRID_TYPE;
+    }
+
+    public void setResources(List<JasperResource> jasperResources) {
+        int pos = this.jasperResources.size();
+        int notifyCount = jasperResources.size() - pos;
+        this.jasperResources = jasperResources;
+        notifyItemRangeInserted(pos, notifyCount);
     }
 
     public void addAll(List<JasperResource> jasperResources) {
@@ -91,12 +97,16 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
     }
 
     public void showLoading() {
-        mNextPageIsLoading = true;
+        if (mIsLoading) return;
+
+        mIsLoading = true;
         notifyItemInserted(jasperResources.size());
     }
 
     public void hideLoading() {
-        mNextPageIsLoading = false;
+        if (!mIsLoading) return;
+
+        mIsLoading = false;
         notifyItemRemoved(jasperResources.size());
     }
 
@@ -111,8 +121,10 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
     //---------------------------------------------------------------------
     // Base adapter interaction listener
     //---------------------------------------------------------------------
+
     public interface OnResourceInteractionListener {
         void onResourceItemClicked(String id);
+
         void onSecondaryActionClicked(JasperResource jasperResource);
     }
 
@@ -133,6 +145,5 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
             }
         }
     }
-
 
 }

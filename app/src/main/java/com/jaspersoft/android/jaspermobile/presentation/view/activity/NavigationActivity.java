@@ -61,6 +61,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.Navigati
 import com.jaspersoft.android.jaspermobile.presentation.contract.NavigationContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.NavigationPresenter;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.LibraryCatalogFragment;
 import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
 
@@ -103,7 +104,7 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
     private ActionBarDrawerToggle mDrawerToggle;
 
     @Extra
-    protected int currentSelection = R.id.vg_library;
+    protected int currentSelection = R.id.vg_repository;
 
     @InstanceState
     protected boolean customToolbarDisplayEnabled = true;
@@ -300,7 +301,7 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
         switch (viewId) {
             case R.id.vg_library:
                 currentSelection = R.id.vg_library;
-                commitContent(LibraryPageFragment_.builder().build());
+                commitContent(new LibraryCatalogFragment());
                 break;
             case R.id.vg_repository:
                 currentSelection = R.id.vg_repository;

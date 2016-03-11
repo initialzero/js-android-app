@@ -7,6 +7,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.DashboardModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.FragmentModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.NavigationActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportRestViewerModule;
@@ -40,6 +41,8 @@ public interface ProfileComponent {
     NavigationActivityComponent plusNavigationPage(NavigationActivityModule module);
 
     BaseActivityComponent plusBase(ActivityModule activityModule);
+
+    CatalogComponent plus(FragmentModule fragmentModule);
 
     Profile getProfile();
     /**

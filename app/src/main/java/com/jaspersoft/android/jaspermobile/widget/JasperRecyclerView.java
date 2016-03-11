@@ -2,6 +2,7 @@ package com.jaspersoft.android.jaspermobile.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Parcelable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -53,9 +54,12 @@ public class JasperRecyclerView extends RecyclerView {
 
     public void changeViewType(ViewType viewType) {
         getAdapter().setViewType(viewType);
-        invalidate();
-        requestLayout();
+
+        stopScroll();
+        setHasFixedSize(false);
+        getItemAnimator().endAnimations();
         getAdapter().notifyItemRangeChanged(0, getAdapter().getItemCount());
+        setHasFixedSize(true);
     }
 
     @Override

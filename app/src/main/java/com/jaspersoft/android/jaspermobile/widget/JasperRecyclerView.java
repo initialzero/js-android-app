@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
+import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.DividerGridItemDecoration;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
@@ -19,7 +20,7 @@ public class JasperRecyclerView extends RecyclerView {
     private final static int MIN_COLUMN_COUNT = 2;
 
     private int columnWidth;
-    private RecyclerView.ItemDecoration decoration;
+    private DividerGridItemDecoration decoration;
 
     public JasperRecyclerView(Context context) {
         super(context);
@@ -44,42 +45,76 @@ public class JasperRecyclerView extends RecyclerView {
             array.recycle();
         }
         setHasFixedSize(true);
-        getItemAnimator().setChangeDuration(0);
-        setViewType(ViewType.LIST);
+
+        decoration = new DividerGridItemDecoration((int) context.getResources().getDimension(R.dimen.resource_item_padding));
+        addItemDecoration(decoration);
+        setLayoutManager(new GridLayoutManagerWithLoading(getContext(), 1));
+    }
+
+    public void changeViewType(ViewType viewType) {
+        getAdapter().setViewType(viewType);
+        invalidate();
+        requestLayout();
+        getAdapter().notifyItemRangeChanged(0, getAdapter().getItemCount());
+    }
+
+    @Override
+    public void setAdapter(RecyclerView.Adapter adapter) {
+        if (adapter instanceof Adapter) {
+            super.setAdapter(adapter);
+            return;
+        }
+        throw new UnsupportedOperationException("Only JasperRecyclerView.Adapter is supported");
+    }
+
+    @Override
+    public JasperRecyclerView.Adapter getAdapter() {
+        return (Adapter) super.getAdapter();
+    }
+
+    @Override
+    public void setLayoutManager(LayoutManager layout) {
+        if (layout instanceof GridLayoutManagerWithLoading) {
+            super.setLayoutManager(layout);
+            return;
+        }
+        throw new UnsupportedOperationException("Only GridLayoutManagerWithLoading is supported!");
+    }
+
+    @Override
+    public GridLayoutManagerWithLoading getLayoutManager() {
+        return (GridLayoutManagerWithLoading) super.getLayoutManager();
     }
 
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         super.onMeasure(widthSpec, heightSpec);
 
-        LayoutManager layoutManager = getLayoutManager();
-        if (columnWidth > 0 && layoutManager instanceof GridLayoutManager) {
-            int spanCount = Math.max(MIN_COLUMN_COUNT, getMeasuredWidth() / columnWidth);
-            ((GridLayoutManager) layoutManager).setSpanCount(spanCount);
-
-            if (decoration != null) {
-                ((DividerGridItemDecoration) decoration).setSpanCount(spanCount);
-            }
+        GridLayoutManagerWithLoading layoutManager = getLayoutManager();
+        if (columnWidth > 0) {
+            int spanCount = getAdapter().getViewType() == Adapter.LIST_TYPE ? 1 : Math.max(MIN_COLUMN_COUNT, getMeasuredWidth() / columnWidth);
+            layoutManager.setSpanCount(spanCount);
+            decoration.setSpanCount(spanCount);
         }
     }
 
-    public void setViewType(ViewType viewType) {
-        final RecyclerView.LayoutManager layoutManager;
+    public static abstract class Adapter<VH extends ViewHolder> extends RecyclerView.Adapter<VH> {
+        public final static int LOADING_TYPE = -1;
+        public final static int LIST_TYPE = 1;
+        public final static int GRID_TYPE = 2;
 
-        if (viewType == ViewType.LIST) {
-            layoutManager = new LinearLayoutManager(getContext());
-        } else {
-            layoutManager = new GridLayoutManagerWithLoading(getContext(), MIN_COLUMN_COUNT);
+        private int mViewType = 1;
+
+        public int getViewType() {
+            return mViewType;
         }
 
-        setLayoutManager(layoutManager);
-        if (decoration == null) {
-            decoration = new DividerGridItemDecoration();
-            addItemDecoration(decoration);
+        void setViewType(ViewType viewType) {
+            this.mViewType = viewType == ViewType.LIST ? LIST_TYPE : GRID_TYPE;
         }
     }
 
-    private class GridLayoutManagerWithLoading extends GridLayoutManager {
+    public class GridLayoutManagerWithLoading extends GridLayoutManager {
 
         public GridLayoutManagerWithLoading(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
             super(context, attrs, defStyleAttr, defStyleRes);
@@ -96,13 +131,13 @@ public class JasperRecyclerView extends RecyclerView {
             init();
         }
 
-        private void init(){
+        private void init() {
             setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
-                    RecyclerView.Adapter adapter = getAdapter();
+                    Adapter adapter = getAdapter();
                     if (adapter != null) {
-                        return adapter.getItemViewType(position) == JasperResourceAdapter.LOADING_TYPE ? getSpanCount() : 1 ;
+                        return adapter.getItemViewType(position) == Adapter.LOADING_TYPE ? getSpanCount() : 1 ;
                     }
                     return 1;
                 }

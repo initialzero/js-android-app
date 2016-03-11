@@ -298,8 +298,7 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
     }
 
     private void setDataAdapter() {
-        List<ResourceLookup> resourceLookupList = null;
-        mAdapter = new JasperResourceAdapter(getActivity(), jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
+        mAdapter = new JasperResourceAdapter(getActivity());
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
             public void onResourceItemClicked(String id) {
@@ -314,8 +313,8 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
             }
         });
 
-        listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
+        listView.changeViewType(viewType);
     }
 
     private void loadFirstPage() {

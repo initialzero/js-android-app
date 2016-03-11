@@ -74,7 +74,7 @@ public class LibraryPresenter extends Presenter<LibraryContract.View> implements
     public void onReady() {
         mSearchCriteria = new ResourceLookupSearchCriteria();
         mSearchCriteria.setForceFullPage(true);
-        mSearchCriteria.setLimit(15);
+        mSearchCriteria.setLimit(mLimit);
         mSearchCriteria.setRecursive(true);
         mSearchCriteria.setTypes(LibraryResourceFilter_.getInstance_(mContext).getCurrent().getValues());
         mSearchCriteria.setFolderUri(ROOT_URI);

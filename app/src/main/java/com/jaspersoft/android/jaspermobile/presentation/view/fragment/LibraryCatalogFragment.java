@@ -25,19 +25,18 @@
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.info.ResourceInfoActivity_;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.FragmentModule;
 import com.jaspersoft.android.jaspermobile.presentation.contract.LibraryContract;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.LibraryPresenter;
@@ -45,16 +44,14 @@ import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceAdapter;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -64,11 +61,18 @@ import javax.inject.Named;
  * @author Andrew Tivodar
  * @since 2.3
  */
+@OptionsMenu({R.menu.switch_menu, R.menu.sort_menu})
+@EFragment(R.layout.fragment_refreshable_resource)
 public class LibraryCatalogFragment extends BaseFragment implements LibraryContract.View, SwipeRefreshLayout.OnRefreshListener {
 
-    private JasperRecyclerView resourcesList;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private TextView message;
+    @ViewById(android.R.id.list)
+    JasperRecyclerView resourcesList;
+    @ViewById(R.id.refreshLayout)
+    SwipeRefreshLayout swipeRefreshLayout;
+    @ViewById(android.R.id.empty)
+    TextView message;
+    @OptionsMenuItem(R.id.switchLayout)
+    MenuItem switchAction;
 
     @Inject
     LibraryPresenter libraryPresenter;
@@ -88,14 +92,8 @@ public class LibraryCatalogFragment extends BaseFragment implements LibraryContr
         libraryPresenter.injectView(this);
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View fragment = inflater.inflate(R.layout.fragment_refreshable_resource, container, false);
-        resourcesList = (JasperRecyclerView) fragment.findViewById(android.R.id.list);
-        swipeRefreshLayout = (SwipeRefreshLayout) fragment.findViewById(R.id.refreshLayout);
-        message = (TextView) fragment.findViewById(android.R.id.empty);
-
+    @AfterViews
+    void initViews() {
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
                 R.color.js_blue,
@@ -103,11 +101,24 @@ public class LibraryCatalogFragment extends BaseFragment implements LibraryContr
                 R.color.js_blue,
                 R.color.js_dark_blue);
 
-        setDataAdapter();
-
+        createDataAdapter();
         libraryPresenter.onReady();
+        setActionBarTitle();
+    }
 
-        return fragment;
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+    }
+
+    @OptionsItem(R.id.sort)
+    final void sortAction() {
+
+    }
+
+    @OptionsItem(R.id.switchLayout)
+    final void switchLayoutAction() {
     }
 
     @Override
@@ -133,6 +144,8 @@ public class LibraryCatalogFragment extends BaseFragment implements LibraryContr
 
     @Override
     public void showNextLoading() {
+        if (resourcesList.isComputingLayout()) return;
+
         mAdapter.showLoading();
     }
 
@@ -144,8 +157,15 @@ public class LibraryCatalogFragment extends BaseFragment implements LibraryContr
         mAdapter.hideLoading();
     }
 
-    private void setDataAdapter() {
-        mAdapter = new JasperResourceAdapter(getActivity(), new ArrayList<JasperResource>());
+    private void setActionBarTitle() {
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(getString(R.string.h_library_label));
+        }
+    }
+
+    private void createDataAdapter() {
+        mAdapter = new JasperResourceAdapter(getActivity());
         resourcesList.setAdapter(mAdapter);
         resourcesList.addOnScrollListener(new ScrollListener());
     }

@@ -259,7 +259,7 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
     }
 
     private void setDataAdapter() {
-        mAdapter = new JasperResourceAdapter(getActivity(), null, ViewType.LIST);
+        mAdapter = new JasperResourceAdapter(getActivity());
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
             public void onResourceItemClicked(String id) {
@@ -290,8 +290,8 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
             }
         });
 
-        listView.setViewType(ViewType.LIST);
         listView.setAdapter(mAdapter);
+        listView.changeViewType(ViewType.LIST);
     }
 
     private void showMessage(String textMessage) {

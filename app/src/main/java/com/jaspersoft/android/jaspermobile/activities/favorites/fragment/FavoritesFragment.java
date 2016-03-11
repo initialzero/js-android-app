@@ -213,7 +213,7 @@ public class FavoritesFragment extends BaseFragment
     }
 
     private void setDataAdapter() {
-        mAdapter = new JasperResourceAdapter(getActivity(), Collections.<JasperResource>emptyList(), viewType);
+        mAdapter = new JasperResourceAdapter(getActivity());
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
             public void onResourceItemClicked(String id) {
@@ -231,8 +231,8 @@ public class FavoritesFragment extends BaseFragment
             }
         });
 
-        listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
+        listView.changeViewType(viewType);
     }
 
     //---------------------------------------------------------------------

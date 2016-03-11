@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 
 import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,30 +15,16 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.0
  */
-public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceViewHolder> {
-
-    public final static int LOADING_TYPE = -1;
-    public final static int LIST_TYPE = 1;
-    public final static int GRID_TYPE = 2;
+public class JasperResourceAdapter extends JasperRecyclerView.Adapter<BaseResourceViewHolder> {
 
     private OnResourceInteractionListener mItemInteractionListener;
     private List<JasperResource> jasperResources;
-    private int mViewType;
     private boolean mIsLoading;
     private ResourceViewHolderFactory mResourceViewHolderFactory;
     private ResourceBinderFactory mResourceBinderFactory;
 
-    public JasperResourceAdapter(Context context, List<JasperResource> jasperResources) {
-        this(context, jasperResources, ViewType.LIST);
-    }
-
-    public JasperResourceAdapter(Context context, List<JasperResource> jasperResources, ViewType viewType) {
-        if (jasperResources != null) {
-            this.jasperResources = jasperResources;
-        } else {
-            this.jasperResources = new ArrayList<>();
-        }
-        setViewType(viewType);
+    public JasperResourceAdapter(Context context) {
+        this.jasperResources = new ArrayList<>();
 
         mResourceViewHolderFactory = new ResourceViewHolderFactory(context);
         mResourceBinderFactory = new ResourceBinderFactory(context);
@@ -67,15 +54,11 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
 
     @Override
     public int getItemViewType(int position) {
-        return position < jasperResources.size() ? mViewType : LOADING_TYPE;
+        return position < jasperResources.size() ? getViewType() : LOADING_TYPE;
     }
 
     public void setOnItemInteractionListener(OnResourceInteractionListener itemInteractionListener) {
         this.mItemInteractionListener = itemInteractionListener;
-    }
-
-    public void setViewType(ViewType viewType) {
-        this.mViewType = viewType == ViewType.LIST ? LIST_TYPE : GRID_TYPE;
     }
 
     public void setResources(List<JasperResource> jasperResources) {

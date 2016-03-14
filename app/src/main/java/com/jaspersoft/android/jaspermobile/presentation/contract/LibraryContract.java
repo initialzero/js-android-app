@@ -47,6 +47,8 @@ public interface LibraryContract {
         void showNextLoading();
 
         void hideLoading();
+
+        void showError();
     }
 
     interface ActionListener {

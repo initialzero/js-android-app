@@ -143,6 +143,12 @@ public class LibraryCatalogFragment extends BaseFragment implements LibraryContr
         mAdapter.hideLoading();
     }
 
+    @Override
+    public void showError() {
+        message.setVisibility(View.VISIBLE);
+        message.setText(getString(R.string.failed_load_data));
+    }
+
     private void createDataAdapter() {
         mAdapter = new JasperResourceAdapter(getActivity(), true);
         mAdapter.setOnItemInteractionListener(this);

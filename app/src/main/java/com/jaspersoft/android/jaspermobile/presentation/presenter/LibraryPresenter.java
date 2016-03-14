@@ -30,6 +30,7 @@ import com.jaspersoft.android.jaspermobile.data.entity.mapper.CriteriaMapper;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ResourceMapper;
 import com.jaspersoft.android.jaspermobile.domain.loaders.ResourceLoader;
 import com.jaspersoft.android.jaspermobile.internal.di.PerFragment;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.contract.LibraryContract;
 import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryFilterStorage;
@@ -56,13 +57,13 @@ public class LibraryPresenter extends Presenter<LibraryContract.View> implements
     public static final String ROOT_URI = "/";
 
     @Inject
-    Context mContext;
-    @Inject
     CriteriaMapper mCriteriaMapper;
     @Inject
     ResourceMapper mResourceMapper;
     @Inject
     ResourceLoader mResourceLoader;
+    @Inject
+    RequestExceptionHandler mRequestExceptionHandler;
     @Inject
     @Named("LIMIT")
     int mLimit;
@@ -114,7 +115,8 @@ public class LibraryPresenter extends Presenter<LibraryContract.View> implements
 
     @Override
     public void onError(ServiceException ex) {
-
+        mRequestExceptionHandler.showAuthErrorIfExists(ex);
+        getView().showError();
     }
 
     private void reloadResources() {

@@ -89,7 +89,7 @@ public class SearchResourcesLoader extends AsyncTaskLoader<LoaderResult<List<Res
         mIsLoading = false;
 
         if (isStarted()) {
-            super.deliverResult(new LoaderResult<>(mResources));
+            super.deliverResult(loaderResult.hasResult() ? new LoaderResult<>(mResources) : loaderResult);
         }
     }
 

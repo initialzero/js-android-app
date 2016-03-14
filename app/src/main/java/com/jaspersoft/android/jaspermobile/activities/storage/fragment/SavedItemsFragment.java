@@ -204,7 +204,8 @@ public class SavedItemsFragment extends BaseFragment
         mAdapter = new JasperResourceAdapter(getActivity());
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
-            public void onResourceItemClicked(String id) {
+            public void onResourceItemClicked(JasperResource jasperResource) {
+                String id = jasperResource.getId();
                 if (isDownloading(id)) {
                     File file = jasperResourceConverter.convertToFile(id, getActivity());
                     openReportFile(file, id);

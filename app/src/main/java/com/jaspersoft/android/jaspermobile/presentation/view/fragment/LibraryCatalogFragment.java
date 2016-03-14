@@ -24,6 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -37,6 +39,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.schedule.ChooseReportActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.FragmentModule;
 import com.jaspersoft.android.jaspermobile.presentation.contract.LibraryContract;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.LibraryPresenter;
@@ -61,9 +64,8 @@ import javax.inject.Named;
  * @author Andrew Tivodar
  * @since 2.3
  */
-@OptionsMenu({R.menu.switch_menu, R.menu.sort_menu})
 @EFragment(R.layout.fragment_refreshable_resource)
-public class LibraryCatalogFragment extends BaseFragment implements LibraryContract.View, SwipeRefreshLayout.OnRefreshListener {
+public class LibraryCatalogFragment extends BaseFragment implements LibraryContract.View, SwipeRefreshLayout.OnRefreshListener, JasperResourceAdapter.OnResourceInteractionListener {
 
     @ViewById(android.R.id.list)
     JasperRecyclerView resourcesList;
@@ -103,22 +105,6 @@ public class LibraryCatalogFragment extends BaseFragment implements LibraryContr
 
         createDataAdapter();
         libraryPresenter.onReady();
-        setActionBarTitle();
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
-    }
-
-    @OptionsItem(R.id.sort)
-    final void sortAction() {
-
-    }
-
-    @OptionsItem(R.id.switchLayout)
-    final void switchLayoutAction() {
     }
 
     @Override
@@ -157,17 +143,24 @@ public class LibraryCatalogFragment extends BaseFragment implements LibraryContr
         mAdapter.hideLoading();
     }
 
-    private void setActionBarTitle() {
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(getString(R.string.h_library_label));
-        }
-    }
-
     private void createDataAdapter() {
-        mAdapter = new JasperResourceAdapter(getActivity());
+        mAdapter = new JasperResourceAdapter(getActivity(), true);
+        mAdapter.setOnItemInteractionListener(this);
         resourcesList.setAdapter(mAdapter);
         resourcesList.addOnScrollListener(new ScrollListener());
+    }
+
+    @Override
+    public void onResourceItemClicked(JasperResource jasperResource) {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(ChooseReportActivity.RESULT_JASPER_RESOURCE, jasperResource);
+        getActivity().setResult(Activity.RESULT_OK, resultIntent);
+        getActivity().finish();
+    }
+
+    @Override
+    public void onSecondaryActionClicked(JasperResource jasperResource) {
+
     }
 
     //---------------------------------------------------------------------

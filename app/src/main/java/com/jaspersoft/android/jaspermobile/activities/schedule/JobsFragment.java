@@ -24,7 +24,9 @@
 
 package com.jaspersoft.android.jaspermobile.activities.schedule;
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -56,7 +58,9 @@ import com.jaspersoft.android.sdk.service.report.schedule.JobSortType;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -86,8 +90,6 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
     protected SwipeRefreshLayout swipeRefreshLayout;
     @ViewById(android.R.id.empty)
     protected TextView message;
-    @ViewById(R.id.newJob)
-    protected FloatingActionButton newJob;
 
     @Inject
     protected Analytics analytics;
@@ -122,13 +124,6 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
                 R.color.js_dark_blue,
                 R.color.js_blue,
                 R.color.js_dark_blue);
-
-        newJob.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
 
         setDataAdapter();
     }
@@ -166,6 +161,22 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
 
         listView.setVisibility(View.GONE);
         mCompositeSubscription.unsubscribe();
+    }
+
+    @OnActivityResult(ChooseReportActivity.CHOOSE_REPORT_REQUEST_CODE)
+    protected void onReportSelected(int resultCode, Intent data) {
+        if (resultCode != Activity.RESULT_OK) return;
+
+        JasperResource resource = (JasperResource) data.getSerializableExtra(ChooseReportActivity.RESULT_JASPER_RESOURCE);
+        NewScheduleActivity_
+                .intent(getActivity())
+                .jasperResource(resource)
+                .start();
+    }
+
+    @Click(R.id.newJob)
+    protected void newScheduleAction() {
+        startActivityForResult(new Intent(getActivity(), ChooseReportActivity.class), ChooseReportActivity.CHOOSE_REPORT_REQUEST_CODE);
     }
 
     @Override
@@ -262,9 +273,9 @@ public class JobsFragment extends BaseFragment implements SwipeRefreshLayout.OnR
         mAdapter = new JasperResourceAdapter(getActivity());
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
-            public void onResourceItemClicked(String id) {
+            public void onResourceItemClicked(JasperResource jasperResource) {
                 try {
-                    int jobId = Integer.parseInt(id);
+                    int jobId = Integer.parseInt(jasperResource.getId());
 
                     EditScheduleActivity_.intent(getContext())
                             .jobId(jobId)

@@ -182,6 +182,7 @@
     <string name="sch_state_unknown" translatable="false">Unknown</string>
     <string name="sdr_delete_title" translatable="false">Delete schedule</string>
     <string name="sdr_delete_message" translatable="false">Do you really want to delete this schedule?</string>
+    <string name="sch_choose_report" translatable="false">Choose report to schedule…</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

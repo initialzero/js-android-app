@@ -256,8 +256,8 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
         mAdapter = new JasperResourceAdapter(getActivity());
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
-            public void onResourceItemClicked(String id) {
-                onViewSingleClick(mResourceLookupHashMap.get(id));
+            public void onResourceItemClicked(JasperResource jasperResource) {
+                onViewSingleClick(mResourceLookupHashMap.get(jasperResource.getId()));
             }
 
             @Override

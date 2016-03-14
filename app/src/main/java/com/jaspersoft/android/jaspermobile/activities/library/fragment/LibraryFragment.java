@@ -301,8 +301,8 @@ public class LibraryFragment extends BaseFragment implements SwipeRefreshLayout.
         mAdapter = new JasperResourceAdapter(getActivity());
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
-            public void onResourceItemClicked(String id) {
-                onViewSingleClick(mResourceLookupHashMap.get(id));
+            public void onResourceItemClicked(JasperResource jasperResource) {
+                onViewSingleClick(mResourceLookupHashMap.get(jasperResource.getId()));
             }
 
             @Override

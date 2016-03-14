@@ -55,6 +55,7 @@
     <string name="ja_rc_s" translatable="false">Report cast screen</string>
     <string name="ja_new_sch" translatable="false">New schedule screen</string>
     <string name="ja_edit_sch" translatable="false">Edit schedule screen</string>
+    <string name="ja_choose_sch" translatable="false">Choose report screen</string>
 
     <!--Constants-->
     <string name="jasper_account_type" translatable="false">com.jaspersoft</string>

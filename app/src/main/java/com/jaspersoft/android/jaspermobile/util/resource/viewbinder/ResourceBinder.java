@@ -54,7 +54,6 @@ public abstract class ResourceBinder {
         }
         setTitle(resourceView, item);
         setSubtitle(resourceView, item);
-        setActionResource(resourceView, item);
     }
 
     public abstract void setIcon(ImageView imageView, JasperResource jasperResource);
@@ -63,23 +62,23 @@ public abstract class ResourceBinder {
         setIcon(imageView, jasperResource);
     }
 
-    protected void setTitle (ResourceView resourceView, JasperResource item) {
+    protected void setTitle(ResourceView resourceView, JasperResource item) {
         resourceView.setTitle(item.getLabel());
     }
 
-    protected void setSubtitle (ResourceView resourceView, JasperResource item) {
+    protected void setSubtitle(ResourceView resourceView, JasperResource item) {
         resourceView.setSubTitle(item.getDescription());
     }
 
     protected void setActionResource(ResourceView resourceView, JasperResource item) {
-        resourceView.setSecondaryAction(R.drawable.im_info);
+        resourceView.setSecondaryAction(item != null ? R.drawable.im_info : 0);
     }
 
     protected Context getContext() {
         return mContext;
     }
 
-    private void unbindView(ImageView imageView){
+    private void unbindView(ImageView imageView) {
         Object tag = imageView.getTag();
         if (tag instanceof Subscription) {
             Subscription subscription = (Subscription) tag;

@@ -101,6 +101,8 @@
 
         <activity android:name=".activities.viewer.html.report.ReportCastActivity_"/>
 
+        <activity android:name=".activities.schedule.ChooseReportActivity"/>
+
         <!-- Activity that performs report viewing in HTML format -->
         <activity
             android:name=".activities.viewer.html.SavedReportHtmlViewerActivity_"

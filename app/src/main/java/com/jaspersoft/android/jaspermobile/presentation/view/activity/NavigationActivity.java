@@ -302,7 +302,7 @@ public class NavigationActivity extends CastActivity implements HasComponent<Nav
         switch (viewId) {
             case R.id.vg_library:
                 currentSelection = R.id.vg_library;
-                commitContent(LibraryCatalogFragment_.builder().build());
+                commitContent(LibraryPageFragment_.builder().build());
                 break;
             case R.id.vg_repository:
                 currentSelection = R.id.vg_repository;

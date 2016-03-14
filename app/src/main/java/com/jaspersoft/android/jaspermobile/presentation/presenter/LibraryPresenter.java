@@ -31,12 +31,16 @@ import com.jaspersoft.android.jaspermobile.data.entity.mapper.ResourceMapper;
 import com.jaspersoft.android.jaspermobile.domain.loaders.ResourceLoader;
 import com.jaspersoft.android.jaspermobile.internal.di.PerFragment;
 import com.jaspersoft.android.jaspermobile.presentation.contract.LibraryContract;
+import com.jaspersoft.android.jaspermobile.util.filtering.Filter;
+import com.jaspersoft.android.jaspermobile.util.filtering.LibraryFilterStorage;
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter_;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookupSearchCriteria;
 import com.jaspersoft.android.sdk.service.data.repository.Resource;
+import com.jaspersoft.android.sdk.service.data.repository.ResourceType;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -72,18 +76,15 @@ public class LibraryPresenter extends Presenter<LibraryContract.View> implements
 
     @Override
     public void onReady() {
+        List<String> filters = new ArrayList<>();
+        filters.add(ResourceType.reportUnit.getRawValue());
+
         mSearchCriteria = new ResourceLookupSearchCriteria();
         mSearchCriteria.setForceFullPage(true);
         mSearchCriteria.setLimit(mLimit);
         mSearchCriteria.setRecursive(true);
-        mSearchCriteria.setTypes(LibraryResourceFilter_.getInstance_(mContext).getCurrent().getValues());
+        mSearchCriteria.setTypes(filters);
         mSearchCriteria.setFolderUri(ROOT_URI);
-//        if (!TextUtils.isEmpty(query)) {
-//            mSearchCriteria.setQuery(query);
-//        }
-//        if (sortOrder != null) {
-//            mSearchCriteria.setSortBy(sortOrder.getValue());
-//        }
 
         getView().showFirstLoading();
         mResourceLoader.initSearch(mCriteriaMapper.toRetrofittedCriteria(mSearchCriteria), this);

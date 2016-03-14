@@ -1,10 +1,8 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
-import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 
@@ -20,8 +18,14 @@ public class JasperResourceAdapter extends JasperRecyclerView.Adapter<BaseResour
     private OnResourceInteractionListener mItemInteractionListener;
     private List<JasperResource> jasperResources;
     private boolean mIsLoading;
+    private boolean mHideSecondaryAction;
     private ResourceViewHolderFactory mResourceViewHolderFactory;
     private ResourceBinderFactory mResourceBinderFactory;
+
+    public JasperResourceAdapter(Context context, boolean hideSecondaryAction) {
+        this(context);
+        mHideSecondaryAction = hideSecondaryAction;
+    }
 
     public JasperResourceAdapter(Context context) {
         this.jasperResources = new ArrayList<>();
@@ -45,6 +49,8 @@ public class JasperResourceAdapter extends JasperRecyclerView.Adapter<BaseResour
         JasperResource jasperResource = jasperResources.get(position);
         ResourceBinder resourceBinder = mResourceBinderFactory.create(jasperResource.getResourceType());
         resourceBinder.bindView(baseViewHolder, jasperResource);
+        resourceBinder.setActionResource(baseViewHolder, mHideSecondaryAction ? null : jasperResource);
+
     }
 
     @Override
@@ -106,7 +112,7 @@ public class JasperResourceAdapter extends JasperRecyclerView.Adapter<BaseResour
     //---------------------------------------------------------------------
 
     public interface OnResourceInteractionListener {
-        void onResourceItemClicked(String id);
+        void onResourceItemClicked(JasperResource jasperResource);
 
         void onSecondaryActionClicked(JasperResource jasperResource);
     }
@@ -116,7 +122,7 @@ public class JasperResourceAdapter extends JasperRecyclerView.Adapter<BaseResour
         @Override
         public void onViewSingleClick(int position) {
             if (mItemInteractionListener != null) {
-                mItemInteractionListener.onResourceItemClicked(jasperResources.get(position).getId());
+                mItemInteractionListener.onResourceItemClicked(jasperResources.get(position));
             }
         }
 

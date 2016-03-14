@@ -66,6 +66,7 @@ public class ListResourceViewHolder extends BaseResourceViewHolder {
 
     @Override
     public void setSecondaryAction(int actionImage) {
+        btnSecondaryAction.setVisibility(actionImage == 0 ? View.GONE : View.VISIBLE);
         btnSecondaryAction.setImageResource(actionImage);
     }
 }

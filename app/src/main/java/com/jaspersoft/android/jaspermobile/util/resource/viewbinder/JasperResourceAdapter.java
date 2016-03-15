@@ -1,11 +1,10 @@
 package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
-import com.jaspersoft.android.jaspermobile.util.ViewType;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,26 +13,22 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.0
  */
-public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceViewHolder> {
-
-    public final static int LOADING_TYPE = -1;
-    public final static int LIST_TYPE = 1;
-    public final static int GRID_TYPE = 2;
+public class JasperResourceAdapter extends JasperRecyclerView.Adapter<BaseResourceViewHolder> {
 
     private OnResourceInteractionListener mItemInteractionListener;
     private List<JasperResource> jasperResources;
-    private ViewType viewType;
-    private boolean mNextPageIsLoading;
+    private boolean mIsLoading;
+    private boolean mHideSecondaryAction;
     private ResourceViewHolderFactory mResourceViewHolderFactory;
     private ResourceBinderFactory mResourceBinderFactory;
 
-    public JasperResourceAdapter(Context context, List<JasperResource> jasperResources, ViewType viewType) {
-        if (jasperResources != null) {
-            this.jasperResources = jasperResources;
-        } else {
-            this.jasperResources = new ArrayList<>();
-        }
-        this.viewType = viewType;
+    public JasperResourceAdapter(Context context, boolean hideSecondaryAction) {
+        this(context);
+        mHideSecondaryAction = hideSecondaryAction;
+    }
+
+    public JasperResourceAdapter(Context context) {
+        this.jasperResources = new ArrayList<>();
 
         mResourceViewHolderFactory = new ResourceViewHolderFactory(context);
         mResourceBinderFactory = new ResourceBinderFactory(context);
@@ -48,35 +43,35 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
 
     @Override
     public void onBindViewHolder(BaseResourceViewHolder baseViewHolder, int position) {
-        if (position == jasperResources.size()) {
+        if (getItemViewType(position) == LOADING_TYPE) {
             return;
         }
         JasperResource jasperResource = jasperResources.get(position);
         ResourceBinder resourceBinder = mResourceBinderFactory.create(jasperResource.getResourceType());
         resourceBinder.bindView(baseViewHolder, jasperResource);
+        resourceBinder.setActionResource(baseViewHolder, mHideSecondaryAction ? null : jasperResource);
+
     }
 
     @Override
     public int getItemCount() {
-        int itemCount = jasperResources.size();
-        if (mNextPageIsLoading && itemCount != 0) {
-            itemCount++;
-        }
-        return itemCount;
+        return (mIsLoading && jasperResources.size() != 0) ? jasperResources.size() + 1 : jasperResources.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position >= jasperResources.size()) {
-            return LOADING_TYPE;
-        } else if (viewType == ViewType.LIST) {
-            return LIST_TYPE;
-        }
-        return GRID_TYPE;
+        return position < jasperResources.size() ? getViewType() : LOADING_TYPE;
     }
 
     public void setOnItemInteractionListener(OnResourceInteractionListener itemInteractionListener) {
         this.mItemInteractionListener = itemInteractionListener;
+    }
+
+    public void setResources(List<JasperResource> jasperResources) {
+        int pos = this.jasperResources.size();
+        int notifyCount = jasperResources.size() - pos;
+        this.jasperResources = jasperResources;
+        notifyItemRangeInserted(pos, notifyCount);
     }
 
     public void addAll(List<JasperResource> jasperResources) {
@@ -91,12 +86,16 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
     }
 
     public void showLoading() {
-        mNextPageIsLoading = true;
+        if (mIsLoading) return;
+
+        mIsLoading = true;
         notifyItemInserted(jasperResources.size());
     }
 
     public void hideLoading() {
-        mNextPageIsLoading = false;
+        if (!mIsLoading) return;
+
+        mIsLoading = false;
         notifyItemRemoved(jasperResources.size());
     }
 
@@ -111,8 +110,10 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
     //---------------------------------------------------------------------
     // Base adapter interaction listener
     //---------------------------------------------------------------------
+
     public interface OnResourceInteractionListener {
-        void onResourceItemClicked(String id);
+        void onResourceItemClicked(JasperResource jasperResource);
+
         void onSecondaryActionClicked(JasperResource jasperResource);
     }
 
@@ -121,7 +122,7 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
         @Override
         public void onViewSingleClick(int position) {
             if (mItemInteractionListener != null) {
-                mItemInteractionListener.onResourceItemClicked(jasperResources.get(position).getId());
+                mItemInteractionListener.onResourceItemClicked(jasperResources.get(position));
             }
         }
 
@@ -133,6 +134,5 @@ public class JasperResourceAdapter extends RecyclerView.Adapter<BaseResourceView
             }
         }
     }
-
 
 }

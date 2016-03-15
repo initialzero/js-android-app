@@ -253,12 +253,11 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
     }
 
     private void setDataAdapter() {
-        List<ResourceLookup> resourceLookupList = null;
-        mAdapter = new JasperResourceAdapter(getActivity(), jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
+        mAdapter = new JasperResourceAdapter(getActivity());
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
-            public void onResourceItemClicked(String id) {
-                onViewSingleClick(mResourceLookupHashMap.get(id));
+            public void onResourceItemClicked(JasperResource jasperResource) {
+                onViewSingleClick(mResourceLookupHashMap.get(jasperResource.getId()));
             }
 
             @Override
@@ -269,8 +268,8 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
             }
         });
 
-        listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
+        listView.changeViewType(viewType);
     }
 
     private void loadRootFolders() {
@@ -407,12 +406,6 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
             if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
                 loadNextPage();
             }
-            enableRefreshLayout(listView);
-        }
-
-        private void enableRefreshLayout(RecyclerView listView) {
-            boolean enable = !listView.canScrollVertically(-1);
-            swipeRefreshLayout.setEnabled(enable);
         }
     }
 }

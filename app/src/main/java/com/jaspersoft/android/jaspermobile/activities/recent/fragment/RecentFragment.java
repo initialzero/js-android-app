@@ -195,12 +195,11 @@ public class RecentFragment extends BaseFragment
     }
 
     private void setDataAdapter() {
-        List<ResourceLookup> resourceLookupList = null;
-        mAdapter = new JasperResourceAdapter(getActivity(), jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
+        mAdapter = new JasperResourceAdapter(getActivity());
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
-            public void onResourceItemClicked(String id) {
-                onViewSingleClick(mResourceLookupHashMap.get(id));
+            public void onResourceItemClicked(JasperResource jasperResource) {
+                onViewSingleClick(mResourceLookupHashMap.get(jasperResource.getId()));
             }
 
             @Override
@@ -211,8 +210,8 @@ public class RecentFragment extends BaseFragment
             }
         });
 
-        listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
+        listView.changeViewType(viewType);
     }
 
     private void loadResources() {

@@ -61,6 +61,8 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.Navigati
 import com.jaspersoft.android.jaspermobile.presentation.contract.NavigationContract;
 import com.jaspersoft.android.jaspermobile.presentation.model.ProfileViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.NavigationPresenter;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.LibraryCatalogFragment;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.LibraryCatalogFragment_;
 import com.jaspersoft.android.jaspermobile.util.feedback.FeedbackSender;
 import com.jaspersoft.android.jaspermobile.widget.NavigationPanelLayout;
 

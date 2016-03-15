@@ -5,6 +5,7 @@ import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.sdk.service.filter.FiltersService;
 import com.jaspersoft.android.sdk.service.report.ReportService;
+import com.jaspersoft.android.sdk.service.repository.RepositoryService;
 import com.jaspersoft.android.sdk.service.rx.filter.RxFiltersService;
 import com.jaspersoft.android.sdk.service.rx.report.RxReportService;
 import com.jaspersoft.android.sdk.service.rx.report.schedule.RxReportScheduleService;
@@ -47,6 +48,12 @@ public class StateJasperClient implements JasperRestClient {
     public FiltersService syncFilterService() {
         updateState();
         return mDelegate.syncFilterService();
+    }
+
+    @Override
+    public RepositoryService syncRepositoryService() {
+        updateState();
+        return mDelegate.syncRepositoryService();
     }
 
     @Override

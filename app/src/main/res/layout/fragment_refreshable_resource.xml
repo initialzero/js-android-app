@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/refreshLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.jaspersoft.sample.dark.theme.common.ResourceListFragment">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
-    <include
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        layout="@layout/fragment_resource" />
+        tools:context="com.jaspersoft.sample.dark.theme.common.ResourceListFragment">
 
-</android.support.v4.widget.SwipeRefreshLayout>
+        <com.jaspersoft.android.jaspermobile.widget.JasperRecyclerView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:columnWidth="@dimen/grid_item_width"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"/>
+
+</FrameLayout>

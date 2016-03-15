@@ -130,8 +130,6 @@ public class LibraryCatalogFragment extends BaseFragment implements LibraryContr
 
     @Override
     public void showNextLoading() {
-        if (resourcesList.isComputingLayout()) return;
-
         mAdapter.showLoading();
     }
 

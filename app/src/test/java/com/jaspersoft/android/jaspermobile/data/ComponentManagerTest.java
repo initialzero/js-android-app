@@ -40,12 +40,15 @@ public class ComponentManagerTest {
     AppComponent mAppComponent;
     @Mock
     ProfileComponent mProfileComponent;
+    @Mock
+    ComponentManager.Callback mCallback;
 
     @Mock
     GraphObject mGraphObject;
 
     private ComponentManager mComponentManager;
     private final Profile activeProfile = Profile.create("active");
+    private final Profile defaultProfile = Profile.create("default");
 
     @Rule
     public ExpectedException expected = none();
@@ -57,6 +60,7 @@ public class ComponentManagerTest {
         initMocks(this);
         setupMocks();
         mComponentManager = new ComponentManager(
+                mCallback,
                 mGraphObject,
                 mActiveProfileCache,
                 mProfileCache
@@ -70,8 +74,8 @@ public class ComponentManagerTest {
     @Test
     public void should_trigger_active_profile_missing_if_no_profiles() throws Exception {
         givenAppComponent();
-        givenNoProfileComponent();
-        givenNoActiveProfile();
+        givenDefaultProfileComponent();
+        givenNoActiveProfileInCache();
         givenNoRegisteredProfiles();
 
         whenSetupProfileComponent();
@@ -83,7 +87,7 @@ public class ComponentManagerTest {
     @Test
     public void should_setup_profile_if_exists() throws Exception {
         givenAppComponent();
-        givenNoProfileComponent();
+        givenDefaultProfileComponent();
         givenActiveProfile();
 
         whenSetupProfileComponent();
@@ -100,20 +104,22 @@ public class ComponentManagerTest {
         whenSetupActiveProfile();
 
         thenShouldWriteToActiveCache();
+        thenShouldCallProfileActivationCallback();
         thenShouldSetupProfileComponent();
     }
 
     @Test
     public void should_activate_first_available_account() throws Exception {
         givenAppComponent();
-        givenNoProfileComponent();
-        givenNoActiveProfile();
+        givenDefaultProfileComponent();
+        givenNoActiveProfileInCache();
         givenOneRegisteredProfile();
 
         whenSetupProfileComponent();
 
         thenShouldRetrieveAllProfiles();
         thenShouldWriteToActiveCache();
+        thenShouldCallProfileActivationCallback();
         thenReturnActiveProfile();
         thenShouldSetupProfileComponent();
     }
@@ -122,7 +128,6 @@ public class ComponentManagerTest {
     public void should_reuse_available_profile_component() throws Exception {
         givenAppComponent();
         givenActiveProfile();
-        givenProfileComponent();
         givenProfileComponentRepresentsActiveProfile();
 
         whenSetupProfileComponent();
@@ -130,7 +135,7 @@ public class ComponentManagerTest {
         thenShouldNotSetupAnyProfile();
     }
 
-    private void givenNoActiveProfile() {
+    private void givenNoActiveProfileInCache() {
         when(mActiveProfileCache.get()).thenReturn(null);
     }
 
@@ -139,16 +144,14 @@ public class ComponentManagerTest {
         when(mProfileCache.getAll()).thenReturn(Collections.singletonList(activeProfile));
     }
 
-    private void givenProfileComponent() {
-        when(mGraphObject.getProfileComponent()).thenReturn(mProfileComponent);
-    }
-
     private void givenProfileComponentRepresentsActiveProfile() {
+        when(mGraphObject.getProfileComponent()).thenReturn(mProfileComponent);
         when(mProfileComponent.getProfile()).thenReturn(activeProfile);
     }
 
-    private void givenNoProfileComponent() {
-        when(mGraphObject.getProfileComponent()).thenReturn(null);
+    private void givenDefaultProfileComponent() {
+        when(mGraphObject.getProfileComponent()).thenReturn(mProfileComponent);
+        when(mProfileComponent.getProfile()).thenReturn(defaultProfile);
     }
 
     private void givenAppComponent() {
@@ -181,6 +184,10 @@ public class ComponentManagerTest {
 
     private void thenShouldWriteToActiveCache() {
         verify(mActiveProfileCache).put(activeProfile);
+    }
+
+    private void thenShouldCallProfileActivationCallback() {
+        verify(mCallback).onProfileActivation(activeProfile);
     }
 
     private void thenShouldRetrieveAllProfiles() {

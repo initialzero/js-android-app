@@ -2,7 +2,6 @@ package com.jaspersoft.android.jaspermobile.data;
 
 import android.support.annotation.Nullable;
 
-import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ActiveProfileCache;
 import com.jaspersoft.android.jaspermobile.data.cache.profile.ProfileCache;
@@ -10,7 +9,6 @@ import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
-import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 
 import java.util.List;
 
@@ -25,17 +23,17 @@ import javax.inject.Singleton;
 public class ComponentManager {
     private final ActiveProfileCache mActiveProfileCache;
     private final ProfileCache mProfileCache;
-    private final Analytics mAnalytics;
     private final GraphObject mGraphObject;
+    private final Callback mCallback;
 
     @Inject
     public ComponentManager(
-            Analytics analytics,
+            Callback callback,
             GraphObject graphObject,
             ActiveProfileCache activeProfileCache,
             ProfileCache profileCache
     ) {
-        mAnalytics = analytics;
+        mCallback = (callback == null) ? Callback.NULL : callback;
         mGraphObject = graphObject;
         mActiveProfileCache = activeProfileCache;
         mProfileCache = profileCache;
@@ -43,12 +41,13 @@ public class ComponentManager {
 
     public Profile setupProfileComponent() {
         Profile activeProfile = getActiveProfile();
-        ProfileComponent profileComponent = getCurrentProfileComponent();
-        Profile currentProfile = profileComponent.getProfile();
 
         if (activeProfile == null) {
             return tryToSetupFirstAvailable();
         } else {
+            ProfileComponent profileComponent = getCurrentProfileComponent();
+            Profile currentProfile = profileComponent.getProfile();
+
             if (currentProfile.equals(activeProfile)) {
                 return currentProfile;
             } else {
@@ -65,9 +64,7 @@ public class ComponentManager {
 
     private void activateProfile(Profile profile) {
         mActiveProfileCache.put(profile);
-
-        mAnalytics.sendUserChangedEvent();
-        ResourcePresentationService.stopService();
+        mCallback.onProfileActivation(profile);
     }
 
     private Profile tryToSetupFirstAvailable() {
@@ -112,5 +109,14 @@ public class ComponentManager {
     private ProfileComponent createProfileComponent(Profile profile) {
         AppComponent component = mGraphObject.getComponent();
         return component.plus(new ProfileModule(profile));
+    }
+
+    public interface Callback {
+        Callback NULL = new Callback() {
+            @Override
+            public void onProfileActivation(Profile profile) {
+            }
+        };
+        void onProfileActivation(Profile profile);
     }
 }

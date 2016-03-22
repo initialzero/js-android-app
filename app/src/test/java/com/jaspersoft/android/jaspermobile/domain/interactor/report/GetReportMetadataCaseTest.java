@@ -40,7 +40,7 @@ public class GetReportMetadataCaseTest {
     private static final String REPORT_URI = "/my/uri";
     private static final Map<String, Set<String>> REPORT_PARAMS = Collections.emptyMap();
     private static final List<ReportParameter> LEGACY_REPORT_PARAMS = Collections.emptyList();
-    private static final String DATA = "{\"resource\": \"/my/uri\", }";
+    private static final String DATA = "{\"resource\": \"/my/uri\", \"params\": []}";
 
     @Mock
     ReportRepository mReportRepository;

@@ -4,6 +4,7 @@ import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPropertyCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportRepository;
 import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
@@ -56,6 +57,8 @@ public class InMemoryReportRepositoryTest {
     @Mock
     ReportParamsCache mReportParamsCache;
     @Mock
+    ReportPropertyCache mReportPropertyCache;
+    @Mock
     JasperRestClient mJasperRestClient;
 
     private InMemoryReportRepository inMemoryReportRepository;
@@ -74,7 +77,8 @@ public class InMemoryReportRepositoryTest {
                 mReportPageCache,
                 mReportParamsCache,
                 mReportParamsMapper,
-                mReportCache
+                mReportCache,
+                mReportPropertyCache
         );
     }
 

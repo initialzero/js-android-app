@@ -105,7 +105,7 @@ public class AccountJasperServerCacheTest {
         JasperServer server = cacheUnderTest.get(fakeProfile);
 
         assertThat("Failed to retrieve base url for profile " + fakeAccount,
-                "http://localhost".equals(server.getBaseUrl()));
+                "http://localhost/".equals(server.getBaseUrl()));
         assertThat("Failed to retrieve version for profile " + fakeAccount,
                 server.getVersion().equals("6.0"));
         assertThat("Failed to retrieve edition for profile " + fakeAccount,

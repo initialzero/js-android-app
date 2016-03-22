@@ -17,7 +17,7 @@ import static org.hamcrest.core.Is.is;
  */
 public class JasperServerMapperTest {
 
-    private static final String SERVER_URL = "http://localhost";
+    private static final String SERVER_URL = "http://localhost/";
     private JasperServerMapper mapper;
 
     @Before

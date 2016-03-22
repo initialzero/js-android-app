@@ -106,6 +106,17 @@ public final class SecureStorage implements SecureCache {
             setupProfileStorage(profile);
         }
 
+        try {
+            return getFromHawk(key);
+        } catch (IllegalArgumentException ex) {
+            // We are catching error: "Text should contain delimiter"
+            // This happens during migration from 2.2.1 to 2.2.2
+            return null;
+        }
+    }
+
+    @Nullable
+    private String getFromHawk(String key) {
         if (isInitialized) {
             return Hawk.get(key);
         } else {

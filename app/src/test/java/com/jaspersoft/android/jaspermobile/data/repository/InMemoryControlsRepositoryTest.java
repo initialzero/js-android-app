@@ -75,18 +75,6 @@ public class InMemoryControlsRepositoryTest {
     }
 
     @Test
-    public void controls_listing_fetches_network() throws Exception {
-        requestControls();
-        verify(mFiltersService).listReportControls(REPORT_URI);
-    }
-
-    @Test
-    public void caches_controls_on_run() throws Exception {
-        requestControls();
-        verify(mControlsCache).put(REPORT_URI, LEGACY_CONTROLS);
-    }
-
-    @Test
     public void returns_cached_item_on_second_run() throws Exception {
         Chain<List<InputControl>> answer = Chain.of(null, CONTROLS);
         when(mControlsCache.get(anyString())).then(answer);
@@ -104,17 +92,6 @@ public class InMemoryControlsRepositoryTest {
     public void should_evict_caches() throws Exception {
         inMemoryControlsRepository.flushControls(REPORT_URI);
         verify(mControlsCache).evict(REPORT_URI);
-    }
-
-    @Test
-    public void should_validate_input_control_states() throws Exception {
-        TestSubscriber<List<com.jaspersoft.android.sdk.client.oxm.control.InputControlState>> test = new TestSubscriber<>();
-        inMemoryControlsRepository.validateReportControls(REPORT_URI).subscribe(test);
-
-        verify(mReportParamsCache).get(REPORT_URI);
-        verify(mReportParamsMapper).legacyParamsToRetrofitted(LEGACY_REPORT_PARAMETERS);
-        verify(mFiltersService).validateControls(REPORT_URI, REPORT_PARAMETERS, true);
-        verify(mInputControlsMapper).retrofittedStatesToLegacy(STATES);
     }
 
     @Test
@@ -148,7 +125,7 @@ public class InMemoryControlsRepositoryTest {
                 .thenReturn(Observable.just(STATES));
 
         when(mInputControlsMapper.retrofittedControlsToLegacy(CONTROLS)).thenReturn(LEGACY_CONTROLS);
-        when(mControlsCache.get(anyString())).thenReturn(null);
+        when(mControlsCache.get(anyString())).thenReturn(LEGACY_CONTROLS);
 
         when(mReportParamsCache.get(anyString())).thenReturn(LEGACY_REPORT_PARAMETERS);
         when(mReportParamsMapper.legacyParamsToRetrofitted(LEGACY_REPORT_PARAMETERS)).thenReturn(REPORT_PARAMETERS);

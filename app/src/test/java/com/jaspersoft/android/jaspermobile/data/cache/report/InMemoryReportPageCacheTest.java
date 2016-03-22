@@ -36,7 +36,7 @@ public class InMemoryReportPageCacheTest {
         mInMemoryReportPageCache.put(PAGE_REQUEST, ANY_PAGE);
         ReportPage reportPage = mInMemoryReportPageCache.get(PAGE_REQUEST);
         assertThat(reportPage, is(ANY_PAGE));
-        mInMemoryReportPageCache.evict(REPORT_URI);
+        mInMemoryReportPageCache.evictAll();
         ReportPage reportPage1 = mInMemoryReportPageCache.get(PAGE_REQUEST);
         assertThat(reportPage1, is(nullValue()));
     }

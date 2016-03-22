@@ -200,6 +200,9 @@ public class InputControlsActivity extends ToolbarActivity
         if (mSavedInstanceState == null) {
             updateInputControlsFromReportParams();
         }
+
+        updateReportOptionsTitlesList();
+        notifyReportOptionsChange();
     }
 
     @Override
@@ -229,7 +232,7 @@ public class InputControlsActivity extends ToolbarActivity
     @OptionsItem(R.id.saveReportOption)
     protected void saveReportOptionAction() {
         setProgressDialogState(true);
-        mValidateReportInputControlsCase.execute(reportUri, new ValidateReportOptionsValuesListener());
+        mValidateReportInputControlsCase.execute(reportUri, new GenericSubscriber<>(new ValidateReportOptionsValuesListener()));
     }
 
     @OptionsItem(R.id.resetReportOption)
@@ -576,25 +579,23 @@ public class InputControlsActivity extends ToolbarActivity
             valueList.addAll(valueSet);
         }
 
-        if (!valueList.isEmpty()) {
-            switch (inputControl.getType()) {
-                case bool:
-                case singleValueText:
-                case singleValueNumber:
-                case singleValueTime:
-                case singleValueDate:
-                case singleValueDatetime:
-                    state.setValue(valueList.get(0));
-                    break;
-                case multiSelect:
-                case multiSelectCheckbox:
-                case singleSelect:
-                case singleSelectRadio:
-                    for (InputControlOption option : options) {
-                        option.setSelected(valueList.contains(option.getValue()));
-                    }
-                    break;
-            }
+        switch (inputControl.getType()) {
+            case bool:
+            case singleValueText:
+            case singleValueNumber:
+            case singleValueTime:
+            case singleValueDate:
+            case singleValueDatetime:
+                state.setValue(valueList.get(0));
+                break;
+            case multiSelect:
+            case multiSelectCheckbox:
+            case singleSelect:
+            case singleSelectRadio:
+                for (InputControlOption option : options) {
+                    option.setSelected(valueList.contains(option.getValue()));
+                }
+                break;
         }
     }
 
@@ -702,10 +703,17 @@ public class InputControlsActivity extends ToolbarActivity
         public void onNext(List<InputControlState> stateList) {
             super.onNext(stateList);
 
-            mReportOptions.get(getSelectedReportOptionPosition()).setSelected(false);
-            mReportOptions.get(reportOptionsList.getSelectedItemPosition()).setSelected(true);
+            if (mIsProJrs) {
+                int positionInSpinner = reportOptionsList.getSelectedItemPosition();
+                int currentSelection = getSelectedReportOptionPosition();
+                ReportOptionHolder currentOption = mReportOptions.get(currentSelection);
+                ReportOptionHolder selectedOption = mReportOptions.get(positionInSpinner);
 
-            mReportOptions.get(getSelectedReportOptionPosition()).setHashCode(mInputControls.hashCode());
+                currentOption.setSelected(false);
+                currentOption.setHashCode(mInputControls.hashCode());
+
+                selectedOption.setSelected(true);
+            }
 
             invalidateOptionsMenu();
             updateReportOptionsTitlesList();

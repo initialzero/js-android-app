@@ -71,9 +71,6 @@ public class SavedReportsFragment extends BaseFragment implements SortDialogFrag
     @Bean
     protected SortOptions sortOptions;
 
-    @Pref
-    StoragePref_ pref;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,7 +84,7 @@ public class SavedReportsFragment extends BaseFragment implements SortDialogFrag
 
         if (savedInstanceState == null) {
             // Reset all controls state
-            pref.sortType().put(null);
+            sortOptions.putOrder(SortOrder.LABEL);
 
             FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
 

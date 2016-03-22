@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
@@ -121,15 +122,13 @@ public class SavedItemInfoFragment extends SimpleInfoFragment
     //---------------------------------------------------------------------
 
     @Override
-    public void onRenamed(String newFileName, String newFilePath, Uri recordUri) {
-        SavedItems savedItemsEntry = new SavedItems();
-        savedItemsEntry.setName(newFileName);
-        savedItemsEntry.setFilePath(newFilePath);
-        getActivity().getContentResolver().update(recordUri, savedItemsEntry.getContentValues(), null, null);
-
-        mFileUri = newFilePath;
-
-        updateHeaderViewLabel(newFileName);
-        showSavedItemInfo();
+    public void onRenamed(String newFileName, Uri recordUri) {
+        if (savedItemHelper.renameSavedItem(recordUri, newFileName)) {
+            fetchSavedItemMetadata();
+            updateHeaderViewLabel(newFileName);
+            showSavedItemInfo();
+        } else {
+            Toast.makeText(getActivity(), R.string.sdr_t_report_renaming_error, Toast.LENGTH_SHORT).show();
+        }
     }
 }

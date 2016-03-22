@@ -72,7 +72,6 @@ public final class ProfileModule {
     }
 
     @Provides
-    @PerProfile
     JasperServer providesJasperServer(JasperServerCache jasperServerCache) {
         return jasperServerCache.get(mProfile);
     }

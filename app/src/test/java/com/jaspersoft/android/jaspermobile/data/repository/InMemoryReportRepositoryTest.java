@@ -4,6 +4,7 @@ import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
+import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPropertyCache;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportRepository;
 import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
@@ -56,6 +57,8 @@ public class InMemoryReportRepositoryTest {
     @Mock
     ReportParamsCache mReportParamsCache;
     @Mock
+    ReportPropertyCache mReportPropertyCache;
+    @Mock
     JasperRestClient mJasperRestClient;
 
     private InMemoryReportRepository inMemoryReportRepository;
@@ -74,7 +77,8 @@ public class InMemoryReportRepositoryTest {
                 mReportPageCache,
                 mReportParamsCache,
                 mReportParamsMapper,
-                mReportCache
+                mReportCache,
+                mReportPropertyCache
         );
     }
 
@@ -104,7 +108,7 @@ public class InMemoryReportRepositoryTest {
 
         inMemoryReportRepository.reloadReport(REPORT_URI).subscribe(test);
 
-        verify(mReportPageCache).evict(REPORT_URI);
+        verify(mReportPageCache).evictAll();
         verify(mReportCache).evict(REPORT_URI);
         verify(mRxReportService).run(REPORT_URI, EXECUTION_OPTIONS);
         verify(mReportCache).put(eq(REPORT_URI), any(RxReportExecution.class));
@@ -115,7 +119,7 @@ public class InMemoryReportRepositoryTest {
         TestSubscriber<RxReportExecution> test = new TestSubscriber<>();
         inMemoryReportRepository.updateReport(REPORT_URI).subscribe(test);
 
-        verify(mReportPageCache).evict(REPORT_URI);
+        verify(mReportPageCache).evictAll();
         verify(mReportCache).evict(REPORT_URI);
         verify(mRxReportExecution).updateExecution(REPORT_PARAMS);
         verify(mReportCache).put(eq(REPORT_URI), any(RxReportExecution.class));
@@ -124,7 +128,7 @@ public class InMemoryReportRepositoryTest {
     @Test
     public void should_evict_caches() throws Exception {
         inMemoryReportRepository.flushReport(REPORT_URI);
-        verify(mReportPageCache).evict(REPORT_URI);
+        verify(mReportPageCache).evictAll();
         verify(mReportParamsCache).evict(REPORT_URI);
     }
 

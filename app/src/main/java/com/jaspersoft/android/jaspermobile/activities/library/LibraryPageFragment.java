@@ -31,6 +31,7 @@ import android.speech.RecognizerIntent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.Analytics;
@@ -68,7 +69,7 @@ import javax.inject.Inject;
  * @author Tom Koptel
  * @since 2.0
  */
-@OptionsMenu({R.menu.sort_menu, R.menu.am_voice_command})
+@OptionsMenu(R.menu.sort_menu)
 @EFragment(R.layout.content_layout)
 public class LibraryPageFragment extends BaseFragment implements SortDialogFragment.SortDialogClickListener, SimpleDialogFragment.SimpleDialogClickListener {
 
@@ -163,11 +164,12 @@ public class LibraryPageFragment extends BaseFragment implements SortDialogFragm
     }
 
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         boolean voiceRecognitionAvailable = VoiceRecognitionHelper.isVoiceRecognizerAvailable(getActivity());
-        voiceCommandAction.setVisible(voiceRecognitionAvailable);
+        if (voiceRecognitionAvailable) {
+            inflater.inflate(R.menu.am_voice_command, menu);
+        }
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override

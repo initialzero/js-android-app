@@ -44,6 +44,7 @@ import com.google.android.gms.common.api.Status;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourceCastDialogFactory;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
+import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsMenu;
@@ -63,6 +64,7 @@ public abstract class CastActivity extends ToolbarActivity {
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mMediaRouteSelector;
     private MediaRouter.Callback mMediaRouterCallback;
+    private boolean mCastAvailable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,13 +75,16 @@ public abstract class CastActivity extends ToolbarActivity {
                 .addControlCategory(CastMediaControlIntent.categoryForCast(getString(R.string.app_cast_id)))
                 .build();
         mMediaRouterCallback = new BaseMediaRouterCallback();
+
+        String version = mServer.getVersion();
+        mCastAvailable = mServer.isProEdition() && ServerVersion.valueOf(version).greaterThanOrEquals(ServerVersion.v6);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
 
-        if (castAction != null) {
+        if (castAction != null && mCastAvailable) {
             MediaRouteActionProvider mediaRouteActionProvider =
                     (MediaRouteActionProvider) MenuItemCompat.getActionProvider(castAction);
             mediaRouteActionProvider.setRouteSelector(mMediaRouteSelector);

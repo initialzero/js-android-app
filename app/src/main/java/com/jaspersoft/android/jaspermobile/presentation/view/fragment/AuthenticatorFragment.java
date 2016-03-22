@@ -44,6 +44,7 @@ import com.jaspersoft.android.jaspermobile.presentation.page.AuthPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.AuthenticationPresenter;
 import com.jaspersoft.android.jaspermobile.presentation.view.activity.AuthenticatorActivity;
 import com.jaspersoft.android.jaspermobile.util.BaseUrlNormalizer;
+import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -109,6 +110,8 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
     void init() {
         showTryDemo(false);
         mActionListener.checkDemoAccountAvailability();
+
+        setOnTypeErrorClearListeners();
     }
 
     @Click
@@ -260,6 +263,17 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
         }
     }
 
+    /**
+     * Hide error on text change.
+     * Paste text on Android 4.2 will not cause clearing error on editText.
+     */
+    private void setOnTypeErrorClearListeners(){
+        aliasEdit.addTextChangedListener(new ErrorTextWatcher(aliasEdit));
+        serverUrlEdit.addTextChangedListener(new ErrorTextWatcher(serverUrlEdit));
+        usernameEdit.addTextChangedListener(new ErrorTextWatcher(usernameEdit));
+        passwordEdit.addTextChangedListener(new ErrorTextWatcher(passwordEdit));
+    }
+
     private void saveProfile(
             String alias,
             String serverUrl,
@@ -278,5 +292,19 @@ public class AuthenticatorFragment extends BaseFragment implements Authenticatio
                 .setCredentials(credentials)
                 .build();
         mPresenter.saveProfile(profileForm);
+    }
+
+    private class ErrorTextWatcher extends SimpleTextWatcher {
+
+        private EditText editText;
+
+        public ErrorTextWatcher(EditText editText) {
+            this.editText = editText;
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            editText.setError(null);
+        }
     }
 }

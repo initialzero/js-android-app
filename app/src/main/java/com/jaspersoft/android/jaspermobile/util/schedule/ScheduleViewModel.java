@@ -35,7 +35,7 @@ import java.util.List;
  * @author Andrew Tivodar
  * @since 2.3
  */
-public class ScheduleViewModel implements Serializable{
+public class ScheduleViewModel implements Serializable {
     private String mJobName;
     private String mFileName;
     private String mOutputPath;
@@ -88,5 +88,10 @@ public class ScheduleViewModel implements Serializable{
 
     public void setJobOutputFormats(ArrayList<JobOutputFormat> jobOutputFormats) {
         this.mJobOutputFormats = jobOutputFormats;
+    }
+
+    @Override
+    public ScheduleViewModel clone() {
+        return new ScheduleViewModel(mJobName, mFileName, mOutputPath, mDate, mJobOutputFormats);
     }
 }

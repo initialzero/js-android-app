@@ -364,7 +364,7 @@ public class ReportViewFragment extends BaseFragment
     }
 
     @Override
-    public void setPaginationControlVisibility(boolean visibility) {
+    public void showPaginationControl(boolean visibility) {
         paginationControl.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 

@@ -18,6 +18,7 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.UpdateReport
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.contract.RestReportContract;
+import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
@@ -76,12 +77,13 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
         if (getView() == null) {
             throw new NullPointerException("Please inject view before calling this method");
         }
-        if (getView().getState().isControlsPageShown()) {
+        ReportPageState state = getView().getState();
+        if (state.isControlsPageShown() && state.getCurrentPage() != null) {
             loadLastSavedPage();
             loadMultiPageProperty();
             loadTotalPagesProperty();
 
-            boolean hasControls = getView().getState().hasControls();
+            boolean hasControls = state.hasControls();
             toggleFiltersAction(hasControls);
         } else {
             loadReportMetadata();
@@ -178,9 +180,7 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
         mRunReportCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<ReportPage>() {
             @Override
             public void onNext(ReportPage page) {
-                showPage("1", page);
-                loadMultiPageProperty();
-                loadTotalPagesProperty();
+                showPageInView("1", page);
             }
         }));
     }
@@ -190,8 +190,12 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
         mGetReportMultiPagePropertyCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<Boolean>() {
             @Override
             public void onNext(Boolean multiPage) {
-                int paginationTotalPages = getView().getPaginationTotalPages();
-                multiPage &= paginationTotalPages > 1;
+                ReportPageState state = getView().getState();
+                Integer totalPages = state.getTotalPages();
+                if (totalPages != null) {
+                    multiPage &= totalPages > 1;
+                }
+
                 togglePaginationControl(multiPage);
             }
         }));
@@ -200,11 +204,16 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
     @VisibleForTesting
     void loadTotalPagesProperty() {
         mGetReportTotalPagesPropertyCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<Integer>() {
-
             @Override
             public void onNext(Integer totalPages) {
+                ReportPageState state = getView().getState();
+                state.setTotalPages(totalPages);
+
                 boolean hasNoPages = (totalPages == 0);
                 toggleSaveAction(!hasNoPages);
+
+                boolean multiPage = (totalPages > 1);
+                togglePaginationControl(multiPage);
 
                 if (hasNoPages) {
                     showEmptyPage();
@@ -223,9 +232,7 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
         mUpdateReportCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<ReportPage>() {
             @Override
             public void onNext(ReportPage page) {
-                showPage("1", page);
-                loadMultiPageProperty();
-                loadTotalPagesProperty();
+                showPageInView("1", page);
             }
         }));
     }
@@ -245,13 +252,20 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
         mReloadReportCase.execute(request, new ErrorSubscriber<>(new SimpleSubscriber<ReportPage>() {
             @Override
             public void onNext(ReportPage page) {
-                showPage(position, page);
-                loadMultiPageProperty();
-                loadTotalPagesProperty();
+                showPageInView(position, page);
             }
         }));
     }
 
+    private void showPageInView(String position, ReportPage page) {
+        if (page.isEmpty()) {
+            showEmptyPage();
+        } else {
+            showPage(position, page);
+            loadMultiPageProperty();
+            loadTotalPagesProperty();
+        }
+    }
 
     private void showPageOutOfRangeError() {
         getView().showPageOutOfRangeError();
@@ -280,7 +294,7 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
     }
 
     private void togglePaginationControl(boolean multiPage) {
-        getView().setPaginationControlVisibility(multiPage);
+        getView().showPaginationControl(multiPage);
     }
 
     private void hideLoading() {

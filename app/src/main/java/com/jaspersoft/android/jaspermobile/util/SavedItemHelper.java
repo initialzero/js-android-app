@@ -32,14 +32,15 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
+import com.jaspersoft.android.jaspermobile.db.model.SavedItems;
 import com.jaspersoft.android.jaspermobile.db.provider.JasperMobileDbProvider;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 
 import timber.log.Timber;
@@ -63,6 +64,22 @@ public class SavedItemHelper {
         if (!reportFolderFile.exists()) {
             deleteReferenceInDb(reportUri);
         }
+    }
+
+    public boolean renameSavedItem(Uri reportUri, String newReportName) {
+        File oldFile = getFile(reportUri);
+        if (oldFile == null) return false;
+
+        String newFileName = newReportName + "." + getExtension(reportUri);
+        File oldFolder = oldFile.getParentFile();
+        File newFolder = new File(oldFolder.getParentFile(), newFileName);
+        if (newFolder.exists()) return false;
+
+        if (!renameReportAndFolder(oldFolder, newFolder)) return false;
+
+        File newFile = new File(newFolder, newFileName);
+        renameReferenceInDb(reportUri, newReportName, newFile);
+        return true;
     }
 
     public void deleteUnsavedItems() {
@@ -104,6 +121,32 @@ public class SavedItemHelper {
         }
     }
 
+    private boolean renameReportAndFolder(File srcFile, File destFile) {
+        // rename base file
+        boolean result = srcFile.renameTo(destFile);
+        // rename sub-files
+        if (result && destFile.isDirectory()) {
+            String srcName = srcFile.getName();
+            String destName = destFile.getName();
+
+            FilenameFilter reportNameFilter = new ReportFilenameFilter(srcName);
+            File[] subFiles = destFile.listFiles(reportNameFilter);
+            for (File subFile : subFiles) {
+                File newSubFile = new File(subFile.getParentFile(), destName);
+                result &= subFile.renameTo(newSubFile);
+            }
+        }
+
+        return result;
+    }
+
+    private void renameReferenceInDb(Uri reportUri, String newName, File newFile) {
+        SavedItems savedItemsEntry = new SavedItems();
+        savedItemsEntry.setName(newName);
+        savedItemsEntry.setFilePath(newFile.getPath());
+        context.getContentResolver().update(reportUri, savedItemsEntry.getContentValues(), null, null);
+    }
+
     private void deleteReferenceInDb(Uri reportUri) {
         context.getContentResolver().delete(reportUri, null, null);
     }
@@ -115,5 +158,27 @@ public class SavedItemHelper {
         File file = new File(cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_PATH)));
         cursor.close();
         return file;
+    }
+
+    private String getExtension(Uri recordUri) {
+        Cursor cursor = context.getContentResolver().query(recordUri, null, null, null, null);
+        if (cursor == null || !cursor.moveToFirst()) return null;
+
+        String extension = cursor.getString(cursor.getColumnIndex(SavedItemsTable.FILE_FORMAT));
+        cursor.close();
+        return extension;
+    }
+
+    private static class ReportFilenameFilter implements FilenameFilter {
+        private String reportName;
+
+        private ReportFilenameFilter(String reportName) {
+            this.reportName = reportName;
+        }
+
+        @Override
+        public boolean accept(File dir, String filename) {
+            return filename.equals(reportName);
+        }
     }
 }

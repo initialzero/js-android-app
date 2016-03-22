@@ -3,6 +3,7 @@ package com.jaspersoft.android.jaspermobile.presentation.view.activity;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportVisualizeFragment;
 import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ReportVisualizeFragment_;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
@@ -17,7 +18,7 @@ import org.androidannotations.annotations.Extra;
  * @since 2.3
  */
 @EActivity(R.layout.report_viewer_layout)
-public class ReportVisualizeActivity extends ToolbarActivity {
+public class ReportVisualizeActivity extends CastActivity {
     @Extra
     protected ResourceLookup resource;
     @Bean
@@ -36,5 +37,14 @@ public class ReportVisualizeActivity extends ToolbarActivity {
                     .add(R.id.control, viewFragment, ReportVisualizeFragment.TAG)
                     .commit();
         }
+    }
+
+    @Override
+    protected void onCastStarted() {
+        ReportCastActivity_.intent(this)
+                .resource(resource)
+                .start();
+
+        finish();
     }
 }

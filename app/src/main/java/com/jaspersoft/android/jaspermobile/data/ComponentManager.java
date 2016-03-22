@@ -10,9 +10,6 @@ import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookieStore;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -24,20 +21,20 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class ComponentManager {
-    private final CookieHandler mCookieHandler;
     private final ActiveProfileCache mActiveProfileCache;
     private final ProfileCache mProfileCache;
     private final GraphObject mGraphObject;
+    private final Callback mCallback;
 
     @Inject
     public ComponentManager(
+            Callback callback,
             GraphObject graphObject,
-            CookieHandler cookieHandler,
             ActiveProfileCache activeProfileCache,
             ProfileCache profileCache
     ) {
+        mCallback = (callback == null) ? Callback.NULL : callback;
         mGraphObject = graphObject;
-        mCookieHandler = cookieHandler;
         mActiveProfileCache = activeProfileCache;
         mProfileCache = profileCache;
     }
@@ -48,20 +45,26 @@ public class ComponentManager {
         if (activeProfile == null) {
             return tryToSetupFirstAvailable();
         } else {
-            setupProfileComponent(activeProfile);
-            flushCookies();
-            return activeProfile;
+            ProfileComponent profileComponent = getCurrentProfileComponent();
+            Profile currentProfile = profileComponent.getProfile();
+
+            if (currentProfile.equals(activeProfile)) {
+                return currentProfile;
+            } else {
+                setupProfileComponent(activeProfile);
+                return activeProfile;
+            }
         }
     }
 
     public void setupActiveProfile(Profile profile) {
         activateProfile(profile);
         setupProfileComponent(profile);
-        flushCookies();
     }
 
     private void activateProfile(Profile profile) {
         mActiveProfileCache.put(profile);
+        mCallback.onProfileActivation(profile);
     }
 
     private Profile tryToSetupFirstAvailable() {
@@ -72,7 +75,6 @@ public class ComponentManager {
         } else {
             activateProfile(profile);
             setupProfileComponent(profile);
-            flushCookies();
             return profile;
         }
     }
@@ -96,19 +98,25 @@ public class ComponentManager {
     }
 
     private void setupProfileComponent(Profile profile) {
-        AppComponent component = mGraphObject.getComponent();
-        ProfileComponent newComponent = component.plus(new ProfileModule(profile));
+        ProfileComponent newComponent = createProfileComponent(profile);
         mGraphObject.setProfileComponent(newComponent);
     }
 
-    private void flushCookies() {
-        if (mCookieHandler instanceof CookieManager) {
-            CookieManager cookieHandler = (CookieManager) mCookieHandler;
-            CookieStore cookieStore = cookieHandler.getCookieStore();
+    private ProfileComponent getCurrentProfileComponent() {
+        return mGraphObject.getProfileComponent();
+    }
 
-            if (cookieStore != null) {
-                cookieStore.removeAll();
+    private ProfileComponent createProfileComponent(Profile profile) {
+        AppComponent component = mGraphObject.getComponent();
+        return component.plus(new ProfileModule(profile));
+    }
+
+    public interface Callback {
+        Callback NULL = new Callback() {
+            @Override
+            public void onProfileActivation(Profile profile) {
             }
-        }
+        };
+        void onProfileActivation(Profile profile);
     }
 }

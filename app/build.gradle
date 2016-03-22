@@ -189,7 +189,7 @@ android {
         // Template rendering
         compile "com.samskivert:jmustache:1.10"
 
-        compile("com.jaspersoft.android.sdk:js-android-sdk-rx:2.0-SNAPSHOT")
+        compile("com.jaspersoft.android.sdk:js-android-sdk-rx:${jasperSdkVersion}")
         compile "commons-io:commons-io:2.4"
 
         compile("io.reactivex:rxandroid:1.1.0") {

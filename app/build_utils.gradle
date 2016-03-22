@@ -38,31 +38,78 @@ import java.text.NumberFormat
 ext {
     versionFile = new File(project.rootDir, 'version.properties')
     currentBranch = getCurrentBranch()
-    baseAppName = "jaspermobile"
-}
 
-android {
-    afterEvaluate {
-        Properties currentAppVersion = getCurrentAppVersion()
-        Properties savedAppVersion = getVersionFromFile()
+    genVersionCode = {
+        return _genVersionCode()
+    }
 
-        int revision = getRevisionNumber(currentAppVersion, savedAppVersion)
-        String versionNumber = generateVersionNumber(currentAppVersion, revision)
-        int versionCode = generateVersionCodeValue(currentAppVersion, revision) as int
-
-        //update values for different build tasks
-        applicationVariants.all { variant ->
-            String versionName = generateVersionName(versionNumber, variant.name as String)
-            variant.mergedFlavor.versionCode = versionCode
-            variant.mergedFlavor.versionName = versionName
-
-            renameApk(variant, generateApkName(versionName), versionNumber)
-        }
+    genVersionName = {
+        return _genVersionName()
     }
 }
+
 //---------------------------------------------------------------------
 // Helper methods
 //---------------------------------------------------------------------
+
+/**
+ * Return version code of app version. Used for Google Play build identification.
+ * Pattern for version code: "xxyyzzvvv"
+ * where:
+ * xx - major version number
+ * yy - minor version number
+ * zz - patch version
+ * vvv - revision number
+ */
+def _genVersionCode() {
+    Properties appVersion = getVersionFromFile()
+
+    String versionCode = ""
+
+    def format = NumberFormat.getInstance()
+    format.setMinimumIntegerDigits(2)
+
+    versionCode += format.format(appVersion.major as int)
+    versionCode += format.format(appVersion.minor as int)
+    versionCode += format.format(appVersion.patch as int)
+
+    format.setMinimumIntegerDigits(3)
+    versionCode += format.format(appVersion['revision'] as int)
+
+    return Integer.valueOf(versionCode)
+}
+
+/**
+ * Return text representation of app version.
+ * Pattern for version number: "x.y.z.vvv"
+ * where:
+ * x - major version number
+ * y - minor version number
+ * z - patch version
+ * vvv - revision number
+ * branchName - current branch except [develop, master, hotfix, release]
+ * @param appVersion app version bundle
+ * @param revisionNumber current revision number
+ * @return text representation of app version
+ */
+def _genVersionName() {
+    Properties appVersion = getVersionFromFile()
+
+    def format = NumberFormat.getInstance()
+    format.setMinimumIntegerDigits(1)
+
+    def major = format.format(appVersion['major'] as int) // 1..?
+    def minor = format.format(appVersion['minor'] as int) // 0..99
+    def patch = format.format(appVersion['patch'] as int) // 0..99
+
+    format.setMinimumIntegerDigits(3)
+    def revision = format.format(appVersion['revision'] as int)
+
+    String branchName = currentBranchIsProd() ? "" : "-${currentBranch}"
+
+    return "jaspermobile-${major}.${minor}.${patch}.${revision}${branchName}"
+}
+
 /**
  * Return current branch name
  * @return current branch
@@ -85,42 +132,6 @@ boolean currentBranchIsProd() {
 }
 
 /**
- * Return app version from gradle build defaultConfig.
- * @return app version as Bundle that contains 'major", "minor" and "patch" values.
- */
-Properties getCurrentAppVersion() {
-    Properties appVersion = new Properties()
-    String appVersionName = android.defaultConfig.versionName as String
-
-    if (appVersionName ==~ /(\d).(\d{1,2}).(\d{1,2})/) {
-        def versions = appVersionName.tokenize('.')
-
-        appVersion['major'] = versions[0]
-        appVersion['minor'] = versions[1]
-        appVersion['patch'] = versions[2]
-
-        return appVersion as Properties
-    } else throw new InvalidPropertiesFormatException("Version name does not match pattern available pattern!")
-}
-
-/**
- * Return revision number (build number) of current app version
- * @param currentAppVersion app version as Bundle
- * @return revision number for identifying various build number
- */
-int getRevisionNumber(Properties currentAppVersion, Properties savedAppVersion) {
-    int revision = 0 as int //0..999
-
-    if (savedAppVersion != null)
-        if (savedAppVersion['major'] as int == currentAppVersion['major'] as int &&
-                savedAppVersion['minor'] as int == currentAppVersion['minor'] as int &&
-                savedAppVersion['patch'] as int == currentAppVersion['patch'] as int)
-            revision = savedAppVersion['revision'] as int
-
-    return revision
-}
-
-/**
  * Return app version bundle that was saved in file
  */
 Properties getVersionFromFile() {
@@ -140,103 +151,4 @@ Properties getVersionFromFile() {
     if (!version['major'] || !version['minor'] || !version['patch'] || !version['revision']) return null
 
     return version
-}
-
-/**
- * Return text representation of app version.
- * Pattern for version number: "x.y.z.vvv"
- * where:
- * x - major version number
- * y - minor version number
- * z - patch version
- * vvv - revision number
- * @param appVersion app version bundle
- * @param revisionNumber current revision number
- * @return text representation of app version
- */
-String generateVersionNumber(Properties appVersion, int revisionNumber) {
-    def format = NumberFormat.getInstance()
-    format.setMinimumIntegerDigits(1)
-
-    String major = format.format(appVersion['major'] as int) // 1..?
-    String minor = format.format(appVersion['minor'] as int) // 0..99
-    String patch = format.format(appVersion['patch'] as int) // 0..99
-
-    format.setMinimumIntegerDigits(3)
-    String revision = format.format(revisionNumber)
-
-    return "${major}.${minor}.${patch}.${revision}"
-}
-
-/**
- * Return version code of app version. Used for Google Play build identification.
- * Pattern for version code: "xxyyzzvvv"
- * where:
- * xx - major version number
- * yy - minor version number
- * zz - patch version
- * vvv - revision number
- */
-int generateVersionCodeValue(Properties appVersion, int revisionNumber) {
-    String versionCode = ""
-
-    def format = NumberFormat.getInstance()
-    format.setMinimumIntegerDigits(2)
-
-    versionCode += format.format(appVersion.major as int)
-    versionCode += format.format(appVersion.minor as int)
-    versionCode += format.format(appVersion.patch as int)
-
-    format.setMinimumIntegerDigits(3)
-    versionCode += format.format(revisionNumber)
-
-    return Integer.valueOf(versionCode)
-}
-
-/**
- * Returns version name considering current branch and current flavor
- * Version name pattern: "x.y.z.vvvv.ttttt-BRANCH_NAME-FLAVOR_TYPE"
- * where:
- * ttttt - current test build number - empty for builds that are not from QA branch
- * BRANCH_NAME - current branch name - empty for production branches
- * FLAVOR_TYPE - current flavor type - empty for production release builds
- * @param versionNumber version number for current build
- * @param testBuildNumber version number for QA build
- * @param flavorName name of flavor that is currently building
- * @return version name for build
- */
-String generateVersionName(String versionNumber, String flavorName) {
-    String branchNamePart = currentBranchIsProd() ? "" : "-${currentBranch}"
-    String versionName = "${versionNumber}${branchNamePart}"
-
-    if (flavorName.equalsIgnoreCase("devRelease")) {
-        versionName = "${versionName}-SIGNED"
-    } else if (flavorName.equalsIgnoreCase("devDebug")) {
-        versionName = "${versionName}-SNAPSHOT"
-    }
-    return versionName;
-}
-
-/**
- * Returns new apk name based on version name
- * Apk name pattern: "jaspermobile-x.y.z.vvvv.ttttt-BRANCH_NAME-FLAVOR_TYPE"
- * @param versionName
- * @return
- */
-String generateApkName(String versionName) {
-    return "${baseAppName}-${versionName}"
-}
-
-void renameApk(flavor, String apkName, String versionNumber) {
-    def outputs = flavor.outputs
-
-    outputs.each { output ->
-        if (flavor.buildType.zipAlignEnabled) {
-            // normal APK
-            output.outputFile = new File(output.outputFile.parent, "${apkName}.apk")
-        }
-        // 'unaligned' APK
-        String unalignedApkName = "${baseAppName}-${versionNumber}-unaligned.apk"
-        output.packageApplication.outputFile = new File(output.packageApplication.outputFile.parent, unalignedApkName)
-    }
 }

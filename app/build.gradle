@@ -55,8 +55,9 @@ android {
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
 
-        versionCode 2_03_00_002
-        versionName "2.3.0"
+        versionCode genVersionCode()
+        versionName genVersionName()
+        project.ext.set("archivesBaseName", defaultConfig.versionName)
 
         if (project.hasProperty("GOOGLE_ANALYTICS_TRACKING_ID")) {
             resValue "string", "google_analytics_tracking_id", GOOGLE_ANALYTICS_TRACKING_ID

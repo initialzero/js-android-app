@@ -37,10 +37,10 @@ import static org.junit.Assert.assertThat;
  * @since 2.1
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, sdk = 21)
 public class VisualizeEndpointTest {
 
-    private static final String MOCK_URL = "http://mobiledemo2.jaspersoft.com/jasperserver-pro";
+    private static final String MOCK_URL = "http://mobiledemo2.jaspersoft.com/jasperserver-pro/";
     private static final String OPTIMIZED = "http://mobiledemo2.jaspersoft.com/jasperserver-pro/client/visualize.js?_opt=true&baseUrl=http%3A%2F%2Fmobiledemo2.jaspersoft.com%2Fjasperserver-pro";
     private static final String NOT_OPTIMIZED = "http://mobiledemo2.jaspersoft.com/jasperserver-pro/client/visualize.js?_opt=false&baseUrl=http%3A%2F%2Fmobiledemo2.jaspersoft.com%2Fjasperserver-pro";
     private static final String WITH_CONTROLS = "http://mobiledemo2.jaspersoft.com/jasperserver-pro/client/visualize.js?_opt=false&baseUrl=http%3A%2F%2Fmobiledemo2.jaspersoft.com%2Fjasperserver-pro&_showInputControls=true";

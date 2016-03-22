@@ -24,8 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile;
 
-import android.app.Application;
-
 import java.util.List;
 
 /**
@@ -44,7 +42,8 @@ public interface Analytics {
         REPOSITORY("Repository screen"),
         RECENTLY_VIEWED("Recently viewed screen"),
         FAVORITES("Favorites screen"),
-        SAVED_ITEMS("Saved items screen");
+        SAVED_ITEMS("Saved items screen"),
+        JOBS("Jobs");
 
         String mName;
 
@@ -61,7 +60,9 @@ public interface Analytics {
         MENU("Menu"),
         ACCOUNT("Account"),
         CATALOG("Catalog"),
-        RESOURCE("Resource");
+        RESOURCE("Resource"),
+        JOB("Job"),
+        CAST("Cast");
 
         String mName;
 
@@ -77,14 +78,23 @@ public interface Analytics {
     enum EventAction {
         OPENED("Opened"),
         CLICKED("Clicked"),
+        SAID_COMMANDS("Said command"),
         VIEWED("Viewed"),
+        PRESENTED("Presented"),
+        PRESENTATION_STOPPED("Presentation stopped"),
+        INFO_VIEWED("Info viewed"),
+        SAVED("Saved"),
+        REPORT_OPTIONS_VIEWED("Report options viewed"),
         REFRESHED("Refreshed"),
         LOADED_NEXT("Loaded next"),
         SORTED("Sorted"),
         FILTERED("Filtered"),
         CHANGED_VIEW_TYPE("Changed view type"),
         CHANGED("Changed"),
-        PRINTED("Printed");
+        MARKED_AS_FAVORITE("Marked as favorite"),
+        PRINTED("Printed"),
+        ADDED("Added"),
+        REMOVED("Removed");
 
         String mName;
 
@@ -103,6 +113,7 @@ public interface Analytics {
         RECENTLY_VIEWED("Recently viewed"),
         FAVORITES("Favorites"),
         SAVED_ITEMS("Saved items"),
+        JOBS("Jobs"),
         ADD_ACCOUNT("Add account"),
         SWITCH_ACCOUNT("Switch account"),
         SETTINGS("Settings"),
@@ -110,7 +121,16 @@ public interface Analytics {
         ABOUT("About"),
         MANAGE_ACCOUNT("Manage account"),
         REPORT("Report"),
-        DASHBOARD("Dashboard");
+        DASHBOARD("Dashboard"),
+        JOB("Job"),
+        WITH_RO("With report options"),
+        VOICE_COMMANDS("Voice commands"),
+        RUN("Run"),
+        FIND("Find"),
+        UNDEFINED("Undefined"),
+        DONE("Done"),
+        FAILED("Failed"),
+        CANCELED("Canceled");
 
         String mName;
 

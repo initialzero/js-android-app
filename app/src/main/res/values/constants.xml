@@ -27,6 +27,9 @@
 
     <!-- General -->
     <string name="app_label" translatable="false">TIBCO JasperMobile</string>
+    <string name="app_cast_id" translatable="false">225DAEF5</string>
+    <string name="resource_cast_cancel_intent" translatable="false">com.jaspersoft.android.jaspermobile.RESOURCE_CAST_CANCEL</string>
+    <string name="resource_presentation_stop_intent" translatable="false">com.jaspersoft.android.jaspermobile.RESOURCE_PRESENTATION_STOP</string>
 
     <!-- Filter Saved Items Dialog -->
     <string name="si_fd_option_html" translatable="false">HTML</string>
@@ -47,6 +50,11 @@
     <string name="ja_ss" translatable="false">Settings screen</string>
     <string name="ja_aas" translatable="false">Add account screen</string>
     <string name="ja_se_s" translatable="false">Search screen</string>
+    <string name="ja_fv_s" translatable="false">File viewer screen</string>
+    <string name="ja_ri_s" translatable="false">Resource info screen</string>
+    <string name="ja_rc_s" translatable="false">Report cast screen</string>
+    <string name="ja_new_sch" translatable="false">New schedule screen</string>
+    <string name="ja_edit_sch" translatable="false">Edit schedule screen</string>
 
     <!--Constants-->
     <string name="jasper_account_type" translatable="false">com.jaspersoft</string>

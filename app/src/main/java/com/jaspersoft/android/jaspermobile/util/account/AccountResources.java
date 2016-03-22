@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.util.account;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.OperationApplicationException;
@@ -36,6 +37,7 @@ import com.jaspersoft.android.jaspermobile.JasperMobileApplication;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
 import com.jaspersoft.android.jaspermobile.db.database.table.FavoritesTable;
 import com.jaspersoft.android.jaspermobile.db.database.table.SavedItemsTable;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -56,11 +58,10 @@ public class AccountResources {
     private AccountResources(Context context) {
         this.context = context;
         this.accountNames = prepareAccountNames(context);
-        Timber.tag(AccountResources.class.getSimpleName());
     }
 
     private String[] prepareAccountNames(Context context) {
-        Account[] accounts = JasperAccountManager.get(context).getAccounts();
+        Account[] accounts = AccountManager.get(context).getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
         int count = accounts.length;
         String[] accountNames = new String[count + 1];
         for (int i = 0; i < count; i++) {

@@ -29,24 +29,23 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.recent.fragment.RecentControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.recent.fragment.RecentControllerFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 
 import org.androidannotations.annotations.EFragment;
 
-import roboguice.fragment.RoboFragment;
-
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 @EFragment (R.layout.content_layout)
-public class RecentPageFragment extends RoboFragment {
+public class RecentPageFragment extends BaseFragment {
 
     @Inject
     protected Analytics analytics;
@@ -54,6 +53,7 @@ public class RecentPageFragment extends RoboFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getBaseActivityComponent().inject(this);
         setHasOptionsMenu(true);
     }
 
@@ -78,6 +78,6 @@ public class RecentPageFragment extends RoboFragment {
             analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.RECENTLY_VIEWED.getValue());
         }
 
-        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+        ((ToolbarActivity) getActivity()).setCustomToolbarView(null);
     }
 }

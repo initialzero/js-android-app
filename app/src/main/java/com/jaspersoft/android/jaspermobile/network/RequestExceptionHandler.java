@@ -27,155 +27,161 @@ package com.jaspersoft.android.jaspermobile.network;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.PasswordDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.octo.android.robospice.exception.NetworkException;
-import com.octo.android.robospice.exception.NoNetworkException;
-import com.octo.android.robospice.exception.RequestCancelledException;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
+import com.jaspersoft.android.sdk.service.exception.ServiceException;
+import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import java.net.UnknownHostException;
-
-import retrofit.RetrofitError;
 
 /**
  * @author Ivan Gadzhega
  * @since 1.6
  */
+@Singleton
 public class RequestExceptionHandler {
+    private final Context mContext;
 
-    public RequestExceptionHandler() {
-        throw new AssertionError();
+    @Inject
+    public RequestExceptionHandler(@ApplicationContext Context context) {
+        mContext = context;
     }
 
-    public static void handle(Throwable exception, Context context) {
+    public static void showAuthErrorIfExists(Context context, Throwable exception) {
+        RequestExceptionHandler requestExceptionHandler = new RequestExceptionHandler(context);
+        requestExceptionHandler.showAuthErrorIfExists(exception);
+    }
+
+    public static void showCommonErrorMessage(Context context, Throwable exception) {
+        RequestExceptionHandler requestExceptionHandler = new RequestExceptionHandler(context);
+        requestExceptionHandler.showCommonErrorMessage(exception);
+    }
+
+    @Nullable
+    public String extractMessage(@Nullable Throwable exception) {
         if (exception == null) {
             throw new IllegalArgumentException("Exception should not be null");
         }
 
-        int statusCode = extractStatusCode(exception);
-        if (statusCode == HttpStatus.UNAUTHORIZED.value() || statusCode == JasperAccountManager.TokenException.NO_PASSWORD_ERROR) {
-            showAuthErrorDialog(context);
-        } else if (statusCode == JasperAccountManager.TokenException.NO_ACCOUNTS_ERROR || statusCode == JasperAccountManager.TokenException.SERVER_UPDATED_ERROR) {
-            // do nothing, app will restart automatically
+        if (exception instanceof ServiceException) {
+            ServiceException serviceException = ((ServiceException) exception);
+            return adaptServiceMessage(serviceException);
+        }
+
+        return exception.getLocalizedMessage();
+    }
+
+    public void showAuthErrorIfExists(Throwable exception) {
+        if (isAuthError(exception)) {
+            showAuthErrorDialog();
         } else {
-            showCommonErrorMessage(context, exception);
+            showCommonErrorMessage(exception);
+        }
+    }
+
+    public void showCommonErrorMessage(@NonNull Throwable exception) {
+        String message = extractMessage(exception);
+        if (!TextUtils.isEmpty(message)) {
+            Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
         }
     }
 
 
     @Nullable
     public static String extractMessage(@NonNull Context context, @Nullable Throwable exception) {
-        if (exception == null) {
-            throw new IllegalArgumentException("Exception should not be null");
-        }
-
-        int statusCode = extractStatusCode(exception);
-        String message = extractMessage(context, exception, statusCode);
-        if (TextUtils.isEmpty(message)) {
-            return exception.getLocalizedMessage();
-        } else {
-            return extractMessage(context, exception, statusCode);
-        }
-    }
-
-    /**
-     * Extracts HttpStatus code otherwise returns 0.
-     */
-    public static int extractStatusCode(@NonNull Throwable exception) {
-        if (exception instanceof NetworkException) {
-            Throwable cause = exception.getCause();
-            if (cause instanceof HttpStatusCodeException) {
-                return ((HttpStatusCodeException) cause).getStatusCode().value();
-            }
-            Throwable tokenCause = cause.getCause();
-            if (tokenCause instanceof JasperAccountManager.TokenException){
-                return ((JasperAccountManager.TokenException) tokenCause).getErrorCode();
-            }else if (tokenCause instanceof UnknownHostException) {
-                return JasperAccountManager.TokenException.SERVER_NOT_FOUND;
-            }
-        } else if (exception instanceof RetrofitError && ((RetrofitError) exception).getResponse() != null) {
-            return ((RetrofitError) exception).getResponse().getStatus();
-        } else if (exception instanceof JasperAccountManager.TokenException) {
-            return ((JasperAccountManager.TokenException) exception).getErrorCode();
-        }
-        return 0;
+        RequestExceptionHandler handler = new RequestExceptionHandler(context);
+        return handler.extractMessage(exception);
     }
 
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
 
-    /**
-     * Extracts Localized message otherwise returns null.
-     */
-    @Nullable
-    private static String extractMessage(@NonNull Context context, @NonNull Throwable exception, int statusCode) {
-        if (statusCode == 0) {
-            if (exception instanceof NoNetworkException) {
-                return context.getString(R.string.no_network);
-            }
-            if (exception instanceof RequestCancelledException) {
-                return context.getString(R.string.request_was_cancelled_explicitly);
-            }
-            return null;
-        } else {
-            ExceptionRule rule = ExceptionRule.all().get(statusCode);
-            if (rule == null) {
-                if (statusCode == JasperAccountManager.TokenException.SERVER_NOT_FOUND) {
-                    return context.getString(R.string.r_error_server_not_found);
-                }
 
-                Throwable cause = exception.getCause();
-                if (cause == null) {
-                    return exception.getLocalizedMessage();
-                }
+    private boolean isAuthError(Throwable throwable) {
+        if (throwable instanceof ServiceException) {
+            ServiceException serviceException = (ServiceException) throwable;
+            int code = serviceException.code();
+            return code == StatusCodes.AUTHORIZATION_ERROR;
+        }
+        return false;
+    }
 
-                Throwable tokenCause = cause.getCause();
-                if (tokenCause instanceof JasperAccountManager.TokenException) {
-                    return tokenCause.getLocalizedMessage();
-                }
-
-                return exception.getLocalizedMessage();
-            } else {
-                int messageId = rule.getMessage();
-                return context.getString(messageId);
-            }
+    private void showAuthErrorDialog() {
+        FragmentManager supportFragmentManager = getSupportFragmentManager();
+        if (supportFragmentManager != null) {
+            PasswordDialogFragment.show(supportFragmentManager);
         }
     }
 
-    private static void showCommonErrorMessage(@NonNull Context context, @NonNull Throwable exception) {
-        String message = extractMessage(context, exception);
-        if (!TextUtils.isEmpty(message)) {
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-        }
-    }
 
-    private static void showAuthErrorDialog(@NonNull Context context) {
-        PasswordDialogFragment.show(getSupportFragmentManager(context));
+    private String adaptServiceMessage(ServiceException exception) {
+        int code = exception.code();
+        switch (code) {
+            case StatusCodes.NETWORK_ERROR:
+                return mContext.getString(R.string.no_network);
+            case StatusCodes.AUTHORIZATION_ERROR:
+                return mContext.getString(R.string.error_http_401);
+            case StatusCodes.PERMISSION_DENIED_ERROR:
+                return mContext.getString(R.string.error_http_403);
+            case StatusCodes.CLIENT_ERROR:
+                return mContext.getString(R.string.error_http_404);
+            case StatusCodes.INTERNAL_ERROR:
+                return mContext.getString(R.string.error_http_500);
+            case StatusCodes.EXPORT_PAGE_OUT_OF_RANGE:
+                return mContext.getString(R.string.rv_out_of_range);
+            case StatusCodes.REPORT_EXECUTION_CANCELLED:
+                return mContext.getString(R.string.error_report_cancelled);
+            case StatusCodes.REPORT_EXECUTION_FAILED:
+                return mContext.getString(R.string.error_report_failed);
+            case StatusCodes.EXPORT_EXECUTION_FAILED:
+                return mContext.getString(R.string.error_export_failed);
+            case StatusCodes.EXPORT_EXECUTION_CANCELLED:
+                return mContext.getString(R.string.error_export_cancelled);
+            case StatusCodes.JOB_DUPLICATE_OUTPUT_FILE_NAME:
+                return mContext.getString(R.string.error_schedule_duplicate_file_name);
+            case StatusCodes.JOB_START_DATE_IN_THE_PAST:
+                return mContext.getString(R.string.error_schedule_in_the_past);
+            case StatusCodes.JOB_OUTPUT_FILENAME_INVALID_CHARS:
+                return mContext.getString(R.string.error_schedule_special_characters);
+            case StatusCodes.JOB_OUTPUT_FOLDER_DOES_NOT_EXIST:
+                return mContext.getString(R.string.error_schedule_folder_not_exist);
+            case StatusCodes.JOB_OUTPUT_FOLDER_IS_NOT_WRITABLE:
+                return mContext.getString(R.string.error_schedule_folder_not_writable);
+            case StatusCodes.JOB_OUTPUT_FILENAME_TOO_LONG:
+                String fileLength = exception.getArguments().get(0);
+                return mContext.getString(R.string.error_schedule_output_filename_too_long, fileLength);
+            case StatusCodes.JOB_LABEL_TOO_LONG:
+                String labelLength = exception.getArguments().get(0);
+                return mContext.getString(R.string.error_schedule_label_too_long, labelLength);
+            case StatusCodes.SAVED_VALUES_EXIST_IN_FOLDER:
+                return mContext.getString(R.string.error_saved_values_duplicate);
+            case StatusCodes.SAVED_VALUES_LABEL_TOO_LONG:
+                String savedValesLabelLength = exception.getArguments().get(0);
+                return mContext.getString(R.string.error_saved_values_label_too_long, savedValesLabelLength);
+            default:
+                return mContext.getString(R.string.error_undefined);
+        }
     }
 
     /**
      * It is dirty method will leave here until
      * we move to android.app.FragmentManager
      *
-     * @param context instance of activity should support
-     *                getSupportFragmentManager() otherwise
-     *                will return null
      * @return FragmentManager or null
      */
     @Nullable
-    private static FragmentManager getSupportFragmentManager(Context context) {
-        if (context instanceof FragmentActivity) {
-            return ((FragmentActivity) context).getSupportFragmentManager();
+    private FragmentManager getSupportFragmentManager() {
+        if (mContext instanceof AppCompatActivity) {
+            return ((AppCompatActivity) mContext).getSupportFragmentManager();
         } else {
             return null;
         }

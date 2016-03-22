@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -24,14 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
-import com.jaspersoft.android.sdk.client.oxm.report.option.ReportOption;
+
+import com.jaspersoft.android.sdk.service.data.report.option.ReportOption;
 
 /**
  * @author Andrew Tivodar
  * @since 2.2
  */
 public class ReportOptionHolder {
-    private ReportOption mReportOption;
+    private final ReportOption mReportOption;
     private Integer mHashCode;
     private boolean mSelected;
 

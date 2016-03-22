@@ -29,7 +29,7 @@ package com.jaspersoft.android.jaspermobile.webview.dashboard.flow;
  * @since 2.0
  */
 final class AmberWebFlow implements WebFlow {
-    private static final String FLOW_URI = "/dashboard/viewer.html?_opt=true&sessionDecorator=no&decorate=no#";
+    private static final String FLOW_URI = "dashboard/viewer.html?_opt=true&sessionDecorator=no&decorate=no#";
 
     @Override
     public String getFlowUri() {

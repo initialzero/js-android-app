@@ -55,6 +55,12 @@ public final class JsDashboardTrigger implements DashboardTrigger {
     }
 
     @Override
+    public void applyParams(String params) {
+        String executeScript = String.format("javascript:MobileDashboard.applyParams(%s)", params);
+        webView.loadUrl(executeScript);
+    }
+
+    @Override
     public void refreshDashboard() {
         webView.loadUrl(assembleUri("MobileDashboard.refresh()"));
     }

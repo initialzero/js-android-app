@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
@@ -26,21 +25,53 @@
 <resources>
 
     <!-- Default Widget Style Style -->
-    <style name="Widget.JasperMobile.TextView" parent="android:Widget.Holo.TextView">
+    <style name="Widget.JasperMobile.TextView" parent="android:Widget.TextView">
         <item name="android:textColor">@color/default_text</item>
-        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:fontFamily">?fontTypePrimary</item>
     </style>
 
-    <style name="Widget.JasperMobile.EditText" parent="android:Widget.Holo.EditText">
-        <item name="android:fontFamily">sans-serif-light</item>
+    <style name="Widget.JasperMobile.TextView.List.Title" parent="android:Widget.Holo.TextView">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/list_label_grey</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
-    <style name="Widget.JasperMobile.Spinner" parent="android:Widget.Holo.Spinner">
-        <item name="android:fontFamily">sans-serif-light</item>
+    <style name="Widget.JasperMobile.TextView.List.SubTitle" parent="android:Widget.Holo.TextView">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/list_label_light_grey</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
-    <style name="Widget.JasperMobile.Button" parent="android:Widget.Holo.Button">
-        <item name="android:fontFamily">sans-serif-light</item>
+    <style name="Widget.JasperMobile.TextView.Grid.Title" parent="android:Widget.Holo.TextView">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/list_label_grey</item>
+        <item name="android:lines">2</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="Widget.JasperMobile.TextView.Info" parent="Widget.JasperMobile.TextView">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="Widget.JasperMobile.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:fontFamily">?fontTypePrimary</item>
+    </style>
+
+    <style name="Widget.JasperMobile.Spinner" parent="Widget.AppCompat.Spinner">
+        <item name="android:fontFamily">?fontTypePrimary</item>
+        <item name="android:popupBackground">@drawable/bg_popup</item>
+    </style>
+
+    <style name="Widget.JasperMobile.Button" parent="Widget.AppCompat.Button">
+        <item name="android:fontFamily">?fontTypePrimary</item>
+    </style>
+
+    <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">-6dp</item>
     </style>
 
     <style name="Widget.JasperMobile.CheckBox" parent="android:Widget.Holo.CompoundButton.CheckBox">
@@ -54,25 +85,49 @@
 
     <style name="Widget.JasperMobile.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
         <item name="background">@color/js_light_gray</item>
+        <item name="titleTextStyle">@style/TextAppearance.Widget.JasperMobile.ActionMode.Title</item>
     </style>
 
-    <style name="Widget.JasperMobile.ProgressBar.Horizontal" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal" />
+    <style name="TextAppearance.Widget.JasperMobile.ActionMode.Title" parent="TextAppearance.AppCompat.Widget.ActionMode.Title">
+        <item name="android:fontFamily">?fontTypePrimary</item>
+    </style>
 
-    <style name="CardView.Auth">
+    <style name="Widget.JasperMobile.Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="titleTextAppearance">@style/TextAppearance.Widget.JasperMobile.Toolbar.Title
+        </item>
+        <item name="android:background">@color/js_gray</item>
+        <item name="popupTheme">@style/Theme.JasperMobile.ThemeOverlay</item>
+    </style>
+
+    <style name="TextAppearance.Widget.JasperMobile.Toolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:fontFamily">?fontTypePrimary</item>
+    </style>
+
+    <style name="Theme.JasperMobile.ThemeOverlay" parent="Theme.AppCompat">
+        <item name="android:colorBackground">@color/js_popup_window</item>
+    </style>
+
+    <!--Add account page-->
+
+    <style name="Widget.JasperMobile.CardView.Auth" parent="CardView">
+        <item name="cardUseCompatPadding">true</item>
+        <item name="cardPreventCornerOverlap">false</item>
         <item name="cardBackgroundColor">@null</item>
         <item name="cardCornerRadius">0dp</item>
         <item name="cardElevation">4dp</item>
     </style>
 
-    <style name="CardView.Auth.AddAccount">
-    </style>
-
-    <style name="CardView.Auth.TryDemo">
-    </style>
-
-    <style name="CardView.Auth.Container">
+    <style name="Widget.JasperMobile.CardView.Auth.Container">
         <item name="android:layout_marginLeft">-4dp</item>
         <item name="android:layout_marginRight">-4dp</item>
+    </style>
+
+    <style name="Widget.JasperMobile.EditText.AddAccount">
+        <item name="android:layout_width">300dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:background">@drawable/im_login_edit</item>
+        <item name="android:ems">10</item>
     </style>
 
     <!-- Input Controls -->
@@ -119,44 +174,6 @@
         <item name="android:singleLine">true</item>
     </style>
 
-    <!-- Date -->
-    <style name="inputControl.date" />
-
-    <style name="inputControl.date.inputContainer" />
-
-    <style name="inputControl.date.inputContainer.layout">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">match_parent</item>
-    </style>
-
-    <style name="inputControl.date.inputContainer.editText">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="inputControl.date.inputContainer.picker">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">wrap_content</item>
-    </style>
-
-    <style name="inputControl.date.inputContainer.picker.date">
-        <item name="android:src">@drawable/ic_date_picker</item>
-    </style>
-
-    <style name="inputControl.date.inputContainer.picker.time">
-        <item name="android:src">@drawable/ic_time_picker</item>
-    </style>
-
-    <!-- Single/Multi Select -->
-    <style name="inputControl.select" />
-
-    <style name="inputControl.select.spinner">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
     <!-- Report Options Layout -->
     <style name="reportOptions" />
 
@@ -175,20 +192,6 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="reportOptions.button">
-        <item name="android:layout_marginTop">25dp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
-    <style name="reportOptions.switch">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">50dp</item>
-        <item name="android:background">@drawable/im_input_controls_divider</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
     <!-- Report HTML Viewer Layout -->
     <style name="htmlViewer" />
 
@@ -201,13 +204,6 @@
     <style name="htmlViewer.webView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-    </style>
-
-    <style name="htmlViewer.progressBar" parent="Widget.JasperMobile.ProgressBar.Horizontal">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_alignParentTop">true</item>
-        <item name="android:layout_marginTop">-6dp</item>
     </style>
 
     <!-- Save Report Layout -->
@@ -225,67 +221,9 @@
 
     <style name="saveReport.outputFormat.label" parent="inputControl.label" />
 
-    <style name="list2" />
-
-    <style name="list2.item" />
-
-    <style name="list2.item.layout">
-        <item name="android:background">@drawable/bg_item_resource</item>
-    </style>
-
-    <style name="list2.item.title">
-        <item name="android:textColor">@color/list_label_grey</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="list2.item.subTitle">
-        <item name="android:textColor">@color/list_label_light_grey</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="list2.item.metadata">
-        <item name="android:textColor">@color/list_label_light_grey</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
-        <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="grid" />
-
-    <style name="grid.item" />
-
-    <style name="grid.layout">
-        <item name="android:paddingLeft">0dp</item>
-        <item name="android:paddingRight">0dp</item>
-    </style>
-
-    <style name="grid.item.layout">
-        <item name="android:background">@drawable/bg_item_resource</item>
-    </style>
-
-    <style name="grid.item.context">
-        <item name="android:padding">8dp</item>
-    </style>
-
-    <style name="grid.item.title">
-        <item name="android:textColor">@color/list_label_grey</item>
-        <item name="android:layout_margin">4dp</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
-        <item name="android:lines">2</item>
-    </style>
-
-    <style name="grid.item.subTitle">
-        <item name="android:textColor">@color/list_label_light_grey</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
-        <item name="android:maxLines">2</item>
-    </style>
-
     <!--Add account page-->
 
     <style name="editTextAccount">
-        <item name="android:layout_width">300dp</item>
-        <item name="android:layout_height">wrap_content</item>
         <item name="android:padding">12dp</item>
         <item name="android:background">@drawable/im_login_edit</item>
         <item name="android:ems">10</item>

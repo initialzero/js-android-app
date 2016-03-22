@@ -24,46 +24,47 @@
 
 buildscript {
     repositories {
-        maven { url 'https://maven.fabric.io/public' }
+        maven { url "https://maven.fabric.io/public" }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:" + androidToolsBuildGradle
         classpath "com.neenbedankt.gradle.plugins:android-apt:" + androidApt
-        classpath 'io.fabric.tools:gradle:1.19.2'
+        classpath "io.fabric.tools:gradle:" + fabricToolsVersion
+        classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:" + dexCountToolsVersion
     }
 }
 
-apply plugin: 'com.android.application'
-apply plugin: 'android-apt'
-apply plugin: 'io.fabric'
-apply from: 'build_utils.gradle'
-apply from: 'resources.gradle'
+apply plugin: "com.android.application"
+apply plugin: "android-apt"
+apply plugin: "io.fabric"
+apply plugin: "com.getkeepsafe.dexcount"
+apply from: "build_utils.gradle"
 
 repositories {
-    maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://maven.fabric.io/public" }
     maven { url "https://jitpack.io" }
 }
 
 android {
     compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidBuildToolsVersion
-    useLibrary 'org.apache.http.legacy'
+    useLibrary "org.apache.http.legacy"
 
     defaultConfig {
         applicationId PACKAGE_NAME
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidTargetSdkVersion
 
-        versionCode 2_02_02_000
-        versionName "2.2.2"
+        versionCode 2_03_00_002
+        versionName "2.3.0"
 
-        if (project.hasProperty('GOOGLE_ANALYTICS_TRACKING_ID')) {
+        if (project.hasProperty("GOOGLE_ANALYTICS_TRACKING_ID")) {
             resValue "string", "google_analytics_tracking_id", GOOGLE_ANALYTICS_TRACKING_ID
         } else {
             resValue "string", "google_analytics_tracking_id", "SET_YOUR_ANALYTIC_TRACKING_ID"
         }
     }
-    if (project.hasProperty('JMA_STORE_FILE')) {
+    if (project.hasProperty("JMA_STORE_FILE")) {
         signingConfigs {
             release {
                 storeFile file(JMA_STORE_FILE)
@@ -76,24 +77,24 @@ android {
         buildTypes {
             release {
                 minifyEnabled true
-                proguardFiles getDefaultProguardFile('proguard-android.txt'), "proguard.cfg"
+                proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard.cfg"
                 signingConfig signingConfigs.release
             }
         }
     }
 
     packagingOptions {
-        exclude 'META-INF/ASL2.0'
-        exclude 'asm-license.txt'
-        exclude 'NOTICE'
-        exclude 'LICENSE'
-        exclude 'LICENSE.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/NOTICE'
+        exclude "META-INF/ASL2.0"
+        exclude "asm-license.txt"
+        exclude "NOTICE"
+        exclude "LICENSE"
+        exclude "LICENSE.txt"
+        exclude "META-INF/license.txt"
+        exclude "META-INF/LICENSE.txt"
+        exclude "META-INF/LICENSE"
+        exclude "META-INF/notice.txt"
+        exclude "META-INF/NOTICE.txt"
+        exclude "META-INF/NOTICE"
     }
 
     lintOptions {
@@ -102,13 +103,13 @@ android {
 
     sourceSets.main {
         // src/gen is the target for generated content like json model
-        java.srcDirs += 'build/generated/source/db'
+        java.srcDirs += "build/generated/source/db"
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
-        encoding 'ISO-8859-1'
+        encoding "ISO-8859-1"
     }
 
     productFlavors {
@@ -116,13 +117,13 @@ android {
             ext.enableCrashlytics = false
         }
         production {
-            // If you new Crashlytics enabled, please, setup constant 'CRASHLYTICS_API_KEY' in gradle.properties
+            // If you new Crashlytics enabled, please, setup constant "CRASHLYTICS_API_KEY" in gradle.properties
             // with valid API key Crashlytics provides.
-            if (project.hasProperty('CRASHLYTICS_API_KEY')) {
+            if (project.hasProperty("CRASHLYTICS_API_KEY")) {
                 manifestPlaceholders = [crashlyticsApiKey: CRASHLYTICS_API_KEY]
             } else {
-                // If API key wasn't applied we disable io.fabric validation steps during build process.
-                // ATTENTION: App will crash silently due to missing API key. If you don't need Crashlytics
+                // If API key wasn"t applied we disable io.fabric validation steps during build process.
+                // ATTENTION: App will crash silently due to missing API key. If you don"t need Crashlytics
                 // remove setup in AppConfiguratorImpl for production flavor
                 manifestPlaceholders = [crashlyticsApiKey: ""]
                 ext.enableCrashlytics = false
@@ -130,77 +131,83 @@ android {
         }
     }
 
-    lintOptions {
-        checkReleaseBuilds false
-    }
-
     android.variantFilter { variant ->
-        if (variant.buildType.name.equals('debug') && variant.getFlavors().get(0).name.equals('production')) {
+        if (variant.buildType.name.equals("debug") && variant.getFlavors().get(0).name.equals("production")) {
             variant.setIgnore(true);
         }
     }
 
     apt {
         arguments {
-            androidManifestFile variant.outputs[0].processResources.manifestFile
+            androidManifestFile variant.outputs[0]?.processResources?.manifestFile
             resourcePackageName PACKAGE_NAME
-            guiceAnnotationDatabasePackageName "com.jaspersoft.android.jaspermobile"
             logLevel "WARN"
         }
     }
 
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
 
     dependencies {
-        provided project(':database-generator')
-        compile project(':sdk')
+        provided project(":database-generator")
 
-        compile("com.github.orhanobut:hawk:1.20") {
-            transitive = false
-        }
+        compile 'com.android.support:appcompat-v7:23.1.1'
+        compile 'com.android.support:cardview-v7:23.1.1'
+        compile 'com.android.support:recyclerview-v7:23.1.1'
+        compile 'com.android.support:design:23.1.1'
+        compile 'com.android.support:percent:23.1.1'
+        compile 'com.android.support:mediarouter-v7:23.1.1'
 
-        compile 'org.roboguice:roboguice:3.0.1'
-        provided 'org.roboguice:roboblender:3.0.1'
+        compile 'com.google.android.gms:play-services-analytics:8.3.0'
+        compile 'com.google.android.gms:play-services-cast:8.3.0'
 
-        compile 'com.android.support:appcompat-v7:23.0.1'
-        compile 'com.android.support:cardview-v7:23.0.1'
-        compile 'com.android.support:recyclerview-v7:23.0.1'
-        compile 'com.android.support:design:23.0.1'
-        compile 'com.google.android.gms:play-services-analytics:7.3.0'
+        compile("com.google.dagger:dagger:${daggerVersion}")
+        apt "com.google.dagger:dagger-compiler:${daggerVersion}"
+
+        provided "javax.annotation:jsr250-api:1.0"
 
         compile("org.androidannotations:androidannotations-api:3.2")
         apt "org.androidannotations:androidannotations:3.2"
-        apt 'org.roboguice:roboblender:3.0.1'
 
-        // For action mode support within list views
-        compile('com.github.manuelpeinado.multichoiceadapter:multichoiceadapter-abc:3.1.0') {
-            exclude group: 'com.android.support'
+        compile "com.jakewharton.timber:timber:2.5.0"
+        compile("com.github.orhanobut:hawk:1.20") {
+            transitive = false
         }
 
         compile('com.crashlytics.sdk.android:crashlytics:2.2.1@aar') {
             transitive = true;
         }
 
-        // Remove gradle dependency
-        // When all required testing for JRS will be completed
-        compile 'com.google.code.gson:gson:2.3'
-
         // Dependency for image loading management
-        compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+        compile "com.nostra13.universalimageloader:universal-image-loader:1.9.3"
 
         // Template rendering
-        compile 'com.samskivert:jmustache:1.10'
+        compile "com.samskivert:jmustache:1.10"
 
-        // Unit tests dependencies
-        testCompile 'junit:junit:4.12'
-        // JunitParams
-        testCompile('pl.pragmatists:JUnitParams:1.0.4') {
-            exclude group: 'org.hamcrest'
+        compile("com.jaspersoft.android.sdk:js-android-sdk-rx:${jasperSdkVersion}")
+        compile "commons-io:commons-io:2.4"
+
+        compile("io.reactivex:rxandroid:1.1.0") {
+            transitive = false
         }
-        testCompile 'com.squareup.retrofit:retrofit-mock:1.8.0'
-        testCompile 'org.mockito:mockito-core:1.9.5'
-        testCompile('org.robolectric:shadows-support-v4:3.0') {
-            exclude group: 'commons-logging', module: 'commons-logging'
-            exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+
+        testCompile "nl.jqno.equalsverifier:equalsverifier:1.7.5"
+        testCompile("pl.pragmatists:JUnitParams:1.0.4") {
+            exclude group: "org.hamcrest"
+        }
+        testCompile "org.hamcrest:hamcrest-integration:1.3"
+        testCompile("org.mockito:mockito-core:1.10.19") {
+            exclude group: "org.hamcrest"
+            exclude group: "org.objenesis"
+        }
+        testCompile("org.powermock:powermock-api-mockito:1.6.2") {
+            exclude group: "org.mockito"
+        }
+        testCompile "org.powermock:powermock-module-junit4:1.6.2"
+        testCompile("org.robolectric:shadows-support-v4:3.0") {
+            exclude group: "commons-logging", module: "commons-logging"
+            exclude group: "org.apache.httpcomponents", module: "httpclient"
         }
     }
 }

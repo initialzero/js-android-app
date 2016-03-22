@@ -35,6 +35,8 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
 
+import java.util.ArrayList;
+
 /**
  * @author Tom Koptel
  * @since 1.9
@@ -103,5 +105,11 @@ public class LibraryControllerFragment extends ControllerFragment {
         if (contentFragment != null) {
             contentFragment.loadResourcesBySortOrder(order);
         }
+    }
+
+    public void handleVoiceCommand(ArrayList<String> matches) {
+       if (contentFragment != null) {
+           contentFragment.handleVoiceCommand(matches);
+       }
     }
 }

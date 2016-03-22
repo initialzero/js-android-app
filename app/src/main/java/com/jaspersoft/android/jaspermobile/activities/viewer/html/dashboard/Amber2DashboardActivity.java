@@ -25,25 +25,33 @@
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardVisualizeParamsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMetadataCase;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
-import com.jaspersoft.android.jaspermobile.visualize.HyperlinkHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.AmberTwoDashboardExecutor;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardCallback;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardExecutor;
-import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardTrigger;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardTrigger;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
@@ -51,31 +59,48 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.OnActivityResult;
+import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.UiThread;
+
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
+@OptionsMenu(R.menu.report_filter_manager_menu)
 @EActivity
 public class Amber2DashboardActivity extends BaseDashboardActivity implements DashboardCallback {
+
+    private static final int REQUEST_DASHBOARDS_PARAMETERS = 200;
+
     @Bean
     protected ScrollableTitleHelper scrollableTitleHelper;
-    @Bean
-    protected HyperlinkHelper hyperlinkHelper;
     @Extra
     protected ResourceLookup resource;
 
     @InstanceState
     protected boolean mMaximized;
 
-    private boolean mFavoriteItemVisible, mInfoItemVisible;
-    private MenuItem favoriteAction, aboutAction;
+    @Inject
+    GetDashboardControlsCase mGetDashboardControlsCase;
+    @Inject
+    FlushInputControlsCase mFlushInputControlsCase;
+    @Inject
+    GetDashboardVisualizeParamsCase mGetDashboardVisualizeParamsCase;
+    @Inject
+    GetReportMetadataCase mGetReportMetadataCase;
+    @Inject
+    RequestExceptionHandler mExceptionHandler;
+
+    private boolean mFavoriteItemVisible, mInfoItemVisible, mFiltersVisible;
+    private MenuItem favoriteAction, aboutAction, filerAction;
     private DashboardTrigger mDashboardTrigger;
     private WebInterface mWebInterface;
     private DashboardExecutor mDashboardExecutor;
 
-    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener(){
+    private DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
         @Override
         public void onCancel(DialogInterface dialog) {
             Amber2DashboardActivity.super.onBackPressed();
@@ -86,6 +111,20 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
+
+        mGetDashboardControlsCase.execute(resource.getUri(), new GenericSubscriber<>(new SimpleSubscriber<Boolean>() {
+            @Override
+            public void onError(Throwable e) {
+                mFiltersVisible = false;
+            }
+
+            @Override
+            public void onNext(Boolean hasControls) {
+                mFiltersVisible = hasControls;
+                invalidateOptionsMenu();
+            }
+        }));
         scrollableTitleHelper.injectTitle(resource.getLabel());
         showMenuItems();
     }
@@ -95,6 +134,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         boolean result = super.onCreateOptionsMenu(menu);
         favoriteAction = menu.findItem(R.id.favoriteAction);
         aboutAction = menu.findItem(R.id.aboutAction);
+        filerAction = menu.findItem(R.id.showFilters);
         return result;
     }
 
@@ -103,7 +143,33 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         boolean result = super.onPrepareOptionsMenu(menu);
         favoriteAction.setVisible(mFavoriteItemVisible);
         aboutAction.setVisible(mInfoItemVisible);
+        filerAction.setVisible(mFiltersVisible);
+
         return result;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.showFilters) {
+            InputControlsActivity_.intent(Amber2DashboardActivity.this)
+                    .reportUri(resource.getUri())
+                    .dashboardInputControl(true)
+                    .startForResult(REQUEST_DASHBOARDS_PARAMETERS);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @OnActivityResult(REQUEST_DASHBOARDS_PARAMETERS)
+    final void onNewParametersResult(int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            boolean isNewParamsEqualOld = data.getBooleanExtra(
+                    InputControlsActivity.RESULT_SAME_PARAMS, false);
+            if (!isNewParamsEqualOld) {
+                applyParams();
+            }
+        }
     }
 
     @Override
@@ -134,7 +200,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onWebViewConfigured(WebView webView) {
         mDashboardTrigger = JsDashboardTrigger.with(webView);
-        mDashboardExecutor = AmberTwoDashboardExecutor.newInstance(webView, resource);
+        mDashboardExecutor = AmberTwoDashboardExecutor.newInstance(webView, mServer, resource);
         mWebInterface = DashboardWebInterface.from(this);
         WebViewEnvironment.configure(webView)
                 .withWebInterface(mWebInterface);
@@ -146,15 +212,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     public void onMaximizeStart(String title) {
         resetZoom();
         hideMenuItems();
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.loading_msg)
-                .show();
+        showLoading();
     }
 
     @UiThread
     @Override
     public void onMaximizeEnd(String title) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
         resetZoom();
         mMaximized = true;
         scrollableTitleHelper.injectTitle(title);
@@ -163,7 +227,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @UiThread
     @Override
     public void onMaximizeFailed(String error) {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     @UiThread
@@ -171,15 +235,13 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     public void onMinimizeStart() {
         resetZoom();
         showMenuItems();
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.loading_msg)
-                .show();
+        showLoading();
     }
 
     @UiThread
     @Override
     public void onMinimizeEnd() {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
         mMaximized = false;
     }
 
@@ -197,30 +259,34 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @UiThread
     @Override
     public void onLoadStart() {
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(R.string.da_loading)
-                .setOnCancelListener(cancelListener)
-                .show();
+        showLoading();
     }
 
     @UiThread
     @Override
     public void onLoadDone() {
-        webView.setVisibility(View.VISIBLE);
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        showWebView(true);
+        hideLoading();
     }
 
     @UiThread
     @Override
     public void onLoadError(String error) {
         Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     @UiThread
     @Override
     public void onReportExecution(String data) {
-        hyperlinkHelper.executeReport(data);
+        mGetReportMetadataCase.execute(data, new GenericSubscriber<>(new SimpleSubscriber<ResourceLookup>() {
+            @Override
+            public void onNext(ResourceLookup lookup) {
+                ReportVisualizeActivity_.intent(Amber2DashboardActivity.this)
+                        .resource(lookup)
+                        .start();
+            }
+        }));
     }
 
     @Override
@@ -234,6 +300,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @UiThread
     @Override
     public void onAuthError(String message) {
+        scrollableTitleHelper.injectTitle(resource.getLabel());
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         super.onSessionExpired();
     }
@@ -242,7 +309,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     @Override
     public void onWindowError(String errorMessage) {
         showMessage(getString(R.string.failed_load_data));
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        hideLoading();
     }
 
     @Override
@@ -273,6 +340,15 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         loadFlow();
     }
 
+    @Override
+    public void finish() {
+        mGetDashboardControlsCase.unsubscribe();
+        mGetDashboardVisualizeParamsCase.unsubscribe();
+        mGetReportMetadataCase.unsubscribe();
+        mFlushInputControlsCase.execute(resource.getUri());
+        super.finish();
+    }
+
     //---------------------------------------------------------------------
     // Helper methods
     //---------------------------------------------------------------------
@@ -283,6 +359,21 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
 
     private void runDashboard() {
         mDashboardExecutor.execute();
+    }
+
+    private void applyParams() {
+        mGetDashboardVisualizeParamsCase.execute(resource.getUri(), new GenericSubscriber<>(new SimpleSubscriber<String>() {
+            @Override
+            public void onError(Throwable e) {
+                String message = RequestExceptionHandler.extractMessage(Amber2DashboardActivity.this, e);
+                showMessage(message);
+            }
+
+            @Override
+            public void onNext(String params) {
+                mDashboardTrigger.applyParams(params);
+            }
+        }));
     }
 
     private void showMenuItems() {

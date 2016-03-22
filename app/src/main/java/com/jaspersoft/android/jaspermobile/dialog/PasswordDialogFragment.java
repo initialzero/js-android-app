@@ -24,13 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,35 +40,40 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.navigation.NavigationActivity_;
-import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.jaspermobile.util.rx.RxTransformers;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfo;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
+import com.jaspersoft.android.jaspermobile.domain.AppCredentials;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.CheckPasswordUseCase;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetCurrentProfileFormUseCase;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
+import com.jaspersoft.android.sdk.service.exception.ServiceException;
+import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
 import org.androidannotations.annotations.EFragment;
 
-import roboguice.fragment.RoboDialogFragment;
-import rx.Observable;
-import rx.Subscription;
-import rx.functions.Action1;
-import rx.functions.Func1;
+import javax.inject.Inject;
+
+import rx.Subscriber;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment
-public class PasswordDialogFragment extends RoboDialogFragment implements DialogInterface.OnShowListener {
+public class PasswordDialogFragment extends DialogFragment implements DialogInterface.OnShowListener {
 
     private static final String TAG = PasswordDialogFragment.class.getSimpleName();
 
     private EditText passwordField;
-    private JasperAccountManager mJasperManager;
-    private Subscription mLoginSubscription;
-    private Observable<String> mLoginOperation;
+    private View dialogView;
     private Toast mToast;
+
+    @Inject
+    GetCurrentProfileFormUseCase mGetCurrentProfileFormUseCase;
+    @Inject
+    CheckPasswordUseCase mCheckPasswordUseCase;
 
     //---------------------------------------------------------------------
     // Static methods
@@ -89,31 +95,30 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+
+        ComponentProviderDelegate.INSTANCE
+                .getBaseActivityComponent(getActivity())
+                .inject(this);
+
         mToast = Toast.makeText(getActivity(), "", Toast.LENGTH_LONG);
-        mJasperManager = JasperAccountManager.get(getActivity());
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = LayoutInflater.from(getActivity());
+        dialogView = inflater.inflate(R.layout.dialog_password, null);
+        mGetCurrentProfileFormUseCase.execute(new SimpleSubscriber<ProfileForm>() {
+            @Override
+            public void onError(Throwable e) {
+                showError(e.getLocalizedMessage());
+            }
 
-        View dialogView = inflater.inflate(R.layout.dialog_password, null);
-        ServerInfoProvider serverInfoProvider = ServerInfo.newInstance(getActivity());
-        String alias = serverInfoProvider.getAlias();
-        String username = serverInfoProvider.getUsername();
-        String organization = serverInfoProvider.getOrganization();
-
-        ((TextView) dialogView.findViewById(R.id.tv_alias)).setText(alias);
-        ((TextView) dialogView.findViewById(R.id.tv_username)).setText(username);
-
-        TextView organizationField = (TextView) dialogView.findViewById(R.id.tv_organization);
-        organizationField.setText(organization);
-        if (TextUtils.isEmpty(organization)) {
-            dialogView.findViewById(R.id.tv_organization_hint).setVisibility(View.GONE);
-            organizationField.setVisibility(View.GONE);
-        }
+            @Override
+            public void onNext(ProfileForm form) {
+                populateForm(form);
+            }
+        });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.h_ad_title_server_sign_in)
@@ -129,12 +134,35 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
         return dialog;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (mLoginOperation != null) {
-            mLoginSubscription = subscribeToLogin(mLoginOperation);
+    private void populateForm(ProfileForm formData) {
+        Profile profile = formData.getProfile();
+        AppCredentials credentials = formData.getCredentials();
+
+        String alias = profile.getKey();
+        String username = credentials.getUsername();
+        String organization = credentials.getOrganization();
+
+        ((TextView) dialogView.findViewById(R.id.tv_alias)).setText(alias);
+        ((TextView) dialogView.findViewById(R.id.tv_username)).setText(username);
+
+        TextView organizationField = (TextView) dialogView.findViewById(R.id.tv_organization);
+        organizationField.setText(organization);
+
+        if (TextUtils.isEmpty(organization)) {
+            dialogView.findViewById(R.id.tv_organization_hint).setVisibility(View.GONE);
+            organizationField.setVisibility(View.GONE);
         }
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mToast != null) {
+            mToast.cancel();
+        }
+        mGetCurrentProfileFormUseCase.unsubscribe();
+        mCheckPasswordUseCase.unsubscribe();
     }
 
     @Override
@@ -145,62 +173,56 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
                 .setOnClickListener(new PasswordDialogOkClickListener());
     }
 
-    @Override
-    public void onDestroyView() {
-        if (mLoginSubscription != null) {
-            mLoginSubscription.unsubscribe();
-        }
-        if (mToast != null) {
-            mToast.cancel();
-        }
-        mLoginOperation = null;
-        super.onDestroyView();
-    }
 
     private void tryToLogin(String password) {
-        mLoginOperation = createLoginOperation(password).cache();
-        mLoginSubscription = subscribeToLogin(mLoginOperation);
-    }
-
-    private Observable<String> createLoginOperation(String password) {
-        Observable<Boolean> updatePasswordOperation = mJasperManager.updateActiveAccountPassword(password);
-        final Observable<String> loginOperation = mJasperManager.getActiveAuthTokenObservable();
-        return updatePasswordOperation
-                .concatMap(new Func1<Boolean, Observable<String>>() {
-                    @Override
-                    public Observable<String> call(Boolean aBoolean) {
-                        return loginOperation;
-                    }
-                })
-                .compose(RxTransformers.<String>applySchedulers());
-    }
-
-    private Subscription subscribeToLogin(Observable<String> loginOperation) {
-        return loginOperation.subscribe(new Action1<String>() {
+        mCheckPasswordUseCase.execute(password, new Subscriber<Void>() {
             @Override
-            public void call(String s) {
-                loginSuccess();
+            public void onStart() {
+                showLoader();
             }
-        }, new Action1<Throwable>() {
+
             @Override
-            public void call(Throwable throwable) {
-                loginFailed(throwable);
+            public void onCompleted() {
+                hideLoader();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                if (e instanceof ServiceException) {
+                    ServiceException serviceException = (ServiceException) e;
+                    int code = serviceException.code();
+                    if (code == StatusCodes.AUTHORIZATION_ERROR) {
+                        showError(getString(R.string.r_error_incorrect_credentials));
+                    }
+                } else {
+                    showError(e.getLocalizedMessage());
+                }
+                hideLoader();
+            }
+
+            @Override
+            public void onNext(Void item) {
+                dismiss();
+
+                Intent restartIntent = NavigationActivity_.intent(getActivity()).get();
+                restartIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                getActivity().startActivity(restartIntent);
             }
         });
     }
 
-    protected void loginSuccess() {
-        dismiss();
-        ProgressDialogFragment.dismiss(getFragmentManager());
-
-        int flags = Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK;
-        NavigationActivity_.intent(getActivity()).flags(flags).start();
+    private void showLoader() {
+        ProgressDialogFragment.builder(getFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .show();
     }
 
-    protected void loginFailed(Throwable e) {
-        RequestExceptionHandler.handle(e, getActivity());
+    private void hideLoader() {
         ProgressDialogFragment.dismiss(getFragmentManager());
-        mToast.setText(R.string.r_error_incorrect_credentials);
+    }
+
+    private void showError(String message) {
+        mToast.setText(message);
         mToast.show();
     }
 
@@ -215,9 +237,6 @@ public class PasswordDialogFragment extends RoboDialogFragment implements Dialog
             if (TextUtils.isEmpty(password)) {
                 passwordField.setError(getString(R.string.sp_error_field_required));
             } else {
-                ProgressDialogFragment.builder(getFragmentManager())
-                        .setLoadingMessage(R.string.loading_msg)
-                        .show();
                 tryToLogin(password);
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(sdk = 21, constants = BuildConfig.class)
+@Config(manifest = Config.NONE, sdk = 21, constants = BuildConfig.class)
 public class FeedbackSenderTest {
 
     @Mock

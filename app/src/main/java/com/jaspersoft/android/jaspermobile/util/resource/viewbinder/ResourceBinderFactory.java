@@ -26,29 +26,37 @@ package com.jaspersoft.android.jaspermobile.util.resource.viewbinder;
 
 import android.content.Context;
 
-import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResourceType;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
-final class ResourceBinderFactory {
-    private ResourceBinderFactory() {
+public class ResourceBinderFactory {
+
+    private Context mContext;
+
+    public ResourceBinderFactory(Context mContext) {
+        this.mContext = mContext;
     }
 
-    public static ResourceBinder create(Context context, String type) {
-        ResourceLookup.ResourceType resourceType = ResourceLookup.ResourceType.valueOf(type);
-
-        switch (resourceType) {
+    public ResourceBinder create(JasperResourceType type) {
+        switch (type) {
             case folder:
-                return new FolderResourceBinder(context);
+                return new FolderResourceBinder(mContext);
             case legacyDashboard:
             case dashboard:
-                return new DashboardResourceBinder(context);
-            case reportUnit:
-                return new ReportResourceBinder(context);
+                return new DashboardResourceBinder(mContext);
+            case report:
+                return new ReportResourceBinder(mContext);
+            case saved_item:
+                return new SavedItemResourceBinder(mContext);
+            case file:
+                return new FileResourceBinder(mContext);
+            case job:
+                return new JobResourceBinder(mContext);
             default:
-                return new UnknownResourceBinder(context);
+                return new UnknownResourceBinder(mContext);
         }
     }
 }

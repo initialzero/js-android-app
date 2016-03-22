@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -40,7 +40,6 @@ public class InputControlHolder{
     private List<ReportOptionHolder> mReportOptions;
 
     public InputControlHolder() {
-        this.mInputControls = new ArrayList<>();
         this.mReportOptions = new ArrayList<>();
         this.mReportParams = new ArrayList<>();
     }

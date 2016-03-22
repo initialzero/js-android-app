@@ -24,25 +24,30 @@
 
 package com.jaspersoft.android.jaspermobile;
 
-import android.accounts.Account;
 import android.app.Application;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
-import com.jaspersoft.android.jaspermobile.legacy.JsServerProfileCompat;
-import com.jaspersoft.android.jaspermobile.network.TokenImageDownloader;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.DaggerAppComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
+import com.jaspersoft.android.jaspermobile.network.AcceptJpegDownloader;
+import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.utils.L;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EApplication;
 
-import roboguice.RoboGuice;
+import javax.inject.Inject;
+
 import timber.log.Timber;
 
 /**
@@ -50,24 +55,25 @@ import timber.log.Timber;
  * @since 1.0
  */
 @EApplication
-public class JasperMobileApplication extends Application {
+public class JasperMobileApplication extends Application implements GraphObject {
     public static final String SAVED_REPORTS_DIR_NAME = "saved.reports";
+    public static final String RESOURCES_CACHE_DIR_NAME = "resources";
     public static final String SHARED_DIR = "com.jaspersoft.account.none";
+
+    private ProfileComponent mProfileComponent;
+    private AppComponent mAppComponent;
 
     @Inject
     AppConfigurator appConfigurator;
-    @Inject
-    JsRestClient jsRestClient;
-    @Inject
-    Analytics analytics;
+    @Bean
+    SavedItemHelper savedItemHelper;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        RoboGuice.getInjector(this).injectMembers(this);
+        getComponent().inject(this);
 
-        initLegacyJsRestClient();
-
+        savedItemHelper.deleteUnsavedItems();
         forceDatabaseUpdate();
 
         if (BuildConfig.DEBUG) {
@@ -87,27 +93,13 @@ public class JasperMobileApplication extends Application {
         getContentResolver().query(MobileDbProvider.FAVORITES_CONTENT_URI, new String[]{"_id"}, null, null, null);
     }
 
-    public void initLegacyJsRestClient() {
-        JsServerProfileCompat.initLegacyJsRestClient(this, jsRestClient);
-
-        Account account = JasperAccountManager.get(this).getActiveAccount();
-        if (account != null) {
-            AccountServerData serverData = AccountServerData.get(this, account);
-            String serverVersion = serverData.getVersionName();
-            if (serverData.isDemo()) {
-                serverVersion = serverVersion + " DEMO";
-            }
-            analytics.setServerInfo(serverVersion, serverData.getEdition());
-        }
-    }
-
     private void initImageLoader() {
         // This configuration tuning is custom. You can tune every option, you may tune some of them,
         // or you can create default configuration by
         //  ImageLoaderConfiguration.createDefault(this);
         // method.
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
-                .imageDownloader(new TokenImageDownloader(this))
+                .imageDownloader(new AcceptJpegDownloader(this))
                 .threadPriority(Thread.NORM_PRIORITY - 2)
                 .denyCacheImageMultipleSizesInMemory()
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())
@@ -118,5 +110,37 @@ public class JasperMobileApplication extends Application {
         ImageLoader.getInstance().init(config);
         // Ignoring all log from UIL
         L.writeLogs(false);
+    }
+
+    @NonNull
+    @Override
+    public AppComponent getComponent() {
+        if (mAppComponent == null) {
+            mAppComponent = DaggerAppComponent.builder()
+                    .appModule(new AppModule(this))
+                    .build();
+        }
+        return mAppComponent;
+    }
+
+    @Override
+    public void setProfileComponent(@Nullable ProfileComponent profileComponent) {
+        if (profileComponent == null) {
+            profileComponent = createFakeProfileComponent();
+        }
+        mProfileComponent = profileComponent;
+    }
+
+    @NonNull
+    @Override
+    public ProfileComponent getProfileComponent() {
+        if (mProfileComponent == null) {
+            mProfileComponent = createFakeProfileComponent();
+        }
+        return mProfileComponent;
+    }
+
+    private ProfileComponent createFakeProfileComponent() {
+        return getComponent().plus(new ProfileModule(Profile.getFake()));
     }
 }

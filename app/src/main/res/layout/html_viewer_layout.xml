@@ -35,7 +35,7 @@
     <ProgressBar
         android:id="@+id/htmlViewer_webView_progressBar"
         android:alpha="0"
-        style="@style/htmlViewer.progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
     />
 
 </RelativeLayout>

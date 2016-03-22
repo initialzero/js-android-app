@@ -28,26 +28,26 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.InstanceState;
 
-import roboguice.fragment.RoboFragment;
+import javax.inject.Inject;
 
 /**
  * @author Tom Koptel
  * @since 1.9
  */
 @EFragment (R.layout.content_layout)
-public class RepositoryPageFragment extends RoboFragment {
+public class RepositoryPageFragment extends BaseFragment {
 
     // It is hack to force saved instance state not to be null after rotate
     @InstanceState
@@ -58,6 +58,7 @@ public class RepositoryPageFragment extends RoboFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getBaseActivityComponent().inject(this);
         setHasOptionsMenu(true);
     }
 
@@ -80,6 +81,6 @@ public class RepositoryPageFragment extends RoboFragment {
             analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.REPOSITORY.getValue());
         }
 
-        ((RoboToolbarActivity) getActivity()).setCustomToolbarView(null);
+        ((ToolbarActivity) getActivity()).setCustomToolbarView(null);
     }
 }

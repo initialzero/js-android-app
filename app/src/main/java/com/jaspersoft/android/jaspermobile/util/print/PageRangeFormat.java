@@ -34,7 +34,7 @@ final class PageRangeFormat {
 
     private final int mTotalPages;
 
-    PageRangeFormat(int totalPages) {
+    public PageRangeFormat(int totalPages) {
         if (totalPages == 0) {
             throw new IllegalArgumentException("Total pages should not be zero");
         }
@@ -50,7 +50,7 @@ final class PageRangeFormat {
      * @param pageRange see {@link PageRange}
      * @return '1-10' for range, '1-${mTotalPages}' for all, 1 for one page
      */
-    String format(PageRange pageRange) {
+    public String format(PageRange pageRange) {
         int start;
         int end;
 

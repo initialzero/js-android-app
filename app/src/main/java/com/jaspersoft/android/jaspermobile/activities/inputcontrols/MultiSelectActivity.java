@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -40,12 +40,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.FilterableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.MultiSelectAvailableAdapter;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.adapters.MultiSelectSelectedAdapter;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControlOption;
@@ -60,13 +61,15 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  * @author Andrew Tivodar
  * @since 2.2
  */
 @EActivity(R.layout.activity_multi_select)
 @OptionsMenu({R.menu.multi_select_menu, R.menu.search_menu})
-public class MultiSelectActivity extends RoboToolbarActivity implements SearchView.OnQueryTextListener {
+public class MultiSelectActivity extends ToolbarActivity implements SearchView.OnQueryTextListener {
 
     public static final String SELECT_IC_ARG = "select_input_control_id";
     private final static int TAB_COUNT = 2;
@@ -101,6 +104,13 @@ public class MultiSelectActivity extends RoboToolbarActivity implements SearchVi
 
     @AfterViews
     protected void init() {
+       getProfileComponent()
+                .plusControlsPage(
+                        new ActivityModule(this),
+                        new ReportModule(reportUri)
+                )
+                .inject(this);
+
         initInputControlOptions();
         initAdapters();
         initViews();

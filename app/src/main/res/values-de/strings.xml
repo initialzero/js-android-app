@@ -123,30 +123,25 @@
 
     <!-- Settings activity -->
     <string name="st_title">Einstellungen</string>
-    <string name="st_category_repo_cache">Repository-Cache</string>
     <string name="st_category_connection">Verbindung</string>
     <string name="st_title_cache_enable">Cache aktivieren</string>
-    <string name="st_title_cache_expiration">Cache-Ablauf</string>
     <string name="st_title_connect_timeout">Verbindungstimeout</string>
     <string name="st_title_read_timeout">Timeout beim Lesen von Daten</string>
-    <string name="st_title_animations">Animationen</string>
     <string name="st_send_crashes">Absturzberichte senden</string>
-    <string name="st_summary_cache_enable">Repository-Anforderungen für die angegebene Zeitraum zwischenspeichern</string>
     <string name="st_summary_sec">%s s</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Ungültiges Zahlenformat</string>
     <string name="st_category_more">Mehr</string>
 
     <!-- Error messages -->
-    <string name="error_http_400">400 - Unzulässige Anforderung. Die Anforderung war ungültig.</string>
-    <string name="error_http_401">401 - Nicht autorisiert.
-                                  \nDie Anmeldeinformationen fehlen oder sind falsch.</string>
-    <string name="error_http_403">403 - Zugriff verweigert. Die Anforderung wurde erkannt, aber zurückgewiesen.</string>
-    <string name="error_http_404">404 - Nicht gefunden. Der angeforderte URI ist ungültig, oder die angeforderte Ressource ist nicht vorhanden.</string>
-    <string name="error_http_500">500 - Interner Serverfehler.</string>
-    <string name="error_http_502">502 -  Ungültiges Gateway.</string>
-    <string name="error_http_503">503 - Dienst ist nicht verfügbar.</string>
-    <string name="error_http_504">504 - Timeout beim Gateway.</string>
+    <string name="error_http_400">Unzulässige Anforderung. Die Anforderung war ungültig.</string>
+    <string name="error_http_401">Die Anmeldeinformationen fehlen oder sind falsch.</string>
+    <string name="error_http_403">Zugriff verweigert. Die Anforderung wurde erkannt, aber zurückgewiesen.</string>
+    <string name="error_http_404">Nicht gefunden. Der angeforderte URI ist ungültig, oder die angeforderte Ressource ist nicht vorhanden.</string>
+    <string name="error_http_500">Interner Serverfehler.</string>
+    <string name="error_http_502"> Ungültiges Gateway.</string>
+    <string name="error_http_503">Dienst ist nicht verfügbar.</string>
+    <string name="error_http_504">Timeout beim Gateway.</string>
 
     <!-- Others -->
     <string name="loading_msg">Laden&#8230;</string>

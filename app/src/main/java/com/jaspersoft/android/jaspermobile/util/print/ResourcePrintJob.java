@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util.print;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 /**
@@ -31,6 +32,8 @@ import android.support.annotation.NonNull;
  * @since 2.1
  */
 public interface ResourcePrintJob {
+    String PRINT_NAME_KEY = "print_name";
+
     @NonNull
-    ResourcePrintJob printResource();
+    ResourcePrintJob printResource(@NonNull Bundle bundle);
 }

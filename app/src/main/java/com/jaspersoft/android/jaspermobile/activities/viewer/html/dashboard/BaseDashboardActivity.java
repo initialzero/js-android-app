@@ -24,7 +24,6 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -37,18 +36,23 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.BuildConfig;
+import com.jaspersoft.android.jaspermobile.GraphObject;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboToolbarActivity;
-import com.jaspersoft.android.jaspermobile.cookie.CookieManagerFactory;
 import com.jaspersoft.android.jaspermobile.dialog.LogDialog;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
-import com.jaspersoft.android.jaspermobile.util.FavoritesHelper_;
-import com.jaspersoft.android.jaspermobile.util.print.JasperPrinter;
-import com.jaspersoft.android.jaspermobile.util.print.JasperPrintJobFactory;
+import com.jaspersoft.android.jaspermobile.domain.ErrorSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.profile.AuthorizeSessionUseCase;
+import com.jaspersoft.android.jaspermobile.internal.di.components.DashboardActivityComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.DashboardModule;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.webview.DefaultUrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListenerImpl;
@@ -58,12 +62,12 @@ import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
 import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
+import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
-import rx.Subscriber;
-import rx.Subscription;
-import rx.subscriptions.CompositeSubscription;
+import javax.inject.Inject;
+
+import timber.log.Timber;
 
 /**
  * Activity that performs dashboard viewing in HTML format through native component.
@@ -71,7 +75,7 @@ import rx.subscriptions.CompositeSubscription;
  * @author Tom Koptel
  * @since 2.0
  */
-public abstract class BaseDashboardActivity extends RoboToolbarActivity
+public abstract class BaseDashboardActivity extends ToolbarActivity
         implements JasperWebViewClientListener, DefaultUrlPolicy.SessionListener {
     public final static String RESOURCE_EXTRA = "resource";
 
@@ -82,14 +86,20 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     protected ResourceLookup resource;
     private MenuItem favoriteAction;
 
-    private Uri favoriteEntryUri;
-    private FavoritesHelper_ favoritesHelper;
     private JasperChromeClientListenerImpl chromeClientListener;
 
-    private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
-
     @Inject
-    protected Analytics analytics;
+    Analytics analytics;
+    @Inject
+    ResourcePrintJob mResourcePrintJob;
+    @Inject
+    JasperServer mServer;
+    @Inject
+    ScriptTagFactory mScriptTagFactory;
+    @Inject
+    FavoritesHelper favoritesHelper;
+    @Inject
+    AuthorizeSessionUseCase mAuthorizeSessionUseCase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,35 +115,21 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
             resource = extras.getParcelable(RESOURCE_EXTRA);
         }
 
-        favoritesHelper = FavoritesHelper_.getInstance_(this);
-        if (savedInstanceState == null && resource != null) {
-            favoriteEntryUri = favoritesHelper.queryFavoriteUri(resource);
-        }
-
         webView = (WebView) findViewById(R.id.webView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         emptyView = (TextView) findViewById(android.R.id.empty);
 
-        showProgressDialog(R.string.loading_msg);
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this).subscribe(new Subscriber<Void>() {
-            @Override
-            public void onCompleted() {
-                hideProgressDialog();
-                initWebView();
-            }
+        getComponent().inject(this);
+        initWebView();
+    }
 
-            @Override
-            public void onError(Throwable e) {
-                hideProgressDialog();
-                showMessage(e.getMessage());
-            }
-
-            @Override
-            public void onNext(Void aVoid) {
-
-            }
-        });
-        mCompositeSubscription.add(cookieSubscription);
+    public DashboardActivityComponent getComponent() {
+        return GraphObject.Factory.from(this)
+                .getProfileComponent()
+                .plusDashboardPage(
+                        new ActivityModule(this),
+                        new DashboardModule(webView, String.valueOf(resource.getResourceType()))
+                );
     }
 
     @Override
@@ -142,8 +138,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         menuInflater.inflate(R.menu.dashboard_menu, menu);
         favoriteAction = menu.findItem(R.id.favoriteAction);
 
-        favoriteAction.setIcon(favoriteEntryUri == null ? R.drawable.ic_menu_star_outline : R.drawable.ic_menu_star);
-        favoriteAction.setTitle(favoriteEntryUri == null ? R.string.r_cm_add_to_favorites : R.string.r_cm_remove_from_favorites);
+        favoritesHelper.updateFavoriteIconState(favoriteAction, resource.getUri());
 
         if (isDebugOrQa()) {
             MenuInflater inflater = getMenuInflater();
@@ -173,19 +168,13 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
             onHomeAsUpCalled();
         }
         if (itemId == R.id.printAction) {
-            analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRINTED.getValue(), Analytics.EventLabel.DASHBOARD.getValue());
-            ResourcePrintJob job = JasperPrintJobFactory.createDashboardPrintJob(webView, resource);
-            JasperPrinter.print(job);
+            Bundle args = new Bundle();
+            args.putString(ResourcePrintJob.PRINT_NAME_KEY, resource.getLabel());
+
+            mResourcePrintJob.printResource(args);
         }
 
         return true;
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mCompositeSubscription.unsubscribe();
-        mCompositeSubscription = new CompositeSubscription();
     }
 
     @Override
@@ -213,16 +202,6 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         }
     }
 
-    private void showProgressDialog(int message) {
-        ProgressDialogFragment.builder(getSupportFragmentManager())
-                .setLoadingMessage(message)
-                .show();
-    }
-
-    private void hideProgressDialog() {
-        ProgressDialogFragment.dismiss(getSupportFragmentManager());
-    }
-
     //---------------------------------------------------------------------
     // JasperWebViewClientListener callbacks
     //---------------------------------------------------------------------
@@ -246,28 +225,36 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
 
     @Override
     public void onSessionExpired() {
-        showProgressDialog(R.string.loading_msg);
-        JasperAccountManager.get(BaseDashboardActivity.this).invalidateActiveToken();
-        Subscription cookieSubscription = CookieManagerFactory.syncCookies(this)
-                .subscribe(new Subscriber<Void>() {
-                    @Override
-                    public void onCompleted() {
-                        onSessionRefreshed();
-                        hideProgressDialog();
-                    }
+        mAuthorizeSessionUseCase.execute(new GenericSubscriber<>(new SimpleSubscriber<Void>() {
+            @Override
+            public void onStart() {
+                Toast.makeText(BaseDashboardActivity.this, R.string.da_session_expired, Toast.LENGTH_SHORT).show();
+            }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        hideProgressDialog();
-                        showMessage(e.getMessage());
-                    }
+            @Override
+            public void onCompleted() {
+                onSessionRefreshed();
+            }
 
-                    @Override
-                    public void onNext(Void aVoid) {
+            @Override
+            public void onError(Throwable e) {
+                RequestExceptionHandler.showAuthErrorIfExists(BaseDashboardActivity.this, e);
+            }
+        }));
+    }
 
-                    }
-                });
-        mCompositeSubscription.add(cookieSubscription);
+    protected void showLoading() {
+        ProgressDialogFragment.builder(getSupportFragmentManager())
+                .setLoadingMessage(R.string.da_loading)
+                .show();
+    }
+
+    protected void hideLoading() {
+        ProgressDialogFragment.dismiss(getSupportFragmentManager());
+    }
+
+    protected void showWebView(boolean visibility) {
+        webView.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 
     //---------------------------------------------------------------------
@@ -295,14 +282,17 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     private void initWebView() {
         chromeClientListener = new JasperChromeClientListenerImpl(progressBar);
 
-        UrlPolicy defaultPolicy = DefaultUrlPolicy.from(this).withSessionListener(this);
+        UrlPolicy defaultPolicy = new DefaultUrlPolicy(mServer.getBaseUrl())
+                .withSessionListener(this);
 
-        SystemChromeClient systemChromeClient = SystemChromeClient.from(this)
-                .withDelegateListener(chromeClientListener);
-        SystemWebViewClient systemWebViewClient = SystemWebViewClient.newInstance()
+        SystemChromeClient systemChromeClient = new SystemChromeClient.Builder(this)
+                .withDelegateListener(chromeClientListener)
+                .build();
+        SystemWebViewClient systemWebViewClient = new SystemWebViewClient.Builder()
                 .withDelegateListener(this)
-                .withInterceptor(new InjectionRequestInterceptor())
-                .withUrlPolicy(defaultPolicy);
+                .registerInterceptor(new InjectionRequestInterceptor())
+                .registerUrlPolicy(defaultPolicy)
+                .build();
 
         WebViewEnvironment.configure(webView)
                 .withDefaultSettings()
@@ -312,8 +302,7 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
     }
 
     private void favoriteAction() {
-        favoriteEntryUri = favoritesHelper.
-                handleFavoriteMenuAction(favoriteEntryUri, resource, favoriteAction);
+        favoritesHelper.switchFavoriteState(resource, favoriteAction);
     }
 
     private void aboutAction() {
@@ -330,4 +319,28 @@ public abstract class BaseDashboardActivity extends RoboToolbarActivity
         }
     }
 
+    protected final class GenericSubscriber<R> extends ErrorSubscriber<R> {
+        protected GenericSubscriber(SimpleSubscriber<R> delegate) {
+            super(delegate);
+        }
+
+        @Override
+        public void onStart() {
+            showLoading();
+            super.onStart();
+        }
+
+        @Override
+        public void onCompleted() {
+            hideLoading();
+            super.onCompleted();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Timber.e(e, "Dashboard thrown error");
+            hideLoading();
+            super.onError(e);
+        }
+    }
 }

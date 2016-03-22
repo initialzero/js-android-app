@@ -46,12 +46,6 @@
         android:theme="@style/Theme.JasperMobile"
         android:allowBackup="false"
         android:largeHeap="true">
-        <meta-data
-            android:name="roboguice.modules"
-            android:value="com.jaspersoft.android.jaspermobile.JasperMobileModule" />
-        <meta-data
-            android:name="roboguice.annotations.packages"
-            android:value="com.jaspersoft.android.jaspermobile" />
 
         <meta-data
             android:name="com.google.android.gms.analytics.globalConfigResource"
@@ -63,7 +57,7 @@
 
         <!-- Main activity -->
         <activity
-            android:name=".activities.navigation.NavigationActivity_">
+            android:name=".presentation.view.activity.NavigationActivity_">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -88,28 +82,33 @@
 
         <!-- Activity that performs report viewing in HTML format through visualize -->
         <activity
-            android:name=".activities.viewer.html.report.ReportViewerActivity_"
+            android:name=".presentation.view.activity.ReportVisualizeActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".activities.navigation.NavigationActivity_" >
+            android:parentActivityName=".presentation.view.activity.NavigationActivity_" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.navigation.NavigationActivity_" />
+                android:value=".presentation.view.activity.NavigationActivity_" />
         </activity>
 
-        <!-- Activity that performs report viewing in HTML format -->
+        <!-- Activity that performs report viewing in HTML format. SDK 2.0 -->
         <activity
-            android:name=".activities.viewer.html.report.ReportHtmlViewerActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".activities.navigation.NavigationActivity_" >
+            android:name=".presentation.view.activity.ReportViewActivity_"
+            android:parentActivityName=".presentation.view.activity.NavigationActivity_" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.navigation.NavigationActivity_" />
+                android:value=".presentation.view.activity.NavigationActivity_" />
         </activity>
+
+        <activity android:name=".activities.viewer.html.report.ReportCastActivity_"/>
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity
             android:name=".activities.viewer.html.SavedReportHtmlViewerActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale" />
+
+        <activity
+            android:theme="@style/Theme.JasperMobile.NoToolbar.TransparentStatusBar"
+            android:name=".activities.info.ResourceInfoActivity_"/>
 
         <!-- Activity that performs dashboard viewing in HTML format -->
         <activity
@@ -134,15 +133,23 @@
             android:label="@string/sr_ab_title"
             android:windowSoftInputMode="stateHidden" />
 
+        <activity
+            android:name=".activities.schedule.NewScheduleActivity_"/>
+
+        <activity
+            android:name=".activities.schedule.EditScheduleActivity_"/>
+
+        <activity
+            android:name=".activities.file.FileViewerActivity_"/>
+
         <!-- Activity that allows to specify the application settings -->
         <activity
             android:name=".activities.settings.SettingsActivity_"
-            android:theme="@style/Theme.JasperMobile.Settings"
             android:configChanges="locale"
             android:label="@string/st_title" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.navigation.NavigationActivity_" />
+                android:value=".presentation.view.activity.NavigationActivity_" />
         </activity>
 
         <activity
@@ -170,7 +177,7 @@
             android:launchMode="singleTop" />
 
         <activity
-            android:name=".activities.auth.AuthenticatorActivity" >
+            android:name=".presentation.view.activity.AuthenticatorActivity" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 
@@ -187,6 +194,17 @@
         </receiver>
 
         <receiver
+            android:name=".util.cast.ResourceCastReceiver"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="com.jaspersoft.android.jaspermobile.RESOURCE_CAST_CANCEL" />
+                <action android:name="com.jaspersoft.android.jaspermobile.RESOURCE_PRESENTATION_STOP" />
+            </intent-filter>
+
+        </receiver>
+
+        <receiver
             android:name=".util.LocaleChangeReceiver"
             android:exported="false">
             <intent-filter>
@@ -195,10 +213,6 @@
         </receiver>
 
         <!-- Service used to manage the cache and provide web service result to an activity -->
-        <service
-            android:name=".network.XmlSpiceService"
-            android:exported="false" />
-
         <service android:name="com.google.android.gms.analytics.AnalyticsService"
             android:enabled="true"
             android:exported="false"/>
@@ -206,6 +220,14 @@
         <provider
             android:name=".db.MobileDbProvider"
             android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
+            android:exported="false" />
+
+        <service
+        android:name=".activities.save.SaveReportService_"
+        android:exported="false" />
+
+        <service
+            android:name=".util.cast.ResourcePresentationService"
             android:exported="false" />
 
         <!-- SDK external components -->

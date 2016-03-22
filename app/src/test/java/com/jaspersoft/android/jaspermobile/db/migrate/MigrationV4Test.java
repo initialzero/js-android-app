@@ -29,7 +29,7 @@ import android.accounts.AccountManager;
 import android.provider.Settings;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,10 +47,7 @@ import static org.hamcrest.core.IsNot.not;
  * @since 2.1.2
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(
-        constants = BuildConfig.class,
-        sdk = 21
-)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class MigrationV4Test {
 
     @Before

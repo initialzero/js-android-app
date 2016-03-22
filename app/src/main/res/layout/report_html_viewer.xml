@@ -29,6 +29,7 @@
 
     <com.jaspersoft.android.jaspermobile.widget.JSWebView
         android:id="@+id/webView"
+        android:layout_above="@+id/paginationControl"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
@@ -52,5 +53,15 @@
         android:layout_gravity="center"
         android:padding="2dp"
         android:visibility="gone" />
+
+    <com.jaspersoft.android.jaspermobile.widget.PaginationBarView_
+        android:id="@+id/paginationControl"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentBottom="true"
+        android:background="#454850"
+        android:padding="4dp"
+    />
 
 </RelativeLayout>

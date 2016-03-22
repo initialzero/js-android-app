@@ -27,7 +27,10 @@ package com.jaspersoft.android.jaspermobile.dialog;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
+
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 
 import java.io.File;
 
@@ -37,10 +40,8 @@ import java.io.File;
  */
 public class DeleteDialogFragment extends SimpleDialogFragment {
 
-    private final static String RECORD_URI_ARG = "record_uri";
-    private final static String FILE_URI_ARG = "file_uri";
-    private Uri recordUri;
-    private File itemFile;
+    private final static String RESOURCE_ARG = "resource_arg";
+    private JasperResource mResource;
 
     @Override
     protected Class<DeleteDialogClickListener> getDialogCallbackClass() {
@@ -52,25 +53,20 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
         super.initDialogParams();
 
         Bundle args = getArguments();
-        if (args!= null) {
-            if (args.containsKey(RECORD_URI_ARG)) {
-                recordUri = args.getParcelable(RECORD_URI_ARG);
-            }
-            if (args.containsKey(FILE_URI_ARG)) {
-                Uri fileUri = args.getParcelable(FILE_URI_ARG);
-                itemFile = new File(fileUri.getPath());
+        if (args != null) {
+            if (args.containsKey(RESOURCE_ARG)) {
+                mResource = (JasperResource) args.getSerializable(RESOURCE_ARG);
             }
         }
     }
 
     @Override
     protected void onNegativeClick() {
-        ((DeleteDialogClickListener) mDialogListener).onDeleteCanceled();
     }
 
     @Override
     protected void onPositiveClick() {
-        ((DeleteDialogClickListener) mDialogListener).onDeleteConfirmed(recordUri, itemFile);
+        ((DeleteDialogClickListener) mDialogListener).onDeleteConfirmed(mResource);
     }
 
     public static DeleteDialogFragmentBuilder createBuilder(Context context, FragmentManager fragmentManager) {
@@ -87,13 +83,8 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
             super(context, fragmentManager);
         }
 
-        public DeleteDialogFragmentBuilder setRecordUri(Uri recordUri) {
-            args.putParcelable(RECORD_URI_ARG, recordUri);
-            return this;
-        }
-
-        public DeleteDialogFragmentBuilder setFile(File file) {
-            args.putParcelable(FILE_URI_ARG, Uri.fromFile(file));
+        public DeleteDialogFragmentBuilder setResource(JasperResource resource) {
+            args.putSerializable(RESOURCE_ARG, resource);
             return this;
         }
 
@@ -107,9 +98,8 @@ public class DeleteDialogFragment extends SimpleDialogFragment {
     // Dialog Callback
     //---------------------------------------------------------------------
 
-    public interface DeleteDialogClickListener extends DialogClickListener{
-        public void onDeleteConfirmed(Uri itemToDelete, File fileToDelete);
-        public void onDeleteCanceled();
+    public interface DeleteDialogClickListener extends DialogClickListener {
+        void onDeleteConfirmed(JasperResource resource);
     }
 
 }

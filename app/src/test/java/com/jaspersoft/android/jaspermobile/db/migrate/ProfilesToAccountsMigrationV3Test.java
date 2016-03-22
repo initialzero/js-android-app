@@ -29,8 +29,6 @@ import android.accounts.AccountManager;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jaspersoft.android.jaspermobile.BuildConfig;
-import com.jaspersoft.android.jaspermobile.db.migrate.MigrationV3;
-import com.jaspersoft.android.jaspermobile.db.migrate.Migration;
 import com.jaspersoft.android.jaspermobile.test.support.AccountUtil;
 import com.jaspersoft.android.jaspermobile.test.support.db.PermanentDatabase;
 import com.jaspersoft.android.jaspermobile.test.support.db.ResourceDatabase;
@@ -55,10 +53,7 @@ import static org.hamcrest.core.Is.is;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(
-        constants = BuildConfig.class,
-        sdk = 21
-)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class ProfilesToAccountsMigrationV3Test {
 
     private ResourceDatabase resourceDatabase;

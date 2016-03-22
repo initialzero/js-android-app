@@ -50,5 +50,9 @@ public interface Migration {
         public static Migration v5(Context context) {
             return new MigrationV5(context);
         }
+
+        public static Migration v6() {
+            return new MigrationV6();
+        }
     }
 }

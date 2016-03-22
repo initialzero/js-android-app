@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -28,35 +28,37 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.util.server.ServerInfoProvider;
-
-import org.roboguice.shaded.goole.common.annotations.VisibleForTesting;
+import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  * @author Tom Koptel
  * @since 2.1
  */
-class Message {
-    private final ServerInfoProvider mInfoProvider;
+@PerProfile
+public class Message {
     private final Context mContext;
+    private final JasperServer mServer;
     private final StringBuilder mTextMessage;
     private final List<String> mParts;
 
-    Message(Context context, ServerInfoProvider infoProvider) {
-        if (context == null) {
-            throw new IllegalArgumentException();
-        }
+    @Inject
+    public Message(@ApplicationContext Context context, JasperServer server) {
         mContext = context;
-        mInfoProvider = infoProvider;
+        mServer = server;
         mTextMessage = new StringBuilder();
-        mParts = new ArrayList<String>();
+        mParts = new ArrayList<>();
     }
 
     @NonNull
@@ -88,17 +90,13 @@ class Message {
 
     @VisibleForTesting
     String generateServerVersion() {
-        String serverVersion = mInfoProvider.getServerVersion();
-        if (TextUtils.isEmpty(serverVersion)) {
-            return null;
-        } else {
-            return mContext.getString(R.string.jrs_version_data, serverVersion);
-        }
+        String version = mServer.getVersion();
+        return mContext.getString(R.string.jrs_version_data, version);
     }
 
     @VisibleForTesting
     String generateServerEdition() {
-        String serverEdition = mInfoProvider.getServerEdition();
+        String serverEdition = mServer.isProEdition() ? "PRO" : "CE";
         if (TextUtils.isEmpty(serverEdition)) {
             return null;
         } else {

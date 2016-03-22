@@ -1,5 +1,5 @@
 /*
- * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -29,23 +29,17 @@ import android.accounts.AccountManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.jaspersoft.android.jaspermobile.util.account.AccountServerData;
-import com.jaspersoft.android.jaspermobile.util.account.JasperAccountManager;
-import com.jaspersoft.android.retrofit.sdk.util.JasperSettings;
+import com.jaspersoft.android.jaspermobile.data.cache.profile.PreferencesActiveProfileCache;
+import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.util.JasperSettings;
 
-import java.lang.reflect.Type;
+import java.net.CookieManager;
+import java.net.CookieStore;
+import java.net.HttpCookie;
+import java.net.URI;
 import java.util.List;
-
-import rx.Observable;
-import rx.functions.Action0;
-import rx.functions.Action1;
-import rx.functions.Actions;
-import rx.functions.Func1;
 
 /**
  * @author Tom Koptel
@@ -53,123 +47,87 @@ import rx.functions.Func1;
  */
 public class UtilReceiver extends BroadcastReceiver {
     private static final String REMOVE_COOKIES = "jaspermobile.util.action.REMOVE_COOKIES";
-    private static final String DEPRECATE_COOKIES = "jaspermobile.util.action.DEPRECATE_COOKIES";
     private static final String REMOVE_ALL_ACCOUNTS = "jaspermobile.util.action.REMOVE_ALL_ACCOUNTS";
-    private static final String DOWNGRADE_SERVER_VERSION = "jaspermobile.util.action.DOWNGRADE_SERVER_VERSION";
-    private static final String CHANGE_SERVER_EDITION = "jaspermobile.util.action.CHANGE_SERVER_EDITION";
-    private static final String LOAD_PROFILES = "jaspermobile.util.action.LOAD_PROFILES";
-
-    private static final String INVALID_COOKIE = "JSESSIONID=5513E1DE5437AE6B9F41CC5C8309B153; " +
-            "Path=/jasperserver-pro/; HttpOnlyuserLocale=en_US;Expires=Sat, 23-May-2015 09:15:46 GMT;HttpOnly";
+    private static final String INVALIDATE_PASSWORD = "jaspermobile.util.action.INVALIDATE_PASSWORD";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
+
         if (action.equals(REMOVE_COOKIES)) {
-            deleteToken(context);
-        } else if (action.equals(DEPRECATE_COOKIES)) {
-            overrideTokenWithOldOne(context);
+            deleteToken();
+            showMessage(context, "Cookies removed");
         } else if (action.equals(REMOVE_ALL_ACCOUNTS)) {
             removeAccounts(context);
-        } else if (action.equals(DOWNGRADE_SERVER_VERSION)) {
-            downgradeServerVersion(context, intent);
-            overrideTokenWithOldOne(context);
-        } else if (action.equals(CHANGE_SERVER_EDITION)) {
-            changeServerVersion(context, intent);
-            overrideTokenWithOldOne(context);
-        } else if (action.equals(LOAD_PROFILES)) {
-            loadProfiles(context, intent);
+            showMessage(context, "Accounts removed");
+        } else if (action.equals(INVALIDATE_PASSWORD)) {
+            invalidatePassword(context);
+            deleteToken();
+            showMessage(context, "Password invalidated and cookies removed");
         }
     }
 
-    private void deleteToken(Context context) {
-        JasperAccountManager.get(context).invalidateActiveToken();
-        Toast.makeText(context, "Cookies removed", Toast.LENGTH_SHORT).show();
+    private void invalidatePassword(Context context) {
+        PreferencesActiveProfileCache activeProfileCache = new PreferencesActiveProfileCache(context);
+        Profile profile = activeProfileCache.get();
+
+        AccountManager manager = AccountManager.get(context);
+        Account account = new Account(profile.getKey(), JasperSettings.JASPER_ACCOUNT_TYPE);
+        manager.setPassword(account, null);
     }
 
-    private void overrideTokenWithOldOne(Context context) {
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        if (account != null) {
-            AccountManager accountManager = AccountManager.get(context);
-            accountManager.setAuthToken(account, JasperSettings.JASPER_AUTH_TOKEN_TYPE, INVALID_COOKIE);
-            Toast.makeText(context, "Cookie was deprecated", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "No active account. Nothing to deprecate.", Toast.LENGTH_SHORT).show();
+    private void deleteToken() {
+        getCookieStore().removeAll();
+    }
+
+    private CookieStore getCookieStore() {
+        CookieManager manager = (CookieManager) CookieManager.getDefault();
+        if (manager == null) {
+            return new NullCookieStore();
         }
+        return manager.getCookieStore();
+    }
+
+    private void showMessage(Context context, String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     private void removeAccounts(Context context) {
-        Account[] accounts = JasperAccountManager.get(context).getAccounts();
-        AccountManager accountManager = AccountManager.get(context);
+        AccountManager manager = AccountManager.get(context);
+        Account[] accounts = manager.getAccountsByType(JasperSettings.JASPER_ACCOUNT_TYPE);
         for (Account account : accounts) {
-            accountManager.removeAccount(account, null, null);
-        }
-        Toast.makeText(context, "Accounts removed", Toast.LENGTH_SHORT).show();
-    }
-
-    private void downgradeServerVersion(Context context, Intent intent) {
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        if (account == null) {
-            Toast.makeText(context, "No active account. Nothing to downgrade.", Toast.LENGTH_SHORT).show();
-        } else {
-            String versionName = intent.getStringExtra("target_version");
-            if (TextUtils.isEmpty(versionName)) {
-                Toast.makeText(context, "Target version missing. Can't downgrade.", Toast.LENGTH_SHORT).show();
-            } else {
-                AccountManager accountManager = AccountManager.get(context);
-                accountManager.setUserData(account, AccountServerData.VERSION_NAME_KEY, versionName);
-                Toast.makeText(context, "Server was downgraded to version: " + versionName, Toast.LENGTH_SHORT).show();
-            }
+            manager.removeAccountExplicitly(account);
         }
     }
 
-    private void changeServerVersion(Context context, Intent intent) {
-        Account account = JasperAccountManager.get(context).getActiveAccount();
-        if (account == null) {
-            Toast.makeText(context, "No active account. No way to change edition.", Toast.LENGTH_SHORT).show();
-        } else {
-            String editionName = intent.getStringExtra("edition_version");
-            if (TextUtils.isEmpty(editionName)) {
-                Toast.makeText(context, "Target server edition not found. Can't update server.", Toast.LENGTH_SHORT).show();
-            } else {
-                AccountManager accountManager = AccountManager.get(context);
-                accountManager.setUserData(account, AccountServerData.EDITION_KEY, editionName);
-                Toast.makeText(context, "Server edition was changed: " + editionName, Toast.LENGTH_SHORT).show();
-            }
+    private static class NullCookieStore implements CookieStore {
+        @Override
+        public void add(URI uri, HttpCookie cookie) {
         }
-    }
 
-    private void loadProfiles(final Context context, Intent intent) {
-        String json  = intent.getStringExtra("source_json");
-        if (TextUtils.isEmpty(json)) {
-            Toast.makeText(context, "Source json is missing", Toast.LENGTH_SHORT).show();
-        } else {
-            populateProfiles(context, json);
+        @Override
+        public List<HttpCookie> get(URI uri) {
+            return null;
         }
-    }
 
-    private void populateProfiles(final Context context, String json) {
-        Gson gson = new Gson();
-        Type listType = new TypeToken<List<AccountServerData>>() {
-        }.getType();
+        @Override
+        public List<HttpCookie> getCookies() {
+            return null;
+        }
 
-        final JasperAccountManager accountManager = JasperAccountManager.get(context);
-        List<AccountServerData> datum = gson.fromJson(json, listType);
-        Observable.from(datum).flatMap(new Func1<AccountServerData, Observable<Account>>() {
-            @Override
-            public Observable<Account> call(AccountServerData serverData) {
-                return accountManager.addAccountExplicitly(serverData);
-            }
-        }).subscribe(Actions.empty(), new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                Toast.makeText(context, "Failed to add profile: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }, new Action0() {
-            @Override
-            public void call() {
-                Toast.makeText(context, "Profiles loaded.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        @Override
+        public List<URI> getURIs() {
+            return null;
+        }
+
+        @Override
+        public boolean remove(URI uri, HttpCookie cookie) {
+            return false;
+        }
+
+        @Override
+        public boolean removeAll() {
+            return false;
+        }
     }
 }

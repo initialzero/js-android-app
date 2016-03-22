@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -26,25 +26,29 @@ package com.jaspersoft.android.jaspermobile.activities.settings.fragment;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BasePreferenceFragment;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
-import com.jaspersoft.android.sdk.client.JsRestClient;
+import com.jaspersoft.android.jaspermobile.widget.AppCompatEditTextPreference;
+import com.jaspersoft.android.sdk.network.Server;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import roboguice.fragment.provided.RoboPreferenceFragment;
+import javax.inject.Inject;
 
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.DEFAULT_REPO_CACHE_EXPIRATION;
+import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_CLEAR_CACHE;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_CONNECT_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_READ_TIMEOUT;
 import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PREF_REPO_CACHE_EXPIRATION;
@@ -54,10 +58,11 @@ import static com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper.KEY_PRE
  * @since 1.9
  */
 @EFragment
-public class SettingsFragment extends RoboPreferenceFragment {
+public class SettingsFragment extends BasePreferenceFragment {
 
     @Inject
-    private JsRestClient mJsRestClient;
+    protected Server.Builder mServerConfig;
+
     @Bean
     protected DefaultPrefHelper defaultPrefHelper;
 
@@ -66,12 +71,19 @@ public class SettingsFragment extends RoboPreferenceFragment {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getBaseActivityComponent().inject(this);
+
         addPreferencesFromResource(R.xml.preferences);
 
         sharedPreferences = getPreferenceScreen().getSharedPreferences();
-        EditTextPreference repoCacheExpirationPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_REPO_CACHE_EXPIRATION);
-        EditTextPreference connectTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
-        EditTextPreference readTimeoutPref = (EditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
+        AppCompatEditTextPreference repoCacheExpirationPref = (AppCompatEditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_REPO_CACHE_EXPIRATION);
+        AppCompatEditTextPreference connectTimeoutPref = (AppCompatEditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_CONNECT_TIMEOUT);
+        AppCompatEditTextPreference readTimeoutPref = (AppCompatEditTextPreference) getPreferenceScreen().findPreference(KEY_PREF_READ_TIMEOUT);
+        Preference clearCache = getPreferenceScreen().findPreference(KEY_PREF_CLEAR_CACHE);
+        
+        repoCacheExpirationPref.setDialogTitle(getString(R.string.st_title_cache_expiration));
+        connectTimeoutPref.setDialogTitle(getString(R.string.st_title_connect_timeout));
+        readTimeoutPref.setDialogTitle(getString(R.string.st_title_read_timeout));
 
         String repoCacheExpiration = sharedPreferences.getString(KEY_PREF_REPO_CACHE_EXPIRATION, DEFAULT_REPO_CACHE_EXPIRATION);
         String connectTimeout = sharedPreferences.getString(KEY_PREF_CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
@@ -101,7 +113,7 @@ public class SettingsFragment extends RoboPreferenceFragment {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 try {
                     int value = Integer.parseInt(String.valueOf(newValue));
-                    mJsRestClient.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(value));
+                    mServerConfig.withConnectionTimeOut(value, TimeUnit.SECONDS);
                     updateSummary(preference, newValue, R.string.st_summary_sec);
                     return true;
                 } catch (NumberFormatException ex) {
@@ -117,7 +129,7 @@ public class SettingsFragment extends RoboPreferenceFragment {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 try {
                     int value = Integer.parseInt(String.valueOf(newValue));
-                    mJsRestClient.setReadTimeout((int) TimeUnit.SECONDS.toMillis(value));
+                    mServerConfig.withReadTimeout(value, TimeUnit.SECONDS);
                     updateSummary(preference, newValue, R.string.st_summary_sec);
                     return true;
                 } catch (NumberFormatException ex) {
@@ -127,11 +139,35 @@ public class SettingsFragment extends RoboPreferenceFragment {
                 }
             }
         });
+
+        clearCache.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                String cleanCacheMessage;
+                if (clearCache()) {
+                    cleanCacheMessage = getString(R.string.st_action_clear_cache);
+                } else {
+                    cleanCacheMessage = getString(R.string.st_action_clear_cache_fail);
+                }
+                Toast.makeText(getActivity(), cleanCacheMessage, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
     }
 
     private void updateSummary(Preference preference, Object value, int summaryDefaultText) {
         String summary = getString(summaryDefaultText, value);
         preference.setSummary(summary);
+    }
+
+    private boolean clearCache() {
+        File cacheDir = getActivity().getExternalCacheDir();
+        try {
+            FileUtils.deleteDirectory(cacheDir);
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
 }

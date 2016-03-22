@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright Â© 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -32,13 +32,12 @@ import android.view.ViewGroup;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.BaseInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.BooleanInputControlViewHolder;
-import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.DateInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.DateTimeInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.MultiSelectInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.SingleSelectInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.TextInputControlViewHolder;
-import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.TimeInputControlViewHolder;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.viewholders.ValueInputControlViewHolder;
+import com.jaspersoft.android.jaspermobile.widget.DateTimeView;
 import com.jaspersoft.android.sdk.client.oxm.control.InputControl;
 
 import java.util.ArrayList;
@@ -112,18 +111,21 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
                 textInputControlViewHolder.setOnSelectListener(new ValueIcInteractionListener());
                 return textInputControlViewHolder;
             case IC_DATE_TIME:
-                listItem = layoutInflater.inflate(R.layout.item_input_control_date, parent, false);
-                DateTimeInputControlViewHolder dateTimeInputControlViewHolder = new DateTimeInputControlViewHolder(listItem);
+                DateTimeView dateTimeItem = new DateTimeView(parent.getContext());
+                dateTimeItem.setDateType(DateTimeView.DateType.DATE_TIME);
+                DateTimeInputControlViewHolder dateTimeInputControlViewHolder = new DateTimeInputControlViewHolder(dateTimeItem);
                 dateTimeInputControlViewHolder.setDateTimeClickListener(new DateIcInteractionListener());
                 return dateTimeInputControlViewHolder;
             case IC_DATE:
-                listItem = layoutInflater.inflate(R.layout.item_input_control_date, parent, false);
-                DateInputControlViewHolder dateInputControlViewHolder = new DateInputControlViewHolder(listItem);
+                DateTimeView dateItem = new DateTimeView(parent.getContext());
+                dateItem.setDateType(DateTimeView.DateType.DATE);
+                DateTimeInputControlViewHolder dateInputControlViewHolder = new DateTimeInputControlViewHolder(dateItem);
                 dateInputControlViewHolder.setDateTimeClickListener(new DateIcInteractionListener());
-                return (dateInputControlViewHolder);
+                return dateInputControlViewHolder;
             case IC_TIME:
-                listItem = layoutInflater.inflate(R.layout.item_input_control_date, parent, false);
-                TimeInputControlViewHolder timeInputControlViewHolder = new TimeInputControlViewHolder(listItem);
+                DateTimeView timeItem = new DateTimeView(parent.getContext());
+                timeItem.setDateType(DateTimeView.DateType.TIME);
+                DateTimeInputControlViewHolder timeInputControlViewHolder = new DateTimeInputControlViewHolder(timeItem);
                 timeInputControlViewHolder.setDateTimeClickListener(new DateIcInteractionListener());
                 return timeInputControlViewHolder;
             case IC_SINGLE_SELECT:
@@ -221,7 +223,7 @@ public class InputControlsAdapter extends RecyclerView.Adapter<BaseInputControlV
         }
     }
 
-    private class DateIcInteractionListener implements DateTimeInputControlViewHolder.DateTimeClickListener {
+    private class DateIcInteractionListener implements DateTimeView.DateTimeClickListener {
         @Override
         public void onDateClick(int position) {
             if (mIsBinding) return;

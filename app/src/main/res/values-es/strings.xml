@@ -127,30 +127,25 @@
 
     <!-- Settings activity -->
     <string name="st_title">Configuración</string>
-    <string name="st_category_repo_cache">Caché del repositorio</string>
     <string name="st_category_connection">Con conexión</string>
     <string name="st_title_cache_enable">Activar caché</string>
-    <string name="st_title_cache_expiration">Caducidad de la caché</string>
     <string name="st_title_connect_timeout">Tiempo de espera de la conexión</string>
     <string name="st_title_read_timeout">Tiempo de espera de lectura de datos</string>
-    <string name="st_title_animations">Animaciones</string>
     <string name="st_send_crashes">Enviar informes de errores</string>
-    <string name="st_summary_cache_enable">Solicitudes de repositorio de la caché para el periodo especificado</string>
     <string name="st_summary_sec">%s s</string>
     <string name="st_summary_h">%s h</string>
     <string name="st_invalid_number_format">Formato de número no válido</string>
     <string name="st_category_more">Más</string>
 
     <!-- Error messages -->
-    <string name="error_http_400">400 - Solicitud errónea. La solicitud no es válida.</string>
-    <string name="error_http_401">401 -Sin autorización.
-                                  \nFaltan las credenciales de autenticación o no son correctas.</string>
-    <string name="error_http_403">403 - Permiso denegado. Se ha entendido la solicitud, pero se ha rechazado.</string>
-    <string name="error_http_404">404 - No encontrado. La solicitud de URI no es válida o la solicitud de recurso no existe.</string>
-    <string name="error_http_500">500 - Error interno del servidor.</string>
-    <string name="error_http_502">502 - Puerta de enlace errónea.</string>
-    <string name="error_http_503">503 - Servicio no disponible.</string>
-    <string name="error_http_504">504 - Tiempo de espera de puerta de enlace agotado.</string>
+    <string name="error_http_400"> Solicitud errónea. La solicitud no es válida.</string>
+    <string name="error_http_401">Faltan las credenciales de autenticación o no son correctas.</string>
+    <string name="error_http_403">Permiso denegado. Se ha entendido la solicitud, pero se ha rechazado.</string>
+    <string name="error_http_404">No encontrado. La solicitud de URI no es válida o la solicitud de recurso no existe.</string>
+    <string name="error_http_500">Error interno del servidor.</string>
+    <string name="error_http_502">Puerta de enlace errónea.</string>
+    <string name="error_http_503">Servicio no disponible.</string>
+    <string name="error_http_504">Tiempo de espera de puerta de enlace agotado.</string>
 
     <!-- Others -->
     <string name="loading_msg">Cargando...</string>

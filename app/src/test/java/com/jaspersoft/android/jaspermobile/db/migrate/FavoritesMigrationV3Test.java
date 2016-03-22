@@ -51,10 +51,7 @@ import static org.junit.Assert.assertThat;
  * @since 2.1
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(
-        constants = BuildConfig.class,
-        sdk = 21
-)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class FavoritesMigrationV3Test {
 
     private ResourceDatabase resourceDatabase;

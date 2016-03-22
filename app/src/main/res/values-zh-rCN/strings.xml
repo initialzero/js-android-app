@@ -127,30 +127,25 @@
 
     <!-- Settings activity -->
     <string name="st_title">设置</string>
-    <string name="st_category_repo_cache">存储库缓存</string>
     <string name="st_category_connection">连接</string>
     <string name="st_title_cache_enable">启用缓存</string>
-    <string name="st_title_cache_expiration">缓存过期</string>
     <string name="st_title_connect_timeout">连接超时</string>
     <string name="st_title_read_timeout">数据读取超时</string>
-    <string name="st_title_animations">动画</string>
     <string name="st_send_crashes">发送崩溃报告</string>
-    <string name="st_summary_cache_enable">缓存存储库要求指定的时间量</string>
     <string name="st_summary_sec">%s 秒</string>
     <string name="st_summary_h">%s 小时</string>
     <string name="st_invalid_number_format">数字格式无效</string>
     <string name="st_category_more">更多</string>
 
     <!-- Error messages -->
-    <string name="error_http_400">400 - 请求错误。请求无效。</string>
-    <string name="error_http_401">401 - 未经授权。
-                                  \n身份验证凭据丢失或不正确。</string>
-    <string name="error_http_403">403 - 权限已被拒绝。已了解请求，但被拒绝。</string>
-    <string name="error_http_404">404 - 未找到。请求的 URI 无效，或请求的资源不存在。</string>
-    <string name="error_http_500">500 - 内部服务器错误。</string>
-    <string name="error_http_502">502 - 网关错误。</string>
-    <string name="error_http_503">503 - 服务不可用。</string>
-    <string name="error_http_504">504 - 网关超时。</string>
+    <string name="error_http_400">请求错误。请求无效。</string>
+    <string name="error_http_401">身份验证凭据丢失或不正确。</string>
+    <string name="error_http_403">权限已被拒绝。已了解请求，但被拒绝。</string>
+    <string name="error_http_404">未找到。请求的 URI 无效，或请求的资源不存在。</string>
+    <string name="error_http_500">内部服务器错误。</string>
+    <string name="error_http_502">网关错误。</string>
+    <string name="error_http_503">服务不可用。</string>
+    <string name="error_http_504">网关超时。</string>
 
     <!-- Others -->
     <string name="loading_msg">正在加载...</string>

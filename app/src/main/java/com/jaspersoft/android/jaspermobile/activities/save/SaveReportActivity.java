@@ -29,7 +29,7 @@ import android.os.Bundle;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment;
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment_;
-import com.jaspersoft.android.jaspermobile.activities.robospice.RoboSpiceActivity;
+import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.EActivity;
@@ -41,7 +41,7 @@ import org.androidannotations.annotations.Extra;
  * @since 1.8
  */
 @EActivity
-public class SaveReportActivity extends RoboSpiceActivity {
+public class SaveReportActivity extends ToolbarActivity {
 
     @Extra
     ResourceLookup resource;

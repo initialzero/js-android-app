@@ -38,8 +38,8 @@
         <ignore path="src/main/res/values/roboguice.xml" />
     </issue>
     <issue id="MissingTranslation">
-        <ignore path="src/main/res/values/roboguice.xml" />
-        <ignore path="build/generated/res/generated/production/release/values/generated.xml" />
+        <ignore path="build/generated/res/resValues/dev/release/values/generated.xml" />
+        <ignore path="build/generated/res/resValues/production/release/values/generated.xml" />
     </issue>
     <issue id="InvalidPackage">
         <ignore regexp="okio-2.0.0.jar" />

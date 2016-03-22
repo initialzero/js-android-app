@@ -22,6 +22,10 @@ public class FakeGetReportShowControlsPropertyCase extends GetReportShowControls
         mFakeResult = new ReportControlFlags(true, hasControls);
     }
 
+    public void setNeedPrompt(boolean needPrompt) {
+        mFakeResult = new ReportControlFlags(needPrompt, false);
+    }
+
     @Override
     protected Observable<ReportControlFlags> buildUseCaseObservable(String reportUri) {
         return Observable.just(mFakeResult);

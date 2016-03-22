@@ -29,6 +29,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -100,16 +101,6 @@ public class ReportViewPresenterTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void should_run_report_if_check_for_controls_was_negative() throws Exception {
-        mFakeGetReportShowControlsPropertyCase.setNeedParams(false);
-        presenter.init();
-        verify(mReportPageState).setControlsPageShown(true);
-        verify(mView).setFilterActionVisibility(false);
-        verify(mFakeRunReportCase).execute(eq(REPORT_URI), any(Subscriber.class));
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
     public void should_load_current_page_if_controls_page_shown() throws Exception {
         mReportPageState.setControlsPageShown(true);
 
@@ -153,7 +144,7 @@ public class ReportViewPresenterTest {
         verify(mReportPageState).setCurrentPage("1");
         verify(mView).showCurrentPage(1);
         verify(mView).showPage(PAGE_CONTENT);
-        verify(mView).hideLoading();
+        verify(mView, times(3)).hideLoading(); // we are invoking 2 additional calls during run
 
         verify(mFakeGetReportMultiPagePropertyCase).execute(anyString(), any(Subscriber.class));
     }
@@ -183,7 +174,7 @@ public class ReportViewPresenterTest {
 
         verify(mView).showLoading();
         verify(mFakeReloadReportCase).execute(eq(_1page), any(Subscriber.class));
-        verify(mView).hideLoading();
+        verify(mView, times(3)).hideLoading(); // we are invoking 2 additional calls during refresh
 
         verify(mView).resetPaginationControl();
         verify(mReportPageState).setCurrentPage("1");

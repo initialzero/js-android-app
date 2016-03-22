@@ -107,7 +107,6 @@ public class ReportVisualizePresenterTest {
 
         verify(mView).showLoading();
         verify(mGetReportShowControlsPropertyCase).execute(eq(REPORT_URI), any(Subscriber.class));
-        verify(mView).hideLoading();
     }
 
     @Test
@@ -124,8 +123,8 @@ public class ReportVisualizePresenterTest {
 
     @Test
     public void should_load_template_if_report_not_requires_controls() throws Exception {
-        fakeState.setControlsPageShown(false);
-        mGetReportShowControlsPropertyCase.setNeedParams(false);
+        when(fakeState.isControlsPageShown()).thenReturn(false);
+        mGetReportShowControlsPropertyCase.setNeedPrompt(false);
 
         mReportVisualizePresenter.init();
 
@@ -165,7 +164,6 @@ public class ReportVisualizePresenterTest {
 
         mReportVisualizePresenter.resume();
 
-        verify(mView).hideLoading();
         verify(mView).showWebView(true);
     }
 
@@ -175,7 +173,6 @@ public class ReportVisualizePresenterTest {
 
         mReportVisualizePresenter.resume();
 
-        verify(mView).hideLoading();
         verify(mView).showError("error");
     }
 
@@ -245,7 +242,7 @@ public class ReportVisualizePresenterTest {
 
     @Test
     public void on_resume_should_subscribe_to_multipage_event2() throws Exception {
-        when(mView.getPaginationTotalPages()).thenReturn(1);
+        when(mView.getPaginationTotalPages()).thenReturn(2);
         when(mVisualizeEvents.multiPageLoadEvent()).thenReturn(Observable.just(new MultiPageLoadEvent(true)));
 
         mReportVisualizePresenter.resume();
@@ -273,7 +270,6 @@ public class ReportVisualizePresenterTest {
 
         verify(mView).showLoading();
         verify(mFakeGetReportMetadataCase).execute(eq("{}"), any(Subscriber.class));
-        verify(mView).hideLoading();
         verify(mView).executeReport(mReportResource);
     }
 
@@ -301,7 +297,6 @@ public class ReportVisualizePresenterTest {
 
         mReportVisualizePresenter.resume();
 
-        verify(mView).hideLoading();
         verify(mView).showWebView(false);
         verify(mView).showError("title" + "\n" + "message");
     }
@@ -389,6 +384,7 @@ public class ReportVisualizePresenterTest {
         when(mVisualizeEvents.externalReferenceClickEvent()).thenReturn(Observable.<ExternalReferenceClickEvent>empty());
         when(mVisualizeEvents.executionReferenceClickEvent()).thenReturn(Observable.<ExecutionReferenceClickEvent>empty());
         when(mVisualizeEvents.windowErrorEvent()).thenReturn(Observable.<ErrorEvent>empty());
+        when(mVisualizeEvents.authErrorEvent()).thenReturn(Observable.<ErrorEvent>empty());
     }
 
     private static class FakeGetVisualizeTemplateCase extends GetVisualizeTemplateCase {

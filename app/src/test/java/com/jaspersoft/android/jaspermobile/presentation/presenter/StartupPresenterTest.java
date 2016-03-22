@@ -18,6 +18,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import rx.Subscriber;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -95,7 +97,7 @@ public class StartupPresenterTest {
 
         thenSetupsProfileComponent();
         thenShouldLogServerToAnalytics();
-        thenNavigatesToMainPage();
+        thenShouldSubscribeToProfileRemovedEvent();
     }
 
     @Test
@@ -160,5 +162,9 @@ public class StartupPresenterTest {
         ArgumentCaptor<Page> argument = ArgumentCaptor.forClass(Page.class);
         verify(mNavigator).navigate(argument.capture(), eq(true));
         assertThat(argument.getValue(), is(instanceOf(MainPage.class)));
+    }
+
+    private void thenShouldSubscribeToProfileRemovedEvent() {
+        verify(mActiveProfileRemoveUseCase).execute(any(Subscriber.class));
     }
 }

@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.presentation.contract;
 
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.view.LoadDataView;
 
@@ -40,6 +41,8 @@ public interface RestReportContract {
         ReportPageState getState();
 
         void showWebView(boolean visibility);
+
+        VisualizeViewModel getVisualize();
     }
 
     interface Action {

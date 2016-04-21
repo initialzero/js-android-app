@@ -3,9 +3,10 @@ package com.jaspersoft.android.jaspermobile.presentation.presenter;
 import android.support.annotation.VisibleForTesting;
 
 import com.jaspersoft.android.jaspermobile.domain.PageRequest;
-import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.ReportControlFlags;
+import com.jaspersoft.android.jaspermobile.domain.ReportPage;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushReportCachesCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMultiPagePropertyCase;
@@ -18,6 +19,8 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.UpdateReport
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.presentation.contract.RestReportContract;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.ErrorEvent;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
@@ -26,6 +29,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import rx.Subscriber;
+import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 /**
@@ -35,6 +40,7 @@ import timber.log.Timber;
 @PerActivity
 public class ReportViewPresenter extends Presenter<RestReportContract.View> implements RestReportContract.Action {
     private final String mReportUri;
+    private final PostExecutionThread mPostExecutionThread;
     private final RequestExceptionHandler mExceptionHandler;
     private final GetReportShowControlsPropertyCase mGetReportShowControlsPropertyCase;
     private final GetReportMultiPagePropertyCase mGetReportMultiPagePropertyCase;
@@ -46,9 +52,12 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
     private final FlushReportCachesCase mFlushReportCachesCase;
     private final FlushInputControlsCase mFlushInputControlsCase;
 
+    private CompositeSubscription mCompositeSubscription;
+
     @Inject
     public ReportViewPresenter(
             @Named("report_uri") String reportUri,
+            PostExecutionThread mPostExecutionThread,
             RequestExceptionHandler exceptionHandler,
             GetReportShowControlsPropertyCase getReportShowControlsPropertyCase,
             GetReportMultiPagePropertyCase getReportMultiPagePropertyCase,
@@ -61,6 +70,7 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
             FlushInputControlsCase flushInputControlsCase
     ) {
         mReportUri = reportUri;
+        this.mPostExecutionThread = mPostExecutionThread;
         mExceptionHandler = exceptionHandler;
         mGetReportShowControlsPropertyCase = getReportShowControlsPropertyCase;
         mGetReportMultiPagePropertyCase = getReportMultiPagePropertyCase;
@@ -149,10 +159,37 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
 
     @Override
     public void resume() {
+        mCompositeSubscription = new CompositeSubscription();
+        subscribeToVisualizeEvents();
     }
 
     @Override
     public void pause() {
+        mCompositeSubscription.unsubscribe();
+    }
+
+    private void subscribeToVisualizeEvents() {
+        VisualizeViewModel visualize = getView().getVisualize();
+        listenForAuthErrorEvent(visualize);
+    }
+
+    private void listenForAuthErrorEvent(VisualizeViewModel visualize) {
+        subscribeToEvent(
+                visualize.visualizeEvents()
+                        .authErrorEvent()
+                        .observeOn(mPostExecutionThread.getScheduler())
+                        .subscribe(new ErrorSubscriber<>(new SimpleSubscriber<ErrorEvent>() {
+                            @Override
+                            public void onNext(ErrorEvent item) {
+                                getView().hideLoading();
+                                reloadByPosition(getView().getState().getRequestedPage());
+                            }
+                        }))
+        );
+    }
+
+    private void subscribeToEvent(Subscription subscription) {
+        mCompositeSubscription.add(subscription);
     }
 
     @Override
@@ -177,6 +214,7 @@ public class ReportViewPresenter extends Presenter<RestReportContract.View> impl
     @Override
     public void runReport() {
         showLoading();
+        getView().getState().setRequestedPage("1");
         mRunReportCase.execute(mReportUri, new ErrorSubscriber<>(new SimpleSubscriber<ReportPage>() {
             @Override
             public void onNext(ReportPage page) {

@@ -53,6 +53,8 @@ import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ReportRestViewerComponent;
 import com.jaspersoft.android.jaspermobile.presentation.contract.RestReportContract;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
+import com.jaspersoft.android.jaspermobile.presentation.model.visualize.WebViewConfiguration;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.presenter.ReportViewPresenter;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
@@ -62,6 +64,7 @@ import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
 import com.jaspersoft.android.jaspermobile.webview.JasperChromeClientListener;
 import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
+import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.widget.AbstractPaginationView;
 import com.jaspersoft.android.jaspermobile.widget.JSWebView;
@@ -69,7 +72,6 @@ import com.jaspersoft.android.jaspermobile.widget.PaginationBarView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
 
-import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.InstanceState;
@@ -157,6 +159,7 @@ public class ReportViewFragment extends BaseFragment
 
     protected boolean filtersMenuItemVisibilityFlag, saveMenuItemVisibilityFlag;
     private Subscription onPageChangeSubscription;
+    protected VisualizeViewModel visualizeViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -184,6 +187,7 @@ public class ReportViewFragment extends BaseFragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         injectComponents();
+        setupWebView();
         setupPaginationControl();
         runReport();
     }
@@ -274,11 +278,11 @@ public class ReportViewFragment extends BaseFragment
         }
     }
 
-    @AfterViews
-    final void init() {
+    private void setupWebView() {
         progressBar.setVisibility(View.VISIBLE);
 
-        SystemChromeClient systemChromeClient = new SystemChromeClient.Builder(getActivity())
+        SystemWebViewClient webViewClient = new SystemWebViewClient.Builder().build();
+        SystemChromeClient chromeClient = new SystemChromeClient.Builder(getActivity())
                 .withDelegateListener(new JasperChromeClientListener() {
                     @Override
                     public void onProgressChanged(WebView webView, int progress) {
@@ -299,7 +303,13 @@ public class ReportViewFragment extends BaseFragment
                 .build();
         WebViewEnvironment.configure(webView)
                 .withDefaultSettings()
-                .withChromeClient(systemChromeClient);
+                .withChromeClient(chromeClient)
+                .withWebClient(webViewClient);
+
+        WebViewConfiguration configuration = new WebViewConfiguration(webView, mServer.getBaseUrl());
+        configuration.setSystemChromeClient(chromeClient);
+        configuration.setSystemWebViewClient(webViewClient);
+        visualizeViewModel = VisualizeViewModel.newModel(configuration);
     }
 
     @Override
@@ -402,6 +412,7 @@ public class ReportViewFragment extends BaseFragment
     public void showPageLoader(boolean visibility) {
         progressBar.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
+
     @Override
     public ReportPageState getState() {
         return mReportPageState;
@@ -410,6 +421,11 @@ public class ReportViewFragment extends BaseFragment
     @Override
     public void showWebView(boolean visibility) {
         webView.setVisibility(visibility ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public VisualizeViewModel getVisualize() {
+        return visualizeViewModel;
     }
 
     @OptionsItem

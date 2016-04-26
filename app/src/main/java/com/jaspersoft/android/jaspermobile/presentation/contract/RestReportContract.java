@@ -1,8 +1,11 @@
 package com.jaspersoft.android.jaspermobile.presentation.contract;
 
+import com.jaspersoft.android.jaspermobile.domain.ScreenCapture;
 import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeViewModel;
 import com.jaspersoft.android.jaspermobile.presentation.page.ReportPageState;
 import com.jaspersoft.android.jaspermobile.presentation.view.LoadDataView;
+
+import java.io.File;
 
 /**
  * @author Tom Koptel
@@ -36,6 +39,8 @@ public interface RestReportContract {
 
         void showReloadMessage();
 
+        void showProgress();
+
         void showPageLoader(boolean visibility);
 
         ReportPageState getState();
@@ -43,6 +48,8 @@ public interface RestReportContract {
         void showWebView(boolean visibility);
 
         VisualizeViewModel getVisualize();
+
+        void navigateToAnnotationPage(File file);
     }
 
     interface Action {
@@ -53,5 +60,7 @@ public interface RestReportContract {
         void updateReport();
 
         void refresh();
+
+        void shareReport(ScreenCapture screenCapture);
     }
 }

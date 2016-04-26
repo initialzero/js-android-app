@@ -27,8 +27,10 @@ package com.jaspersoft.android.jaspermobile.presentation.view.fragment;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -45,11 +47,13 @@ import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControl
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.schedule.NewScheduleActivity_;
+import com.jaspersoft.android.jaspermobile.activities.share.AnnotationActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
+import com.jaspersoft.android.jaspermobile.domain.ScreenCapture;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ReportRestViewerComponent;
 import com.jaspersoft.android.jaspermobile.presentation.contract.RestReportContract;
@@ -81,6 +85,7 @@ import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -409,6 +414,19 @@ public class ReportViewFragment extends BaseFragment
     }
 
     @Override
+    public void showProgress() {
+        ProgressDialogFragment.builder(getFragmentManager())
+                .setLoadingMessage(R.string.loading_msg)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        getActivity().finish();
+                    }
+                })
+                .show();
+    }
+
+    @Override
     public void showPageLoader(boolean visibility) {
         progressBar.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
@@ -426,6 +444,14 @@ public class ReportViewFragment extends BaseFragment
     @Override
     public VisualizeViewModel getVisualize() {
         return visualizeViewModel;
+    }
+
+    @Override
+    public void navigateToAnnotationPage(File file) {
+        Intent intent = AnnotationActivity_.intent(getContext())
+                .imageUri(Uri.fromFile(file))
+                .get();
+        startActivity(intent);
     }
 
     @OptionsItem
@@ -501,6 +527,12 @@ public class ReportViewFragment extends BaseFragment
     @OptionsItem
     final void refreshAction() {
         mActionListener.refresh();
+    }
+
+    @OptionsItem
+    final void shareAction() {
+        ScreenCapture reportScreenCapture = ScreenCapture.Factory.capture(webView);
+        mActionListener.shareReport(reportScreenCapture);
     }
 
     @Override

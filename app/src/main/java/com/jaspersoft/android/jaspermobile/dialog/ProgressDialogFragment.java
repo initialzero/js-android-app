@@ -29,6 +29,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -52,7 +53,6 @@ public class ProgressDialogFragment extends DialogFragment {
     private static final String TAG = ProgressDialogFragment.class.getSimpleName();
     private DialogInterface.OnCancelListener onCancelListener;
     private DialogInterface.OnShowListener onShowListener;
-    private static boolean isPreparing = false;
 
     @FragmentArg
     int loadingMessage;
@@ -82,14 +82,9 @@ public class ProgressDialogFragment extends DialogFragment {
         dialog.setOnShowListener(new OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                if (!isPreparing) {
-                    dialog.dismiss();
-                    return;
-                }
                 if (onShowListener != null) {
                     onShowListener.onShow(dialog);
                 }
-                isPreparing = false;
             }
         });
         return dialog;
@@ -107,8 +102,6 @@ public class ProgressDialogFragment extends DialogFragment {
         ProgressDialogFragment dialogFragment = getInstance(fm);
         if (dialogFragment != null) {
             dialogFragment.dismiss();
-        } else if (isPreparing) {
-            isPreparing = false;
         }
     }
 
@@ -151,6 +144,10 @@ public class ProgressDialogFragment extends DialogFragment {
             return this;
         }
 
+        public CycleManager buildManager() {
+            return new CycleManager(this);
+        }
+
         public void show() {
             ProgressDialogFragment dialogFragment = getInstance(fm);
 
@@ -159,8 +156,6 @@ public class ProgressDialogFragment extends DialogFragment {
                 dialogFragment.setOnCancelListener(onCancelListener);
                 dialogFragment.setOnShowListener(onShowListener);
                 dialogFragment.show(fm, TAG);
-
-                isPreparing = true;
             }
         }
 
@@ -169,8 +164,54 @@ public class ProgressDialogFragment extends DialogFragment {
             dialogFragment.setOnCancelListener(onCancelListener);
             dialogFragment.setOnShowListener(onShowListener);
             dialogFragment.show(fm, TAG);
+        }
+    }
 
-            isPreparing = true;
+
+    public static class CycleManager {
+        private boolean paused;
+        private boolean showed;
+
+        private final ProgressDialogFragment.Builder progressBuilder;
+
+        private CycleManager(ProgressDialogFragment.Builder progressBuilder) {
+            this.progressBuilder = progressBuilder;
+        }
+
+        public void show() {
+            showed = true;
+            if (!paused) {
+                progressBuilder.show();
+            }
+        }
+
+        public void hide(FragmentActivity activity) {
+            showed = false;
+            if (!paused) {
+                ProgressDialogFragment.dismiss(activity.getSupportFragmentManager());
+            }
+        }
+
+        public void resume(FragmentActivity activity) {
+            paused = false;
+            trigger(activity);
+        }
+
+        public void pause(FragmentActivity activity) {
+            paused = true;
+            trigger(activity);
+        }
+
+        private void trigger(FragmentActivity activity) {
+            if (showed) {
+                showDialog();
+            } else {
+                ProgressDialogFragment.dismiss(activity.getSupportFragmentManager());
+            }
+        }
+
+        private void showDialog() {
+            progressBuilder.show();
         }
     }
 }

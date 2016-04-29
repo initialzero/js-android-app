@@ -41,7 +41,7 @@ import com.jaspersoft.android.jaspermobile.domain.ScreenCapture;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SaveScreenCaptureCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.ui.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.widget.AnnotationControlView;
 import com.jaspersoft.android.jaspermobile.widget.AnnotationView;
 import com.jaspersoft.android.jaspermobile.widget.DraggableViewsContainer;

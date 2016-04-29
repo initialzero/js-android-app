@@ -26,11 +26,10 @@ package com.jaspersoft.android.jaspermobile.internal.di.modules.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.FragmentActivity;
 
 import com.jaspersoft.android.jaspermobile.internal.di.ActivityContext;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.internal.di.PerFragment;
 
 import dagger.Module;
 import dagger.Provides;
@@ -40,21 +39,31 @@ import dagger.Provides;
  */
 @Module
 public class FragmentModule {
-    private final Fragment fragment;
+    protected final Fragment mFragment;
 
     public FragmentModule(Fragment fragment) {
-        this.fragment = fragment;
+        this.mFragment = fragment;
+    }
+
+    /**
+     * Expose the activity to dependents in the graph.
+     */
+    @Provides
+    @PerActivity
+    public Activity activity() {
+        return mFragment.getActivity();
     }
 
     @Provides
-    @PerFragment
-    Context providesContext() {
-        return fragment.getActivity();
+    @PerActivity
+    @ActivityContext
+    public Context context() {
+        return mFragment.getContext();
     }
 
     @Provides
-    @PerFragment
-    LoaderManager providesFragmentLoaderManager() {
-        return fragment.getLoaderManager();
+    @PerActivity
+    public Fragment fragment() {
+        return mFragment;
     }
 }

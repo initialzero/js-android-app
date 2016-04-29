@@ -1,10 +1,10 @@
 package com.jaspersoft.android.jaspermobile.internal.di.modules.activity;
 
-import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
-import com.jaspersoft.android.jaspermobile.presentation.contract.StartupContract;
-import com.jaspersoft.android.jaspermobile.presentation.presenter.StartupPresenter;
+import com.jaspersoft.android.jaspermobile.ui.contract.StartupContract;
+import com.jaspersoft.android.jaspermobile.ui.presenter.StartupPresenter;
 
 import dagger.Module;
 import dagger.Provides;
@@ -15,7 +15,7 @@ import dagger.Provides;
  */
 @Module
 public final class StartupActivityModule extends ActivityModule {
-    public StartupActivityModule(Activity activity) {
+    public StartupActivityModule(FragmentActivity activity) {
         super(activity);
     }
 

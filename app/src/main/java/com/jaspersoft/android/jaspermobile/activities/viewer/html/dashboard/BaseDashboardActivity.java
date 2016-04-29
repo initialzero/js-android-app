@@ -55,7 +55,7 @@ import com.jaspersoft.android.jaspermobile.internal.di.components.DashboardActiv
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.DashboardModule;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.ui.view.activity.ToolbarActivity;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;

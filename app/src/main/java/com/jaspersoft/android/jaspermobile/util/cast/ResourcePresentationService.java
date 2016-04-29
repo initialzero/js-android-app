@@ -68,16 +68,21 @@ import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
+import com.jaspersoft.android.jaspermobile.webview.intercept.VisualizeResourcesInterceptRule;
+import com.jaspersoft.android.jaspermobile.webview.intercept.WebResourceInterceptor;
+import com.jaspersoft.android.jaspermobile.webview.intercept.okhttp.OkHttpWebResourceInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
 import com.jaspersoft.android.jaspermobile.widget.ScrollComputableWebView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.squareup.okhttp.OkHttpClient;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import timber.log.Timber;
 
@@ -102,6 +107,9 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     protected GetVisualizeExecOptionsCase mGetVisualizeExecOptionsCase;
     @Inject
     protected JasperServer mServer;
+    @Inject
+    @Named("webview_client")
+    protected OkHttpClient webViewResourceClient;
 
     private ReportPresentation mPresentation;
     private String mCastDeviceName;
@@ -555,8 +563,16 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             JasperWebViewClientListener errorListener = new ErrorWebViewClientListener(getContext(), this);
             JasperWebViewClientListener clientListener = TimeoutWebViewClientListener.wrap(errorListener);
 
+            WebResourceInterceptor.Rule reportResourcesRule = VisualizeResourcesInterceptRule.getInstance();
+            WebResourceInterceptor cacheResourceInterceptor = new OkHttpWebResourceInterceptor.Builder()
+                    .withClient(webViewResourceClient)
+                    .registerRule(reportResourcesRule)
+                    .build();
+            WebResourceInterceptor injectionRequestInterceptor = InjectionRequestInterceptor.getInstance();
+
             SystemWebViewClient systemWebViewClient = new SystemWebViewClient.Builder()
-                    .registerInterceptor(new InjectionRequestInterceptor())
+                    .registerInterceptor(injectionRequestInterceptor)
+                    .registerInterceptor(cacheResourceInterceptor)
                     .withDelegateListener(clientListener)
                     .registerUrlPolicy(defaultPolicy)
                     .build();

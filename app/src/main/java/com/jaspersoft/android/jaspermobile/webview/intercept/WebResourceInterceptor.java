@@ -22,16 +22,21 @@
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
-package com.jaspersoft.android.jaspermobile.webview;
+package com.jaspersoft.android.jaspermobile.webview.intercept;
 
-import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
+
+import com.jaspersoft.android.jaspermobile.webview.WebRequest;
+import com.jaspersoft.android.jaspermobile.webview.WebResponse;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public interface JasperRequestInterceptor {
-    WebResourceResponse interceptRequest(WebView view, WebResourceResponse response, String url);
-    boolean canIntercept(String url);
+public interface WebResourceInterceptor {
+    WebResponse interceptRequest(WebView view, WebRequest request);
+
+    interface Rule {
+        boolean shouldIntercept(WebRequest request);
+    }
 }

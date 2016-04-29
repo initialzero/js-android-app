@@ -29,6 +29,19 @@ package com.jaspersoft.android.jaspermobile.webview;
  * @since 2.0
  */
 public interface JasperWebViewClientListener {
+    JasperWebViewClientListener NULL = new JasperWebViewClientListener() {
+        @Override
+        public void onPageStarted(String newUrl) {
+        }
+
+        @Override
+        public void onReceivedError(int errorCode, String description, String failingUrl) {
+        }
+
+        @Override
+        public void onPageFinishedLoading(String url) {
+        }
+    };
     void onPageStarted(String newUrl);
     void onReceivedError(int errorCode, String description, String failingUrl);
     void onPageFinishedLoading(String url);

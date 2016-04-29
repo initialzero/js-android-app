@@ -23,10 +23,14 @@ import com.jaspersoft.android.jaspermobile.network.cookie.CookieHandlerFactory;
 import com.jaspersoft.android.jaspermobile.ui.component.ProfileActivationListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
 import com.jaspersoft.android.sdk.network.Server;
+import com.squareup.okhttp.Cache;
+import com.squareup.okhttp.OkHttpClient;
 
+import java.io.File;
 import java.net.CookieHandler;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -116,5 +120,26 @@ public final class AppModule {
     @Provides
     ComponentManager.Callback providesComponentCallback(ProfileActivationListener activationListener) {
         return activationListener;
+    }
+
+    @Singleton
+    @Named("webview_client")
+    @Provides
+    OkHttpClient provideWebViewClient(@ApplicationContext Context context) {
+        OkHttpClient client = new OkHttpClient();
+
+        File cacheDir = context.getApplicationContext().getCacheDir();
+        File okCache = new File(cacheDir, "ok-cache");
+        if (!okCache.exists()) {
+            boolean cachedCreated = okCache.mkdirs();
+
+            if (cachedCreated) {
+                int cacheSize = 50 * 1024 * 1024;
+                Cache cache = new Cache(okCache, cacheSize);
+                client.setCache(cache);
+            }
+        }
+
+        return client;
     }
 }

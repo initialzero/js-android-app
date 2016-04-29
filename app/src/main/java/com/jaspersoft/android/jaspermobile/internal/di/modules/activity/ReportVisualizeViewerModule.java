@@ -15,6 +15,10 @@ import com.jaspersoft.android.jaspermobile.webview.SystemChromeClient;
 import com.jaspersoft.android.jaspermobile.webview.SystemWebViewClient;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
+import com.jaspersoft.android.jaspermobile.webview.intercept.VisualizeResourcesInterceptRule;
+import com.jaspersoft.android.jaspermobile.webview.intercept.WebResourceInterceptor;
+import com.jaspersoft.android.jaspermobile.webview.intercept.okhttp.OkHttpWebResourceInterceptor;
+import com.squareup.okhttp.OkHttpClient;
 
 import javax.inject.Named;
 
@@ -57,12 +61,20 @@ public final class ReportVisualizeViewerModule extends ReportModule {
 
     @Provides
     @PerActivity
-    VisualizeViewModel provideVisualizeViewModel(JasperServer server) {
+    VisualizeViewModel provideVisualizeViewModel(JasperServer server, @Named("webview_client") OkHttpClient client) {
         SystemChromeClient defaultChromeClient = new SystemChromeClient.Builder(mWebView.getContext())
                 .build();
 
+        WebResourceInterceptor.Rule reportResourcesRule = VisualizeResourcesInterceptRule.getInstance();
+        WebResourceInterceptor cacheResourceInterceptor = new OkHttpWebResourceInterceptor.Builder()
+                .withClient(client)
+                .registerRule(reportResourcesRule)
+                .build();
+        WebResourceInterceptor injectionRequestInterceptor = InjectionRequestInterceptor.getInstance();
+
         SystemWebViewClient defaultWebViewClient = new SystemWebViewClient.Builder()
-                .registerInterceptor(new InjectionRequestInterceptor())
+                .registerInterceptor(injectionRequestInterceptor)
+                .registerInterceptor(cacheResourceInterceptor)
                 .build();
 
         WebViewEnvironment.configure(mWebView)

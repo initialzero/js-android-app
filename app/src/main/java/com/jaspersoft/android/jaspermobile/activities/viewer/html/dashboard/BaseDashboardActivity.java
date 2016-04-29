@@ -24,11 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,12 +65,15 @@ import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.script.ScriptTagFactory;
+import com.jaspersoft.android.jaspermobile.webview.intercept.VisualizeResourcesInterceptRule;
+import com.jaspersoft.android.jaspermobile.webview.intercept.WebResourceInterceptor;
+import com.jaspersoft.android.jaspermobile.webview.intercept.okhttp.OkHttpWebResourceInterceptor;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.squareup.okhttp.OkHttpClient;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
@@ -81,6 +81,7 @@ import org.androidannotations.annotations.OptionsMenuItem;
 import java.io.File;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import timber.log.Timber;
 
@@ -124,6 +125,9 @@ public abstract class BaseDashboardActivity extends ToolbarActivity
     AuthorizeSessionUseCase mAuthorizeSessionUseCase;
     @Inject
     SaveScreenCaptureCase mSaveScreenCaptureCase;
+    @Inject
+    @Named("webview_client")
+    OkHttpClient webViewResourceClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -308,9 +312,18 @@ public abstract class BaseDashboardActivity extends ToolbarActivity
         SystemChromeClient systemChromeClient = new SystemChromeClient.Builder(this)
                 .withDelegateListener(chromeClientListener)
                 .build();
+
+        WebResourceInterceptor.Rule reportResourcesRule = VisualizeResourcesInterceptRule.getInstance();
+        WebResourceInterceptor cacheResourceInterceptor = new OkHttpWebResourceInterceptor.Builder()
+                .withClient(webViewResourceClient)
+                .registerRule(reportResourcesRule)
+                .build();
+        WebResourceInterceptor injectionRequestInterceptor = InjectionRequestInterceptor.getInstance();
+
         SystemWebViewClient systemWebViewClient = new SystemWebViewClient.Builder()
                 .withDelegateListener(this)
-                .registerInterceptor(new InjectionRequestInterceptor())
+                .registerInterceptor(injectionRequestInterceptor)
+                .registerInterceptor(cacheResourceInterceptor)
                 .registerUrlPolicy(defaultPolicy)
                 .build();
 

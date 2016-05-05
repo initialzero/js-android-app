@@ -30,31 +30,23 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.text.method.KeyListener;
-import android.util.TypedValue;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.SystemService;
-import org.androidannotations.annotations.TextChange;
 
 /**
  * @author Andrew Tivodar
  * @since 2.2
  */
-@EFragment
 public class ValueInputDialogFragment extends BaseDialogFragment implements DialogInterface.OnShowListener {
 
     private final static String LABEL_ARG = "label";
@@ -68,9 +60,6 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
     private boolean mRequired;
     AlertDialog mValueDialog;
 
-    @SystemService
-    protected InputMethodManager inputMethodManager;
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -79,8 +68,8 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
 
         icValue = (EditText) customLayout.findViewById(R.id.icValue);
 
-        icValue.setText(mValue);
-        icValue.setSelection(mValue.length());
+        icValue.setText("");
+        icValue.append(mValue);
         icValue.addTextChangedListener(new SimpleTextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -97,14 +86,13 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
         builder.setNegativeButton(R.string.cancel, null);
 
         mValueDialog = builder.create();
+        mValueDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         mValueDialog.setOnShowListener(this);
         return mValueDialog;
     }
 
     @Override
     public void onShow(DialogInterface dialog) {
-        inputMethodManager.showSoftInput(icValue, 0);
-
         final Button positiveBnt = mValueDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         positiveBnt.setOnClickListener(new View.OnClickListener() {
 
@@ -178,7 +166,7 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
 
         @Override
         protected ValueInputDialogFragment build() {
-            return new ValueInputDialogFragment_();
+            return new ValueInputDialogFragment();
         }
     }
 

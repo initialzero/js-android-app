@@ -31,10 +31,12 @@
     <string name="resource_cast_cancel_intent" translatable="false">com.jaspersoft.android.jaspermobile.RESOURCE_CAST_CANCEL</string>
     <string name="resource_presentation_stop_intent" translatable="false">com.jaspersoft.android.jaspermobile.RESOURCE_PRESENTATION_STOP</string>
 
-    <!-- Filter Saved Items Dialog -->
+    <!-- Untranslatable values -->
     <string name="si_fd_option_html" translatable="false">HTML</string>
     <string name="si_fd_option_pdf" translatable="false">PDF</string>
     <string name="si_fd_option_xls" translatable="false">XLS</string>
+    <string name="empty_text_place_holder" translatable="false">---</string>
+    <string name="file_format_xls" translatable="false">Excel</string>
 
     <!-- Screen names for analytic -->
     <string name="ja_ics" translatable="false">Input controls screen</string>
@@ -55,6 +57,8 @@
     <string name="ja_rc_s" translatable="false">Report cast screen</string>
     <string name="ja_new_sch" translatable="false">New schedule screen</string>
     <string name="ja_edit_sch" translatable="false">Edit schedule screen</string>
+    <string name="ja_info_sch" translatable="false">Schedule info screen</string>
+    <string name="ja_annotation" translatable="false">Annotation screen</string>
     <string name="ja_choose_sch" translatable="false">Choose report screen</string>
 
     <!--Constants-->

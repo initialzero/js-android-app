@@ -409,7 +409,7 @@
     <string name="error_export_failed">No se pudo exportar el informe</string>
     <string name="error_export_cancelled">Exportación del informe cancelada</string>
     <string name="error_schedule_duplicate_file_name">Nombre del archivo de salida duplicado</string>
-    <string name="error_schedule_in_the_past">La fecha de inicio está en el pasado. Debe estar en el futuro.</string>
+    <string name="error_schedule_start_date_in_the_past">La fecha de inicio está en el pasado. Debe estar en el futuro.</string>
     <string name="error_schedule_special_characters">El nombre base de salida contiene caracteres inválidos.</string>
     <string name="error_schedule_folder_not_exist">No se encontró la carpeta de salida del trabajo.</string>
     <string name="error_schedule_folder_not_writable">No tiene permisos para guardar la salida del trabajo en la carpeta.</string>
@@ -466,5 +466,73 @@
 
     <!-- Permissions -->
     <string name="enable_write_permission">No puede guardar. Permiso denegado</string>
+
+    <!-- Context Menu -->
+    <string name="r_cm_share">Compartir</string>
+    <string name="r_cm_info">Información</string>
+    <string name="r_cm_cancel_saving">Cancelar guardar</string>
+    <string name="r_cm_enable">Habilitar</string>
+    <string name="r_cm_disable">Deshabilitar</string>
+    <string name="r_cm_edit">Editar</string>
+    <string name="r_cm_delete">Eliminar</string>
+
+    <!-- Schedule -->
+    <string name="sch_end_date">Programar fecha de finalización</string>
+    <string name="sch_next_run_label">Siguiente ejecución: %1$s</string>
+    <string name="sch_choose_report">Elija el informe a programar...</string>
+    <string name="sch_resource_label">Etiqueta del informe</string>
+    <string name="sch_resource_uri">URL del informe</string>
+    <string name="sch_label">Nombre</string>
+    <string name="sch_description">Descripción</string>
+    <string name="sch_id">Id.</string>
+    <string name="sch_owner">Propietario</string>
+    <string name="sch_state">Estado</string>
+    <string name="sch_lass_run">Última ejecución</string>
+    <string name="sch_next_run">Siguiente ejecución</string>
+
+    <!-- Toasts -->
+    <string name="annotation_title">Toque para anotar...</string>
+    <string name="annotation_pick_color">Seleccione el color...</string>
+    <string name="annotation_pick_line_size">Seleccione el tamaño de línea...</string>
+    <string name="annotation_pick_font_size">Seleccione el tamaño de fuente...</string>
+    <string name="annotation_enable_border">Añadir borde al texto</string>
+    <string name="annotation_add_note">Añadir nota</string>
+    <string name="annotation_edit_note">Editar nota</string>
+    <string name="annotation_hint">Escriba el valor</string>
+    <string name="annotation_done">Hecho</string>
+    <string name="annotation_reset">Reiniciar</string>
+    <string name="share_chooser_title">Compartir por</string>
+    <string name="share_message">Compartido de TIBCO JasperMobile</string>
+
+    <!-- Save Report Activity -->
+    <string name="sr_recurrence_type">Periodicidad</string>
+    <string name="sr_recurrence_none">Ninguna</string>
+    <string name="sr_recurrence_simple">Simple</string>
+    <string name="sr_recurrence_simple_unit_minute">Minutos</string>
+    <string name="sr_recurrence_simple_unit_hour">Horas</string>
+    <string name="sr_recurrence_simple_unit_day">Días</string>
+    <string name="sr_recurrence_simple_unit_week">Semanas</string>
+    <string name="sr_recurrence_calendar">Calendario</string>
+    <string name="sr_repeat_every">Repetir cada (obligatorio)</string>
+    <string name="sr_schedule_end">Final de la programación</string>
+    <string name="sr_run_number_of_times">Ejecutar un número definido de veces</string>
+    <string name="sr_number_of_runs">Número de ejecuciones</string>
+    <string name="sr_run_until">Ejecutar hasta la fecha especificada</string>
+    <string name="sr_run_indefinitely">Ejecutar indefinidamente</string>
+    <string name="sr_months">Meses</string>
+    <string name="sr_hours">Horas (obligatorio):</string>
+    <string name="sr_minutes">Minutos (obligatorio):</string>
+    <string name="sr_days">Días</string>
+    <string name="sr_select_days">Seleccione los días:</string>
+    <string name="sr_selected_days">Días seleccionados:</string>
+    <string name="sr_dates_in_month">Fechas del mes:</string>
+
+    <!-- Error messages -->
+    <string name="error_schedule_end_date_in_the_past">La fecha final está en el pasado. Debe estar en el futuro.</string>
+    <string name="error_trigger_empty_months">Debe haber por lo menos un mes seleccionado.</string>
+    <string name="error_trigger_empty_days">Debe haber por lo menos un día seleccionado.</string>
+
+    <!-- Casting -->
+    <string name="cast_zoom_message">Haga clic en acercar o alejar zoom para cambiar la escala del informe.</string>
 
 </resources>

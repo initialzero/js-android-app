@@ -28,6 +28,7 @@ import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.DragEvent;
@@ -36,8 +37,12 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.AnnotationInputDialog;
+import com.jaspersoft.android.jaspermobile.ui.view.fragment.ComponentProviderDelegate;
+
+import javax.inject.Inject;
 
 /**
  * @author Andrew Tivodar
@@ -51,6 +56,9 @@ public class DraggableViewsContainer extends RelativeLayout implements View.OnTo
     private int mColor;
     private int mSize;
     private boolean mNeedsBorder;
+
+    @Inject
+    protected Analytics analytics;
 
     public DraggableViewsContainer(Context context) {
         super(context);
@@ -132,6 +140,10 @@ public class DraggableViewsContainer extends RelativeLayout implements View.OnTo
         setOnDragListener(this);
         mColor = DEFAULT_COLOR;
         mSize = DEFAULT_SIZE;
+
+        ComponentProviderDelegate.INSTANCE
+                .getBaseActivityComponent((FragmentActivity) getContext())
+                .inject(this);
     }
 
     private int addDraggableNote(float x, float y) {
@@ -177,6 +189,7 @@ public class DraggableViewsContainer extends RelativeLayout implements View.OnTo
                     int borderPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, BORDER_PADDING, getContext().getResources().getDisplayMetrics());
                     note.setPadding(borderPadding, borderPadding, borderPadding, borderPadding);
                 }
+                analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.ANNOTATED.getValue(),  Analytics.EventLabel.WITH_TEXT.getValue());
             }
 
             @Override

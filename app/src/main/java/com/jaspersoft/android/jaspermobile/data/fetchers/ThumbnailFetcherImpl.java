@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.data.fetchers;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.data.ThumbNailGenerator;
 import com.jaspersoft.android.jaspermobile.data.utils.ResourceThumbnailPreProcessor;
 import com.jaspersoft.android.jaspermobile.domain.entity.ResourceIcon;
@@ -48,10 +49,12 @@ import javax.inject.Inject;
 public class ThumbnailFetcherImpl implements ThumbnailFetcher {
 
     private final ThumbNailGenerator mThumbNailGenerator;
+    private final Analytics mAnalytics;
 
     @Inject
-    public ThumbnailFetcherImpl(ThumbNailGenerator thumbNailGenerator) {
+    public ThumbnailFetcherImpl(ThumbNailGenerator thumbNailGenerator, Analytics analytics) {
         mThumbNailGenerator = thumbNailGenerator;
+        mAnalytics = analytics;
     }
 
     @Override
@@ -59,6 +62,8 @@ public class ThumbnailFetcherImpl implements ThumbnailFetcher {
         String thumbnailUri = mThumbNailGenerator.generate(resourceUri);
         Bitmap thumbnail = ImageLoader.getInstance().loadImageSync(thumbnailUri, getDisplayImageOptions());
         if (thumbnail == null) return null;
+
+        mAnalytics.setThumbnailsExist();
         return new ResourceIcon(thumbnail);
     }
 

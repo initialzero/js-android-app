@@ -28,11 +28,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.domain.entity.JobResource;
-import com.jaspersoft.android.jaspermobile.ui.view.viewholder.JobResourceViewHolder;
 
-import org.androidannotations.annotations.EView;
 import org.androidannotations.annotations.EViewGroup;
 
 /**
@@ -64,5 +62,11 @@ public class JobCatalogView extends CatalogView {
     public void showEmpty() {
         message.setVisibility(View.VISIBLE);
         message.setText(getContext().getString(R.string.sch_not_found));
+    }
+
+    @Override
+    public void onRefresh() {
+        super.onRefresh();
+        mAnalytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.JOBS.getValue());
     }
 }

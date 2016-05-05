@@ -350,7 +350,7 @@
     <string name="sch_deleted">Programme supprimé</string>
     <string name="sch_jobs">Programmes</string>
     <string name="sch_not_found">Aucune tâche n\'est prévue.</string>
-    <string name="sch_format_paginated">%1$s(Paginé)</string>
+    <string name="sch_format_paginated">%1$s (Paginé)</string>
     <string name="sch_state_normal">Normal</string>
     <string name="sch_state_complete">Terminé</string>
     <string name="sch_state_executing">En cours d\'exécution</string>
@@ -388,7 +388,7 @@
     <string name="error_export_failed">Échec de l\'exportation du rapport</string>
     <string name="error_export_cancelled">Exportation du rapport annulé</string>
     <string name="error_schedule_duplicate_file_name">Dupliquer de nom du fichier de sortie</string>
-    <string name="error_schedule_in_the_past">La date de début est déjà passée. Elle doit être ultérieure.</string>
+    <string name="error_schedule_start_date_in_the_past">La date de début est déjà passée. Elle doit être ultérieure.</string>
     <string name="error_schedule_special_characters">Le nom de sortie de base contient des caractères non valides.</string>
     <string name="error_schedule_folder_not_exist">Le dossier de sortie des tâches est introuvable.</string>
     <string name="error_schedule_folder_not_writable">Vous n\'êtes pas autorisé à enregistrer la sortie de tâches dans le dossier.</string>
@@ -445,5 +445,73 @@
 
     <!-- Permissions -->
     <string name="enable_write_permission">Impossible d\'enregistrer. Permission refusée</string>
+
+    <!-- Context Menu -->
+    <string name="r_cm_share">Partager</string>
+    <string name="r_cm_info">Infos</string>
+    <string name="r_cm_cancel_saving">Annuler l\'enregistrement</string>
+    <string name="r_cm_enable">Activer</string>
+    <string name="r_cm_disable">Désactiver</string>
+    <string name="r_cm_edit">Modifier</string>
+    <string name="r_cm_delete">Supprimer</string>
+
+    <!-- Schedule -->
+    <string name="sch_end_date">Fixer une date de fin</string>
+    <string name="sch_next_run_label">Prochaine exécution : %1$s</string>
+    <string name="sch_choose_report">Choisir un rapport à prévoir...</string>
+    <string name="sch_resource_label">Étiquette du rapport</string>
+    <string name="sch_resource_uri">URI du rapport</string>
+    <string name="sch_label">Nom</string>
+    <string name="sch_description">Description</string>
+    <string name="sch_id">ID</string>
+    <string name="sch_owner">Propriétaire</string>
+    <string name="sch_state">État</string>
+    <string name="sch_lass_run">Dernière exécution</string>
+    <string name="sch_next_run">Prochaine exécution</string>
+
+    <!-- Toasts -->
+    <string name="annotation_title">Touchez pour annoter...</string>
+    <string name="annotation_pick_color">Choisir une couleur...</string>
+    <string name="annotation_pick_line_size">Choisir la taille des lignes...</string>
+    <string name="annotation_pick_font_size">Choisir la taille de la police...</string>
+    <string name="annotation_enable_border">Ajouter une bordure de texte</string>
+    <string name="annotation_add_note">Ajouter une note</string>
+    <string name="annotation_edit_note">Modifier la note</string>
+    <string name="annotation_hint">Entrer une valeur</string>
+    <string name="annotation_done">Terminé</string>
+    <string name="annotation_reset">Réinitialiser</string>
+    <string name="share_chooser_title">Partager via</string>
+    <string name="share_message">Partagé à partir de TIBCO JasperMobile</string>
+
+    <!-- Save Report Activity -->
+    <string name="sr_recurrence_type">Récurrence</string>
+    <string name="sr_recurrence_none">Aucun</string>
+    <string name="sr_recurrence_simple">Simple</string>
+    <string name="sr_recurrence_simple_unit_minute">Minutes</string>
+    <string name="sr_recurrence_simple_unit_hour">Heures</string>
+    <string name="sr_recurrence_simple_unit_day">Jours</string>
+    <string name="sr_recurrence_simple_unit_week">Semaines</string>
+    <string name="sr_recurrence_calendar">Calendrier</string>
+    <string name="sr_repeat_every">Répéter tous (obligatoire)</string>
+    <string name="sr_schedule_end">Prévoir une date de fin</string>
+    <string name="sr_run_number_of_times">Exécuter un certain nombre de fois</string>
+    <string name="sr_number_of_runs">Nombre d\'exécutions</string>
+    <string name="sr_run_until">Exécuter jusqu\'à une date déterminée</string>
+    <string name="sr_run_indefinitely">Exécuter indéfiniment</string>
+    <string name="sr_months">Mois</string>
+    <string name="sr_hours">Heures (obligatoire) :</string>
+    <string name="sr_minutes">Minutes (obligatoire) :</string>
+    <string name="sr_days">Jours</string>
+    <string name="sr_select_days">Sélectionner les jours :</string>
+    <string name="sr_selected_days">Jours sélectionnés :</string>
+    <string name="sr_dates_in_month">Dates du mois :</string>
+
+    <!-- Error messages -->
+    <string name="error_schedule_end_date_in_the_past">La date de fin est déjà passée. Elle devrait être dans le futur.</string>
+    <string name="error_trigger_empty_months">Un mois devrait au moins être sélectionné.</string>
+    <string name="error_trigger_empty_days">Un jour devrait au moins être sélectionné.</string>
+
+    <!-- Casting -->
+    <string name="cast_zoom_message">Cliquez sur zoom avant ou sur zoom arrière pour changer la taille du rapport.</string>
 
 </resources>

@@ -5,8 +5,9 @@ import com.jaspersoft.android.jaspermobile.activities.save.SaveReportService;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
 import com.jaspersoft.android.jaspermobile.internal.di.components.screen.ChooseReportScreenComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.screen.JobInfoScreenComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.screen.JobsScreenComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.components.screen.ScheduleFormScreenComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.screen.JobFormScreenComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.DashboardModule;
@@ -14,7 +15,8 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.Navigati
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportRestViewerModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportVisualizeViewerModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.screen.ScheduleFormScreenModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.screen.job.JobInfoScreenModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.screen.job.JobFormScreenModule;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.FileResourceBinder;
 
@@ -47,9 +49,11 @@ public interface ProfileComponent {
 
     ChooseReportScreenComponent newChooseReportScreen();
 
+    JobInfoScreenComponent plus(JobInfoScreenModule module);
+
     JobsScreenComponent newJobsScreen();
 
-    ScheduleFormScreenComponent plus(ScheduleFormScreenModule module);
+    JobFormScreenComponent plus(JobFormScreenModule module);
 
     Profile getProfile();
     /**

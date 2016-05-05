@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.widget;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -37,8 +38,10 @@ import android.widget.TextView;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -65,6 +68,7 @@ public class DateTimeView extends LinearLayout {
     private int mRequestCode;
     private DateType mDateType;
     private DateTimeClickListener mDateTimeClickListener;
+    private final Watcher dateTextWatcher = new Watcher();
 
     public DateTimeView(Context context) {
         super(context);
@@ -123,22 +127,7 @@ public class DateTimeView extends LinearLayout {
             }
         });
 
-        selectedDateTime.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setClearButtonVisibility(!s.toString().equals(InputControlWrapper.NOTHING_SUBSTITUTE_LABEL));
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
+        selectedDateTime.addTextChangedListener(dateTextWatcher);
 
         updateViews();
     }
@@ -179,15 +168,32 @@ public class DateTimeView extends LinearLayout {
         label.setText(title);
     }
 
+    public void setPreview(String preview) {
+        selectedDateTime.setText(preview);
+    }
+
     public void setDate(Calendar date) {
         String dateText = null;
         if (date != null) {
             dateText = mUserDateFormat.format(date.getTime());
         }
-        selectedDateTime.setText(dateText != null ? dateText : InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
+        selectedDateTime.setText(dateText != null ? dateText : getContext().getString(R.string.empty_text_place_holder));
     }
 
-    public void setClearButtonVisibility(boolean visible) {
+    @NonNull
+    public Calendar getDate() {
+        Calendar calendar = Calendar.getInstance();
+        String date = selectedDateTime.getText().toString();
+        try {
+            Date parsedDate = mUserDateFormat.parse(date);
+            calendar.setTime(parsedDate);
+        } catch (ParseException e) {
+            return calendar;
+        }
+        return calendar;
+    }
+
+    private void setClearButtonVisibility(boolean visible) {
         btnClear.setVisibility(visible && mClearVisible ? View.VISIBLE : View.GONE);
         clearDivider.setVisibility(visible && mClearVisible ? View.VISIBLE : View.GONE);
     }
@@ -229,5 +235,28 @@ public class DateTimeView extends LinearLayout {
         void onTimeClick(int position);
 
         void onClear(int position);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        selectedDateTime.removeTextChangedListener(dateTextWatcher);
+    }
+
+    private class Watcher implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (mClearVisible) {
+                setClearButtonVisibility(!s.toString().equals(InputControlWrapper.NOTHING_SUBSTITUTE_LABEL));
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
     }
 }

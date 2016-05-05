@@ -39,7 +39,8 @@ import java.util.List;
 public class JasperAnalytics implements Analytics {
 
     private static final String SERVER_VERSION_PERMANENT_KEY = "&cd1";
-    private static final String SERVER_EDITION__PERMANENT_KEY = "&cd2";
+    private static final String SERVER_EDITION_PERMANENT_KEY = "&cd2";
+    private static final String THUMBNAILS_PERMANENT_KEY = "&cd5";
 
     private Tracker mTracker;
 
@@ -89,11 +90,18 @@ public class JasperAnalytics implements Analytics {
                 .setCategory(EventCategory.ACCOUNT.getValue())
                 .setAction(EventAction.CHANGED.getValue())
                 .build());
+
+        mTracker.set(THUMBNAILS_PERMANENT_KEY, null);
     }
 
     @Override
     public void setServerInfo(String serverVersion, String serverEdition) {
         mTracker.set(SERVER_VERSION_PERMANENT_KEY, serverVersion);
-        mTracker.set(SERVER_EDITION__PERMANENT_KEY, serverEdition);
+        mTracker.set(SERVER_EDITION_PERMANENT_KEY, serverEdition);
+    }
+
+    @Override
+    public void setThumbnailsExist() {
+        mTracker.set(THUMBNAILS_PERMANENT_KEY, "exist");
     }
 }

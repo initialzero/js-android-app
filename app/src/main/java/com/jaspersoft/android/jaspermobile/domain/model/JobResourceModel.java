@@ -24,19 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.domain.model;
 
-import com.jaspersoft.android.jaspermobile.domain.entity.JobResource;
-import com.jaspersoft.android.jaspermobile.domain.entity.ResourceIcon;
+import com.jaspersoft.android.jaspermobile.domain.entity.job.JobResource;
 
-import java.util.Date;
-
-import rx.Observable;
 import rx.Subscriber;
 
 /**
  * @author Andrew Tivodar
  * @since 2.3
  */
-public interface JobResourceModel extends ResourceModel {
+public interface JobResourceModel extends JasperResourceModel {
     boolean isInAction(int id);
     void subscribeOnDeletion(Subscriber<Integer> subscriber);
     void requestToDelete(int jobId);

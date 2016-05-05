@@ -27,6 +27,7 @@ package com.jaspersoft.android.jaspermobile.ui.presenter.fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -35,20 +36,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.internal.di.components.screen.JobsScreenComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.components.screen.activity.JobsActivityComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.screen.activity.ChooserReportActivityModule;
-import com.jaspersoft.android.jaspermobile.ui.component.fragment.PresenterControllerFragment;
-import com.jaspersoft.android.jaspermobile.ui.component.fragment.PresenterControllerFragment2;
-import com.jaspersoft.android.jaspermobile.ui.component.presenter.Presenter;
-import com.jaspersoft.android.jaspermobile.ui.view.activity.schedule.ChooseReportActivity;
 import com.jaspersoft.android.jaspermobile.dialog.DeleteJobDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.entity.JasperResource;
+import com.jaspersoft.android.jaspermobile.domain.entity.job.JobResource;
 import com.jaspersoft.android.jaspermobile.domain.model.JobResourceModel;
-import com.jaspersoft.android.jaspermobile.internal.di.components.JobsComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.screen.activity.JobsActivityModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.FragmentModule;
+import com.jaspersoft.android.jaspermobile.internal.di.components.screen.JobsScreenComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.screen.activity.JobsActivityComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.job.JobsActivityModule;
+import com.jaspersoft.android.jaspermobile.ui.component.fragment.PresenterControllerFragment2;
 import com.jaspersoft.android.jaspermobile.ui.eventbus.JobResourcesBus;
 import com.jaspersoft.android.jaspermobile.ui.navigation.Navigator;
 import com.jaspersoft.android.jaspermobile.ui.navigation.Page;
@@ -56,7 +53,7 @@ import com.jaspersoft.android.jaspermobile.ui.navigation.PageFactory;
 import com.jaspersoft.android.jaspermobile.ui.presenter.CatalogPresenter;
 import com.jaspersoft.android.jaspermobile.ui.presenter.CatalogSearchPresenter;
 import com.jaspersoft.android.jaspermobile.ui.view.activity.ToolbarActivity;
-import com.jaspersoft.android.jaspermobile.ui.view.fragment.BaseFragment;
+import com.jaspersoft.android.jaspermobile.ui.view.activity.schedule.ChooseReportActivity;
 import com.jaspersoft.android.jaspermobile.ui.view.fragment.CatalogSearchFragment;
 import com.jaspersoft.android.jaspermobile.ui.view.fragment.CatalogSearchFragment_;
 import com.jaspersoft.android.jaspermobile.ui.view.widget.JobCatalogView;
@@ -85,6 +82,8 @@ public class JobFragmentPresenter extends PresenterControllerFragment2<JobsScree
     MenuItem catalogSearchItem;
 
     @Inject
+    protected Analytics analytics;
+    @Inject
     CatalogPresenter mCatalogPresenter;
     @Inject
     CatalogSearchPresenter mCatalogSearchPresenter;
@@ -99,17 +98,28 @@ public class JobFragmentPresenter extends PresenterControllerFragment2<JobsScree
     private JobsActivityComponent mActivityComponent;
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        analytics.setScreenName(Analytics.ScreenName.JOBS.getValue());
+        if (savedInstanceState == null) {
+            analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.VIEWED.getValue(), Analytics.EventLabel.JOBS.getValue());
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_jobs, container, false);
         mCatalogView = (JobCatalogView) view.findViewById(R.id.catalogView);
 
         JobsActivityComponent activityComponent = activityComponent();
         activityComponent.inject(this);
+        activityComponent.inject(mCatalogView);
+
+        initCatalog();
+        mJobResourcesBus.subscribe(this);
 
         registerPresenter(mCatalogPresenter);
         registerPresenter(mCatalogSearchPresenter);
-
-        activityComponent.inject(mCatalogView);
 
         return view;
     }
@@ -130,15 +140,19 @@ public class JobFragmentPresenter extends PresenterControllerFragment2<JobsScree
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initCatalog();
-        mJobResourcesBus.subscribe(this);
-
         ((ToolbarActivity) getActivity()).setCustomToolbarView(null);
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(getString(R.string.sch_jobs));
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mCatalogPresenter.refresh();
+        analytics.sendScreenView(Analytics.ScreenName.JOBS.getValue(), null);
     }
 
     @Override
@@ -151,6 +165,7 @@ public class JobFragmentPresenter extends PresenterControllerFragment2<JobsScree
     protected void newJobAction() {
         Page jobEditPage = mPageFactory.createChooseJobPage();
         mNavigator.navigateForResult(jobEditPage, CHOOSE_REPORT_REQUEST);
+        analytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.CLICKED.getValue(), Analytics.EventLabel.CHOOSE_REPORT.getValue());
     }
 
     @OnActivityResult(CHOOSE_REPORT_REQUEST)
@@ -190,9 +205,15 @@ public class JobFragmentPresenter extends PresenterControllerFragment2<JobsScree
     }
 
     @Override
-    public void onSelect(int id) {
+    public void onSelect(JobResource job) {
+        Page jobInfoPage = mPageFactory.createJobInfoPage(job);
+        mNavigator.navigate(jobInfoPage, false);
+    }
+
+    @Override
+    public void onEditRequest(int id) {
         Page jobEditPage = mPageFactory.createJobEditPage(id);
-        mNavigator.navigateForResult(jobEditPage, EDIT_JOB_REQUEST);
+        mNavigator.navigate(jobEditPage, false);
     }
 
     @Override

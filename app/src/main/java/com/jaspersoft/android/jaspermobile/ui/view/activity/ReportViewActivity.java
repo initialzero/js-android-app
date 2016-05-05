@@ -76,4 +76,9 @@ public class ReportViewActivity extends ToolbarActivity implements HasComponent<
                         new ReportRestViewerModule(resource.getUri())
                 );
     }
+
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_rvs_r);
+    }
 }

@@ -36,6 +36,7 @@ public interface Analytics {
     void sendEvent(String eventCategory, String eventAction, String eventLabel);
     void sendUserChangedEvent();
     void setServerInfo(String serverVersion, String serverEdition);
+    void setThumbnailsExist();
 
     enum ScreenName {
         LIBRARY("Library screen"),
@@ -93,7 +94,10 @@ public interface Analytics {
         CHANGED("Changed"),
         MARKED_AS_FAVORITE("Marked as favorite"),
         PRINTED("Printed"),
+        SHARED("Shared"),
+        ANNOTATED("Annotated"),
         ADDED("Added"),
+        SELECTED_FOR_SCHEDULE("Selected for schedule"),
         REMOVED("Removed");
 
         String mName;
@@ -123,6 +127,7 @@ public interface Analytics {
         REPORT("Report"),
         DASHBOARD("Dashboard"),
         JOB("Job"),
+        CHOOSE_REPORT("Choose report"),
         WITH_RO("With report options"),
         VOICE_COMMANDS("Voice commands"),
         RUN("Run"),
@@ -130,6 +135,9 @@ public interface Analytics {
         UNDEFINED("Undefined"),
         DONE("Done"),
         FAILED("Failed"),
+        WITH_TEXT("With text"),
+        WITH_LINE("With line"),
+        CLEARED("Cleared"),
         CANCELED("Canceled");
 
         String mName;

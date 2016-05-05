@@ -24,17 +24,25 @@
 
 package com.jaspersoft.android.jaspermobile.data.model;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.utils.UniqueCompositeSubscription;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
-import com.jaspersoft.android.jaspermobile.domain.entity.JobResource;
+import com.jaspersoft.android.jaspermobile.domain.entity.job.JobResource;
+import com.jaspersoft.android.jaspermobile.domain.entity.ResourceIcon;
+import com.jaspersoft.android.jaspermobile.domain.entity.job.JobResource;
+import com.jaspersoft.android.jaspermobile.domain.fetchers.ThumbnailFetcher;
+import com.jaspersoft.android.jaspermobile.domain.model.JasperResourceModel;
 import com.jaspersoft.android.jaspermobile.domain.model.JobResourceModel;
-import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.PerScreen;
 import com.jaspersoft.android.jaspermobile.util.rx.RxTransformer;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 
+import java.io.InvalidObjectException;
+import java.net.URI;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -43,9 +51,7 @@ import javax.inject.Inject;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.functions.Func0;
-import rx.observables.ConnectableObservable;
 
 /**
  * @author Andrew Tivodar
@@ -56,18 +62,26 @@ public class JobResourceModelImpl implements JobResourceModel {
 
     private Subscriber<Integer> mUpdateSubscriber;
     private Subscriber<Integer> mDeleteSubscriber;
+    private Map<Integer, ResourceIcon> mThumbnails;
     private final UniqueCompositeSubscription mThumbnailSubscriptions;
+    private final ThumbnailFetcher mThumbnailFetcher;
+    private final UniqueCompositeSubscription mActionSubscriptions;
     private final JasperRestClient mRestClient;
+    private final Analytics mAnalytics;
 
     @Inject
-    public JobResourceModelImpl(JasperRestClient mRestClient) {
+    public JobResourceModelImpl(ThumbnailFetcher thumbnailFetcher, JasperRestClient mRestClient, Analytics analytics) {
+        this.mThumbnailFetcher = thumbnailFetcher;
         this.mRestClient = mRestClient;
-        this.mThumbnailSubscriptions = new UniqueCompositeSubscription();
+        mAnalytics = analytics;
+        mActionSubscriptions = new UniqueCompositeSubscription();
+        mThumbnailSubscriptions = new UniqueCompositeSubscription();
+        mThumbnails = new HashMap<>();
     }
 
     @Override
     public void clear() {
-        mThumbnailSubscriptions.unsubscribe();
+        mActionSubscriptions.unsubscribe();
     }
 
     @Override
@@ -82,12 +96,12 @@ public class JobResourceModelImpl implements JobResourceModel {
 
     @Override
     public boolean isInAction(int id) {
-        return mThumbnailSubscriptions.contains(id);
+        return mActionSubscriptions.contains(id);
     }
 
     @Override
     public void requestToDelete(final int jobId) {
-        if (mThumbnailSubscriptions.contains(jobId)) return;
+        if (mActionSubscriptions.contains(jobId)) return;
 
         Subscription deleteSubscription = Observable.defer(new Func0<Observable<Integer>>() {
             @Override
@@ -109,24 +123,60 @@ public class JobResourceModelImpl implements JobResourceModel {
                     @Override
                     public void onNext(Integer item) {
                         mDeleteSubscriber.onNext(item);
-                        mThumbnailSubscriptions.remove(item);
+                        mActionSubscriptions.remove(item);
+                        mAnalytics.sendEvent(Analytics.EventCategory.JOB.getValue(), Analytics.EventAction.REMOVED.getValue(), null);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         mUpdateSubscriber.onNext(jobId);
                         mUpdateSubscriber.onError(e);
-                        mThumbnailSubscriptions.remove(jobId);
+                        mActionSubscriptions.remove(jobId);
                     }
                 });
 
-
-        mThumbnailSubscriptions.add(jobId, deleteSubscription);
+        mActionSubscriptions.add(jobId, deleteSubscription);
         mUpdateSubscriber.onNext(jobId);
     }
 
     @Override
     public void requestToEnable(JobResource jobResource, boolean enable) {
 
+    }
+
+    @Override
+    public ResourceIcon getResourceIcon(int id) {
+        return mThumbnails.get(id);
+    }
+
+    @Override
+    public void requestThumbnail(final int id, final URI resourceUri) {
+        if (mThumbnailSubscriptions.contains(id)) return;
+
+        Subscription thumbnailSubscription = Observable.defer(new Func0<Observable<ResourceIcon>>() {
+            @Override
+            public Observable<ResourceIcon> call() {
+                ResourceIcon resourceIcon = mThumbnailFetcher.fetchIcon(resourceUri.toString());
+                if (resourceIcon == null)
+                    return Observable.error(new InvalidObjectException("There is no thumbnail for this resource"));
+
+                return Observable.just(resourceIcon);
+            }
+        })
+                .compose(RxTransformer.<ResourceIcon>applySchedulers())
+                .subscribe(new SimpleSubscriber<ResourceIcon>() {
+                    @Override
+                    public void onNext(ResourceIcon item) {
+                        mThumbnails.put(id, item);
+                        mUpdateSubscriber.onNext(id);
+                    }
+                });
+        mThumbnailSubscriptions.add(id, thumbnailSubscription);
+    }
+
+    @Override
+    public void invalidateThumbnails() {
+        mThumbnailFetcher.invalidate();
+        mThumbnails = new HashMap<>();
     }
 }

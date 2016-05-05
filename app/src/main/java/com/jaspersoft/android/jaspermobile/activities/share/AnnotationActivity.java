@@ -34,6 +34,7 @@ import android.support.v4.content.FileProvider;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.dialog.AnnotationOptionsDialog;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -89,7 +90,7 @@ public class AnnotationActivity extends ToolbarActivity implements AnnotationCon
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-       locScreenkOrientation();
+       lockScreenOrientation();
     }
 
     @AfterViews
@@ -101,6 +102,11 @@ public class AnnotationActivity extends ToolbarActivity implements AnnotationCon
         annotationControlView.setEventListener(this);
         annotationControlView.setColor(annotationDrawing.getColor());
         annotationNotes.setEnabled(false);
+    }
+
+    @Override
+    protected String getScreenName() {
+        return getString(R.string.ja_annotation);
     }
 
     @OptionsItem(R.id.annotationDoneAction)
@@ -140,6 +146,7 @@ public class AnnotationActivity extends ToolbarActivity implements AnnotationCon
             @Override
             public void onCompleted() {
                 ProgressDialogFragment.dismiss(getSupportFragmentManager());
+                analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.SHARED.getValue(), null);
             }
         });
     }
@@ -157,6 +164,7 @@ public class AnnotationActivity extends ToolbarActivity implements AnnotationCon
     public void onClear() {
         annotationDrawing.reset();
         annotationNotes.removeAllViews();
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.ANNOTATED.getValue(),  Analytics.EventLabel.CLEARED.getValue());
     }
 
     @Override
@@ -196,7 +204,7 @@ public class AnnotationActivity extends ToolbarActivity implements AnnotationCon
         }
     }
 
-    private void locScreenkOrientation() {
+    private void lockScreenOrientation() {
         if (getResources().getConfiguration().orientation == Configuration. ORIENTATION_LANDSCAPE)
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         else

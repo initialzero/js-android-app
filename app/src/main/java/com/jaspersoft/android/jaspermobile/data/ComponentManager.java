@@ -118,7 +118,6 @@ public class ComponentManager {
             public void onProfileActivation(Profile profile) {
             }
         };
-
         void onProfileActivation(Profile profile);
     }
 }

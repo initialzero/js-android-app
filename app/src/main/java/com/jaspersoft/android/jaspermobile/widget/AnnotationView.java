@@ -29,6 +29,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.util.Pair;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -36,8 +37,13 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
+import com.jaspersoft.android.jaspermobile.ui.view.fragment.ComponentProviderDelegate;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * @author Andrew Tivodar
@@ -52,6 +58,9 @@ public class AnnotationView extends View {
     private int mColor;
     private int mSize;
     private float mStartX, mStartY;
+
+    @Inject
+    protected Analytics analytics;
 
     public AnnotationView(Context context) {
         super(context);
@@ -121,6 +130,10 @@ public class AnnotationView extends View {
         mDrawingCache = new ArrayList<>();
         mColor = DEFAULT_COLOR;
         mSize = DEFAULT_SIZE;
+
+        ComponentProviderDelegate.INSTANCE
+                .getBaseActivityComponent((FragmentActivity) getContext())
+                .inject(this);
     }
 
     private void addPath() {
@@ -159,6 +172,7 @@ public class AnnotationView extends View {
 
     private void onTouchEnd() {
         getLastPath().lineTo(mStartX, mStartY);
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.ANNOTATED.getValue(),  Analytics.EventLabel.WITH_LINE.getValue());
     }
 
     private Path getLastPath() {

@@ -350,7 +350,7 @@
     <string name="sch_deleted">スケジュールが削除されました</string>
     <string name="sch_jobs">スケジュール</string>
     <string name="sch_not_found">ジョブがスケジュールされていません。</string>
-    <string name="sch_format_paginated">%1$s(ページ区切り付き)</string>
+    <string name="sch_format_paginated">%1$s (ページ区切り付き)</string>
     <string name="sch_state_normal">ノーマル</string>
     <string name="sch_state_complete">完了</string>
     <string name="sch_state_executing">実行しています</string>
@@ -388,7 +388,7 @@
     <string name="error_export_failed">レポートの書き出しに失敗しました</string>
     <string name="error_export_cancelled">レポートの書き出しがキャンセルされました</string>
     <string name="error_schedule_duplicate_file_name">出力ファイル名が重複しています</string>
-    <string name="error_schedule_in_the_past">開始日が過去の日付となっています。現在以降の日付を設定してください。</string>
+    <string name="error_schedule_start_date_in_the_past">開始日が過去の日付となっています。現在以降の日付を設定してください。</string>
     <string name="error_schedule_special_characters">ベースとなる出力名に無効な文字が含まれています。</string>
     <string name="error_schedule_folder_not_exist">ジョブの出力フォルダが見つかりません。</string>
     <string name="error_schedule_folder_not_writable">あなたには、フォルダにジョブを出力して保存する権限がありません。</string>
@@ -445,5 +445,73 @@
 
     <!-- Permissions -->
     <string name="enable_write_permission">保存できません。アクセスが拒否されました</string>
+
+    <!-- Context Menu -->
+    <string name="r_cm_share">共有する</string>
+    <string name="r_cm_info">詳細情報</string>
+    <string name="r_cm_cancel_saving">保存をキャンセルする</string>
+    <string name="r_cm_enable">有効化する</string>
+    <string name="r_cm_disable">無効化する</string>
+    <string name="r_cm_edit">編集する</string>
+    <string name="r_cm_delete">削除する</string>
+
+    <!-- Schedule -->
+    <string name="sch_end_date">スケジュールの終了日</string>
+    <string name="sch_next_run_label">次の実行予定：%1$s</string>
+    <string name="sch_choose_report">スケジュールしたいレポートを選択してください...</string>
+    <string name="sch_resource_label">レポート ラベル</string>
+    <string name="sch_resource_uri">レポートのURI</string>
+    <string name="sch_label">名称</string>
+    <string name="sch_description">説明</string>
+    <string name="sch_id">ID</string>
+    <string name="sch_owner">オーナー</string>
+    <string name="sch_state">状態</string>
+    <string name="sch_lass_run">最後に実行された時</string>
+    <string name="sch_next_run">次の実行予定</string>
+
+    <!-- Toasts -->
+    <string name="annotation_title">コメントを挿入するためにタッチしてください...</string>
+    <string name="annotation_pick_color">色を選択してください...</string>
+    <string name="annotation_pick_line_size">ラインサイズを選択してください...</string>
+    <string name="annotation_pick_font_size">フォントサイズを選択してください...</string>
+    <string name="annotation_enable_border">テキストのボーダーを追加する</string>
+    <string name="annotation_add_note">メモを追加する</string>
+    <string name="annotation_edit_note">メモを編集する</string>
+    <string name="annotation_hint">値を入力する</string>
+    <string name="annotation_done">完了しました</string>
+    <string name="annotation_reset">リセットする</string>
+    <string name="share_chooser_title">次のメディアを経由で共有する</string>
+    <string name="share_message">TIBCO JasperMobileが共有しています</string>
+
+    <!-- Save Report Activity -->
+    <string name="sr_recurrence_type">定期スケジュール</string>
+    <string name="sr_recurrence_none">なし</string>
+    <string name="sr_recurrence_simple">シンプル</string>
+    <string name="sr_recurrence_simple_unit_minute">分</string>
+    <string name="sr_recurrence_simple_unit_hour">時間</string>
+    <string name="sr_recurrence_simple_unit_day">日</string>
+    <string name="sr_recurrence_simple_unit_week">週</string>
+    <string name="sr_recurrence_calendar">カレンダー</string>
+    <string name="sr_repeat_every">すべて繰り返す(必須)</string>
+    <string name="sr_schedule_end">スケジュール終了</string>
+    <string name="sr_run_number_of_times">設定回数を実行する</string>
+    <string name="sr_number_of_runs">実行回数</string>
+    <string name="sr_run_until">指定された日付まで実行する</string>
+    <string name="sr_run_indefinitely">無期限で実行する</string>
+    <string name="sr_months">月</string>
+    <string name="sr_hours">時(必須)：</string>
+    <string name="sr_minutes">分(必須)：</string>
+    <string name="sr_days">日</string>
+    <string name="sr_select_days">日付を選択してください：</string>
+    <string name="sr_selected_days">選択された日：</string>
+    <string name="sr_dates_in_month">月間の日付：</string>
+
+    <!-- Error messages -->
+    <string name="error_schedule_end_date_in_the_past">終了日が過去の日付となっています。未来の日付を設定してください。</string>
+    <string name="error_trigger_empty_months">少なくとも1ヶ月、選択する必要があります。</string>
+    <string name="error_trigger_empty_days">少なくとも1日、選択する必要があります。</string>
+
+    <!-- Casting -->
+    <string name="cast_zoom_message">レポートのスケールを変更するために、ズームインもしくはズームアウトをクリックしてください。</string>
 
 </resources>

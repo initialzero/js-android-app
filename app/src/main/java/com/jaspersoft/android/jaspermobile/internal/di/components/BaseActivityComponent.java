@@ -34,6 +34,9 @@ import com.jaspersoft.android.jaspermobile.util.filtering.FavoritesResourceFilte
 import com.jaspersoft.android.jaspermobile.util.filtering.LibraryResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.filtering.RecentlyViewedResourceFilter;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.ReportResourceBinder;
+import com.jaspersoft.android.jaspermobile.widget.AnnotationView;
+import com.jaspersoft.android.jaspermobile.widget.DraggableViewsContainer;
 
 import dagger.Subcomponent;
 
@@ -79,10 +82,13 @@ public interface BaseActivityComponent {
     void inject(RepositoryResourceFilter filter);
 
     void inject(ReportCastActivity reportCastActivity);
-    void inject(ToolbarActivity toolbarActivity);
     void inject(NewScheduleActivity newScheduleActivity);
     void inject(EditScheduleActivity editScheduleActivity);
     void inject(AnnotationActivity toolbarActivity);
+    void inject(ToolbarActivity toolbarActivity);
 
     void inject(OutputFormatDialogFragment fragment);
+    void inject(DraggableViewsContainer draggableViewsContainer);
+    void inject(AnnotationView annotationView);
+    void inject(ReportResourceBinder reportResourceBinder);
 }

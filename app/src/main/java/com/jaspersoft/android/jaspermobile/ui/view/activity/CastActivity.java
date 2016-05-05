@@ -26,7 +26,6 @@ package com.jaspersoft.android.jaspermobile.ui.view.activity;
 
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
@@ -34,10 +33,8 @@ import android.support.v7.app.MediaRouteActionProvider;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
-import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.cast.CastDevice;

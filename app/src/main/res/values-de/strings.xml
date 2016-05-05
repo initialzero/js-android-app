@@ -410,7 +410,7 @@
     <string name="error_export_failed">Berichtsexport fehlgeschlagen</string>
     <string name="error_export_cancelled">Berichtsexport abgebrochen</string>
     <string name="error_schedule_duplicate_file_name">Ausgabedateinamen duplizieren</string>
-    <string name="error_schedule_in_the_past">Das Startdatum liegt in der Vergangenheit. Es sollte in der Zukunft liegen.</string>
+    <string name="error_schedule_start_date_in_the_past">Das Startdatum liegt in der Vergangenheit. Es sollte in der Zukunft liegen.</string>
     <string name="error_schedule_special_characters">Der Basisausgabename enthält ungültige Zeichen.</string>
     <string name="error_schedule_folder_not_exist">Das Auftragsausgabeverzeichnis kann nicht gefunden werden.</string>
     <string name="error_schedule_folder_not_writable">Sie haben keine Berechtigung, die Auftrags-Ausgabe in diesem Verzeichnis zu speichern.</string>
@@ -467,5 +467,73 @@
 
     <!-- Permissions -->
     <string name="enable_write_permission">Speichern nicht möglich. Erlaubnis verweigert</string>
+
+    <!-- Context Menu -->
+    <string name="r_cm_share">Teilen</string>
+    <string name="r_cm_info">Info</string>
+    <string name="r_cm_cancel_saving">Speichern abbrechen</string>
+    <string name="r_cm_enable">Aktivieren</string>
+    <string name="r_cm_disable">Deaktivieren</string>
+    <string name="r_cm_edit">Bearbeiten</string>
+    <string name="r_cm_delete">Löschen</string>
+
+    <!-- Schedule -->
+    <string name="sch_end_date">Enddatum terminieren</string>
+    <string name="sch_next_run_label">Nächster Durchlauf: %1$s</string>
+    <string name="sch_choose_report">Wählen Sie \"Report terminieren\" ...</string>
+    <string name="sch_resource_label">Berichtsetikett</string>
+    <string name="sch_resource_uri">Berichts-URI</string>
+    <string name="sch_label">Name</string>
+    <string name="sch_description">Beschreibung</string>
+    <string name="sch_id">ID</string>
+    <string name="sch_owner">Eigentümer</string>
+    <string name="sch_state">Bundesland</string>
+    <string name="sch_lass_run">Letzter Durchlauf</string>
+    <string name="sch_next_run">Nächster Durchlauf</string>
+
+    <!-- Toasts -->
+    <string name="annotation_title">Tippen Sie, um Anmerkungen anzufügen ...</string>
+    <string name="annotation_pick_color">Wählen Sie eine Farbe ...</string>
+    <string name="annotation_pick_line_size">Wählen Sie die Zeilengröße ...</string>
+    <string name="annotation_pick_font_size">Wählen Sie die Schriftgröße ...</string>
+    <string name="annotation_enable_border">Fügen Sie einen Textrahmen hinzu</string>
+    <string name="annotation_add_note">Notiz hinzufügen</string>
+    <string name="annotation_edit_note">Notiz bearbeiten</string>
+    <string name="annotation_hint">Wert eingeben</string>
+    <string name="annotation_done">Erledigt</string>
+    <string name="annotation_reset">Zurücksetzen</string>
+    <string name="share_chooser_title">Teilen mit</string>
+    <string name="share_message">Gemeinsam genutzt mit TIBCO JasperMobile</string>
+
+    <!-- Save Report Activity -->
+    <string name="sr_recurrence_type">Wiederholung</string>
+    <string name="sr_recurrence_none">Keiner</string>
+    <string name="sr_recurrence_simple">Einfach</string>
+    <string name="sr_recurrence_simple_unit_minute">Minuten</string>
+    <string name="sr_recurrence_simple_unit_hour">Stunden</string>
+    <string name="sr_recurrence_simple_unit_day">Tage</string>
+    <string name="sr_recurrence_simple_unit_week">Wochen</string>
+    <string name="sr_recurrence_calendar">Kalender</string>
+    <string name="sr_repeat_every">Alles wiederholen (erforderlich)</string>
+    <string name="sr_schedule_end">Zeitplanende</string>
+    <string name="sr_run_number_of_times">Eine bestimmte Anzahl von Durchgängen laufen</string>
+    <string name="sr_number_of_runs">Anzahl der Durchgänge</string>
+    <string name="sr_run_until">Bis zu einem bestimmten Datum durchführen</string>
+    <string name="sr_run_indefinitely">Auf unbestimmte Zeit durchführen</string>
+    <string name="sr_months">Monate</string>
+    <string name="sr_hours">Stunden (erforderlich):</string>
+    <string name="sr_minutes">Minutes (erforderlich):</string>
+    <string name="sr_days">Tage</string>
+    <string name="sr_select_days">Tage wählen :</string>
+    <string name="sr_selected_days">Ausgewählte Tage:</string>
+    <string name="sr_dates_in_month">Termine im Monat:</string>
+
+    <!-- Error messages -->
+    <string name="error_schedule_end_date_in_the_past">Das Enddatum liegt in der Vergangenheit. Es sollte in der Zukunft liegen.</string>
+    <string name="error_trigger_empty_months">Es sollte mindestens ein Monat gewählt werden.</string>
+    <string name="error_trigger_empty_days">Es sollte mindestens ein Tag ausgewählt werden.</string>
+
+    <!-- Casting -->
+    <string name="cast_zoom_message">Klicken Sie \"Vergrößern\" oder \"Verkleinern\", um den Bericht zu skalieren.</string>
 
 </resources>

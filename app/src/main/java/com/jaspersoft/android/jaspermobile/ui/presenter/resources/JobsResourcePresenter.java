@@ -24,7 +24,8 @@
 
 package com.jaspersoft.android.jaspermobile.ui.presenter.resources;
 
-import com.jaspersoft.android.jaspermobile.domain.entity.JobResource;
+import com.jaspersoft.android.jaspermobile.domain.entity.ResourceIcon;
+import com.jaspersoft.android.jaspermobile.domain.entity.job.JobResource;
 import com.jaspersoft.android.jaspermobile.domain.model.JobResourceModel;
 import com.jaspersoft.android.jaspermobile.ui.contract.JobResourceContract;
 import com.jaspersoft.android.jaspermobile.ui.eventbus.JobResourcesBus;
@@ -45,16 +46,25 @@ public class JobsResourcePresenter extends ResourcePresenter<JobResourceContract
     @Override
     protected void onBindView(JobResourceContract.View view) {
         super.onBindView(view);
+
+        getView().showImage();
         getView().showSubTitle(getEntity().getFireDate());
 
         int state = getEntity().getState();
         getView().showEnabled(state == JobResource.NORMAL || state == JobResource.EXECUTING);
         getView().showProgress(!getModel().isInAction(getEntity().getId()));
+
+        ResourceIcon resourceIcon = getModel().getResourceIcon(getEntity().getId());
+        if (resourceIcon == null) {
+            getModel().requestThumbnail(getEntity().getId(), getEntity().getJobTarget().getReportUri());
+        } else {
+            getView().showThumbnail(resourceIcon);
+        }
     }
 
     @Override
     public void onSelect() {
-        mJobResourcesBus.sendSelectEvent(getEntity().getId());
+        mJobResourcesBus.sendSelectEvent(getEntity());
     }
 
     @Override
@@ -64,7 +74,7 @@ public class JobsResourcePresenter extends ResourcePresenter<JobResourceContract
 
     @Override
     public void onEditAction() {
-        mJobResourcesBus.sendSelectEvent(getEntity().getId());
+        mJobResourcesBus.sendEditRequestEvent(getEntity().getId());
     }
 
     @Override

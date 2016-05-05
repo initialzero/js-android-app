@@ -4,15 +4,10 @@ import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
 
-import rx.Notification;
 import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Action0;
 import rx.functions.Action1;
-import rx.subjects.AsyncSubject;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
-import rx.subjects.ReplaySubject;
 
 /**
  * @author Tom Koptel

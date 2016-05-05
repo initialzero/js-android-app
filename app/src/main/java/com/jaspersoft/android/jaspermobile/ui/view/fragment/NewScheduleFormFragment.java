@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.ui.view.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -34,18 +35,26 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.dialog.CalendarDayDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.CalendarMonthDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.DateDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.IntervalUnitDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.OutputFormatDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
+import com.jaspersoft.android.jaspermobile.dialog.RecurrenceTypeDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.ValueInputDialogFragment;
-import com.jaspersoft.android.jaspermobile.internal.di.components.screen.ScheduleFormScreenComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.components.screen.activity.ScheduleFormActivityComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.screen.ScheduleFormScreenModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.screen.activity.ScheduleFormActivityModule;
+import com.jaspersoft.android.jaspermobile.internal.di.components.screen.JobFormScreenComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.components.screen.activity.JobFormActivityComponent;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.screen.job.JobFormScreenModule;
+import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.job.JobFormActivityModule;
 import com.jaspersoft.android.jaspermobile.ui.component.fragment.PresenterControllerFragment;
 import com.jaspersoft.android.jaspermobile.ui.contract.ScheduleFormContract;
+import com.jaspersoft.android.jaspermobile.ui.entity.job.CalendarViewRecurrence;
+import com.jaspersoft.android.jaspermobile.ui.entity.job.JobFormViewBundle;
+import com.jaspersoft.android.jaspermobile.ui.entity.job.JobFormViewEntity;
+import com.jaspersoft.android.jaspermobile.ui.entity.job.SimpleViewRecurrence;
 import com.jaspersoft.android.jaspermobile.ui.presenter.ScheduleFormPresenter;
-import com.jaspersoft.android.jaspermobile.ui.view.entity.JobFormViewEntity;
 import com.jaspersoft.android.jaspermobile.ui.view.widget.ScheduleFormView;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 
@@ -67,11 +76,17 @@ import javax.inject.Inject;
  */
 @OptionsMenu(R.menu.report_add_schedule)
 @EFragment
-public class NewScheduleFormFragment extends PresenterControllerFragment<ScheduleFormScreenComponent, ScheduleFormPresenter>
-        implements DateDialogFragment.DateDialogClickListener,
+public class NewScheduleFormFragment extends PresenterControllerFragment<JobFormScreenComponent, ScheduleFormPresenter>
+        implements DateDialogFragment.IcDateDialogClickListener,
         OutputFormatDialogFragment.OutputFormatClickListener,
         ValueInputDialogFragment.ValueDialogCallback,
-        ScheduleFormContract.View {
+        ScheduleFormContract.View,
+        RecurrenceTypeDialogFragment.RecurrenceTypeClickListener,
+        NumberDialogFragment.NumberDialogClickListener,
+        IntervalUnitDialogFragment.IntervalUnitClickListener,
+        CalendarMonthDialogFragment.MonthsSelectedListener,
+        CalendarDayDialogFragment.DaysSelectedListener
+{
     @FragmentArg
     JasperResource resource;
 
@@ -81,17 +96,17 @@ public class NewScheduleFormFragment extends PresenterControllerFragment<Schedul
     @Inject
     ScheduleFormContract.EventListener mEventListener;
 
-    private ScheduleFormActivityComponent mActivityComponent;
+    private JobFormActivityComponent mActivityComponent;
 
     @Override
-    protected ScheduleFormScreenComponent onCreateNonConfigurationComponent() {
-        return getProfileComponent().plus(new ScheduleFormScreenModule(resource));
+    protected JobFormScreenComponent onCreateNonConfigurationComponent() {
+        return getProfileComponent().plus(new JobFormScreenModule(resource));
     }
 
     @Override
     public ScheduleFormPresenter getPresenter() {
         if (mActivityComponent == null) {
-            mActivityComponent = getComponent().plus(new ScheduleFormActivityModule(this));
+            mActivityComponent = getComponent().plus(new JobFormActivityModule(this));
         }
         return mActivityComponent.getPresenter();
     }
@@ -99,15 +114,18 @@ public class NewScheduleFormFragment extends PresenterControllerFragment<Schedul
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        scheduleFormView = (ScheduleFormView) inflater.inflate(R.layout.fragment_schedule, container, false);
+        View root = inflater.inflate(R.layout.fragment_schedule, container, false);
+        scheduleFormView = (ScheduleFormView) root.findViewById(R.id.scheduleFormView);
+        mActivityComponent.inject(scheduleFormView);
+
         getPresenter().bindView(this);
         mActivityComponent.inject(this);
-        return mActivityComponent.inject(scheduleFormView);
+        return root;
     }
 
     @Override
-    public void onDateSelected(String id, Calendar date) {
-        scheduleFormView.onDateSelected(id, date);
+    public void onDateSelected(Calendar date, int requestCode, Object... data) {
+        scheduleFormView.onDateSelected(date, requestCode, data);
     }
 
     @Override
@@ -121,7 +139,32 @@ public class NewScheduleFormFragment extends PresenterControllerFragment<Schedul
     }
 
     @Override
-    public void showForm(JobFormViewEntity form) {
+    public void onRecurrenceSelected(JobFormViewEntity.Recurrence recurrence) {
+        scheduleFormView.onRecurrenceSelected(recurrence);
+    }
+
+    @Override
+    public void onNumberSubmit(int number, int requestCode) {
+        scheduleFormView.onNumberSubmit(number, requestCode);
+    }
+
+    @Override
+    public void onUnitSelected(SimpleViewRecurrence.Unit unit) {
+        scheduleFormView.onUnitSelected(unit);
+    }
+
+    @Override
+    public void onDaysSelected(List<CalendarViewRecurrence.Day> selectedDays) {
+        scheduleFormView.onDaysSelected(selectedDays);
+    }
+
+    @Override
+    public void onMonthsSelected(List<CalendarViewRecurrence.Month> selectedMonths) {
+        scheduleFormView.onMonthsSelected(selectedMonths);
+    }
+
+    @Override
+    public void showForm(JobFormViewBundle form) {
         scheduleFormView.showForm(form);
     }
 
@@ -148,18 +191,17 @@ public class NewScheduleFormFragment extends PresenterControllerFragment<Schedul
     @Override
     public void showSubmitSuccess() {
         Toast.makeText(getActivity(), R.string.sch_created, Toast.LENGTH_SHORT).show();
+        getActivity().setResult(Activity.RESULT_OK);
         getActivity().finish();
-    }
-
-    @Override
-    public JobFormViewEntity takeForm() {
-        return scheduleFormView.provideForm();
     }
 
     @OptionsItem(R.id.addSchedule)
     protected void schedule() {
-        JobFormViewEntity form = scheduleFormView.provideForm();
-        mEventListener.onSubmitClick(form);
+        boolean isValid = scheduleFormView.validate();
+        if (isValid) {
+            JobFormViewBundle form = scheduleFormView.provideForm();
+            mEventListener.onSubmitClick(form);
+        }
     }
 
     @Override

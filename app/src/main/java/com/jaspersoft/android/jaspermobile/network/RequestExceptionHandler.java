@@ -75,6 +75,10 @@ public class RequestExceptionHandler {
             ServiceException serviceException = ((ServiceException) exception);
             return adaptServiceMessage(serviceException);
         }
+        if (exception.getCause() instanceof ServiceException) {
+            ServiceException serviceException = (ServiceException) exception.getCause();
+            return adaptServiceMessage(serviceException);
+        }
 
         return exception.getLocalizedMessage();
     }
@@ -149,7 +153,7 @@ public class RequestExceptionHandler {
             case StatusCodes.JOB_DUPLICATE_OUTPUT_FILE_NAME:
                 return mContext.getString(R.string.error_schedule_duplicate_file_name);
             case StatusCodes.JOB_START_DATE_IN_THE_PAST:
-                return mContext.getString(R.string.error_schedule_in_the_past);
+                return mContext.getString(R.string.error_schedule_start_date_in_the_past);
             case StatusCodes.JOB_OUTPUT_FILENAME_INVALID_CHARS:
                 return mContext.getString(R.string.error_schedule_special_characters);
             case StatusCodes.JOB_OUTPUT_FOLDER_DOES_NOT_EXIST:
@@ -159,6 +163,10 @@ public class RequestExceptionHandler {
             case StatusCodes.JOB_OUTPUT_FILENAME_TOO_LONG:
                 String fileLength = exception.getArguments().get(0);
                 return mContext.getString(R.string.error_schedule_output_filename_too_long, fileLength);
+            case StatusCodes.JOB_TRIGGER_MONTHS_EMPTY:
+                return mContext.getString(R.string.error_trigger_empty_months);
+            case StatusCodes.JOB_TRIGGER_WEEK_DAYS_EMPTY:
+                return mContext.getString(R.string.error_trigger_empty_days);
             case StatusCodes.JOB_LABEL_TOO_LONG:
                 String labelLength = exception.getArguments().get(0);
                 return mContext.getString(R.string.error_schedule_label_too_long, labelLength);
@@ -167,6 +175,14 @@ public class RequestExceptionHandler {
             case StatusCodes.SAVED_VALUES_LABEL_TOO_LONG:
                 String savedValesLabelLength = exception.getArguments().get(0);
                 return mContext.getString(R.string.error_saved_values_label_too_long, savedValesLabelLength);
+            case StatusCodes.JOB_CREATION_INTERNAL_ERROR:
+                return exception.getMessage();
+            case StatusCodes.JOB_CALENDAR_PATTERN_ERROR_DAYS_IN_MONTH:
+                return mContext.getString(R.string.error_trigger_calendar_pattern_days_in_month);
+            case StatusCodes.JOB_CALENDAR_PATTERN_ERROR_HOURS:
+                return mContext.getString(R.string.error_trigger_calendar_pattern_hours);
+            case StatusCodes.JOB_CALENDAR_PATTERN_ERROR_MINUTES:
+                return mContext.getString(R.string.error_trigger_calendar_pattern_minutes);
             default:
                 return mContext.getString(R.string.error_undefined);
         }

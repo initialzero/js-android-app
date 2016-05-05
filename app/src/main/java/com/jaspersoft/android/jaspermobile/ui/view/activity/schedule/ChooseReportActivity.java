@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.domain.entity.JasperResource;
 import com.jaspersoft.android.jaspermobile.internal.di.components.screen.ChooseReportScreenComponent;
@@ -39,6 +40,8 @@ import com.jaspersoft.android.jaspermobile.ui.eventbus.JasperResourceBus;
 import com.jaspersoft.android.jaspermobile.ui.presenter.CatalogPresenter;
 import com.jaspersoft.android.jaspermobile.ui.view.widget.LibraryCatalogView;
 import com.jaspersoft.android.jaspermobile.ui.view.widget.LibraryCatalogView_;
+
+import org.androidannotations.annotations.EActivity;
 
 import javax.inject.Inject;
 
@@ -58,15 +61,15 @@ public class ChooseReportActivity extends PresenterControllerActivity2<ChooseRep
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_choose_report);
 
         ChooseReportActivityComponent activityComponent = activityComponent();
         activityComponent.inject(this);
         registerPresenter(mCatalogPresenter);
 
-        LibraryCatalogView catalogView = LibraryCatalogView_.build(this);
+        LibraryCatalogView catalogView = (LibraryCatalogView) findViewById(R.id.catalogView);
         activityComponent.inject(catalogView);
 
-        setContentView(catalogView);
         catalogView.setEventListener(mCatalogPresenter);
         mCatalogPresenter.bindView(catalogView);
 
@@ -99,5 +102,6 @@ public class ChooseReportActivity extends PresenterControllerActivity2<ChooseRep
 
         setResult(RESULT_OK, resultIntent);
         finish();
+        analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.SELECTED_FOR_SCHEDULE.getValue(), null);
     }
 }

@@ -1,13 +1,12 @@
 package com.jaspersoft.android.jaspermobile.ui.eventbus;
 
+import com.jaspersoft.android.jaspermobile.domain.entity.job.JobResource;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import rx.Subscriber;
 
 /**
  * @author Andrew Tivodar
@@ -27,9 +26,15 @@ public class JobResourcesBus {
         mListenerList.add(eventListener);
     }
 
-    public void sendSelectEvent(int jobId){
+    public void sendSelectEvent(JobResource job){
         for (EventListener eventListener : mListenerList) {
-            eventListener.onSelect(jobId);
+            eventListener.onSelect(job);
+        }
+    }
+
+    public void sendEditRequestEvent(int jobId){
+        for (EventListener eventListener : mListenerList) {
+            eventListener.onEditRequest(jobId);
         }
     }
 
@@ -40,7 +45,8 @@ public class JobResourcesBus {
     }
 
     public interface EventListener {
-        void onSelect(int id);
+        void onSelect(JobResource job);
+        void onEditRequest(int id);
         void onDeleteRequest(int id);
     }
 }

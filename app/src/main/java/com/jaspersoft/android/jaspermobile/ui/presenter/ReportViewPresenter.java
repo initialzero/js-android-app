@@ -57,6 +57,7 @@ public class ReportViewPresenter extends LegacyPresenter<RestReportContract.View
     private final FlushInputControlsCase mFlushInputControlsCase;
     private final SaveScreenCaptureCase mSaveScreenCaptureCase;
 
+
     private CompositeSubscription mCompositeSubscription;
 
     @Inject

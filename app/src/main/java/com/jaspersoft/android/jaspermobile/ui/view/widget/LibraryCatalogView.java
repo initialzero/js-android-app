@@ -25,14 +25,12 @@
 package com.jaspersoft.android.jaspermobile.ui.view.widget;
 
 import android.content.Context;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.jaspersoft.android.jaspermobile.Analytics;
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.domain.entity.JasperResource;
 
-import org.androidannotations.annotations.EView;
 import org.androidannotations.annotations.EViewGroup;
 
 /**
@@ -64,5 +62,11 @@ public class LibraryCatalogView extends CatalogView {
     public void showEmpty() {
         message.setVisibility(View.VISIBLE);
         message.setText(getContext().getString(R.string.resources_not_found));
+    }
+
+    @Override
+    public void onRefresh() {
+        super.onRefresh();
+        mAnalytics.sendEvent(Analytics.EventCategory.CATALOG.getValue(), Analytics.EventAction.REFRESHED.getValue(), Analytics.EventLabel.CHOOSE_REPORT.getValue());
     }
 }

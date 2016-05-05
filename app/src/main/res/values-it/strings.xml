@@ -350,7 +350,7 @@
     <string name="sch_deleted">Pianificazione eliminata</string>
     <string name="sch_jobs">Pianificazioni</string>
     <string name="sch_not_found">Nessun lavoro pianificato.</string>
-    <string name="sch_format_paginated">%1$s(Impaginato)</string>
+    <string name="sch_format_paginated">%1$s (Impaginato)</string>
     <string name="sch_state_normal">Normale</string>
     <string name="sch_state_complete">Completa</string>
     <string name="sch_state_executing">Esecuzione</string>
@@ -388,7 +388,7 @@
     <string name="error_export_failed">Esportazione del rapporto non riuscita</string>
     <string name="error_export_cancelled">Esportazione del rapporto annullata</string>
     <string name="error_schedule_duplicate_file_name">Nome del file di stampa duplicato</string>
-    <string name="error_schedule_in_the_past">La data di inizio è nel passato. Dovrebbe essere in futuro.</string>
+    <string name="error_schedule_start_date_in_the_past">La data di inizio è nel passato. Dovrebbe essere in futuro.</string>
     <string name="error_schedule_special_characters">Il nome di stampa di base contiene caratteri non validi.</string>
     <string name="error_schedule_folder_not_exist">La cartella di stampa del lavoro non può essere trovata.</string>
     <string name="error_schedule_folder_not_writable">Non si possiedono le autorizzazioni per salvare la stampa del lavoro nella cartella.</string>
@@ -445,5 +445,73 @@
 
     <!-- Permissions -->
     <string name="enable_write_permission">Impossibile salvare. Autorizzazione negata</string>
+
+    <!-- Context Menu -->
+    <string name="r_cm_share">Condividi</string>
+    <string name="r_cm_info">Informazioni</string>
+    <string name="r_cm_cancel_saving">Annulla salvataggio</string>
+    <string name="r_cm_enable">Abilita</string>
+    <string name="r_cm_disable">Disabilita</string>
+    <string name="r_cm_edit">Modifica</string>
+    <string name="r_cm_delete">Elimina</string>
+
+    <!-- Schedule -->
+    <string name="sch_end_date">Pianifica data fine</string>
+    <string name="sch_next_run_label">Prossima esecuzione: %1$s</string>
+    <string name="sch_choose_report">Scegli il rapporto da pianificare...</string>
+    <string name="sch_resource_label">Etichetta del rapporto</string>
+    <string name="sch_resource_uri">Rapporto uri</string>
+    <string name="sch_label">Nome</string>
+    <string name="sch_description">Descrizione</string>
+    <string name="sch_id">ID</string>
+    <string name="sch_owner">Proprietario</string>
+    <string name="sch_state">Stato</string>
+    <string name="sch_lass_run">Ultima esecuzione</string>
+    <string name="sch_next_run">Prossima esecuzione</string>
+
+    <!-- Toasts -->
+    <string name="annotation_title">Tocca per annotare...</string>
+    <string name="annotation_pick_color">Scegli un colore...</string>
+    <string name="annotation_pick_line_size">Scegli la dimensione della linea...</string>
+    <string name="annotation_pick_font_size">Scegli lo stile del font...</string>
+    <string name="annotation_enable_border">Aggiungi bordo al testo</string>
+    <string name="annotation_add_note">Aggiungi una nota</string>
+    <string name="annotation_edit_note">Modifica nota</string>
+    <string name="annotation_hint">Immetti un valore</string>
+    <string name="annotation_done">Fatto</string>
+    <string name="annotation_reset">Resetta</string>
+    <string name="share_chooser_title">Condividi tramite</string>
+    <string name="share_message">Condiviso tramite TIBCO JasperMobile</string>
+
+    <!-- Save Report Activity -->
+    <string name="sr_recurrence_type">Ricorrenza</string>
+    <string name="sr_recurrence_none">Nessuna</string>
+    <string name="sr_recurrence_simple">Semplice</string>
+    <string name="sr_recurrence_simple_unit_minute">Minuti</string>
+    <string name="sr_recurrence_simple_unit_hour">Ore</string>
+    <string name="sr_recurrence_simple_unit_day">Giorni</string>
+    <string name="sr_recurrence_simple_unit_week">Settimane</string>
+    <string name="sr_recurrence_calendar">Calendario</string>
+    <string name="sr_repeat_every">Ripeti ogni (richiesto)</string>
+    <string name="sr_schedule_end">Fine pianificazione</string>
+    <string name="sr_run_number_of_times">Esegui un numero di volte specifico</string>
+    <string name="sr_number_of_runs">Numero di esecuzioni</string>
+    <string name="sr_run_until">Esegui fino ad una data specifica</string>
+    <string name="sr_run_indefinitely">Esegui indefinitivamente</string>
+    <string name="sr_months">Mesi</string>
+    <string name="sr_hours">Ore (richiesto):</string>
+    <string name="sr_minutes">Minuti (richiesto):</string>
+    <string name="sr_days">Giorni</string>
+    <string name="sr_select_days">Seleziona giorni:</string>
+    <string name="sr_selected_days">Giorni selezionati:</string>
+    <string name="sr_dates_in_month">Date in mese:</string>
+
+    <!-- Error messages -->
+    <string name="error_schedule_end_date_in_the_past">La data di fine è nel passato. Dovrebbe essere nel futuro.</string>
+    <string name="error_trigger_empty_months">È necessario selezionare al meno un mese.</string>
+    <string name="error_trigger_empty_days">È necessario selezionare al meno un giorno.</string>
+
+    <!-- Casting -->
+    <string name="cast_zoom_message">Cliccare zoom avanti o zoom indietro per modificare le dimensioni del rapporto.</string>
 
 </resources>

@@ -203,6 +203,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         this._defineComponentsClickEvent();
         this._setupFiltersApperance();
         this._overrideApplyButton();
+        this._removeFiltersDashlet();
         return this.callback.onLoadDone();
       };
 
@@ -218,6 +219,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         } else {
           return this.callback.onLoadError(error.message);
         }
+      };
+
+      DashboardController.prototype._removeFiltersDashlet = function() {
+        jQuery("[data-componentid='Filter_Group']").remove();
       };
 
       DashboardController.prototype._scaleDashboard = function() {

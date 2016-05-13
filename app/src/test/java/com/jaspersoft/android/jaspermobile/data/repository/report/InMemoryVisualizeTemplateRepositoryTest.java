@@ -79,18 +79,6 @@ public class InMemoryVisualizeTemplateRepositoryTest {
         verify(mVisualizeTemplateCache).put(eq(fakeProfile), any(VisualizeTemplate.class));
     }
 
-    @Test
-    public void should_load_template_from_memory_if_cache_not_empty() throws Exception {
-        when(mVisualizeTemplateCache.get(any(Profile.class))).thenReturn(fakeTemplate);
-
-        TestSubscriber<VisualizeTemplate> test = getOperation();
-        test.assertNoErrors();
-
-        verifyZeroInteractions(mJasperServerCache);
-        verifyZeroInteractions(mJasperServer);
-        verify(mVisualizeTemplateCache).get(eq(fakeProfile));
-    }
-
     @NonNull
     private TestSubscriber<VisualizeTemplate> getOperation() {
         TestSubscriber<VisualizeTemplate> test = new TestSubscriber<>();

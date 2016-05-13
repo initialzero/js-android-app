@@ -1,7 +1,6 @@
 package com.jaspersoft.android.jaspermobile.ui.navigation;
 
 import android.app.Activity;
-import android.support.v4.app.Fragment;
 
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 
@@ -20,7 +19,7 @@ public class Navigator {
         mActivity = activity;
     }
 
-    public final void navigate(Page page, boolean finishCurrent) {
+    public void navigate(Page page, boolean finishCurrent) {
         if (finishCurrent) {
             mActivity.finish();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -54,7 +54,6 @@ public abstract class ResourceBinder {
         }
         setTitle(resourceView, item);
         setSubtitle(resourceView, item);
-        setActionResource(resourceView, item);
     }
 
     public abstract void setIcon(ImageView imageView, JasperResource jasperResource);
@@ -63,23 +62,23 @@ public abstract class ResourceBinder {
         setIcon(imageView, jasperResource);
     }
 
-    protected void setTitle (ResourceView resourceView, JasperResource item) {
+    protected void setTitle(ResourceView resourceView, JasperResource item) {
         resourceView.setTitle(item.getLabel());
     }
 
-    protected void setSubtitle (ResourceView resourceView, JasperResource item) {
+    protected void setSubtitle(ResourceView resourceView, JasperResource item) {
         resourceView.setSubTitle(item.getDescription());
     }
 
     protected void setActionResource(ResourceView resourceView, JasperResource item) {
-        resourceView.setSecondaryAction(R.drawable.im_info);
+        resourceView.setSecondaryAction(item != null ? R.drawable.im_info : 0);
     }
 
     protected Context getContext() {
         return mContext;
     }
 
-    private void unbindView(ImageView imageView){
+    private void unbindView(ImageView imageView) {
         Object tag = imageView.getTag();
         if (tag instanceof Subscription) {
             Subscription subscription = (Subscription) tag;

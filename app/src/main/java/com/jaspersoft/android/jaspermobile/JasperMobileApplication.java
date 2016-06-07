@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -28,12 +28,11 @@ import android.app.Application;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.jaspersoft.android.jaspermobile.data.ComponentManager;
 import com.jaspersoft.android.jaspermobile.db.MobileDbProvider;
-import com.jaspersoft.android.jaspermobile.domain.Profile;
 import com.jaspersoft.android.jaspermobile.internal.di.components.AppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.DaggerAppComponent;
 import com.jaspersoft.android.jaspermobile.internal.di.components.ProfileComponent;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.ProfileModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.app.AppModule;
 import com.jaspersoft.android.jaspermobile.network.AcceptJpegDownloader;
 import com.jaspersoft.android.jaspermobile.util.SavedItemHelper;
@@ -67,11 +66,14 @@ public class JasperMobileApplication extends Application implements GraphObject 
     AppConfigurator appConfigurator;
     @Bean
     SavedItemHelper savedItemHelper;
+    @Inject
+    ComponentManager componentManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
         getComponent().inject(this);
+        componentManager.setupProfileComponent();
 
         savedItemHelper.deleteUnsavedItems();
         forceDatabaseUpdate();
@@ -125,22 +127,12 @@ public class JasperMobileApplication extends Application implements GraphObject 
 
     @Override
     public void setProfileComponent(@Nullable ProfileComponent profileComponent) {
-        if (profileComponent == null) {
-            profileComponent = createFakeProfileComponent();
-        }
         mProfileComponent = profileComponent;
     }
 
-    @NonNull
+    @Nullable
     @Override
     public ProfileComponent getProfileComponent() {
-        if (mProfileComponent == null) {
-            mProfileComponent = createFakeProfileComponent();
-        }
         return mProfileComponent;
-    }
-
-    private ProfileComponent createFakeProfileComponent() {
-        return getComponent().plus(new ProfileModule(Profile.getFake()));
     }
 }

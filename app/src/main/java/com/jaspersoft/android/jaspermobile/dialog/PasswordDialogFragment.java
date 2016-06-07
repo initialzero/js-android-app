@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -46,8 +46,8 @@ import com.jaspersoft.android.jaspermobile.domain.ProfileForm;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.CheckPasswordUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.GetCurrentProfileFormUseCase;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
-import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
+import com.jaspersoft.android.jaspermobile.ui.view.activity.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.ui.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 
@@ -206,6 +206,7 @@ public class PasswordDialogFragment extends DialogFragment implements DialogInte
 
                 Intent restartIntent = NavigationActivity_.intent(getActivity()).get();
                 restartIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                getActivity().finish();
                 getActivity().startActivity(restartIntent);
             }
         });

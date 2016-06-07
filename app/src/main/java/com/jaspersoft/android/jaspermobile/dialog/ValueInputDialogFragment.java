@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -30,31 +30,23 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.text.method.KeyListener;
-import android.util.TypedValue;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.util.SimpleTextWatcher;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.SystemService;
-import org.androidannotations.annotations.TextChange;
 
 /**
  * @author Andrew Tivodar
  * @since 2.2
  */
-@EFragment
 public class ValueInputDialogFragment extends BaseDialogFragment implements DialogInterface.OnShowListener {
 
     private final static String LABEL_ARG = "label";
@@ -68,9 +60,6 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
     private boolean mRequired;
     AlertDialog mValueDialog;
 
-    @SystemService
-    protected InputMethodManager inputMethodManager;
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -79,8 +68,8 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
 
         icValue = (EditText) customLayout.findViewById(R.id.icValue);
 
-        icValue.setText(mValue);
-        icValue.setSelection(mValue.length());
+        icValue.setText("");
+        icValue.append(mValue);
         icValue.addTextChangedListener(new SimpleTextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -97,14 +86,13 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
         builder.setNegativeButton(R.string.cancel, null);
 
         mValueDialog = builder.create();
+        mValueDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         mValueDialog.setOnShowListener(this);
         return mValueDialog;
     }
 
     @Override
     public void onShow(DialogInterface dialog) {
-        inputMethodManager.showSoftInput(icValue, 0);
-
         final Button positiveBnt = mValueDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         positiveBnt.setOnClickListener(new View.OnClickListener() {
 
@@ -178,7 +166,7 @@ public class ValueInputDialogFragment extends BaseDialogFragment implements Dial
 
         @Override
         protected ValueInputDialogFragment build() {
-            return new ValueInputDialogFragment_();
+            return new ValueInputDialogFragment();
         }
     }
 

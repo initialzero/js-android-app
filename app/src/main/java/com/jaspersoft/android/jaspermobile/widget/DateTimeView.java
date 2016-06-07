@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,24 +7,25 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
 package com.jaspersoft.android.jaspermobile.widget;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -37,8 +38,10 @@ import android.widget.TextView;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.client.ic.InputControlWrapper;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -65,6 +68,7 @@ public class DateTimeView extends LinearLayout {
     private int mRequestCode;
     private DateType mDateType;
     private DateTimeClickListener mDateTimeClickListener;
+    private final Watcher dateTextWatcher = new Watcher();
 
     public DateTimeView(Context context) {
         super(context);
@@ -123,22 +127,7 @@ public class DateTimeView extends LinearLayout {
             }
         });
 
-        selectedDateTime.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setClearButtonVisibility(!s.toString().equals(InputControlWrapper.NOTHING_SUBSTITUTE_LABEL));
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
+        selectedDateTime.addTextChangedListener(dateTextWatcher);
 
         updateViews();
     }
@@ -179,15 +168,32 @@ public class DateTimeView extends LinearLayout {
         label.setText(title);
     }
 
+    public void setPreview(String preview) {
+        selectedDateTime.setText(preview);
+    }
+
     public void setDate(Calendar date) {
         String dateText = null;
         if (date != null) {
             dateText = mUserDateFormat.format(date.getTime());
         }
-        selectedDateTime.setText(dateText != null ? dateText : InputControlWrapper.NOTHING_SUBSTITUTE_LABEL);
+        selectedDateTime.setText(dateText != null ? dateText : getContext().getString(R.string.empty_text_place_holder));
     }
 
-    public void setClearButtonVisibility(boolean visible) {
+    @NonNull
+    public Calendar getDate() {
+        Calendar calendar = Calendar.getInstance();
+        String date = selectedDateTime.getText().toString();
+        try {
+            Date parsedDate = mUserDateFormat.parse(date);
+            calendar.setTime(parsedDate);
+        } catch (ParseException e) {
+            return calendar;
+        }
+        return calendar;
+    }
+
+    private void setClearButtonVisibility(boolean visible) {
         btnClear.setVisibility(visible && mClearVisible ? View.VISIBLE : View.GONE);
         clearDivider.setVisibility(visible && mClearVisible ? View.VISIBLE : View.GONE);
     }
@@ -229,5 +235,28 @@ public class DateTimeView extends LinearLayout {
         void onTimeClick(int position);
 
         void onClear(int position);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        selectedDateTime.removeTextChangedListener(dateTextWatcher);
+    }
+
+    private class Watcher implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (mClearVisible) {
+                setClearButtonVisibility(!s.toString().equals(InputControlWrapper.NOTHING_SUBSTITUTE_LABEL));
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -36,6 +36,7 @@ public interface Analytics {
     void sendEvent(String eventCategory, String eventAction, String eventLabel);
     void sendUserChangedEvent();
     void setServerInfo(String serverVersion, String serverEdition);
+    void setThumbnailsExist();
 
     enum ScreenName {
         LIBRARY("Library screen"),
@@ -93,7 +94,10 @@ public interface Analytics {
         CHANGED("Changed"),
         MARKED_AS_FAVORITE("Marked as favorite"),
         PRINTED("Printed"),
+        SHARED("Shared"),
+        ANNOTATED("Annotated"),
         ADDED("Added"),
+        SELECTED_FOR_SCHEDULE("Selected for schedule"),
         REMOVED("Removed");
 
         String mName;
@@ -123,6 +127,7 @@ public interface Analytics {
         REPORT("Report"),
         DASHBOARD("Dashboard"),
         JOB("Job"),
+        CHOOSE_REPORT("Choose report"),
         WITH_RO("With report options"),
         VOICE_COMMANDS("Voice commands"),
         RUN("Run"),
@@ -130,6 +135,9 @@ public interface Analytics {
         UNDEFINED("Undefined"),
         DONE("Done"),
         FAILED("Failed"),
+        WITH_TEXT("With text"),
+        WITH_LINE("With line"),
+        CLEARED("Cleared"),
         CANCELED("Canceled");
 
         String mName;

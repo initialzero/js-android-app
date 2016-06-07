@@ -1,3 +1,27 @@
+/*
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
+ * http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
+ *
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
+ *
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
+ *
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
+ * <http://www.gnu.org/licenses/lgpl>.
+ */
+
 package com.jaspersoft.android.jaspermobile.internal.di.modules;
 
 import com.jaspersoft.android.jaspermobile.data.FakeJasperRestClient;
@@ -16,6 +40,7 @@ import com.jaspersoft.android.jaspermobile.data.cache.report.ReportCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPageCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportParamsCache;
 import com.jaspersoft.android.jaspermobile.data.cache.report.ReportPropertyCache;
+import com.jaspersoft.android.jaspermobile.data.repository.ExternalFileRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryControlsRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportOptionsRepository;
 import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReportPageRepository;
@@ -24,6 +49,7 @@ import com.jaspersoft.android.jaspermobile.data.repository.report.InMemoryReport
 import com.jaspersoft.android.jaspermobile.data.repository.resource.InMemoryResourceRepository;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.Profile;
+import com.jaspersoft.android.jaspermobile.domain.repository.FilesRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ControlsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportOptionsRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportPageRepository;
@@ -31,6 +57,7 @@ import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportProper
 import com.jaspersoft.android.jaspermobile.domain.repository.report.ReportRepository;
 import com.jaspersoft.android.jaspermobile.domain.repository.resource.ResourceRepository;
 import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
+import com.jaspersoft.android.sdk.network.AuthenticationLifecycle;
 import com.jaspersoft.android.sdk.network.Server;
 
 import java.net.CookieHandler;
@@ -61,12 +88,13 @@ public final class ProfileModule {
     JasperRestClient provideJasperRestClient(
             Server.Builder serverBuilder,
             CookieHandler cookieHandler,
+            AuthenticationLifecycle authenticationHandler,
             Profile profile,
             CredentialsCache credentialsCache,
             JasperServerCache serverCache
     ) {
         JasperRestClient realJasperRestClient = new RealJasperRestClient(
-                serverBuilder, cookieHandler, profile, credentialsCache, serverCache);
+                serverBuilder, cookieHandler, authenticationHandler, profile, credentialsCache, serverCache);
         JasperRestClient fakeJasperRestClient = new FakeJasperRestClient();
         return new StateJasperClient(profile, serverCache, realJasperRestClient, fakeJasperRestClient);
     }
@@ -110,6 +138,12 @@ public final class ProfileModule {
     @PerProfile
     ReportPropertyRepository providesReportPropertyRepository(InMemoryReportPropertyRepository reportPropertyRepository) {
         return reportPropertyRepository;
+    }
+
+    @Provides
+    @PerProfile
+    FilesRepository providesFilesRepository(ExternalFileRepository repository) {
+        return repository;
     }
 
     @Provides

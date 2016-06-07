@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -43,7 +43,7 @@ import com.jaspersoft.android.jaspermobile.domain.SearchResult;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetRootFoldersCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SearchResourcesCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.presentation.view.fragment.BaseFragment;
+import com.jaspersoft.android.jaspermobile.ui.view.fragment.BaseFragment;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
 import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
@@ -253,12 +253,11 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
     }
 
     private void setDataAdapter() {
-        List<ResourceLookup> resourceLookupList = null;
-        mAdapter = new JasperResourceAdapter(getActivity(), jasperResourceConverter.convertToJasperResource(resourceLookupList), viewType);
+        mAdapter = new JasperResourceAdapter(getActivity());
         mAdapter.setOnItemInteractionListener(new JasperResourceAdapter.OnResourceInteractionListener() {
             @Override
-            public void onResourceItemClicked(String id) {
-                onViewSingleClick(mResourceLookupHashMap.get(id));
+            public void onResourceItemClicked(JasperResource jasperResource) {
+                onViewSingleClick(mResourceLookupHashMap.get(jasperResource.getId()));
             }
 
             @Override
@@ -269,8 +268,8 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
             }
         });
 
-        listView.setViewType(viewType);
         listView.setAdapter(mAdapter);
+        listView.changeViewType(viewType);
     }
 
     private void loadRootFolders() {
@@ -376,6 +375,8 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
 
         @Override
         public void onError(Throwable e) {
+            if (!isAdded()) return;
+
             Timber.e(e, "RepositoryFragment#GetRootFolderDataRequestListener failed");
             RequestExceptionHandler.showAuthErrorIfExists(getActivity(), e);
             showEmptyText(com.jaspersoft.android.jaspermobile.R.string.failed_load_data);
@@ -407,12 +408,6 @@ public class RepositoryFragment extends BaseFragment implements SwipeRefreshLayo
             if (totalItemCount > 0 && firstVisibleItem + visibleItemCount >= totalItemCount - mTreshold) {
                 loadNextPage();
             }
-            enableRefreshLayout(listView);
-        }
-
-        private void enableRefreshLayout(RecyclerView listView) {
-            boolean enable = !listView.canScrollVertically(-1);
-            swipeRefreshLayout.setEnabled(enable);
         }
     }
 }

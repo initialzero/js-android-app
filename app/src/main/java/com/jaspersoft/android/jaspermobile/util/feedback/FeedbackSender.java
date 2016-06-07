@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.util.feedback;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
@@ -42,7 +43,6 @@ import javax.inject.Inject;
  */
 @PerProfile
 public final class FeedbackSender {
-    private static final String MESSAGE_TYPE = "message/rfc822";
     private final Context mContext;
     private final Message mFeedback;
 
@@ -72,9 +72,9 @@ public final class FeedbackSender {
     @NonNull
     @VisibleForTesting
     Intent buildIntent() {
-        Intent intent = new Intent(Intent.ACTION_SEND);
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:"));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setType(MESSAGE_TYPE);
         intent.putExtra(Intent.EXTRA_EMAIL, mContext.getResources().getStringArray(R.array.feedback_subject_email));
         intent.putExtra(Intent.EXTRA_SUBJECT, mContext.getString(R.string.sa_show_feedback));
         intent.putExtra(Intent.EXTRA_TEXT, mFeedback.create());

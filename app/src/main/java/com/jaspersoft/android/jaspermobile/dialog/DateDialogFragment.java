@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -75,8 +75,8 @@ public class DateDialogFragment extends BaseDialogFragment {
     }
 
     @Override
-    protected Class<DateDialogClickListener> getDialogCallbackClass() {
-        return DateDialogClickListener.class;
+    protected Class<IcDateDialogClickListener> getDialogCallbackClass() {
+        return IcDateDialogClickListener.class;
     }
 
     protected void initDialogParams() {
@@ -138,8 +138,8 @@ public class DateDialogFragment extends BaseDialogFragment {
     // Dialog Callback
     //---------------------------------------------------------------------
 
-    public interface DateDialogClickListener extends DialogClickListener {
-        void onDateSelected(String id, Calendar date);
+    public interface IcDateDialogClickListener extends DialogClickListener {
+        void onDateSelected(Calendar date, int requestCode, Object... data);
     }
 
     //---------------------------------------------------------------------
@@ -150,7 +150,7 @@ public class DateDialogFragment extends BaseDialogFragment {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
             activeDate.set(year, monthOfYear, dayOfMonth);
-            ((DateDialogClickListener) mDialogListener).onDateSelected(icId, activeDate);
+            ((IcDateDialogClickListener) mDialogListener).onDateSelected(activeDate, requestCode, icId);
         }
     }
 
@@ -160,7 +160,7 @@ public class DateDialogFragment extends BaseDialogFragment {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             activeDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
             activeDate.set(Calendar.MINUTE, minute);
-            ((DateDialogClickListener) mDialogListener).onDateSelected(icId, activeDate);
+            ((IcDateDialogClickListener) mDialogListener).onDateSelected(activeDate, requestCode, icId);
         }
     }
 }

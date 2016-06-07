@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+  ~ Copyright © 2016 TIBCO Software,Inc.All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
-  ~ Unless you have purchased a commercial license agreement from Jaspersoft,
+  ~ Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
   ~ the following license terms apply:
   ~
   ~ This program is part of TIBCO Jaspersoft Mobile for Android.
   ~
-  ~ TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+  ~ TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
+  ~ the Free Software Foundation,either version 3of the License,or
+  ~ (at your option)any later version.
   ~
   ~ TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ but WITHOUT ANY WARRANTY;without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
   ~ GNU Lesser General Public License for more details.
   ~
   ~ You should have received a copy of the GNU Lesser General Public License
-  ~ along with TIBCO Jaspersoft Mobile for Android. If not, see
+  ~ along with TIBCO Jaspersoft Mobile for Android.If not,see
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 
@@ -57,7 +57,7 @@
 
         <!-- Main activity -->
         <activity
-            android:name=".presentation.view.activity.NavigationActivity_">
+            android:name=".ui.view.activity.NavigationActivity_">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -82,24 +82,33 @@
 
         <!-- Activity that performs report viewing in HTML format through visualize -->
         <activity
-            android:name=".presentation.view.activity.ReportVisualizeActivity_"
+            android:name=".ui.view.activity.ReportVisualizeActivity_"
             android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".presentation.view.activity.NavigationActivity_" >
+            android:parentActivityName=".ui.view.activity.NavigationActivity_" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".presentation.view.activity.NavigationActivity_" />
+                android:value=".ui.view.activity.NavigationActivity_" />
         </activity>
 
         <!-- Activity that performs report viewing in HTML format. SDK 2.0 -->
         <activity
-            android:name=".presentation.view.activity.ReportViewActivity_"
-            android:parentActivityName=".presentation.view.activity.NavigationActivity_" >
+            android:name=".ui.view.activity.ReportViewActivity_"
+            android:parentActivityName=".ui.view.activity.NavigationActivity_" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".presentation.view.activity.NavigationActivity_" />
+                android:value=".ui.view.activity.NavigationActivity_" />
         </activity>
 
         <activity android:name=".activities.viewer.html.report.ReportCastActivity_"/>
+
+        <activity android:name=".ui.view.activity.schedule.ChooseReportActivity"/>
+
+        <activity android:name=".ui.view.activity.schedule.NewScheduleActivity_"/>
+
+        <activity android:name=".ui.view.activity.schedule.EditScheduleActivity_"/>
+
+        <activity android:name=".ui.presenter.activity.JobInfoActivity_"
+                  android:theme="@style/Theme.JasperMobile.NoToolbar"/>
 
         <!-- Activity that performs report viewing in HTML format -->
         <activity
@@ -134,13 +143,11 @@
             android:windowSoftInputMode="stateHidden" />
 
         <activity
-            android:name=".activities.schedule.NewScheduleActivity_"/>
-
-        <activity
-            android:name=".activities.schedule.EditScheduleActivity_"/>
-
-        <activity
             android:name=".activities.file.FileViewerActivity_"/>
+
+        <activity
+            android:name=".activities.share.AnnotationActivity_"
+            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"/>
 
         <!-- Activity that allows to specify the application settings -->
         <activity
@@ -149,7 +156,7 @@
             android:label="@string/st_title" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".presentation.view.activity.NavigationActivity_" />
+                android:value=".ui.view.activity.NavigationActivity_" />
         </activity>
 
         <activity
@@ -177,7 +184,7 @@
             android:launchMode="singleTop" />
 
         <activity
-            android:name=".presentation.view.activity.AuthenticatorActivity" >
+            android:name=".ui.view.activity.AuthenticatorActivity" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 
@@ -221,6 +228,17 @@
             android:name=".db.MobileDbProvider"
             android:authorities="com.jaspersoft.android.jaspermobile.db.provider"
             android:exported="false" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.jaspersoft.android.jaspermobile.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/cache_files_path" />
+
+        </provider>
 
         <service
         android:name=".activities.save.SaveReportService_"

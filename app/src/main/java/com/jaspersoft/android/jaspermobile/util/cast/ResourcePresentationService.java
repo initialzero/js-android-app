@@ -1,5 +1,5 @@
 /*
- * Copyright � 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -51,9 +51,9 @@ import com.jaspersoft.android.jaspermobile.domain.VisualizeTemplate;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeExecOptionsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetVisualizeTemplateCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.presentation.model.visualize.VisualizeExecOptions;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.NavigationActivity_;
-import com.jaspersoft.android.jaspermobile.presentation.view.fragment.ComponentProviderDelegate;
+import com.jaspersoft.android.jaspermobile.ui.model.visualize.VisualizeExecOptions;
+import com.jaspersoft.android.jaspermobile.ui.view.activity.NavigationActivity_;
+import com.jaspersoft.android.jaspermobile.ui.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.ScreenUtil_;
 import com.jaspersoft.android.jaspermobile.webview.DefaultSessionListener;
@@ -68,16 +68,21 @@ import com.jaspersoft.android.jaspermobile.webview.UrlPolicy;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
 import com.jaspersoft.android.jaspermobile.webview.WebViewEnvironment;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.InjectionRequestInterceptor;
+import com.jaspersoft.android.jaspermobile.webview.intercept.VisualizeResourcesInterceptRule;
+import com.jaspersoft.android.jaspermobile.webview.intercept.WebResourceInterceptor;
+import com.jaspersoft.android.jaspermobile.webview.intercept.okhttp.OkHttpWebResourceInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
 import com.jaspersoft.android.jaspermobile.widget.ScrollComputableWebView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
+import com.squareup.okhttp.OkHttpClient;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import timber.log.Timber;
 
@@ -102,6 +107,9 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     protected GetVisualizeExecOptionsCase mGetVisualizeExecOptionsCase;
     @Inject
     protected JasperServer mServer;
+    @Inject
+    @Named("webview_client")
+    protected OkHttpClient webViewResourceClient;
 
     private ReportPresentation mPresentation;
     private String mCastDeviceName;
@@ -257,11 +265,27 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
     }
 
     public void scrollUp() {
-        mPresentation.scrollTo(-8);
+        mPresentation.scrollVertical(-8);
     }
 
     public void scrollDown() {
-        mPresentation.scrollTo(8);
+        mPresentation.scrollVertical(8);
+    }
+
+    public void scrollLeft() {
+        mPresentation.scrollHorizontal(-8);
+    }
+
+    public void scrollRight() {
+        mPresentation.scrollHorizontal(8);
+    }
+
+    public void zoomIn() {
+        mPresentation.zoomIn();
+    }
+
+    public void zoomOut() {
+        mPresentation.zoomOut();
     }
 
     //---------------------------------------------------------------------
@@ -470,10 +494,24 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             webView.loadUrl(String.format("javascript:MobileReport.selectPage(%d)", pageNumber));
         }
 
-        private void scrollTo(int scrollValue) {
+        private void scrollVertical(int scrollValue) {
             if (webView.canScrollVertically(scrollValue)) {
                 webView.scrollBy(0, scrollValue);
             }
+        }
+
+        private void scrollHorizontal(int scrollValue) {
+            if (webView.canScrollHorizontally(scrollValue)) {
+                webView.scrollBy(scrollValue, 0);
+            }
+        }
+
+        private void zoomIn() {
+            webView.zoomIn();
+        }
+
+        private void zoomOut() {
+            webView.zoomOut();
         }
 
         private void showReport() {
@@ -482,6 +520,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
 
         private void hideReport() {
             webView.setVisibility(View.INVISIBLE);
+            while (webView.zoomOut());
         }
 
         private void showLoading() {
@@ -524,8 +563,16 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
             JasperWebViewClientListener errorListener = new ErrorWebViewClientListener(getContext(), this);
             JasperWebViewClientListener clientListener = TimeoutWebViewClientListener.wrap(errorListener);
 
+            WebResourceInterceptor.Rule reportResourcesRule = VisualizeResourcesInterceptRule.getInstance();
+            WebResourceInterceptor cacheResourceInterceptor = new OkHttpWebResourceInterceptor.Builder()
+                    .withClient(webViewResourceClient)
+                    .registerRule(reportResourcesRule)
+                    .build();
+            WebResourceInterceptor injectionRequestInterceptor = InjectionRequestInterceptor.getInstance();
+
             SystemWebViewClient systemWebViewClient = new SystemWebViewClient.Builder()
-                    .registerInterceptor(new InjectionRequestInterceptor())
+                    .registerInterceptor(injectionRequestInterceptor)
+                    .registerInterceptor(cacheResourceInterceptor)
                     .withDelegateListener(clientListener)
                     .registerUrlPolicy(defaultPolicy)
                     .build();

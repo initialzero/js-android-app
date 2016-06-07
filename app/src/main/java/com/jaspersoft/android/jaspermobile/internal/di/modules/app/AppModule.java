@@ -1,3 +1,27 @@
+/*
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
+ * http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
+ *
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
+ *
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
+ *
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
+ * <http://www.gnu.org/licenses/lgpl>.
+ */
+
 package com.jaspersoft.android.jaspermobile.internal.di.modules.app;
 
 import android.accounts.AccountManager;
@@ -19,14 +43,21 @@ import com.jaspersoft.android.jaspermobile.data.cache.SecureStorage;
 import com.jaspersoft.android.jaspermobile.domain.executor.PostExecutionThread;
 import com.jaspersoft.android.jaspermobile.domain.executor.PreExecutionThread;
 import com.jaspersoft.android.jaspermobile.internal.di.ApplicationContext;
+import com.jaspersoft.android.jaspermobile.network.cookie.CookieAuthenticationHandler;
 import com.jaspersoft.android.jaspermobile.network.cookie.CookieHandlerFactory;
-import com.jaspersoft.android.jaspermobile.presentation.view.component.ProfileActivationListener;
+import com.jaspersoft.android.jaspermobile.ui.component.ProfileActivationListener;
 import com.jaspersoft.android.jaspermobile.util.DefaultPrefHelper_;
+import com.jaspersoft.android.sdk.network.AuthenticationLifecycle;
 import com.jaspersoft.android.sdk.network.Server;
+import com.squareup.okhttp.Cache;
+import com.squareup.okhttp.OkHttpClient;
 
+import java.io.File;
 import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -55,6 +86,13 @@ public final class AppModule {
     @Singleton
     CookieHandler provideCookieHandler(CookieHandlerFactory cookieHandlerFactory, @ApplicationContext Context context) {
         return cookieHandlerFactory.newStore(context);
+    }
+
+    @Provides
+    @Singleton
+    AuthenticationLifecycle providesAuthenticationHandler(CookieHandler cookieHandler) {
+        CookieManager cookieManager = (CookieManager) cookieHandler;
+        return new CookieAuthenticationHandler(cookieManager);
     }
 
     @Provides
@@ -116,5 +154,26 @@ public final class AppModule {
     @Provides
     ComponentManager.Callback providesComponentCallback(ProfileActivationListener activationListener) {
         return activationListener;
+    }
+
+    @Singleton
+    @Named("webview_client")
+    @Provides
+    OkHttpClient provideWebViewClient(@ApplicationContext Context context) {
+        OkHttpClient client = new OkHttpClient();
+
+        File cacheDir = context.getApplicationContext().getCacheDir();
+        File okCache = new File(cacheDir, "ok-cache");
+        if (!okCache.exists()) {
+            boolean cachedCreated = okCache.mkdirs();
+
+            if (cachedCreated) {
+                int cacheSize = 50 * 1024 * 1024;
+                Cache cache = new Cache(okCache, cacheSize);
+                client.setCache(cache);
+            }
+        }
+
+        return client;
     }
 }

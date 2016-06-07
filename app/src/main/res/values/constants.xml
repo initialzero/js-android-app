@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+  ~ Copyright © 2016 TIBCO Software,Inc.All rights reserved.
   ~ http://community.jaspersoft.com/project/jaspermobile-android
   ~
   ~ Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -9,18 +9,18 @@
   ~
   ~ This program is part of TIBCO Jaspersoft Mobile for Android.
   ~
-  ~ TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+  ~ TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
+  ~ the Free Software Foundation,either version 3of the License,or
+  ~ (at your option)any later version.
   ~
   ~ TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ but WITHOUT ANY WARRANTY;without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
   ~ GNU Lesser General Public License for more details.
   ~
   ~ You should have received a copy of the GNU Lesser General Public License
-  ~ along with TIBCO Jaspersoft Mobile for Android. If not, see
+  ~ along with TIBCO Jaspersoft Mobile for Android.If not,see
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 <resources>
@@ -31,10 +31,12 @@
     <string name="resource_cast_cancel_intent" translatable="false">com.jaspersoft.android.jaspermobile.RESOURCE_CAST_CANCEL</string>
     <string name="resource_presentation_stop_intent" translatable="false">com.jaspersoft.android.jaspermobile.RESOURCE_PRESENTATION_STOP</string>
 
-    <!-- Filter Saved Items Dialog -->
+    <!-- Untranslatable values -->
     <string name="si_fd_option_html" translatable="false">HTML</string>
     <string name="si_fd_option_pdf" translatable="false">PDF</string>
     <string name="si_fd_option_xls" translatable="false">XLS</string>
+    <string name="empty_text_place_holder" translatable="false">---</string>
+    <string name="file_format_xls" translatable="false">Excel</string>
 
     <!-- Screen names for analytic -->
     <string name="ja_ics" translatable="false">Input controls screen</string>
@@ -55,6 +57,9 @@
     <string name="ja_rc_s" translatable="false">Report cast screen</string>
     <string name="ja_new_sch" translatable="false">New schedule screen</string>
     <string name="ja_edit_sch" translatable="false">Edit schedule screen</string>
+    <string name="ja_info_sch" translatable="false">Schedule info screen</string>
+    <string name="ja_annotation" translatable="false">Annotation screen</string>
+    <string name="ja_choose_sch" translatable="false">Choose report screen</string>
 
     <!--Constants-->
     <string name="jasper_account_type" translatable="false">com.jaspersoft</string>
@@ -67,4 +72,6 @@
         <item>js.testdevice@gmail.com</item>
     </string-array>
 
+    <!-- Resource Info Activity -->
+    <string name="ri_uri_title" translatable="false">URI:</string>
 </resources>

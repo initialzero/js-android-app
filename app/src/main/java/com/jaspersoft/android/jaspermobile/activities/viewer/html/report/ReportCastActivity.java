@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -42,14 +42,14 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
+import com.jaspersoft.android.jaspermobile.dialog.NumberPickerDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
-import com.jaspersoft.android.jaspermobile.dialog.PageDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.ReportControlFlags;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.profile.AuthorizeSessionUseCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
-import com.jaspersoft.android.jaspermobile.presentation.view.activity.CastActivity;
+import com.jaspersoft.android.jaspermobile.ui.view.activity.CastActivity;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.widget.AbstractPaginationView;
@@ -89,8 +89,8 @@ import timber.log.Timber;
 public class ReportCastActivity extends CastActivity
         implements
         ResourcePresentationService.ResourcePresentationCallback,
+        NumberPickerDialogFragment.NumberDialogClickListener,
         NumberDialogFragment.NumberDialogClickListener,
-        PageDialogFragment.PageDialogClickListener,
         AbstractPaginationView.OnPageChangeListener,
         AbstractPaginationView.OnPickerSelectedListener {
 
@@ -111,7 +111,6 @@ public class ReportCastActivity extends CastActivity
 
     @ViewById(R.id.paginationControl)
     protected PaginationBarView paginationBar;
-
 
     @ViewById(R.id.reload)
     protected View reloadControl;
@@ -253,6 +252,38 @@ public class ReportCastActivity extends CastActivity
         return false;
     }
 
+    @Touch(R.id.btnScrollLeft)
+    protected boolean scrollLeftAction(MotionEvent event) {
+        scrollTo(event, new TimerTask() {
+            @Override
+            public void run() {
+                mResourcePresentationService.scrollLeft();
+            }
+        });
+        return false;
+    }
+
+    @Touch(R.id.btnScrollRight)
+    protected boolean scrollRightAction(MotionEvent event) {
+        scrollTo(event, new TimerTask() {
+            @Override
+            public void run() {
+                mResourcePresentationService.scrollRight();
+            }
+        });
+        return false;
+    }
+
+    @Click(R.id.btnZoomIn)
+    void zoomInAction() {
+        mResourcePresentationService.zoomIn();
+    }
+
+    @Click(R.id.btnZoomOut)
+    void zoomOutAction() {
+        mResourcePresentationService.zoomOut();
+    }
+
     @Click(R.id.reload)
     void reloadSession() {
         mAuthorizeSessionUseCase.execute(new ErrorSubscriber<>(new SimpleSubscriber<Void>() {
@@ -281,22 +312,27 @@ public class ReportCastActivity extends CastActivity
     @Override
     public void onPagePickerRequested() {
         if (paginationBar.isTotalPagesLoaded()) {
-            NumberDialogFragment.createBuilder(getSupportFragmentManager())
+            NumberPickerDialogFragment.createBuilder(getSupportFragmentManager())
                     .setMinValue(1)
                     .setCurrentValue(paginationBar.getCurrentPage())
                     .setMaxValue(paginationBar.getTotalPages())
                     .show();
         } else {
-            PageDialogFragment.createBuilder(getSupportFragmentManager())
+            NumberDialogFragment.createBuilder(getSupportFragmentManager())
                     .setMaxValue(Integer.MAX_VALUE)
                     .show();
         }
     }
 
     @Override
-    public void onPageSelected(int page, int requestCode) {
+    public void onNumberPicked(int page, int requestCode) {
         paginationBar.updateCurrentPage(page);
-        onPageSelected(page);
+        onNumberSubmit(page, requestCode);
+    }
+
+    @Override
+    public void onNumberSubmit(int currentPage, int requestCode) {
+        onPageSelected(currentPage);
     }
 
     @Override

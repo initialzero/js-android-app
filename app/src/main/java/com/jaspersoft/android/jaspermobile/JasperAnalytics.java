@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -39,7 +39,8 @@ import java.util.List;
 public class JasperAnalytics implements Analytics {
 
     private static final String SERVER_VERSION_PERMANENT_KEY = "&cd1";
-    private static final String SERVER_EDITION__PERMANENT_KEY = "&cd2";
+    private static final String SERVER_EDITION_PERMANENT_KEY = "&cd2";
+    private static final String THUMBNAILS_PERMANENT_KEY = "&cd5";
 
     private Tracker mTracker;
 
@@ -89,11 +90,18 @@ public class JasperAnalytics implements Analytics {
                 .setCategory(EventCategory.ACCOUNT.getValue())
                 .setAction(EventAction.CHANGED.getValue())
                 .build());
+
+        mTracker.set(THUMBNAILS_PERMANENT_KEY, null);
     }
 
     @Override
     public void setServerInfo(String serverVersion, String serverEdition) {
         mTracker.set(SERVER_VERSION_PERMANENT_KEY, serverVersion);
-        mTracker.set(SERVER_EDITION__PERMANENT_KEY, serverEdition);
+        mTracker.set(SERVER_EDITION_PERMANENT_KEY, serverEdition);
+    }
+
+    @Override
+    public void setThumbnailsExist() {
+        mTracker.set(THUMBNAILS_PERMANENT_KEY, "exist");
     }
 }

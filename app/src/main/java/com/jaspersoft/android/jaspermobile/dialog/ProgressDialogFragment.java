@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -29,6 +29,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -151,6 +152,10 @@ public class ProgressDialogFragment extends DialogFragment {
             return this;
         }
 
+        public CycleManager buildManager() {
+            return new CycleManager(this);
+        }
+
         public void show() {
             ProgressDialogFragment dialogFragment = getInstance(fm);
 
@@ -169,8 +174,54 @@ public class ProgressDialogFragment extends DialogFragment {
             dialogFragment.setOnCancelListener(onCancelListener);
             dialogFragment.setOnShowListener(onShowListener);
             dialogFragment.show(fm, TAG);
+        }
+    }
 
-            isPreparing = true;
+
+    public static class CycleManager {
+        private boolean paused;
+        private boolean showed;
+
+        private final ProgressDialogFragment.Builder progressBuilder;
+
+        private CycleManager(ProgressDialogFragment.Builder progressBuilder) {
+            this.progressBuilder = progressBuilder;
+        }
+
+        public void show() {
+            showed = true;
+            if (!paused) {
+                progressBuilder.show();
+            }
+        }
+
+        public void hide(FragmentActivity activity) {
+            showed = false;
+            if (!paused) {
+                ProgressDialogFragment.dismiss(activity.getSupportFragmentManager());
+            }
+        }
+
+        public void resume(FragmentActivity activity) {
+            paused = false;
+            trigger(activity);
+        }
+
+        public void pause(FragmentActivity activity) {
+            paused = true;
+            trigger(activity);
+        }
+
+        private void trigger(FragmentActivity activity) {
+            if (showed) {
+                showDialog();
+            } else {
+                ProgressDialogFragment.dismiss(activity.getSupportFragmentManager());
+            }
+        }
+
+        private void showDialog() {
+            progressBuilder.show();
         }
     }
 }

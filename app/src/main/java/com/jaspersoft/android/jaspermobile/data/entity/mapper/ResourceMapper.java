@@ -1,7 +1,39 @@
+/*
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
+ * http://community.jaspersoft.com/project/jaspermobile-android
+ *
+ * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
+ * the following license terms apply:
+ *
+ * This program is part of TIBCO Jaspersoft Mobile for Android.
+ *
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
+ *
+ * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
+ * <http://www.gnu.org/licenses/lgpl>.
+ */
+
 package com.jaspersoft.android.jaspermobile.data.entity.mapper;
 
 import android.support.annotation.NonNull;
 
+import com.jaspersoft.android.jaspermobile.data.ThumbNailGenerator;
+import com.jaspersoft.android.jaspermobile.internal.di.PerProfile;
+import com.jaspersoft.android.jaspermobile.util.resource.DashboardResource;
+import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
+import com.jaspersoft.android.jaspermobile.util.resource.LegacyDashboardResource;
+import com.jaspersoft.android.jaspermobile.util.resource.ReportResource;
+import com.jaspersoft.android.jaspermobile.util.resource.UndefinedResource;
+import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.FolderResource;
 import com.jaspersoft.android.sdk.client.oxm.report.FolderDataResponse;
 import com.jaspersoft.android.sdk.client.oxm.resource.FileLookup;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -20,12 +52,27 @@ import javax.inject.Singleton;
  * @author Tom Koptel
  * @since 2.3
  */
-@Singleton
+@PerProfile
 public class ResourceMapper {
     private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    private final ThumbNailGenerator mThumbNailGenerator;
+
     @Inject
-    public ResourceMapper() {
+    public ResourceMapper(ThumbNailGenerator thumbNailGenerator) {
+        mThumbNailGenerator = thumbNailGenerator;
+    }
+
+    @NonNull
+    public List<JasperResource> toJasperResources(@NonNull List<Resource> resources) {
+        List<JasperResource> list = new ArrayList<>(resources.size());
+        for (Resource resource : resources) {
+            if (resource != null) {
+                JasperResource jasperResource = toJasperResource(resource);
+                list.add(jasperResource);
+            }
+        }
+        return list;
     }
 
     @NonNull
@@ -87,5 +134,31 @@ public class ResourceMapper {
         lookup.setCreationDate(creationDate);
         lookup.setUpdateDate(updateDate);
         lookup.setPermissionMask(resource.getPermissionMask().getMask());
+    }
+
+    private JasperResource toJasperResource(Resource resource){
+        JasperResource jasperresource;
+        switch (resource.getResourceType()) {
+            case folder:
+                jasperresource = new FolderResource(resource.getUri(), resource.getLabel(), resource.getDescription());
+                break;
+            case legacyDashboard:
+                jasperresource = new LegacyDashboardResource(resource.getUri(), resource.getLabel(), resource.getDescription());
+                break;
+            case dashboard:
+                jasperresource = new DashboardResource(resource.getUri(), resource.getLabel(), resource.getDescription());
+                break;
+            case reportUnit:
+                String imageUri = mThumbNailGenerator.generate(resource.getUri());
+                jasperresource = new ReportResource(resource.getUri(), resource.getLabel(), resource.getDescription(), imageUri);
+                break;
+            case file:
+                jasperresource = new com.jaspersoft.android.jaspermobile.util.resource.viewbinder.FileResource(resource.getUri(), resource.getLabel(), resource.getDescription(), resource.getUri());
+                break;
+            default:
+                jasperresource = new UndefinedResource(resource.getUri(), resource.getLabel(), resource.getDescription());
+                break;
+        }
+        return jasperresource;
     }
 }

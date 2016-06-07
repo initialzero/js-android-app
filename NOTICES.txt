@@ -3,14 +3,14 @@ THIRD PARTY COMPONENTS
 This software includes third party software subject to the associated copyrights, as follows:
 
 * Software for developing case
-- Android Appcompat-v7 23.1.1 (Apache 2.0) - https://source.android.com/source/licenses.html
-- Android CardView-v7 23.1.1 (Apache 2.0) - https://source.android.com/source/licenses.html
-- Android RecyclerView-v7 23.1.1 (Apache 2.0) - https://source.android.com/source/licenses.html
-- Android MediaRouter-v7 23.1.1 (Apache 2.0) - https://source.android.com/source/licenses.html
-- Android Design 23.1.1 (Apache 2.0) - https://source.android.com/source/licenses.html
-- Android Percent 23.1.1 (Apache 2.0) - https://source.android.com/source/licenses.html
+- Android Appcompat-v7 23.2.1 (Apache 2.0) - https://source.android.com/source/licenses.html
+- Android CardView-v7 23.2.1 (Apache 2.0) - https://source.android.com/source/licenses.html
+- Android RecyclerView-v7 23.2.1 (Apache 2.0) - https://source.android.com/source/licenses.html
+- Android MediaRouter-v7 23.2.1 (Apache 2.0) - https://source.android.com/source/licenses.html
+- Android Design 23.2.1 (Apache 2.0) - https://source.android.com/source/licenses.html
+- Android Percent 23.2.1 (Apache 2.0) - https://source.android.com/source/licenses.html
 - Android Annotations 3.2 (Apache 2.0) - https://github.com/excilys/androidannotations/blob/develop/LICENSE.txt
-- Dagger 2 (Apache 2.0) - https://raw.githubusercontent.com/square/dagger/master/LICENSE.txt
+- Dagger 2.1 (Apache 2.0) - https://raw.githubusercontent.com/square/dagger/master/LICENSE.txt
 - Hawk 1.2.1 (Apache 2.0) - https://raw.githubusercontent.com/orhanobut/hawk/master/LICENSE
 - Commons IO 2.4 (Apache 2.0) - https://raw.githubusercontent.com/apache/commons-io/trunk/LICENSE.txt
 - RoboCoP 0.5.1 (Apache 2.0) - https://github.com/mediarain/RoboCoP
@@ -19,7 +19,10 @@ This software includes third party software subject to the associated copyrights
 - RxAndroid 1.1.0 (Apache 2.0) - https://github.com/ReactiveX/RxAndroid/blob/0.x/LICENSE
 - jmustache 1.10 (New BSD License) - https://github.com/samskivert/jmustache/blob/master/LICENSE
 - crashlytics 2.2.1 (Apache 2.0) - https://github.com/twitterdev/cannonball-android/blob/master/LICENSE
-- Google Analytics 8.3.0 (Apache 2.0) - https://developers.google.com/analytics/devguides/collection/android/v4/
+- Google Analytics 8.4.0 (Apache 2.0) - https://developers.google.com/analytics/devguides/collection/android/v4/
+- Auto Value 1.2 (Apache 2.0) - https://raw.githubusercontent.com/google/auto/master/LICENSE.txt
+- Auto Value Parcel 0.2.1 (Apache 2.0) - https://raw.githubusercontent.com/rharter/auto-value-parcel/master/LICENSE.txt
+- Jsoup 1.8.3 (MIT) - https://raw.githubusercontent.com/jhy/jsoup/master/LICENSE
 
 * Software for testing case
 - Robolectric 3.0 (MIT) - https://github.com/robolectric/robolectric/blob/master/LICENSE.txt

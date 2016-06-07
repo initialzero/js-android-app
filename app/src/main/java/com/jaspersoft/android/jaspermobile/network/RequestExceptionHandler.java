@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright © 2016 TIBCO Software,Inc.All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -7,18 +7,18 @@
  *
  * This program is part of TIBCO Jaspersoft Mobile for Android.
  *
- * TIBCO Jaspersoft Mobile is free software: you can redistribute it and/or modify
+ * TIBCO Jaspersoft Mobile is free software:you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation,either version 3of the License,or
+ * (at your option)any later version.
  *
  * TIBCO Jaspersoft Mobile is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * but WITHOUT ANY WARRANTY;without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with TIBCO Jaspersoft Mobile for Android. If not, see
+ * along with TIBCO Jaspersoft Mobile for Android.If not,see
  * <http://www.gnu.org/licenses/lgpl>.
  */
 
@@ -73,6 +73,10 @@ public class RequestExceptionHandler {
 
         if (exception instanceof ServiceException) {
             ServiceException serviceException = ((ServiceException) exception);
+            return adaptServiceMessage(serviceException);
+        }
+        if (exception.getCause() instanceof ServiceException) {
+            ServiceException serviceException = (ServiceException) exception.getCause();
             return adaptServiceMessage(serviceException);
         }
 
@@ -149,7 +153,7 @@ public class RequestExceptionHandler {
             case StatusCodes.JOB_DUPLICATE_OUTPUT_FILE_NAME:
                 return mContext.getString(R.string.error_schedule_duplicate_file_name);
             case StatusCodes.JOB_START_DATE_IN_THE_PAST:
-                return mContext.getString(R.string.error_schedule_in_the_past);
+                return mContext.getString(R.string.error_schedule_start_date_in_the_past);
             case StatusCodes.JOB_OUTPUT_FILENAME_INVALID_CHARS:
                 return mContext.getString(R.string.error_schedule_special_characters);
             case StatusCodes.JOB_OUTPUT_FOLDER_DOES_NOT_EXIST:
@@ -159,6 +163,10 @@ public class RequestExceptionHandler {
             case StatusCodes.JOB_OUTPUT_FILENAME_TOO_LONG:
                 String fileLength = exception.getArguments().get(0);
                 return mContext.getString(R.string.error_schedule_output_filename_too_long, fileLength);
+            case StatusCodes.JOB_TRIGGER_MONTHS_EMPTY:
+                return mContext.getString(R.string.error_trigger_empty_months);
+            case StatusCodes.JOB_TRIGGER_WEEK_DAYS_EMPTY:
+                return mContext.getString(R.string.error_trigger_empty_days);
             case StatusCodes.JOB_LABEL_TOO_LONG:
                 String labelLength = exception.getArguments().get(0);
                 return mContext.getString(R.string.error_schedule_label_too_long, labelLength);
@@ -167,6 +175,14 @@ public class RequestExceptionHandler {
             case StatusCodes.SAVED_VALUES_LABEL_TOO_LONG:
                 String savedValesLabelLength = exception.getArguments().get(0);
                 return mContext.getString(R.string.error_saved_values_label_too_long, savedValesLabelLength);
+            case StatusCodes.JOB_CREATION_INTERNAL_ERROR:
+                return exception.getMessage();
+            case StatusCodes.JOB_CALENDAR_PATTERN_ERROR_DAYS_IN_MONTH:
+                return mContext.getString(R.string.error_trigger_calendar_pattern_days_in_month);
+            case StatusCodes.JOB_CALENDAR_PATTERN_ERROR_HOURS:
+                return mContext.getString(R.string.error_trigger_calendar_pattern_hours);
+            case StatusCodes.JOB_CALENDAR_PATTERN_ERROR_MINUTES:
+                return mContext.getString(R.string.error_trigger_calendar_pattern_minutes);
             default:
                 return mContext.getString(R.string.error_undefined);
         }

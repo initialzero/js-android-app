@@ -203,6 +203,7 @@
     <string name="sch_state">State</string>
     <string name="sch_lass_run">Last run</string>
     <string name="sch_next_run">Next run</string>
+    <string name="sch_disabled" translatable="false">Disabled</string>
 
     <!-- Report Viewer Activity -->
     <string name="rv_ab_save_report">Save Report</string>

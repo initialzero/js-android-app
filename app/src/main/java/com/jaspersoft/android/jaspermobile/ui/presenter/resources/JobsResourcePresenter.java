@@ -59,7 +59,7 @@ public class JobsResourcePresenter extends ResourcePresenter<JobResourceContract
         getView().showEnabled(isEnabled);
         getView().showProgress(!getModel().isInAction(getEntity().getId()));
 
-        ResourceIcon resourceIcon = getModel().getResourceIcon(getEntity().getId());
+        ResourceIcon resourceIcon = getModel().getResourceIcon(getEntity().getJobTarget().getReportUri());
         if (resourceIcon == null) {
             getModel().requestThumbnail(getEntity().getId(), getEntity().getJobTarget().getReportUri());
         } else {

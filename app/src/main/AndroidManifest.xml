@@ -72,6 +72,10 @@
             android:theme="@style/Theme.JasperMobile.NoToolbar"/>
 
         <activity
+            android:name=".activities.report.ReportActivity"
+            android:theme="@style/Theme.JasperMobile.NoToolbar"/>
+
+        <activity
             android:name=".activities.inputcontrols.SingleSelectActivity_"
             android:windowSoftInputMode="adjustResize"/>
 

@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.util;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -31,6 +32,7 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.report.ReportActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
@@ -40,8 +42,6 @@ import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Ambe
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
-import com.jaspersoft.android.jaspermobile.ui.view.activity.ReportViewActivity_;
-import com.jaspersoft.android.jaspermobile.ui.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.ui.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
@@ -131,15 +131,9 @@ public class ResourceOpener {
     }
 
     private void runReport(final ResourceLookup resource) {
-        boolean isRestEngine = mServerVersion.lessThan(ServerVersion.v6);
-        boolean isCeJrs = !mIsPro;
-        if (isCeJrs || isRestEngine) {
-            ReportViewActivity_.intent(activity)
-                    .resource(resource).start();
-        } else {
-            ReportVisualizeActivity_.intent(activity)
-                    .resource(resource).start();
-        }
+        Intent runReport = new Intent(activity, ReportActivity.class);
+        runReport.putExtra(ReportActivity.RESOURCE_LOOKUP_ARG,resource);
+        activity.startActivity(runReport);
     }
 
     private void castReport(final ResourceLookup resource) {

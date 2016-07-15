@@ -27,25 +27,33 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/castAction"
+        android:title=""
+        android:visible="@bool/castingAvailable"
+        app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/favoriteAction"
         android:icon="@drawable/ic_menu_star_outline"
         android:title="@string/r_cm_add_to_favorites"
         app:showAsAction="ifRoom"/>
-
-    <item
-        android:id="@+id/filtersAction"
-        android:icon="@drawable/ic_menu_filter"
-        android:title="@string/rv_ab_show_filters"
-        app:showAsAction="never"/>
 
     <group
         android:id="@+id/renderedActions">
 
         <item
             android:id="@+id/shareAction"
-            android:icon="@drawable/ic_menu_share"
+            android:icon="@drawable/ic_menu_share_selector"
             android:title="@string/r_cm_share"
             app:showAsAction="ifRoom"/>
+
+        <item
+            android:id="@+id/filtersAction"
+            android:icon="@drawable/ic_menu_filter"
+            android:title="@string/rv_ab_show_filters"
+            android:visible="false"
+            app:showAsAction="never"/>
 
         <item
             android:id="@+id/refreshAction"
@@ -63,8 +71,8 @@
             android:id="@+id/printAction"
             android:icon="@drawable/ic_action_print"
             android:title="@string/r_cm_print"
-            android:enabled="@bool/printingAvailable"
-            app:showAsAction="never" />
+            android:visible="@bool/printingAvailable"
+            app:showAsAction="never"/>
     </group>
 
     <item

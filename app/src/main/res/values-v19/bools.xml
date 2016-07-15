@@ -25,4 +25,5 @@
 
 <resources>
     <bool name="printingAvailable">true</bool>
+    <bool name="castingAvailable">true</bool>
 </resources>

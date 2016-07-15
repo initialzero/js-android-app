@@ -23,7 +23,9 @@
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<resources>
-    <bool name="printingAvailable">false</bool>
-    <bool name="castingAvailable">false</bool>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false">
+        <bitmap android:alpha="0.3" android:src="@drawable/ic_menu_share"/>
+    </item>
+    <item android:drawable="@drawable/ic_menu_share"/>
+</selector>

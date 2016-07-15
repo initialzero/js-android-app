@@ -23,7 +23,32 @@
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
 
-<resources>
-    <bool name="printingAvailable">false</bool>
-    <bool name="castingAvailable">false</bool>
-</resources>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/castAction"
+        android:title=""
+        android:visible="@bool/castingAvailable"
+        app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
+        app:showAsAction="ifRoom"/>
+
+    <group
+        android:id="@+id/renderedActions">
+
+        <item
+            android:id="@+id/filtersAction"
+            android:icon="@drawable/ic_menu_filter"
+            android:title="@string/rv_ab_show_filters"
+            android:visible="false"
+            app:showAsAction="never"/>
+
+        <item
+            android:id="@+id/refreshAction"
+            android:icon="@drawable/ic_menu_refresh"
+            android:title="@string/r_ab_refresh"
+            app:showAsAction="never"/>
+
+    </group>
+
+</menu>

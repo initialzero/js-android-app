@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.internal.di.components;
 
 import com.jaspersoft.android.jaspermobile.activities.report.ReportActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.ReportCastActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportViewModule;
@@ -44,4 +45,5 @@ import dagger.Subcomponent;
 )
 public interface ReportComponent {
     void inject(ReportActivity reportActivity);
+    void inject(ReportCastActivity reportCastActivity);
 }

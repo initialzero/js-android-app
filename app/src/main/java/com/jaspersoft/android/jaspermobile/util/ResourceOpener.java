@@ -32,7 +32,9 @@ import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.report.BaseReportActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.ReportCastActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositorySearchFragment;
@@ -40,7 +42,6 @@ import com.jaspersoft.android.jaspermobile.activities.repository.fragment.Reposi
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.Amber2DashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.AmberDashboardActivity_;
 import com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard.LegacyDashboardViewerActivity_;
-import com.jaspersoft.android.jaspermobile.activities.viewer.html.report.ReportCastActivity_;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.ui.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
@@ -137,8 +138,9 @@ public class ResourceOpener {
     }
 
     private void castReport(final ResourceLookup resource) {
-        ReportCastActivity_.intent(activity)
-                .resource(resource).start();
+        Intent castIntent = new Intent(activity, ReportCastActivity.class);
+        castIntent.putExtra(BaseReportActivity.RESOURCE_LOOKUP_ARG, resource);
+        activity.startActivity(castIntent);
     }
 
     private void runDashboard(ResourceLookup resource) {

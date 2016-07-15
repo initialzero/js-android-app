@@ -84,16 +84,6 @@
             android:theme="@style/Theme.JasperMobile.NoToolbar"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- Activity that performs report viewing in HTML format through visualize -->
-        <activity
-            android:name=".ui.view.activity.ReportVisualizeActivity_"
-            android:configChanges="keyboard|keyboardHidden|screenSize|orientation|locale"
-            android:parentActivityName=".ui.view.activity.NavigationActivity_" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.view.activity.NavigationActivity_" />
-        </activity>
-
         <!-- Activity that performs report viewing in HTML format. SDK 2.0 -->
         <activity
             android:name=".ui.view.activity.ReportViewActivity_"
@@ -103,7 +93,8 @@
                 android:value=".ui.view.activity.NavigationActivity_" />
         </activity>
 
-        <activity android:name=".activities.viewer.html.report.ReportCastActivity_"/>
+        <activity android:name=".activities.report.ReportCastActivity"
+                  android:theme="@style/Theme.JasperMobile.NoToolbar"/>
 
         <activity android:name=".ui.view.activity.schedule.ChooseReportActivity"/>
 

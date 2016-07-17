@@ -106,7 +106,7 @@
     <!--TODO Remove!-->
     <string name="fv_undefined_message">Can not open. Resource type undefined</string>
     <!--TODO Remove!-->
-    <string name="fv_opening_message">Opening file...</string>
+    <string name="fv_opening_message">Opening file…</string>
 
     <!-- Filter Dialog -->
     <string name="s_fd_option_all">All</string>

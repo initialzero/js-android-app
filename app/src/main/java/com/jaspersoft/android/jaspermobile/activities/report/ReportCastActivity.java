@@ -125,7 +125,7 @@ public class ReportCastActivity extends BaseReportActivity implements ResourcePr
         scrollTo(event, new TimerTask() {
             @Override
             public void run() {
-                reportViewer.performViewAction(ViewAction.SCROLL_TOP);
+                reportViewer.performViewAction(ViewAction.SCROLL_UP);
             }
         });
         return false;
@@ -136,7 +136,7 @@ public class ReportCastActivity extends BaseReportActivity implements ResourcePr
         scrollTo(event, new TimerTask() {
             @Override
             public void run() {
-                reportViewer.performViewAction(ViewAction.SCROLL_BOTTOM);
+                reportViewer.performViewAction(ViewAction.SCROLL_DOWN);
             }
         });
         return false;

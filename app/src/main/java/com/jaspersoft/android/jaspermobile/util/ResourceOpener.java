@@ -31,7 +31,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity_;
+import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.BaseReportActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportCastActivity;
@@ -47,8 +47,10 @@ import com.jaspersoft.android.jaspermobile.ui.view.fragment.ComponentProviderDel
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
 import com.jaspersoft.android.jaspermobile.util.filtering.RepositoryResourceFilter_;
 import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportDestination;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
+import com.jaspersoft.android.sdk.widget.report.renderer.Destination;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -97,7 +99,7 @@ public class ResourceOpener {
                 if (ResourcePresentationService.isStarted()) {
                     castReport(resource);
                 } else {
-                    runReport(resource);
+                    runReport(resource, null);
                 }
                 break;
             case legacyDashboard:
@@ -105,7 +107,7 @@ public class ResourceOpener {
                 runDashboard(resource);
                 break;
             case file:
-                showFile(resource);
+                showFile(resource.getUri());
                 break;
             default:
                 showUnsupported();
@@ -131,9 +133,16 @@ public class ResourceOpener {
                 .commit();
     }
 
-    private void runReport(final ResourceLookup resource) {
+    public void showFile(String resourceUri){
+        Intent fileViewerIntent = new Intent(activity, FileViewerActivity.class);
+        fileViewerIntent.putExtra(FileViewerActivity.RESOURCE_URI_ARG, resourceUri);
+        activity.startActivity(fileViewerIntent);
+    }
+
+    public void runReport(ResourceLookup resource, ReportDestination destination) {
         Intent runReport = new Intent(activity, ReportActivity.class);
         runReport.putExtra(ReportActivity.RESOURCE_LOOKUP_ARG,resource);
+        runReport.putExtra(ReportActivity.REPORT_DESTINATION_ARG, destination);
         activity.startActivity(runReport);
     }
 
@@ -164,10 +173,6 @@ public class ResourceOpener {
         if (isVisualizeEngine) {
             Amber2DashboardActivity_.intent(activity).resource(resource).start();
         }
-    }
-
-    private void showFile(ResourceLookup resource){
-        FileViewerActivity_.intent(activity).resourceLookup(resource).start();
     }
 
     private void showUnsupported(){

@@ -45,6 +45,7 @@ import com.jaspersoft.android.jaspermobile.activities.report.ReportCastActivity;
 import com.jaspersoft.android.jaspermobile.domain.ScreenCapture;
 import com.jaspersoft.android.jaspermobile.ui.view.activity.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.ui.view.fragment.ComponentProviderDelegate;
+import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.widget.LoadingView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.widget.report.view.ReportView;
@@ -76,6 +77,8 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService i
         }
     };
 
+    @Inject
+    ReportParamsStorage reportParamsStorage;
     @Inject
     Analytics analytics;
 
@@ -186,7 +189,10 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService i
             reportPresentation.reportView.setVisibility(View.GONE);
             reportPresentation.loading.setVisibility(View.GONE);
         }
-        currentReport = null;
+        if (currentReport != null) {
+            reportParamsStorage.clearInputControlHolder(currentReport.getUri());
+            currentReport = null;
+        }
         updateCastNotification();
 
         analytics.sendEvent(Analytics.EventCategory.RESOURCE.getValue(), Analytics.EventAction.PRESENTATION_STOPPED.getValue(), null);
@@ -198,7 +204,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService i
             reportPresentation = null;
         }
         if (!silent) {
-            resourcePresentationCallback.onPresentationStopped();
+            stopCasting();
         }
     }
 

@@ -25,6 +25,7 @@
 package com.jaspersoft.android.jaspermobile.activities.report;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -33,6 +34,7 @@ import android.view.View;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
+import com.jaspersoft.android.jaspermobile.data.entity.mapper.DestinationMapper;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.ReportControlFlags;
@@ -41,15 +43,21 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportSho
 import com.jaspersoft.android.jaspermobile.ui.view.activity.CastActivity;
 import com.jaspersoft.android.jaspermobile.util.InputControlHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
+import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
+import com.jaspersoft.android.jaspermobile.util.ResourceOpener_;
 import com.jaspersoft.android.jaspermobile.widget.LoadingView;
 import com.jaspersoft.android.jaspermobile.widget.SimplePaginationView;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportDestination;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
+import com.jaspersoft.android.sdk.widget.report.renderer.Destination;
 import com.jaspersoft.android.sdk.widget.report.renderer.RunOptions;
 import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.Hyperlink;
+import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.ReferenceHyperlink;
+import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.RemoteHyperlink;
 import com.jaspersoft.android.sdk.widget.report.view.ReportEventListener;
 import com.jaspersoft.android.sdk.widget.report.view.ReportViewer;
 
@@ -68,6 +76,7 @@ import butterknife.ButterKnife;
  */
 public abstract class BaseReportActivity extends CastActivity implements Toolbar.OnMenuItemClickListener, ReportEventListener {
     public static final String RESOURCE_LOOKUP_ARG = "resource_lookup";
+    public static final String REPORT_DESTINATION_ARG = "report_destination";
     private static final int REPORT_FILTERS_CODE = 100;
 
     protected ReportViewer reportViewer;
@@ -88,6 +97,8 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
     ReportParamsStorage reportParamsStorage;
     @Inject
     ReportParamsMapper paramsMapper;
+    @Inject
+    DestinationMapper destinationMapper;
 
     protected ResourceLookup resourceLookup;
     private boolean filtersAvailable;
@@ -140,16 +151,10 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
         if (resultCode != RESULT_OK) return;
 
         if (requestCode == REPORT_FILTERS_CODE) {
-            InputControlHolder icHolder = reportParamsStorage.getInputControlHolder(resourceLookup.getUri());
-            List<ReportParameter> params = paramsMapper.legacyParamsToRetrofitted(icHolder.getReportParams());
             if (reportViewer.isControlActionsAvailable()) {
-                reportViewer.applyParams(params);
+                applyParams();
             } else {
-                RunOptions runOptions = new RunOptions.Builder()
-                        .reportUri(resourceLookup.getUri())
-                        .parameters(params)
-                        .build();
-                reportViewer.run(runOptions);
+                runReport(resourceLookup.getUri());
             }
         }
     }
@@ -214,15 +219,39 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
             resourceLookup = extras.getParcelable(RESOURCE_LOOKUP_ARG);
         }
         if (resourceLookup == null) {
-            throw new RuntimeException("Resource lookup should not be provided");
+            throw new RuntimeException("Resource lookup should be provided");
         }
         return resourceLookup;
     }
 
+    private Destination getReportDestination() {
+        Bundle extras = getIntent().getExtras();
+        ReportDestination reportDestination = null;
+        if (extras != null) {
+            reportDestination = (ReportDestination) extras.getSerializable(REPORT_DESTINATION_ARG);
+        }
+        if (reportDestination != null) {
+            return destinationMapper.toDestination(reportDestination);
+        }
+        return null;
+    }
+
     private void runReport(String reportUri) {
+        Destination destination = getReportDestination();
         reportViewer.run(new RunOptions.Builder()
                 .reportUri(reportUri)
+                .parameters(getReportParams())
+                .destination(destination)
                 .build());
+    }
+
+    private void applyParams() {
+        reportViewer.applyParams(getReportParams());
+    }
+
+    private List<ReportParameter> getReportParams() {
+        InputControlHolder icHolder = reportParamsStorage.getInputControlHolder(resourceLookup.getUri());
+        return paramsMapper.legacyParamsToRetrofitted(icHolder.getReportParams());
     }
 
     @NotNull

@@ -36,21 +36,35 @@ import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.share.AnnotationActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
 import com.jaspersoft.android.jaspermobile.dialog.SimpleDialogFragment;
+import com.jaspersoft.android.jaspermobile.domain.ResourceDetailsRequest;
 import com.jaspersoft.android.jaspermobile.domain.ScreenCapture;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
+import com.jaspersoft.android.jaspermobile.domain.interactor.resource.GetResourceDetailsByTypeCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.resource.SaveScreenCaptureCase;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportViewModule;
 import com.jaspersoft.android.jaspermobile.ui.view.activity.schedule.NewScheduleActivity_;
 import com.jaspersoft.android.jaspermobile.util.FavoritesHelper;
+import com.jaspersoft.android.jaspermobile.util.InputControlHolder;
+import com.jaspersoft.android.jaspermobile.util.ResourceOpener;
+import com.jaspersoft.android.jaspermobile.util.ResourceOpener_;
 import com.jaspersoft.android.jaspermobile.util.print.ReportPrintJob;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
 import com.jaspersoft.android.jaspermobile.util.resource.JasperResource;
 import com.jaspersoft.android.jaspermobile.util.resource.viewbinder.JasperResourceConverter;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportDestination;
+import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
+import com.jaspersoft.android.sdk.widget.report.renderer.RunOptions;
+import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.Hyperlink;
+import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.ReferenceHyperlink;
+import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.RemoteHyperlink;
+import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.ReportExecutionHyperlink;
 import com.jaspersoft.android.sdk.widget.report.view.ReportFragment;
 
 import java.io.File;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -60,18 +74,23 @@ import javax.inject.Inject;
  */
 public class ReportActivity extends BaseReportActivity {
     @Inject
+    GetResourceDetailsByTypeCase getResourceDetailsByTypeCase;
+    @Inject
     SaveScreenCaptureCase saveScreenCaptureCase;
     @Inject
     ReportPrintJob resourcePrintJob;
     @Inject
-    JasperResourceConverter mJasperResourceConverter;
+    JasperResourceConverter jasperResourceConverter;
     @Inject
     FavoritesHelper favoritesHelper;
+
+    private ResourceOpener resourceOpener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getProfileComponent().plusReportViewer(new ActivityModule(this), new ReportViewModule()).inject(this);
         super.onCreate(savedInstanceState);
+        resourceOpener = ResourceOpener_.getInstance_(this);
 
         if (init((ReportFragment) getSupportFragmentManager().findFragmentById(R.id.reportFragment))){
             loadMetadata(resourceLookup.getUri());
@@ -98,9 +117,26 @@ public class ReportActivity extends BaseReportActivity {
         super.onDestroy();
 
         if (isFinishing()) {
+            getResourceDetailsByTypeCase.unsubscribe();
             getReportShowControlsPropertyCase.unsubscribe();
             saveScreenCaptureCase.unsubscribe();
             reportParamsStorage.clearInputControlHolder(resourceLookup.getUri());
+        }
+    }
+
+    @Override
+    public void onHyperlinkClicked(Hyperlink hyperlink) {
+        if (hyperlink instanceof ReferenceHyperlink) {
+            Uri reference = ((ReferenceHyperlink) hyperlink).getReference();
+            showReference(reference);
+        } else if (hyperlink instanceof RemoteHyperlink) {
+            Uri resourceUri = ((RemoteHyperlink) hyperlink).getResourceUri();
+            resourceOpener.showFile(resourceUri.toString());
+        } else if (hyperlink instanceof ReportExecutionHyperlink) {
+            String resourceType = ResourceLookup.ResourceType.reportUnit.name();
+            String reportUri = ((ReportExecutionHyperlink) hyperlink).getRunOptions().getReportUri();
+            ResourceDetailsRequest resource = new ResourceDetailsRequest(reportUri, resourceType);
+            getResourceDetailsByTypeCase.execute(resource, new GetResourceDetailListener(((ReportExecutionHyperlink) hyperlink).getRunOptions()));
         }
     }
 
@@ -180,7 +216,7 @@ public class ReportActivity extends BaseReportActivity {
     }
 
     private void showSchedulePage() {
-        JasperResource reportResource = mJasperResourceConverter.convertToJasperResource(resourceLookup);
+        JasperResource reportResource = jasperResourceConverter.convertToJasperResource(resourceLookup);
 
         NewScheduleActivity_.intent(this)
                 .jasperResource(reportResource)
@@ -194,36 +230,93 @@ public class ReportActivity extends BaseReportActivity {
         startActivity(intent);
     }
 
+    private void showReference(Uri externalLink) {
+        String title = getString(R.string.rv_open_link_chooser);
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, externalLink);
+        Intent chooser = Intent.createChooser(browserIntent, title);
+        if (browserIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(chooser);
+        }
+    }
+
     private void makeScreenShot() {
         ScreenCapture reportScreenCapture = ScreenCapture.Factory.capture(reportViewer.getView());
-        saveScreenCaptureCase.execute(reportScreenCapture, new SimpleSubscriber<File>() {
-            @Override
-            public void onStart() {
-                ProgressDialogFragment.builder(getSupportFragmentManager())
-                        .setLoadingMessage(R.string.loading_msg)
-                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                            @Override
-                            public void onCancel(DialogInterface dialog) {
-                                saveScreenCaptureCase.unsubscribe();
-                            }
-                        })
-                        .show();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                // TODO: Handle screen capture error
-            }
-
-            @Override
-            public void onNext(File item) {
-                ProgressDialogFragment.dismiss(getSupportFragmentManager());
-                showSharePage(item);
-            }
-        });
+        saveScreenCaptureCase.execute(reportScreenCapture, new SaveScreenCaptureListener());
     }
 
     private int getTotalPageCount() {
         return paginationView.getTotalPages() == null ? 1 : paginationView.getTotalPages();
+    }
+
+    private class GetResourceDetailListener extends SimpleSubscriber<ResourceLookup> {
+        private final RunOptions runOptions;
+
+        private GetResourceDetailListener(RunOptions runOptions) {
+            this.runOptions = runOptions;
+        }
+
+        public void onStart() {
+            ProgressDialogFragment.builder(getSupportFragmentManager())
+                    .setLoadingMessage(R.string.loading_msg)
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            getResourceDetailsByTypeCase.unsubscribe();
+                        }
+                    })
+                    .show();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            // TODO: Handle report metadata detail obtain error
+        }
+
+        @Override
+        public void onNext(ResourceLookup item) {
+            List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> reportParams = runOptions.getParameters();
+            List<ReportParameter> legacyReportParams = paramsMapper.retrofittedParamsToLegacy(reportParams);
+            ReportDestination reportDestination= destinationMapper.toReportDestination(runOptions.getDestination());
+
+            InputControlHolder icHolder = reportParamsStorage.getInputControlHolder(item.getUri());
+            icHolder.setReportParams(legacyReportParams);
+
+            resourceOpener.runReport(item, reportDestination);
+        }
+
+        @Override
+        public void onCompleted() {
+            ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        }
+    }
+
+    private class SaveScreenCaptureListener extends SimpleSubscriber<File> {
+        @Override
+        public void onStart() {
+            ProgressDialogFragment.builder(getSupportFragmentManager())
+                    .setLoadingMessage(R.string.loading_msg)
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            saveScreenCaptureCase.unsubscribe();
+                        }
+                    })
+                    .show();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            // TODO: Handle screen capture error
+        }
+
+        @Override
+        public void onNext(File item) {
+            showSharePage(item);
+        }
+
+        @Override
+        public void onCompleted() {
+            ProgressDialogFragment.dismiss(getSupportFragmentManager());
+        }
     }
 }

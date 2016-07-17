@@ -138,7 +138,8 @@
             android:windowSoftInputMode="stateHidden" />
 
         <activity
-            android:name=".activities.file.FileViewerActivity_"/>
+            android:name=".activities.file.FileViewerActivity"
+            android:label="@string/fv_opening_message"/>
 
         <activity
             android:name=".activities.share.AnnotationActivity_"

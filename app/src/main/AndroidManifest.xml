@@ -208,10 +208,11 @@
         </receiver>
 
         <receiver
-            android:name=".util.LocaleChangeReceiver"
+            android:name=".util.TimezoneLocaleChangeReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
 

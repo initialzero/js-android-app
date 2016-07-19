@@ -28,6 +28,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.jaspersoft.android.sdk.widget.base.RequestCacheStore;
+
 import java.net.CookieManager;
 import java.net.CookieStore;
 
@@ -35,7 +37,7 @@ import java.net.CookieStore;
  * @author Andrew Tivodar
  * @since 2.0
  */
-public class LocaleChangeReceiver extends BroadcastReceiver {
+public class TimezoneLocaleChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         CookieManager cookieManager = (CookieManager) CookieManager.getDefault();
@@ -45,5 +47,7 @@ public class LocaleChangeReceiver extends BroadcastReceiver {
                 cookieStore.removeAll();
             }
         }
+
+        RequestCacheStore.clear(context);
     }
 }

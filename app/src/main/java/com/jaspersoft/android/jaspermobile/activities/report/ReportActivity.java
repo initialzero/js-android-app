@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.report;
 
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -138,6 +139,21 @@ public class ReportActivity extends BaseReportActivity {
             ResourceDetailsRequest resource = new ResourceDetailsRequest(reportUri, resourceType);
             getResourceDetailsByTypeCase.execute(resource, new GetResourceDetailListener(((ReportExecutionHyperlink) hyperlink).getRunOptions()));
         }
+    }
+
+    @Override
+    public void onExternalLinkOpened(String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, getString(R.string.sdr_t_no_app_available, "URL"), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onTimeoutWarning() {
+
     }
 
     @Override

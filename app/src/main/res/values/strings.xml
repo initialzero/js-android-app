@@ -205,6 +205,8 @@
     <string name="sch_next_run">Next run</string>
 
     <!-- Report Viewer Activity -->
+    <string name="rv_ab_bookmarks" translatable="false">Bookmarks</string>
+    <string name="rv_bookmark_page" translatable="false">Page: %s</string>
     <string name="rv_ab_save_report">Save Report</string>
     <string name="rv_ab_show_filters">Show Filters</string>
     <string name="rv_error_empty_report">There is no report data.</string>

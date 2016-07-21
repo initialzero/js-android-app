@@ -72,7 +72,7 @@
             android:theme="@style/Theme.JasperMobile.NoToolbar"/>
 
         <activity
-            android:name=".activities.report.ReportActivity"
+            android:name=".activities.report.ReportViewActivity"
             android:theme="@style/Theme.JasperMobile.NoToolbar"/>
 
         <activity
@@ -94,6 +94,10 @@
         </activity>
 
         <activity android:name=".activities.report.ReportCastActivity"
+                  android:theme="@style/Theme.JasperMobile.NoToolbar"/>
+
+
+        <activity android:name=".activities.report.bookmarks.BookmarksActivity"
                   android:theme="@style/Theme.JasperMobile.NoToolbar"/>
 
         <activity android:name=".ui.view.activity.schedule.ChooseReportActivity"/>

@@ -33,7 +33,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.file.FileViewerActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.BaseReportActivity;
-import com.jaspersoft.android.jaspermobile.activities.report.ReportActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.ReportViewActivity;
 import com.jaspersoft.android.jaspermobile.activities.report.ReportCastActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryControllerFragment_;
@@ -50,7 +50,6 @@ import com.jaspersoft.android.jaspermobile.util.filtering.ResourceFilter;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportDestination;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
-import com.jaspersoft.android.sdk.widget.report.renderer.Destination;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
@@ -140,9 +139,9 @@ public class ResourceOpener {
     }
 
     public void runReport(ResourceLookup resource, ReportDestination destination) {
-        Intent runReport = new Intent(activity, ReportActivity.class);
-        runReport.putExtra(ReportActivity.RESOURCE_LOOKUP_ARG,resource);
-        runReport.putExtra(ReportActivity.REPORT_DESTINATION_ARG, destination);
+        Intent runReport = new Intent(activity, ReportViewActivity.class);
+        runReport.putExtra(ReportViewActivity.RESOURCE_LOOKUP_ARG,resource);
+        runReport.putExtra(ReportViewActivity.REPORT_DESTINATION_ARG, destination);
         activity.startActivity(runReport);
     }
 

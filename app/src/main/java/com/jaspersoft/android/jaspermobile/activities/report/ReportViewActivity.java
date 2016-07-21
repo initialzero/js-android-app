@@ -73,7 +73,7 @@ import javax.inject.Inject;
  * @author Andrew Tivodar
  * @since 2.6
  */
-public class ReportActivity extends BaseReportActivity {
+public class ReportViewActivity extends BaseReportActivity {
     @Inject
     GetResourceDetailsByTypeCase getResourceDetailsByTypeCase;
     @Inject
@@ -96,7 +96,7 @@ public class ReportActivity extends BaseReportActivity {
         if (init((ReportFragment) getSupportFragmentManager().findFragmentById(R.id.reportFragment))){
             loadMetadata(resourceLookup.getUri());
         }
-        onActionsAvailabilityChanged(reportViewer != null && reportViewer.isControlActionsAvailable());
+        onActionsAvailabilityChanged(reportWidget != null && reportWidget.isControlActionsAvailable());
     }
 
     @Override
@@ -149,11 +149,6 @@ public class ReportActivity extends BaseReportActivity {
         } catch (ActivityNotFoundException e) {
             Toast.makeText(this, getString(R.string.sdr_t_no_app_available, "URL"), Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @Override
-    public void onTimeoutWarning() {
-
     }
 
     @Override
@@ -256,7 +251,7 @@ public class ReportActivity extends BaseReportActivity {
     }
 
     private void makeScreenShot() {
-        ScreenCapture reportScreenCapture = ScreenCapture.Factory.capture(reportViewer.getView());
+        ScreenCapture reportScreenCapture = ScreenCapture.Factory.capture(reportWidget.getView());
         saveScreenCaptureCase.execute(reportScreenCapture, new SaveScreenCaptureListener());
     }
 

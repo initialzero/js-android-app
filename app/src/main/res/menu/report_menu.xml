@@ -43,6 +43,13 @@
         android:id="@+id/renderedActions">
 
         <item
+            android:id="@+id/bookmarksAction"
+            android:icon="@drawable/ic_menu_bookmarks"
+            android:title="@string/rv_ab_bookmarks"
+            android:visible="false"
+            app:showAsAction="ifRoom"/>
+
+        <item
             android:id="@+id/shareAction"
             android:icon="@drawable/ic_menu_share_selector"
             android:title="@string/r_cm_share"

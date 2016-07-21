@@ -64,7 +64,7 @@ public class ReportCastActivity extends BaseReportActivity implements ResourcePr
             init(resourcePresentationService.getReportViewer());
             runReport();
         }
-        onActionsAvailabilityChanged(reportViewer != null && reportViewer.isControlActionsAvailable());
+        onActionsAvailabilityChanged(reportWidget != null && reportWidget.isControlActionsAvailable());
         timer = new Timer();
     }
 
@@ -120,17 +120,12 @@ public class ReportCastActivity extends BaseReportActivity implements ResourcePr
         resourcePresentationService.onReportRenderStateUpdated();
     }
 
-    @Override
-    public void onTimeoutWarning() {
-
-    }
-
     @OnTouch(R.id.btnScrollUp)
     protected boolean scrollUpAction(MotionEvent event) {
         scrollTo(event, new TimerTask() {
             @Override
             public void run() {
-                reportViewer.performViewAction(ViewAction.SCROLL_UP);
+                reportWidget.performViewAction(ViewAction.SCROLL_UP);
             }
         });
         return false;
@@ -141,7 +136,7 @@ public class ReportCastActivity extends BaseReportActivity implements ResourcePr
         scrollTo(event, new TimerTask() {
             @Override
             public void run() {
-                reportViewer.performViewAction(ViewAction.SCROLL_DOWN);
+                reportWidget.performViewAction(ViewAction.SCROLL_DOWN);
             }
         });
         return false;
@@ -152,7 +147,7 @@ public class ReportCastActivity extends BaseReportActivity implements ResourcePr
         scrollTo(event, new TimerTask() {
             @Override
             public void run() {
-                reportViewer.performViewAction(ViewAction.SCROLL_LEFT);
+                reportWidget.performViewAction(ViewAction.SCROLL_LEFT);
             }
         });
         return false;
@@ -163,7 +158,7 @@ public class ReportCastActivity extends BaseReportActivity implements ResourcePr
         scrollTo(event, new TimerTask() {
             @Override
             public void run() {
-                reportViewer.performViewAction(ViewAction.SCROLL_RIGHT);
+                reportWidget.performViewAction(ViewAction.SCROLL_RIGHT);
             }
         });
         return false;
@@ -171,12 +166,12 @@ public class ReportCastActivity extends BaseReportActivity implements ResourcePr
 
     @OnClick(R.id.btnZoomIn)
     void zoomInAction() {
-        reportViewer.performViewAction(ViewAction.ZOOM_IN);
+        reportWidget.performViewAction(ViewAction.ZOOM_IN);
     }
 
     @OnClick(R.id.btnZoomOut)
     void zoomOutAction() {
-        reportViewer.performViewAction(ViewAction.ZOOM_OUT);
+        reportWidget.performViewAction(ViewAction.ZOOM_OUT);
     }
 
     private void runReport() {

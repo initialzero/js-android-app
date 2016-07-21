@@ -37,6 +37,13 @@
         android:id="@+id/renderedActions">
 
         <item
+            android:id="@+id/bookmarksAction"
+            android:icon="@drawable/ic_menu_bookmarks"
+            android:title="@string/rv_ab_bookmarks"
+            android:visible="false"
+            app:showAsAction="ifRoom"/>
+
+        <item
             android:id="@+id/filtersAction"
             android:icon="@drawable/ic_menu_filter"
             android:title="@string/rv_ab_show_filters"
@@ -48,6 +55,7 @@
             android:icon="@drawable/ic_menu_refresh"
             android:title="@string/r_ab_refresh"
             app:showAsAction="never"/>
+
 
     </group>
 

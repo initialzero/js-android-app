@@ -49,7 +49,7 @@ import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.widget.LoadingView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.widget.report.view.ReportView;
-import com.jaspersoft.android.sdk.widget.report.view.ReportViewer;
+import com.jaspersoft.android.sdk.widget.report.view.ReportWidget;
 
 import javax.inject.Inject;
 
@@ -129,7 +129,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService i
         return getInstance() != null;
     }
 
-    public ReportViewer getReportViewer() {
+    public ReportWidget getReportViewer() {
         if (reportPresentation == null) return null;
         return reportPresentation.reportView;
     }

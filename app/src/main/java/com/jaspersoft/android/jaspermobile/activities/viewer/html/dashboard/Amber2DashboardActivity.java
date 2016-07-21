@@ -37,7 +37,7 @@ import android.widget.Toast;
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
-import com.jaspersoft.android.jaspermobile.activities.report.ReportActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.ReportViewActivity;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashboardVisualizeParamsCase;
@@ -273,8 +273,8 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         mGetReportMetadataCase.execute(data, new GenericSubscriber<>(new SimpleSubscriber<ResourceLookup>() {
             @Override
             public void onNext(ResourceLookup lookup) {
-                Intent runReport = new Intent(Amber2DashboardActivity.this, ReportActivity.class);
-                runReport.putExtra(ReportActivity.RESOURCE_LOOKUP_ARG, resource);
+                Intent runReport = new Intent(Amber2DashboardActivity.this, ReportViewActivity.class);
+                runReport.putExtra(ReportViewActivity.RESOURCE_LOOKUP_ARG, resource);
                 startActivity(runReport);
             }
         }));

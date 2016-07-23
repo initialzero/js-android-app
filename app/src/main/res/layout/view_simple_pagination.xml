@@ -93,7 +93,7 @@
                 tools:text="of 47"/>
 
             <ProgressBar
-                android:id="@+id/loading"
+                android:id="@+id/paginationLoading"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginLeft="12dp"

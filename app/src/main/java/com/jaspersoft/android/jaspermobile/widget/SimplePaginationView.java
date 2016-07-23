@@ -32,113 +32,146 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
-import com.jaspersoft.android.sdk.widget.report.renderer.Destination;
-import com.jaspersoft.android.sdk.widget.report.view.PaginationView;
+import com.jaspersoft.android.sdk.widget.report.view.ReportPaginationListener;
+import com.jaspersoft.android.sdk.widget.report.view.ReportProperties;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * @author Andrew Tivodar
  * @since 2.6
  */
-public class SimplePaginationView extends PaginationView implements View.OnClickListener {
+public class SimplePaginationView extends RelativeLayout implements ReportPaginationListener {
+    private ReportProperties reportProperties;
+    private PageSelectListener pageSelectListener;
 
-    private View pageValues;
-    private ImageButton firstPage, previousPage, nextPage, lastPage;
-    private TextView currentPageLabel, totalPagesLabel;
-    private ProgressBar loading;
+    @BindView(R.id.pageValues)
+    View pageValues;
+    @BindView(R.id.firstPage)
+    ImageButton firstPage;
+    @BindView(R.id.previousPage)
+    ImageButton previousPage;
+    @BindView(R.id.nextPage)
+    ImageButton nextPage;
+    @BindView(R.id.lastPage)
+    ImageButton lastPage;
+    @BindView(R.id.currentPage)
+    TextView currentPageLabel;
+    @BindView(R.id.totalPageLabel)
+    TextView totalPagesLabel;
+    @BindView(R.id.paginationLoading)
+    ProgressBar loading;
 
     public SimplePaginationView(Context context) {
         super(context);
+        init();
     }
 
     public SimplePaginationView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public SimplePaginationView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public SimplePaginationView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init();
     }
 
-    @Override
-    public Integer getTotalPages() {
-        return super.getTotalPages();
+    public void setPageSelectListener(PageSelectListener pageSelectListener) {
+        this.pageSelectListener = pageSelectListener;
+    }
+
+    public void setReportProperties(ReportProperties reportProperties) {
+        this.reportProperties = reportProperties;
+
+        onPagesCountChanged(reportProperties.getPagesCount());
+        onCurrentPageChanged(reportProperties.getCurrentPage());
+        onMultiPageStateChange(reportProperties.isMultiPage());
+        setEnabled(isEnabled());
     }
 
     @Override
     public void onPagesCountChanged(Integer totalPages) {
-        super.onPagesCountChanged(totalPages);
+        setEnabled(isEnabled());
 
-        totalPagesLabel.setText(totalPages == null ? "" : getContext().getString(R.string.of, getTotalPages()));
+        totalPagesLabel.setText(totalPages == null ? "" : getContext().getString(R.string.of, reportProperties.getPagesCount()));
         loading.setVisibility(totalPages == null ? VISIBLE : GONE);
     }
 
     @Override
     public void onCurrentPageChanged(int currentPage) {
-        super.onCurrentPageChanged(currentPage);
+        setEnabled(isEnabled());
+
         this.currentPageLabel.setText(String.valueOf(currentPage));
+    }
+
+    @Override
+    public void onMultiPageStateChange(boolean isMultiPage) {
+        setVisibility(isMultiPage ? VISIBLE : GONE);
+    }
+
+    @OnClick(R.id.firstPage)
+    void firstPageClick() {
+        notifyPageSelected(1);
+    }
+
+    @OnClick(R.id.previousPage)
+    void previousPageClick() {
+        notifyPageSelected(reportProperties.getCurrentPage() - 1);
+    }
+
+    @OnClick(R.id.nextPage)
+    void nextPageClick() {
+        notifyPageSelected(reportProperties.getCurrentPage() + 1);
+    }
+
+    @OnClick(R.id.lastPage)
+    void lastPageClick() {
+        notifyPageSelected(reportProperties.getPagesCount());
+    }
+
+    private void init() {
+        LayoutInflater.from(getContext()).inflate(R.layout.view_simple_pagination, this);
+        ButterKnife.bind(this);
+        setVisibility(GONE);
     }
 
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
 
-        firstPage.setEnabled(getCurrentPage() != 1 && enabled);
-        previousPage.setEnabled(getCurrentPage() != 1 && enabled);
-        nextPage.setEnabled(!getCurrentPage().equals(getTotalPages()) && enabled);
-        lastPage.setEnabled(getTotalPages() != null && !getCurrentPage().equals(getTotalPages()) && enabled);
+        firstPage.setEnabled(reportProperties.getCurrentPage() != 1 && enabled);
+        previousPage.setEnabled(reportProperties.getCurrentPage() != 1 && enabled);
+        nextPage.setEnabled(!reportProperties.getCurrentPage().equals(reportProperties.getPagesCount()) && enabled);
+        lastPage.setEnabled(reportProperties.getPagesCount() != null && !reportProperties.getCurrentPage().equals(reportProperties.getPagesCount()) && enabled);
         pageValues.setEnabled(enabled);
 
-        firstPage.setAlpha(firstPage.isEnabled() ? 1f : 0.3f);
-        previousPage.setAlpha(previousPage.isEnabled() ? 1f : 0.3f);
-        nextPage.setAlpha(nextPage.isEnabled() ? 1f : 0.3f);
-        lastPage.setAlpha(lastPage.isEnabled() ? 1f : 0.3f);
+        firstPage.setAlpha(firstPage.isEnabled() ? 1f : 0.5f);
+        previousPage.setAlpha(previousPage.isEnabled() ? 1f : 0.5f);
+        nextPage.setAlpha(nextPage.isEnabled() ? 1f : 0.5f);
+        lastPage.setAlpha(lastPage.isEnabled() ? 1f : 0.5f);
+        pageValues.setAlpha(lastPage.isEnabled() ? 1f : 0.5f);
     }
 
-    @Override
-    protected void init() {
-        LayoutInflater.from(getContext()).inflate(R.layout.view_simple_pagination, this);
-        currentPageLabel = (TextView) findViewById(R.id.currentPage);
-        totalPagesLabel = (TextView) findViewById(R.id.totalPageLabel);
-        loading = (ProgressBar) findViewById(R.id.loading);
-        firstPage = (ImageButton) findViewById(R.id.firstPage);
-        previousPage = (ImageButton) findViewById(R.id.previousPage);
-        nextPage = (ImageButton) findViewById(R.id.nextPage);
-        lastPage = (ImageButton) findViewById(R.id.lastPage);
-        pageValues = findViewById(R.id.pageValues);
-
-        firstPage.setOnClickListener(this);
-        previousPage.setOnClickListener(this);
-        nextPage.setOnClickListener(this);
-        lastPage.setOnClickListener(this);
-
-        super.init();
+    private void notifyPageSelected(int page) {
+        if (pageSelectListener != null) {
+            pageSelectListener.onPageSelected(page);
+        }
     }
 
-    @Override
-    public void onClick(View v) {
-        int i = v.getId();
-        Destination newDestination = null;
-        if (i == R.id.firstPage) {
-            newDestination = new Destination(1);
-        } else if (i == R.id.previousPage) {
-            newDestination = new Destination(getCurrentPage() - 1);
-        } else if (i == R.id.nextPage) {
-            newDestination = new Destination(getCurrentPage() + 1);
-        } else if (i == R.id.lastPage) {
-            newDestination = new Destination(getTotalPages());
-        }
-        if (newDestination == null) {
-            throw new RuntimeException("Pagination command undefined!");
-        }
-        if (getPaginationListener() != null) {
-            getPaginationListener().onNavigateTo(newDestination);
-        }
+    public interface PageSelectListener {
+        void onPageSelected(int page);
     }
 }

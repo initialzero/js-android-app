@@ -28,7 +28,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
@@ -44,6 +43,8 @@ import com.jaspersoft.android.jaspermobile.ui.view.activity.CastActivity;
 import com.jaspersoft.android.jaspermobile.util.InputControlHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.widget.LoadingView;
+import com.jaspersoft.android.jaspermobile.widget.ReportPartsTabLayout;
+import com.jaspersoft.android.jaspermobile.widget.ReportToolbar;
 import com.jaspersoft.android.jaspermobile.widget.SimplePaginationView;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportDestination;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -53,9 +54,11 @@ import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.widget.report.renderer.Bookmark;
 import com.jaspersoft.android.sdk.widget.report.renderer.Destination;
+import com.jaspersoft.android.sdk.widget.report.renderer.ReportPart;
 import com.jaspersoft.android.sdk.widget.report.renderer.RunOptions;
 import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.Hyperlink;
 import com.jaspersoft.android.sdk.widget.report.view.ReportEventListener;
+import com.jaspersoft.android.sdk.widget.report.view.ReportProperties;
 import com.jaspersoft.android.sdk.widget.report.view.ReportWidget;
 
 import org.jetbrains.annotations.NotNull;
@@ -72,9 +75,10 @@ import butterknife.ButterKnife;
  * @author Andrew Tivodar
  * @since 2.6
  */
-public abstract class BaseReportActivity extends CastActivity implements Toolbar.OnMenuItemClickListener, ReportEventListener {
+public abstract class BaseReportActivity extends CastActivity implements Toolbar.OnMenuItemClickListener, ReportPartsTabLayout.ReportPartSelectListener, ReportEventListener, SimplePaginationView.PageSelectListener {
     public static final String RESOURCE_LOOKUP_ARG = "resource_lookup";
     public static final String REPORT_DESTINATION_ARG = "report_destination";
+
     private static final int REPORT_FILTERS_CODE = 100;
     private static final int BOOKMARKS_CODE = 101;
 
@@ -82,7 +86,9 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
     @BindView(R.id.loading)
     LoadingView loading;
     @BindView(R.id.reportToolbar)
-    Toolbar reportToolbar;
+    ReportToolbar reportToolbar;
+    @BindView(R.id.reportPartsTabs)
+    ReportPartsTabLayout reportPartsTabs;
     @BindView(R.id.paginationControl)
     SimplePaginationView paginationView;
 
@@ -100,7 +106,6 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
     DestinationMapper destinationMapper;
 
     protected ResourceLookup resourceLookup;
-    private boolean filtersAvailable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,21 +116,15 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
 
         resourceLookup = getResourceLookup();
         initToolbar(resourceLookup.getLabel());
+        reportPartsTabs.setReportPartSelectListener(this);
+        paginationView.setPageSelectListener(this);
     }
 
     @Override
     public void onActionsAvailabilityChanged(boolean isAvailable) {
-        reportToolbar.getMenu().setGroupEnabled(R.id.renderedActions, isAvailable);
-
-        MenuItem filtersAction = reportToolbar.getMenu().findItem(R.id.filtersAction);
-        filtersAction.setVisible(filtersAvailable);
-
-        updateBookmarkVisibility();
-    }
-
-    @Override
-    public void onBookmarkListChanged(List<Bookmark> bookmarks) {
-        updateBookmarkVisibility();
+        reportToolbar.setActionGroupEnabled(isAvailable);
+        reportPartsTabs.setEnabled(isAvailable);
+        paginationView.setEnabled(isAvailable);
     }
 
     @Override
@@ -144,6 +143,17 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
     }
 
     @Override
+    public void onReportPartSelected(int index) {
+        ReportPart reportPart = reportWidget.getReportProperties().getReportPartList().get(index);
+        reportWidget.navigateToPage(reportPart.getPage());
+    }
+
+    @Override
+    public void onPageSelected(int page) {
+        reportWidget.navigateToPage(page);
+    }
+
+    @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refreshAction:
@@ -155,6 +165,8 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
             case R.id.bookmarksAction:
                 showBookmarksPage();
                 return true;
+            case android.R.id.home:
+                finish();
             default:
                 return false;
         }
@@ -174,7 +186,10 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
 
         if (requestCode == BOOKMARKS_CODE) {
             Bookmark bookmark = data.getExtras().getParcelable(BookmarksActivity.SELECTED_BOOKMARK_ARG);
-            reportWidget.navigateToBookmark(bookmark);
+            if (bookmark == null) {
+                throw new RuntimeException("Selected bookmark should be provided");
+            }
+            reportWidget.navigateToPage(bookmark.getPage());
         }
     }
 
@@ -188,13 +203,19 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
         this.reportWidget = reportViewer;
 
         reportViewer.setReportEventListener(this);
-        reportViewer.setPaginationView(paginationView);
+        reportViewer.setReportPaginationListener(paginationView);
+        reportViewer.setReportBookmarkListener(reportToolbar);
+        reportViewer.setReportPartsListener(reportPartsTabs);
 
         boolean inited = false;
         if (!reportViewer.isInited()) {
             reportViewer.init(jasperRestClient.authorizedClient(), mapServerInfo(), provideScale());
             inited = true;
         }
+
+        ReportProperties reportProperties = reportViewer.getReportProperties();
+        paginationView.setReportProperties(reportProperties);
+        reportPartsTabs.setReportProperties(reportProperties);
 
         return inited;
     }
@@ -203,14 +224,16 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
         getReportShowControlsPropertyCase.execute(reportUri, new SimpleSubscriber<ReportControlFlags>() {
             @Override
             public void onNext(ReportControlFlags flags) {
-                filtersAvailable = flags.hasControls();
-
+                boolean filtersAvailable = flags.hasControls();
                 boolean needPrompt = flags.needPrompt();
+
                 if (filtersAvailable && needPrompt) {
                     showFiltersPage();
                 } else {
                     runReport(resourceLookup.getUri());
                 }
+
+                reportToolbar.setFilterAvailable(filtersAvailable);
             }
         });
     }
@@ -218,14 +241,7 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
     protected void initToolbar(String title) {
         reportToolbar.inflateMenu(provideItemsMenu());
         reportToolbar.setOnMenuItemClickListener(this);
-
         reportToolbar.setTitle(title);
-        reportToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 
         onToolbarMenuCreated(reportToolbar.getMenu().findItem(R.id.castAction));
     }
@@ -289,14 +305,9 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
 
     private void showBookmarksPage() {
         Intent bookmarksIntent = new Intent(this, BookmarksActivity.class);
-        ArrayList<Bookmark> bookmarks = new ArrayList<>(reportWidget.getBookmarks().size());
-        bookmarks.addAll(reportWidget.getBookmarks());
+        List<Bookmark> bookmarkList = reportWidget.getReportProperties().getBookmarkList();
+        ArrayList<Bookmark> bookmarks = new ArrayList<>(bookmarkList);
         bookmarksIntent.putParcelableArrayListExtra(BookmarksActivity.BOOKMARK_LIST_ARG, bookmarks);
         startActivityForResult(bookmarksIntent, BOOKMARKS_CODE);
-    }
-
-    private void updateBookmarkVisibility() {
-        MenuItem bookmarkAction = reportToolbar.getMenu().findItem(R.id.bookmarksAction);
-        bookmarkAction.setVisible(reportWidget.isControlActionsAvailable() && !reportWidget.getBookmarks().isEmpty());
     }
 }

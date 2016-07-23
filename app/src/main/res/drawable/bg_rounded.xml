@@ -22,20 +22,8 @@
   ~ along with TIBCO Jaspersoft Mobile for Android. If not, see
   ~ <http://www.gnu.org/licenses/lgpl>.
   -->
-
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android"
-               android:shape="rectangle">
-            <solid android:color="@color/js_gray_with_opacity"/>
-            <corners android:radius="4dp"/>
-        </shape>
-    </item>
-    <item>
-        <shape xmlns:android="http://schemas.android.com/apk/res/android"
-               android:shape="rectangle">
-            <solid android:color="@color/js_light_gray"/>
-            <corners android:radius="4dp"/>
-        </shape>
-    </item>
-</selector>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/js_light_gray"/>
+    <corners android:radius="4dp"/>
+</shape>

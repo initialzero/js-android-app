@@ -256,7 +256,8 @@ public class ReportViewActivity extends BaseReportActivity {
     }
 
     private int getTotalPageCount() {
-        return paginationView.getTotalPages() == null ? 1 : paginationView.getTotalPages();
+        Integer pagesCount = reportWidget.getReportProperties().getPagesCount();
+        return pagesCount == null ? 1 : pagesCount;
     }
 
     private class GetResourceDetailListener extends SimpleSubscriber<ResourceLookup> {

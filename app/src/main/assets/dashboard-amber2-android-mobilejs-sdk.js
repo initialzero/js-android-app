@@ -106,16 +106,17 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       function DashboardController(callback, scaler, params) {
         this.callback = callback;
         this.scaler = scaler;
-        this._adHocHandler = bind(this._adHocHandler, this);
-        this._openRemoteLink = bind(this._openRemoteLink, this);
-        this._startReportExecution = bind(this._startReportExecution, this);
-        this._processLinkClicks = bind(this._processLinkClicks, this);
         this._processErrors = bind(this._processErrors, this);
         this._refreshSuccess = bind(this._refreshSuccess, this);
         this._processSuccess = bind(this._processSuccess, this);
         this._executeDashboard = bind(this._executeDashboard, this);
         this.uri = params.uri, this.session = params.session;
         this.scaler.applyScale();
+        // Hyperlinks
+        this._processLinkClicks = bind(this._processLinkClicks, this);
+        this._adHocHandler = bind(this._adHocHandler, this);
+        this._openRemoteLink = bind(this._openRemoteLink, this);
+        this._startReportExecution = bind(this._startReportExecution, this);
       }
 
       DashboardController.prototype.destroyDashboard = function() {
@@ -671,7 +672,6 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         this.onAuthError = bind(this.onAuthError, this);
         this.onWindowResizeEnd = bind(this.onWindowResizeEnd, this);
         this.onWindowResizeStart = bind(this.onWindowResizeStart, this);
-        this.onReportExecution = bind(this.onReportExecution, this);
         this.onLoadError = bind(this.onLoadError, this);
         this.onLoadDone = bind(this.onLoadDone, this);
         this.onLoadStart = bind(this.onLoadStart, this);
@@ -682,6 +682,9 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         this.onMaximizeFailed = bind(this.onMaximizeFailed, this);
         this.onMaximizeEnd = bind(this.onMaximizeEnd, this);
         this.onMaximizeStart = bind(this.onMaximizeStart, this);
+        // Hyperlinks
+        this.onReportExecution = bind(this.onReportExecution, this);
+        this.onReferenceClick = bind(this.onReferenceClick, this);
         return AndroidCallback.__super__.constructor.apply(this, arguments);
       }
 
@@ -745,14 +748,6 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         });
       };
 
-      AndroidCallback.prototype.onReportExecution = function(data) {
-        var dataString;
-        dataString = JSON.stringify(data, null, 4);
-        this.dispatch(function() {
-          return Android.onReportExecution(dataString);
-        });
-      };
-
       AndroidCallback.prototype.onWindowResizeStart = function() {
         this.dispatch(function() {
           return Android.onWindowResizeStart();
@@ -774,6 +769,21 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       AndroidCallback.prototype.onWindowError = function(message) {
         this.dispatch(function() {
           return Android.onWindowError(message);
+        });
+      };
+
+      // Hyperlinks
+      AndroidCallback.prototype.onReportExecution = function(data) {
+        var dataString;
+        dataString = JSON.stringify(data, null, 4);
+        this.dispatch(function() {
+          return Android.onReportExecutionClick(dataString);
+        });
+      };
+
+      AndroidCallback.prototype.onReferenceClick = function(location) {
+        this.dispatch(function() {
+          return Android.onReferenceClick(location);
         });
       };
 

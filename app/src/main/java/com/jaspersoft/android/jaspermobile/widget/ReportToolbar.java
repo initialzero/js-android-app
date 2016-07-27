@@ -30,24 +30,30 @@ import android.os.Parcelable;
 import android.support.annotation.MenuRes;
 import android.support.annotation.Nullable;
 import android.support.v7.view.menu.ActionMenuItem;
-import android.support.v7.view.menu.MenuItemImpl;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.sdk.widget.report.renderer.Bookmark;
 import com.jaspersoft.android.sdk.widget.report.view.ReportBookmarkListener;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Andrew Tivodar
  * @since 2.6
  */
 public class ReportToolbar extends Toolbar implements Toolbar.OnMenuItemClickListener, ReportBookmarkListener {
+    private static final Set<Integer> ACTION_GROUP = new HashSet<>(Arrays.asList(
+            new Integer[] {R.id.bookmarksAction, R.id.shareAction, R.id.filtersAction, R.id.refreshAction, R.id.saveAction, R.id.printAction}
+    ));
     private MenuItem filtersAction, bookmarksAction;
     private OnMenuItemClickListener listener;
 
@@ -75,11 +81,17 @@ public class ReportToolbar extends Toolbar implements Toolbar.OnMenuItemClickLis
 
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
-            if (item.getGroupId() == R.id.renderedActions) {
+            if (ACTION_GROUP.contains(item.getItemId())) {
                 item.setEnabled(enabled);
                 item.getIcon().setAlpha(enabled ? 255 : 128);
             }
         }
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle(null);
+        ((TextView) findViewById(R.id.reportTitle)).setText(title);
     }
 
     @Override

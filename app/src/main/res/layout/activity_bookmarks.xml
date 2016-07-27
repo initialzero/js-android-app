@@ -30,18 +30,32 @@
               android:background="@android:color/white"
               android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/bookmarksToolbar"
-        style="@style/Widget.JasperMobile.Toolbar"
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/reportAppBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="@drawable/ic_menu_navigation_up"/>
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true">
 
-    <ListView
-        android:id="@+id/bookmarksList"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/bookmarksToolbar"
+            style="@style/Widget.JasperMobile.Toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_menu_navigation_up"/>
+
+        <com.jaspersoft.android.jaspermobile.widget.BreadcrumbsView
+            android:id="@+id/breadcrumbs"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:visibility="gone"/>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <FrameLayout
+        android:id="@+id/bookmarksListContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:divider="@color/js_gray_with_opacity"
-        android:dividerHeight="1dp"/>
+        android:layout_height="match_parent"/>
 
 </LinearLayout>

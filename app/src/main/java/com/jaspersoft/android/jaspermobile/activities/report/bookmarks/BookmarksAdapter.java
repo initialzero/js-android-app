@@ -25,10 +25,12 @@
 package com.jaspersoft.android.jaspermobile.activities.report.bookmarks;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -87,14 +89,18 @@ public class BookmarksAdapter extends BaseAdapter implements View.OnClickListene
         } else {
             convertView = layoutInflater.inflate(R.layout.item_bookmark, parent, false);
             holder = new ViewHolder(convertView);
+            holder.intoBookmarks.getDrawable().mutate().setColorFilter(convertView.getContext().getColor(R.color.js_light_gray), PorterDuff.Mode.MULTIPLY);
+
             convertView.setTag(holder);
             convertView.setOnClickListener(this);
+            holder.intoBookmarks.setOnClickListener(new BookmarkIntoListener());
         }
 
         Bookmark bookmark = getItem(position);
 
         holder.bookmarkName.setText(bookmark.getAnchor());
         holder.bookmarkPage.setText(parent.getContext().getString(R.string.rv_bookmark_page, bookmark.getPage()));
+        holder.intoBookmarks.setVisibility(bookmark.getBookmarks().isEmpty()  ? View.GONE : View.VISIBLE);
         holder.position = position;
 
         return convertView;
@@ -108,7 +114,20 @@ public class BookmarksAdapter extends BaseAdapter implements View.OnClickListene
     }
 
     public interface BookmarkSelectListener {
-        void onBookmarkSelected(Bookmark bookmark);
+        void onBookmarkSelected(com.jaspersoft.android.sdk.widget.report.renderer.Bookmark bookmark);
+
+        void onBookmarkIntoSelected(com.jaspersoft.android.sdk.widget.report.renderer.Bookmark bookmark);
+    }
+
+    private class BookmarkIntoListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            View parent = (View) v.getParent();
+            ViewHolder viewHolder = (ViewHolder) parent.getTag();
+            int position = viewHolder.position;
+            Bookmark bookmark = getItem(position);
+            bookmarkSelectListener.onBookmarkIntoSelected(bookmark);
+        }
     }
 
     static class ViewHolder {
@@ -118,6 +137,8 @@ public class BookmarksAdapter extends BaseAdapter implements View.OnClickListene
         TextView bookmarkName;
         @BindView(R.id.bookmarkPage)
         TextView bookmarkPage;
+        @BindView(R.id.intoBookmarks)
+        ImageButton intoBookmarks;
 
         public ViewHolder(View view) {
             ButterKnife.bind(this, view);

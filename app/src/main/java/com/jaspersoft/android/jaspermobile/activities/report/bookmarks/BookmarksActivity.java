@@ -26,12 +26,16 @@ package com.jaspersoft.android.jaspermobile.activities.report.bookmarks;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.ListView;
+import android.widget.FrameLayout;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.ui.view.activity.ToolbarActivity;
+import com.jaspersoft.android.jaspermobile.widget.BreadcrumbsView;
 import com.jaspersoft.android.sdk.widget.report.renderer.Bookmark;
 
 import org.jetbrains.annotations.NotNull;
@@ -45,14 +49,18 @@ import butterknife.ButterKnife;
  * @author Andrew Tivodar
  * @since 2.6
  */
-public class BookmarksActivity extends ToolbarActivity implements BookmarksAdapter.BookmarkSelectListener {
+public class BookmarksActivity extends ToolbarActivity implements BookmarksAdapter.BookmarkSelectListener, FragmentManager.OnBackStackChangedListener, BreadcrumbsView.BreadcrumbClickListener {
     public static final String BOOKMARK_LIST_ARG = "bookmarkList";
     public static final String SELECTED_BOOKMARK_ARG = "selectedBookmark";
 
+    private int breadcrumbsSize;
+
     @BindView(R.id.bookmarksToolbar)
     Toolbar bookmarksToolbar;
-    @BindView(R.id.bookmarksList)
-    ListView bookmarksList;
+    @BindView(R.id.breadcrumbs)
+    BreadcrumbsView breadcrumbs;
+    @BindView(R.id.bookmarksListContainer)
+    FrameLayout bookmarksListContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +69,54 @@ public class BookmarksActivity extends ToolbarActivity implements BookmarksAdapt
         ButterKnife.bind(this);
         initToolbar(getString(R.string.rv_ab_bookmarks));
 
-        initBookmarkList();
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
+        breadcrumbsSize = getSupportFragmentManager().getBackStackEntryCount();
+        breadcrumbs.setBreadcrumbClickListener(this);
+
+        if (savedInstanceState == null) {
+            List<Bookmark> bookmarkList = fetchBookmarks();
+            showBookmarks(getString(R.string.s_fd_option_all), bookmarkList, true);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        getSupportFragmentManager().removeOnBackStackChangedListener(this);
+    }
+
+    @Override
+    public void onBookmarkSelected(Bookmark bookmark) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(SELECTED_BOOKMARK_ARG, bookmark);
+
+        Intent returnIntent = new Intent();
+        returnIntent.putExtras(bundle);
+
+        setResult(RESULT_OK, returnIntent);
+        finish();
+    }
+
+    @Override
+    public void onBookmarkIntoSelected(Bookmark bookmark) {
+        showBookmarks(bookmark.getAnchor(), bookmark.getBookmarks(), false);
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        int newBreadcrumbsSize = getSupportFragmentManager().getBackStackEntryCount();
+        if (newBreadcrumbsSize < breadcrumbsSize) {
+            breadcrumbs.getAdapter().removeBreadCrumb();
+        }
+        breadcrumbsSize = newBreadcrumbsSize;
+    }
+
+    @Override
+    public void onBreadcrumbClick(int level) {
+        int backStepsCount = breadcrumbsSize - level;
+        for (int i = 0; i < backStepsCount; i++) {
+            getSupportFragmentManager().popBackStack();
+        }
     }
 
     @NotNull
@@ -87,21 +142,16 @@ public class BookmarksActivity extends ToolbarActivity implements BookmarksAdapt
         });
     }
 
-    private void initBookmarkList() {
-        List<Bookmark> bookmarks = fetchBookmarks();
-        BookmarksAdapter bookmarksAdapter = new BookmarksAdapter(this, this, bookmarks);
-        bookmarksList.setAdapter(bookmarksAdapter);
-    }
+    private void showBookmarks(String name, List<Bookmark> bookmarksList, boolean isRoot) {
+        Fragment bookmarkFragment = BookmarkFragment.create(bookmarksList);
 
-    @Override
-    public void onBookmarkSelected(Bookmark bookmark) {
-        Bundle bundle= new Bundle();
-        bundle.putParcelable(SELECTED_BOOKMARK_ARG, bookmark);
-
-        Intent returnIntent = new Intent();
-        returnIntent.putExtras(bundle);
-
-        setResult(RESULT_OK, returnIntent);
-        finish();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        if (!isRoot) {
+            fragmentTransaction.addToBackStack(null)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        }
+        fragmentTransaction.replace(R.id.bookmarksListContainer, bookmarkFragment)
+                .commit();
+        breadcrumbs.getAdapter().addBreadCrumb(name);
     }
 }

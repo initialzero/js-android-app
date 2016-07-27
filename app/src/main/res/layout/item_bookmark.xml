@@ -26,26 +26,41 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
+                android:layout_height="56dp"
+                android:background="?selectableItemBackground"
                 android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
+                android:theme="@style/Base.Theme.AppCompat.Light">
 
-    <TextView
-        android:id="@+id/bookmarkName"
-        style="@style/Widget.JasperMobile.TextView.List.Title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="Bookmark name"/>
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/intoBookmarks"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/bookmarkPage"
-        style="@style/Widget.JasperMobile.TextView.List.SubTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/bookmarkName"
-        tools:text="Page: 23"/>
+        <TextView
+            android:id="@+id/bookmarkName"
+            style="@style/Widget.JasperMobile.TextView.List.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Bookmark name"/>
+
+        <TextView
+            android:id="@+id/bookmarkPage"
+            style="@style/Widget.JasperMobile.TextView.List.SubTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Page: 23"/>
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/intoBookmarks"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:background="?selectableItemBackgroundBorderless"
+        android:padding="16dp"
+        android:src="@drawable/ic_page_next"/>
 
 </RelativeLayout>

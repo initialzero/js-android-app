@@ -29,22 +29,25 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
+import com.jaspersoft.android.jaspermobile.webview.hyperlinks.HyperlinksCallback;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public final class ReportWebInterface extends WebInterface implements ReportCallback {
+public final class ReportWebInterface extends WebInterface implements ReportCallback, HyperlinksCallback {
 
     private final ReportCallback decoratedCallback;
+    private final HyperlinksCallback decoratedHyperlinksCallback;
     private boolean mLoadDone;
 
-    private ReportWebInterface(ReportCallback decoratedCallback) {
+    private ReportWebInterface(ReportCallback decoratedCallback, HyperlinksCallback decoratedHyperlinksCallback) {
         this.decoratedCallback = decoratedCallback;
+        this.decoratedHyperlinksCallback = decoratedHyperlinksCallback;
     }
 
-    public static WebInterface from(ReportCallback decoratedCallback) {
-        return new ReportWebInterface(decoratedCallback);
+    public static WebInterface from(ReportCallback decoratedCallback, HyperlinksCallback decoratedHyperlinksCallback) {
+        return new ReportWebInterface(decoratedCallback, decoratedHyperlinksCallback);
     }
 
     @SuppressLint("AddJavascriptInterface")
@@ -133,28 +136,6 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
 
     @JavascriptInterface
     @Override
-    public void onReferenceClick(final String type) {
-        handleCallback(new Runnable() {
-            @Override
-            public void run() {
-                decoratedCallback.onReferenceClick(type);
-            }
-        });
-    }
-
-    @JavascriptInterface
-    @Override
-    public void onReportExecutionClick(final String data) {
-        handleCallback(new Runnable() {
-            @Override
-            public void run() {
-                decoratedCallback.onReportExecutionClick(data);
-            }
-        });
-    }
-
-    @JavascriptInterface
-    @Override
     public void onMultiPageStateObtained(final boolean isMultiPage) {
         handleCallback(new Runnable() {
             @Override
@@ -188,4 +169,29 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
         });
     }
 
+    //---------------------------------------------------------------------
+    // Hyperlinks
+    //---------------------------------------------------------------------
+
+    @JavascriptInterface
+    @Override
+    public void onReferenceClick(final String type) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedHyperlinksCallback.onReferenceClick(type);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onReportExecutionClick(final String data) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                decoratedHyperlinksCallback.onReportExecutionClick(data);
+            }
+        });
+    }
 }

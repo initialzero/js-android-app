@@ -72,6 +72,7 @@ import com.jaspersoft.android.jaspermobile.webview.intercept.VisualizeResourcesI
 import com.jaspersoft.android.jaspermobile.webview.intercept.WebResourceInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.intercept.okhttp.OkHttpWebResourceInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
+import com.jaspersoft.android.jaspermobile.webview.hyperlinks.HyperlinksCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
 import com.jaspersoft.android.jaspermobile.widget.ScrollComputableWebView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -398,7 +399,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         void onCastStopped();
     }
 
-    private class ReportPresentation extends CastPresentation implements ErrorWebViewClientListener.OnWebViewErrorListener, ReportCallback {
+    private class ReportPresentation extends CastPresentation implements ErrorWebViewClientListener.OnWebViewErrorListener, ReportCallback, HyperlinksCallback {
 
         private ScrollComputableWebView webView;
         private ProgressBar progressState;
@@ -577,7 +578,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                     .registerUrlPolicy(defaultPolicy)
                     .build();
 
-            WebInterface mWebInterface = ReportWebInterface.from(this);
+            WebInterface mWebInterface = ReportWebInterface.from(this, this);
             WebViewEnvironment.configure(webView)
                     .withDefaultSettings()
                     .withChromeClient(systemChromeClient)
@@ -712,16 +713,6 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         }
 
         @Override
-        public void onReferenceClick(String location) {
-
-        }
-
-        @Override
-        public void onReportExecutionClick(String data) {
-
-        }
-
-        @Override
         public void onMultiPageStateObtained(final boolean isMultiPage) {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
@@ -765,6 +756,20 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                     }
                 }
             });
+        }
+
+        //---------------------------------------------------------------------
+        // Hyperlinks
+        //---------------------------------------------------------------------
+
+        @Override
+        public void onReferenceClick(String location) {
+
+        }
+
+        @Override
+        public void onReportExecutionClick(String data) {
+
         }
     }
 }

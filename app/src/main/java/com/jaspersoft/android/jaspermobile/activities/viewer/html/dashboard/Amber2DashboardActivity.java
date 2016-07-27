@@ -26,8 +26,11 @@ package com.jaspersoft.android.jaspermobile.activities.viewer.html.dashboard;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,6 +46,8 @@ import com.jaspersoft.android.jaspermobile.domain.interactor.dashboard.GetDashbo
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.FlushInputControlsCase;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportMetadataCase;
 import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
+import com.jaspersoft.android.jaspermobile.ui.model.visualize.ExecutionReferenceClickEvent;
+import com.jaspersoft.android.jaspermobile.ui.model.visualize.ExternalReferenceClickEvent;
 import com.jaspersoft.android.jaspermobile.ui.view.activity.ReportVisualizeActivity_;
 import com.jaspersoft.android.jaspermobile.util.ScrollableTitleHelper;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
@@ -53,6 +58,7 @@ import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardExe
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardTrigger;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.DashboardWebInterface;
 import com.jaspersoft.android.jaspermobile.webview.dashboard.bridge.JsDashboardTrigger;
+import com.jaspersoft.android.jaspermobile.webview.hyperlinks.HyperlinksCallback;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.androidannotations.annotations.Bean;
@@ -65,13 +71,15 @@ import org.androidannotations.annotations.UiThread;
 
 import javax.inject.Inject;
 
+import rx.subjects.PublishSubject;
+
 /**
  * @author Tom Koptel
  * @since 2.0
  */
 @OptionsMenu(R.menu.report_filter_manager_menu)
 @EActivity
-public class Amber2DashboardActivity extends BaseDashboardActivity implements DashboardCallback {
+public class Amber2DashboardActivity extends BaseDashboardActivity implements DashboardCallback, HyperlinksCallback {
 
     private static final int REQUEST_DASHBOARDS_PARAMETERS = 200;
 
@@ -195,7 +203,7 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
     public void onWebViewConfigured(WebView webView) {
         mDashboardTrigger = JsDashboardTrigger.with(webView);
         mDashboardExecutor = AmberTwoDashboardExecutor.newInstance(webView, mServer, resource);
-        mWebInterface = DashboardWebInterface.from(this);
+        mWebInterface = DashboardWebInterface.from(this, this);
         WebViewEnvironment.configure(webView)
                 .withWebInterface(mWebInterface);
         loadFlow();
@@ -270,19 +278,6 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         hideLoading();
     }
 
-    @UiThread
-    @Override
-    public void onReportExecution(String data) {
-        mGetReportMetadataCase.execute(data, new GenericSubscriber<>(new SimpleSubscriber<ResourceLookup>() {
-            @Override
-            public void onNext(ResourceLookup lookup) {
-                ReportVisualizeActivity_.intent(Amber2DashboardActivity.this)
-                        .resource(lookup)
-                        .start();
-            }
-        }));
-    }
-
     @Override
     public void onWindowResizeStart() {
     }
@@ -341,6 +336,42 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         mGetReportMetadataCase.unsubscribe();
         mFlushInputControlsCase.execute(resource.getUri());
         super.finish();
+    }
+
+    //---------------------------------------------------------------------
+    // Hyperlinks
+    //---------------------------------------------------------------------
+
+    @UiThread
+    @Override
+    public void onReportExecutionClick(String data) {
+        mGetReportMetadataCase.execute(data, new GenericSubscriber<>(new SimpleSubscriber<ResourceLookup>() {
+            @Override
+            public void onNext(ResourceLookup lookup) {
+                ReportVisualizeActivity_.intent(Amber2DashboardActivity.this)
+                        .resource(lookup)
+                        .start();
+            }
+        }));
+    }
+
+    @UiThread
+    @Override
+    public void onReferenceClick(String location) {
+        showExternalLink(this, location);
+    }
+
+    private void showExternalLink(Context context, String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        try {
+            context.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            // show notification if no app available to open selected format
+            Toast.makeText(context,
+                    context.getString(R.string.sdr_t_no_app_available, "view"),
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
     }
 
     //---------------------------------------------------------------------

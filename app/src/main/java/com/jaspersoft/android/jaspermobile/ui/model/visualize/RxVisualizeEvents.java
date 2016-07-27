@@ -26,6 +26,7 @@ package com.jaspersoft.android.jaspermobile.ui.model.visualize;
 
 import com.jaspersoft.android.jaspermobile.util.rx.SingleCacheSubject;
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
+import com.jaspersoft.android.jaspermobile.webview.hyperlinks.HyperlinksCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
 
@@ -89,16 +90,6 @@ public final class RxVisualizeEvents implements VisualizeEvents {
             }
 
             @Override
-            public void onReferenceClick(String location) {
-                mExternalReferenceClickEvent.onNext(new ExternalReferenceClickEvent(location));
-            }
-
-            @Override
-            public void onReportExecutionClick(String data) {
-                mExecutionReferenceClickEvent.onNext(new ExecutionReferenceClickEvent(data));
-            }
-
-            @Override
             public void onMultiPageStateObtained(boolean isMultiPage) {
                 mMultiPageLoadEvent.onNext(new MultiPageLoadEvent(isMultiPage));
             }
@@ -113,7 +104,18 @@ public final class RxVisualizeEvents implements VisualizeEvents {
                 mPageLoadErrorEvent.onNext(new PageLoadErrorEvent(errorMessage, page));
             }
         };
-        WebInterface webInterface = ReportWebInterface.from(reportCallback);
+        HyperlinksCallback hyperlinksCallback = new HyperlinksCallback() {
+            @Override
+            public void onReferenceClick(String location) {
+                mExternalReferenceClickEvent.onNext(new ExternalReferenceClickEvent(location));
+            }
+
+            @Override
+            public void onReportExecutionClick(String data) {
+                mExecutionReferenceClickEvent.onNext(new ExecutionReferenceClickEvent(data));
+            }
+        };
+        WebInterface webInterface = ReportWebInterface.from(reportCallback, hyperlinksCallback);
         webInterface.exposeJavascriptInterface(configuration.getWebView());
     }
 

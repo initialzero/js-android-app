@@ -24,6 +24,7 @@
 
 package com.jaspersoft.android.jaspermobile.activities.viewer.html.webresource;
 
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.jaspersoft.android.jaspermobile.R;
@@ -68,7 +69,36 @@ public class WebResourceActivity extends ToolbarActivity
         if (resourceUrl == null) {
             // TODO: throw exception?
         }
-        webViewFragment.loadUrl(resourceUrl);
+        String url = resourceUrl;
+        if (isViewerUrl(url)) {
+            // TODO: make showing this resource in native viewer (first get resource lookup)
+            url = constructUrlForViewer(url);
+        }
+        webViewFragment.loadUrl(url);
+    }
+
+    private boolean isViewerUrl(String url) {
+        return url.contains("viewer.html");
+    }
+
+    private String constructUrlForViewer(String url) {
+        String nodecoration ="sessionDecorator=no&decorate=no";
+        Uri uri = Uri.parse(url);
+        String scheme = uri.getScheme();
+        String host = uri.getHost();
+        int port = uri.getPort();
+        String path = uri.getPath();
+        String query = uri.getQuery();
+        String fragment = uri.getFragment();
+
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(scheme)
+                .encodedAuthority(host + ":" + port)
+                .path(path)
+                .encodedQuery(nodecoration + query)
+                .encodedFragment(fragment);
+        String newUrl = builder.build().toString();
+        return newUrl;
     }
 
     @Override

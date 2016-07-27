@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -118,6 +118,8 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
         initToolbar(resourceLookup.getLabel());
         reportPartsTabs.setReportPartSelectListener(this);
         paginationView.setPageSelectListener(this);
+
+        getReportShowControlsPropertyCase.updateSubscriber(new ReportShowControlsSubscriber());
     }
 
     @Override
@@ -221,21 +223,7 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
     }
 
     protected void loadMetadata(String reportUri) {
-        getReportShowControlsPropertyCase.execute(reportUri, new SimpleSubscriber<ReportControlFlags>() {
-            @Override
-            public void onNext(ReportControlFlags flags) {
-                boolean filtersAvailable = flags.hasControls();
-                boolean needPrompt = flags.needPrompt();
-
-                if (filtersAvailable && needPrompt) {
-                    showFiltersPage();
-                } else {
-                    runReport(resourceLookup.getUri());
-                }
-
-                reportToolbar.setFilterAvailable(filtersAvailable);
-            }
-        });
+        getReportShowControlsPropertyCase.execute(reportUri, new ReportShowControlsSubscriber());
     }
 
     protected void initToolbar(String title) {
@@ -309,5 +297,21 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
         ArrayList<Bookmark> bookmarks = new ArrayList<>(bookmarkList);
         bookmarksIntent.putParcelableArrayListExtra(BookmarksActivity.BOOKMARK_LIST_ARG, bookmarks);
         startActivityForResult(bookmarksIntent, BOOKMARKS_CODE);
+    }
+
+    private class ReportShowControlsSubscriber extends SimpleSubscriber<ReportControlFlags> {
+        @Override
+        public void onNext(ReportControlFlags flags) {
+            boolean filtersAvailable = flags.hasControls();
+            boolean needPrompt = flags.needPrompt();
+
+            if (filtersAvailable && needPrompt) {
+                showFiltersPage();
+            } else {
+                runReport(resourceLookup.getUri());
+            }
+
+            reportToolbar.setFilterAvailable(filtersAvailable);
+        }
     }
 }

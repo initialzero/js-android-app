@@ -72,7 +72,6 @@ import com.jaspersoft.android.jaspermobile.webview.intercept.VisualizeResourcesI
 import com.jaspersoft.android.jaspermobile.webview.intercept.WebResourceInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.intercept.okhttp.OkHttpWebResourceInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportCallback;
-import com.jaspersoft.android.jaspermobile.webview.hyperlinks.HyperlinksCallback;
 import com.jaspersoft.android.jaspermobile.webview.report.bridge.ReportWebInterface;
 import com.jaspersoft.android.jaspermobile.widget.ScrollComputableWebView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
@@ -399,7 +398,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
         void onCastStopped();
     }
 
-    private class ReportPresentation extends CastPresentation implements ErrorWebViewClientListener.OnWebViewErrorListener, ReportCallback, HyperlinksCallback {
+    private class ReportPresentation extends CastPresentation implements ErrorWebViewClientListener.OnWebViewErrorListener, ReportCallback {
 
         private ScrollComputableWebView webView;
         private ProgressBar progressState;
@@ -578,7 +577,7 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService {
                     .registerUrlPolicy(defaultPolicy)
                     .build();
 
-            WebInterface mWebInterface = ReportWebInterface.from(this, this);
+            WebInterface mWebInterface = ReportWebInterface.from(this);
             WebViewEnvironment.configure(webView)
                     .withDefaultSettings()
                     .withChromeClient(systemChromeClient)

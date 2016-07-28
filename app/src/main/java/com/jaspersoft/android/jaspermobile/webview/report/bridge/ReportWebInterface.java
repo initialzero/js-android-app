@@ -29,25 +29,22 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.jaspersoft.android.jaspermobile.webview.WebInterface;
-import com.jaspersoft.android.jaspermobile.webview.hyperlinks.HyperlinksCallback;
 
 /**
  * @author Tom Koptel
  * @since 2.0
  */
-public final class ReportWebInterface extends WebInterface implements ReportCallback, HyperlinksCallback {
+public final class ReportWebInterface extends WebInterface implements ReportCallback {
 
     private final ReportCallback decoratedCallback;
-    private final HyperlinksCallback decoratedHyperlinksCallback;
     private boolean mLoadDone;
 
-    private ReportWebInterface(ReportCallback decoratedCallback, HyperlinksCallback decoratedHyperlinksCallback) {
+    private ReportWebInterface(ReportCallback decoratedCallback) {
         this.decoratedCallback = decoratedCallback;
-        this.decoratedHyperlinksCallback = decoratedHyperlinksCallback;
     }
 
-    public static WebInterface from(ReportCallback decoratedCallback, HyperlinksCallback decoratedHyperlinksCallback) {
-        return new ReportWebInterface(decoratedCallback, decoratedHyperlinksCallback);
+    public static WebInterface from(ReportCallback decoratedCallback) {
+        return new ReportWebInterface(decoratedCallback);
     }
 
     @SuppressLint("AddJavascriptInterface")
@@ -179,7 +176,7 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
         handleCallback(new Runnable() {
             @Override
             public void run() {
-                decoratedHyperlinksCallback.onReferenceClick(type);
+                decoratedCallback.onReferenceClick(type);
             }
         });
     }
@@ -190,7 +187,7 @@ public final class ReportWebInterface extends WebInterface implements ReportCall
         handleCallback(new Runnable() {
             @Override
             public void run() {
-                decoratedHyperlinksCallback.onReportExecutionClick(data);
+                decoratedCallback.onReportExecutionClick(data);
             }
         });
     }

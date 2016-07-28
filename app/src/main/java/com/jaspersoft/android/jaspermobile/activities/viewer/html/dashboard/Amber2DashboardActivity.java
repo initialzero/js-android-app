@@ -361,6 +361,24 @@ public class Amber2DashboardActivity extends BaseDashboardActivity implements Da
         showExternalLink(this, location);
     }
 
+    @UiThread
+    @Override
+    public void onRemotePageClick(String location) {
+        String url = mServer.getBaseUrl() + location;
+        showExternalLink(this, url);
+    }
+
+    @UiThread
+    @Override
+    public void onRemoteAnchorClick(String location) {
+        String url = mServer.getBaseUrl() + location;
+        showExternalLink(this, url);
+    }
+
+    //---------------------------------------------------------------------
+    // Hyperlinks Helpers
+    //---------------------------------------------------------------------
+
     private void showExternalLink(Context context, String url) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         try {

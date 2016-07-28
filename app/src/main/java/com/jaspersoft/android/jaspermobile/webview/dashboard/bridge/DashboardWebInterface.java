@@ -234,6 +234,28 @@ public final class DashboardWebInterface extends WebInterface implements Dashboa
         });
     }
 
+    @JavascriptInterface
+    @Override
+    public void onRemotePageClick(final String location) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                hyperlinksCallback.onRemotePageClick(location);
+            }
+        });
+    }
+
+    @JavascriptInterface
+    @Override
+    public void onRemoteAnchorClick(final String location) {
+        handleCallback(new Runnable() {
+            @Override
+            public void run() {
+                hyperlinksCallback.onRemoteAnchorClick(location);
+            }
+        });
+    }
+
     @SuppressLint("AddJavascriptInterface")
     @Override
     public void exposeJavascriptInterface(WebView webView) {

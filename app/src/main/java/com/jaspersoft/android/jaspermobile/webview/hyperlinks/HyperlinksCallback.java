@@ -32,4 +32,6 @@ package com.jaspersoft.android.jaspermobile.webview.hyperlinks;
 public interface HyperlinksCallback {
     void onReferenceClick(String location);
     void onReportExecutionClick(String data);
+    void onRemotePageClick(String location);
+    void onRemoteAnchorClick(String location);
 }

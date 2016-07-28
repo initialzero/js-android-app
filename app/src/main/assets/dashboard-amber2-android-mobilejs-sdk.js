@@ -116,6 +116,8 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         this._processLinkClicks = bind(this._processLinkClicks, this);
         this._adHocHandler = bind(this._adHocHandler, this);
         this._openRemoteLink = bind(this._openRemoteLink, this);
+        this._openRemotePage = bind(this._openRemotePage, this);
+        this._openRemoteAnchor = bind(this._openRemoteAnchor, this);
         this._startReportExecution = bind(this._startReportExecution, this);
       }
 
@@ -299,6 +301,10 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
             return defaultHandler.call(this);
           case "AdHocExecution":
             return this._adHocHandler(link, defaultHandler);
+          case "RemoteAnchor":
+            return this._openRemoteAnchor(link);
+          case "RemotePage":
+            return this._openRemotePage(link);
           default:
             return defaultHandler.call(this);
         }
@@ -333,6 +339,22 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         js_mobile.log("_openRemoteLink");
         href = link.href;
         return this.callback.onReferenceClick(href);
+      };
+
+      DashboardController.prototype._openRemotePage = function(link) {
+        var href;
+        js_mobile.log("_openRemotePage");
+        href = link.href;
+        console.log("_openRemotePage: " + href);
+        return this.callback.onRemotePageClick(href);
+      };
+
+      DashboardController.prototype._openRemoteAnchor = function(link) {
+        var href;
+        js_mobile.log("_openRemoteAnchor");
+        href = link.href;
+        console.log("_openRemoteAnchor: " + href);
+        return this.callback.onRemoteAnchorClick(href);
       };
 
       DashboardController.prototype._adHocHandler = function(link, defaultHandler) {
@@ -685,6 +707,8 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         // Hyperlinks
         this.onReportExecution = bind(this.onReportExecution, this);
         this.onReferenceClick = bind(this.onReferenceClick, this);
+        this.onRemotePageClick = bind(this.onRemotePageClick, this);
+        this.onRemoteAnchorClick = bind(this.onRemoteAnchorClick, this);
         return AndroidCallback.__super__.constructor.apply(this, arguments);
       }
 
@@ -784,6 +808,18 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
       AndroidCallback.prototype.onReferenceClick = function(location) {
         this.dispatch(function() {
           return Android.onReferenceClick(location);
+        });
+      };
+
+      AndroidCallback.prototype.onRemotePageClick = function(location) {
+        this.dispatch(function() {
+          return Android.onRemotePageClick(location);
+        });
+      };
+
+      AndroidCallback.prototype.onRemoteAnchorClick = function(location) {
+        this.dispatch(function() {
+          return Android.onRemoteAnchorClick(location);
         });
       };
 

@@ -246,20 +246,6 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
         mToast.show();
     }
 
-    //---------------------------------------------------------------------
-    // Hyperlinks
-    //---------------------------------------------------------------------
-
-    @UiThread
-    @Override
-    public void onReferenceClick(final String type) {
-    }
-
-    @UiThread
-    @Override
-    public void onReportExecutionClick(final String data) {
-    }
-
     @UiThread
     @Override
     public void onWindowResizeStart() {
@@ -280,6 +266,30 @@ public class AmberDashboardActivity extends BaseDashboardActivity implements Das
     public void onWindowError(String errorMessage) {
         showMessage(getString(R.string.failed_load_data));
         hideLoading();
+    }
+
+    //---------------------------------------------------------------------
+    // Hyperlinks
+    //---------------------------------------------------------------------
+
+    @UiThread
+    @Override
+    public void onReferenceClick(final String type) {
+    }
+
+    @UiThread
+    @Override
+    public void onReportExecutionClick(final String data) {
+    }
+
+    @UiThread
+    @Override
+    public void onRemotePageClick(final String data) {
+    }
+
+    @UiThread
+    @Override
+    public void onRemoteAnchorClick(final String data) {
     }
 
     //---------------------------------------------------------------------

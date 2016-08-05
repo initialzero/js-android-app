@@ -84,6 +84,12 @@ android {
         }
     }
 
+    buildTypes {
+        debug {
+            testCoverageEnabled = true
+        }
+    }
+
     packagingOptions {
         exclude "META-INF/ASL2.0"
         exclude "asm-license.txt"
@@ -252,7 +258,9 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "test") {
 
     additionalSourceDirs = files(coverageSourceDirs)
     sourceDirectories = files(coverageSourceDirs)
-    executionData = files('../app/build/jacoco/testUnitTestDebug.exec')
+    executionData = files(["${buildDir}/jacoco/testDebugUnitTest.exec",
+                           "${buildDir}/outputs/code-coverage/connected/coverage.ec"
+    ])
 
     reports {
         xml.enabled = true

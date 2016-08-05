@@ -68,6 +68,7 @@ import java.io.File;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * @author Andrew Tivodar
@@ -84,6 +85,9 @@ public class ReportViewActivity extends BaseReportActivity {
     JasperResourceConverter jasperResourceConverter;
     @Inject
     FavoritesHelper favoritesHelper;
+    @Inject
+    @Named("device_screen_diagonal")
+    Double screenDiagonal;
 
     private ResourceOpener resourceOpener;
 
@@ -93,7 +97,7 @@ public class ReportViewActivity extends BaseReportActivity {
         super.onCreate(savedInstanceState);
         resourceOpener = ResourceOpener_.getInstance_(this);
 
-        if (init((ReportFragment) getSupportFragmentManager().findFragmentById(R.id.reportFragment))){
+        if (init((ReportFragment) getSupportFragmentManager().findFragmentById(R.id.reportFragment))) {
             loadMetadata(resourceLookup.getUri());
         }
         onActionsAvailabilityChanged(reportWidget != null && reportWidget.isControlActionsAvailable());
@@ -188,8 +192,9 @@ public class ReportViewActivity extends BaseReportActivity {
     }
 
     @Override
-    protected float provideScale() {
-        return 0.5f;
+    protected double provideScale() {
+        // Scale depends on device screen size. In this case amount of info that appear is same as for standart tablet (10.1 inch)
+        return screenDiagonal / 10.1;
     }
 
     @Override
@@ -288,7 +293,7 @@ public class ReportViewActivity extends BaseReportActivity {
         public void onNext(ResourceLookup item) {
             List<com.jaspersoft.android.sdk.network.entity.report.ReportParameter> reportParams = runOptions.getParameters();
             List<ReportParameter> legacyReportParams = paramsMapper.retrofittedParamsToLegacy(reportParams);
-            ReportDestination reportDestination= destinationMapper.toReportDestination(runOptions.getDestination());
+            ReportDestination reportDestination = destinationMapper.toReportDestination(runOptions.getDestination());
 
             InputControlHolder icHolder = reportParamsStorage.getInputControlHolder(item.getUri());
             icHolder.setReportParams(legacyReportParams);

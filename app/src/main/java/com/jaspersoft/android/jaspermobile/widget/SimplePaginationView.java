@@ -142,6 +142,13 @@ public class SimplePaginationView extends RelativeLayout implements ReportPagina
         notifyPageSelected(reportProperties.getPagesCount());
     }
 
+    @OnClick(R.id.pagesNumberContainer)
+    void pagesNumberClick() {
+        if (pageSelectListener != null) {
+            pageSelectListener.onRemotePageSelected(reportProperties.getPagesCount());
+        }
+    }
+
     private void init() {
         LayoutInflater.from(getContext()).inflate(R.layout.view_simple_pagination, this);
         ButterKnife.bind(this);
@@ -162,7 +169,7 @@ public class SimplePaginationView extends RelativeLayout implements ReportPagina
         previousPage.setAlpha(previousPage.isEnabled() ? 1f : 0.5f);
         nextPage.setAlpha(nextPage.isEnabled() ? 1f : 0.5f);
         lastPage.setAlpha(lastPage.isEnabled() ? 1f : 0.5f);
-        pageValues.setAlpha(lastPage.isEnabled() ? 1f : 0.5f);
+        pageValues.setAlpha(pageValues.isEnabled() ? 1f : 0.5f);
     }
 
     private void notifyPageSelected(int page) {
@@ -173,5 +180,6 @@ public class SimplePaginationView extends RelativeLayout implements ReportPagina
 
     public interface PageSelectListener {
         void onPageSelected(int page);
+        void onRemotePageSelected(Integer pagesCount);
     }
 }

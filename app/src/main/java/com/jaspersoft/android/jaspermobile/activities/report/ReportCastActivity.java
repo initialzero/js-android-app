@@ -91,7 +91,7 @@ public class ReportCastActivity extends BaseReportActivity implements ResourcePr
     }
 
     @Override
-    protected float provideScale() {
+    protected double provideScale() {
         // To make casting device-dpi independent we are considering device density
         return 0.66f / getResources().getDisplayMetrics().density;
     }

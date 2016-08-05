@@ -35,7 +35,6 @@ import com.jaspersoft.android.jaspermobile.activities.library.LibraryPageFragmen
 import com.jaspersoft.android.jaspermobile.activities.library.fragment.LibraryFragment;
 import com.jaspersoft.android.jaspermobile.activities.recent.RecentPageFragment;
 import com.jaspersoft.android.jaspermobile.activities.recent.fragment.RecentFragment;
-import com.jaspersoft.android.jaspermobile.activities.report.ReportViewActivity;
 import com.jaspersoft.android.jaspermobile.activities.repository.RepositoryPageFragment;
 import com.jaspersoft.android.jaspermobile.activities.repository.fragment.RepositoryFragment;
 import com.jaspersoft.android.jaspermobile.activities.save.fragment.SaveItemFragment;
@@ -108,7 +107,6 @@ public interface BaseActivityComponent {
     void inject(NewScheduleActivity newScheduleActivity);
     void inject(EditScheduleActivity editScheduleActivity);
     void inject(AnnotationActivity toolbarActivity);
-    void inject(ReportViewActivity reportViewActivity);
     void inject(ToolbarActivity toolbarActivity);
 
     void inject(OutputFormatDialogFragment fragment);

@@ -24,9 +24,14 @@
 
 package com.jaspersoft.android.jaspermobile.internal.di.modules.activity;
 
+import android.app.Activity;
+import android.util.DisplayMetrics;
+
 import com.jaspersoft.android.jaspermobile.internal.di.PerActivity;
 import com.jaspersoft.android.jaspermobile.util.print.ReportPrintJob;
 import com.jaspersoft.android.jaspermobile.util.print.ResourcePrintJob;
+
+import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
@@ -37,6 +42,27 @@ import dagger.Provides;
  */
 @Module
 public class ReportViewModule{
+
+    @Provides
+    @PerActivity
+    @Named("device_screen_diagonal")
+    Double providesScreenDiagonal(Activity activity) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        int widthPixels = metrics.widthPixels;
+        int heightPixels = metrics.heightPixels;
+
+        float widthDpi = metrics.xdpi;
+        float heightDpi = metrics.ydpi;
+
+        float widthInches = widthPixels / widthDpi;
+        float heightInches = heightPixels / heightDpi;
+
+        return Math.sqrt(
+                (widthInches * widthInches)
+                        + (heightInches * heightInches));
+    }
 
     @Provides
     @PerActivity

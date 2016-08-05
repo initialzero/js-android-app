@@ -30,11 +30,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.report.bookmarks.BookmarksActivity;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.DestinationMapper;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
+import com.jaspersoft.android.jaspermobile.dialog.NumberDialogFragment;
 import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.ReportControlFlags;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
@@ -75,7 +77,8 @@ import butterknife.ButterKnife;
  * @author Andrew Tivodar
  * @since 2.6
  */
-public abstract class BaseReportActivity extends CastActivity implements Toolbar.OnMenuItemClickListener, ReportPartsTabLayout.ReportPartSelectListener, ReportEventListener, SimplePaginationView.PageSelectListener {
+public abstract class BaseReportActivity extends CastActivity implements Toolbar.OnMenuItemClickListener, ReportPartsTabLayout.ReportPartSelectListener,
+        ReportEventListener, SimplePaginationView.PageSelectListener, NumberDialogFragment.NumberDialogClickListener {
     public static final String RESOURCE_LOOKUP_ARG = "resource_lookup";
     public static final String REPORT_DESTINATION_ARG = "report_destination";
 
@@ -156,6 +159,18 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
     }
 
     @Override
+    public void onRemotePageSelected(Integer pagesCount) {
+        NumberDialogFragment.createBuilder(getSupportFragmentManager())
+                .setMaxValue(pagesCount == null ? Integer.MAX_VALUE : pagesCount)
+                .show();
+    }
+
+    @Override
+    public void onNumberSubmit(int number, int requestCode) {
+        reportWidget.navigateToPage(number);
+    }
+
+    @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refreshAction:
@@ -179,6 +194,10 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
         if (resultCode != RESULT_OK) return;
 
         if (requestCode == REPORT_FILTERS_CODE) {
+            boolean isNewParamsEqualOld = data.getBooleanExtra(
+                    InputControlsActivity.RESULT_SAME_PARAMS, false);
+            if (isNewParamsEqualOld) return;
+
             if (reportWidget.isControlActionsAvailable()) {
                 applyParams();
             } else {
@@ -199,7 +218,7 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
 
     protected abstract int provideItemsMenu();
 
-    protected abstract float provideScale();
+    protected abstract double provideScale();
 
     protected final boolean init(ReportWidget reportViewer) {
         this.reportWidget = reportViewer;

@@ -67,6 +67,7 @@
         android:background="@drawable/bg_rounded">
 
         <LinearLayout
+            android:id="@+id/pagesNumberContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"

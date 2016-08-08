@@ -29,7 +29,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 
 import com.jaspersoft.android.jaspermobile.R;
 
@@ -37,7 +37,7 @@ import com.jaspersoft.android.jaspermobile.R;
  * @author Andrew Tivodar
  * @since 2.6
  */
-public class LoadingView extends LinearLayout {
+public class LoadingView extends FrameLayout {
     public LoadingView(Context context) {
         super(context);
         init();
@@ -60,7 +60,6 @@ public class LoadingView extends LinearLayout {
     }
 
     private void init() {
-        setOrientation(VERTICAL);
         LayoutInflater.from(getContext()).inflate(R.layout.view_loading, this);
     }
 }

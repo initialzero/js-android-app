@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
@@ -41,10 +42,12 @@ import com.jaspersoft.android.jaspermobile.domain.JasperServer;
 import com.jaspersoft.android.jaspermobile.domain.ReportControlFlags;
 import com.jaspersoft.android.jaspermobile.domain.SimpleSubscriber;
 import com.jaspersoft.android.jaspermobile.domain.interactor.report.GetReportShowControlsPropertyCase;
+import com.jaspersoft.android.jaspermobile.network.RequestExceptionHandler;
 import com.jaspersoft.android.jaspermobile.ui.view.activity.CastActivity;
 import com.jaspersoft.android.jaspermobile.util.InputControlHolder;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
 import com.jaspersoft.android.jaspermobile.widget.LoadingView;
+import com.jaspersoft.android.jaspermobile.widget.ReportErrorActionView;
 import com.jaspersoft.android.jaspermobile.widget.ReportPartsTabLayout;
 import com.jaspersoft.android.jaspermobile.widget.ReportToolbar;
 import com.jaspersoft.android.jaspermobile.widget.SimplePaginationView;
@@ -54,6 +57,7 @@ import com.jaspersoft.android.sdk.network.entity.report.ReportParameter;
 import com.jaspersoft.android.sdk.service.data.server.ServerInfo;
 import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
+import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 import com.jaspersoft.android.sdk.widget.report.renderer.Bookmark;
 import com.jaspersoft.android.sdk.widget.report.renderer.Destination;
 import com.jaspersoft.android.sdk.widget.report.renderer.ReportPart;
@@ -92,6 +96,8 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
     ReportToolbar reportToolbar;
     @BindView(R.id.reportPartsTabs)
     ReportPartsTabLayout reportPartsTabs;
+    @BindView(R.id.reportMessage)
+    ReportErrorActionView reportErrorActionView;
     @BindView(R.id.paginationControl)
     SimplePaginationView paginationView;
 
@@ -107,6 +113,8 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
     ReportParamsMapper paramsMapper;
     @Inject
     DestinationMapper destinationMapper;
+    @Inject
+    RequestExceptionHandler requestExceptionHandler;
 
     protected ResourceLookup resourceLookup;
 
@@ -121,6 +129,7 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
         initToolbar(resourceLookup.getLabel());
         reportPartsTabs.setReportPartSelectListener(this);
         paginationView.setPageSelectListener(this);
+        reportErrorActionView.setOnActionClickListener(new HandleErrorActionClickListener());
 
         getReportShowControlsPropertyCase.updateSubscriber(new ReportShowControlsSubscriber());
     }
@@ -144,7 +153,28 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
 
     @Override
     public void onError(ServiceException exception) {
-        // TODO: Handle report error
+        switch (exception.code()) {
+            case StatusCodes.AUTHORIZATION_ERROR:
+                showErrorMessage(getString(R.string.da_session_expired), ReportErrorActionView.RELOAD_ACTION);
+                break;
+            case StatusCodes.REPORT_EXECUTION_EMPTY:
+                if (reportToolbar.isFilterAvailable()) {
+                    showErrorMessage(getString(R.string.rv_error_empty_report) + " " + getString(R.string.rv_apply_filters_no_data), ReportErrorActionView.APPLY_FILTERS_ACTION);
+                } else {
+                    showErrorMessage(getString(R.string.rv_error_empty_report), ReportErrorActionView.NO_ACTION);
+                }
+                break;
+            case StatusCodes.EXPORT_PAGE_OUT_OF_RANGE:
+            case StatusCodes.EXPORT_EXECUTION_CANCELLED:
+            case StatusCodes.EXPORT_EXECUTION_FAILED:
+            case StatusCodes.EXPORT_ANCHOR_ABSENT:
+                showErrorMessage(getString(R.string.sr_failed_to_execute_report), ReportErrorActionView.NO_ACTION);
+                requestExceptionHandler.showCommonErrorMessage(exception);
+                break;
+            default:
+                String errorMessage = requestExceptionHandler.extractMessage(exception);
+                showErrorMessage(errorMessage, ReportErrorActionView.RELOAD_ACTION);
+        }
     }
 
     @Override
@@ -174,7 +204,7 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refreshAction:
-                reportWidget.refresh();
+                refresh();
                 return true;
             case R.id.filtersAction:
                 showFiltersPage();
@@ -194,11 +224,9 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
         if (resultCode != RESULT_OK) return;
 
         if (requestCode == REPORT_FILTERS_CODE) {
-            boolean isNewParamsEqualOld = data.getBooleanExtra(
-                    InputControlsActivity.RESULT_SAME_PARAMS, false);
-            if (isNewParamsEqualOld) return;
+            boolean isNewParamsEqualOld = data.getBooleanExtra(InputControlsActivity.RESULT_SAME_PARAMS, false);
 
-            if (reportWidget.isControlActionsAvailable()) {
+            if (reportWidget.isControlActionsAvailable() && !isNewParamsEqualOld) {
                 applyParams();
             } else {
                 runReport(resourceLookup.getUri());
@@ -285,10 +313,15 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
                 .parameters(getReportParams())
                 .destination(destination)
                 .build());
+        reportErrorActionView.setVisibility(View.GONE);
     }
 
     private void applyParams() {
         reportWidget.applyParams(getReportParams());
+    }
+
+    private void refresh() {
+        reportWidget.refresh();
     }
 
     private List<ReportParameter> getReportParams() {
@@ -318,6 +351,11 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
         startActivityForResult(bookmarksIntent, BOOKMARKS_CODE);
     }
 
+    private void showErrorMessage(String errorMessage, int handleAction) {
+        reportErrorActionView.setVisibility(View.VISIBLE);
+        reportErrorActionView.showError(errorMessage, handleAction);
+    }
+
     private class ReportShowControlsSubscriber extends SimpleSubscriber<ReportControlFlags> {
         @Override
         public void onNext(ReportControlFlags flags) {
@@ -325,12 +363,25 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
             boolean needPrompt = flags.needPrompt();
 
             if (filtersAvailable && needPrompt) {
+                showErrorMessage(getString(R.string.rv_apply_filters_message), ReportErrorActionView.APPLY_FILTERS_ACTION);
                 showFiltersPage();
             } else {
                 runReport(resourceLookup.getUri());
             }
 
             reportToolbar.setFilterAvailable(filtersAvailable);
+        }
+    }
+
+    private class HandleErrorActionClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            if (reportErrorActionView.getAction() == ReportErrorActionView.APPLY_FILTERS_ACTION) {
+                showFiltersPage();
+            } else if (reportErrorActionView.getAction() == ReportErrorActionView.RELOAD_ACTION) {
+                reportErrorActionView.setVisibility(View.GONE);
+                loadMetadata(resourceLookup.getUri());
+            }
         }
     }
 }

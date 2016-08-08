@@ -207,6 +207,9 @@
     <!-- Report Viewer Activity -->
     <string name="rv_ab_bookmarks" translatable="false">Bookmarks</string>
     <string name="rv_bookmark_page" translatable="false">Page: %s</string>
+    <string name="rv_apply_filters_message" translatable="false">You must apply input values before the report can be displayed.</string>
+    <string name="rv_apply_filters_action" translatable="false">Apply</string>
+    <string name="rv_apply_filters_no_data">You may apply other filters.</string>
     <string name="rv_ab_save_report">Save Report</string>
     <string name="rv_ab_show_filters">Show Filters</string>
     <string name="rv_error_empty_report">There is no report data.</string>

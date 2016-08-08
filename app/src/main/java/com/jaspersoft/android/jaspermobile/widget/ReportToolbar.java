@@ -76,6 +76,10 @@ public class ReportToolbar extends Toolbar implements Toolbar.OnMenuItemClickLis
         filtersAction.setVisible(filterAvailable);
     }
 
+    public boolean isFilterAvailable() {
+        return filtersAction.isVisible();
+    }
+
     public void setActionGroupEnabled(boolean enabled) {
         Menu menu = getMenu();
 

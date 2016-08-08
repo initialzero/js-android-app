@@ -39,19 +39,19 @@
             style="@style/Widget.JasperMobile.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_menu_navigation_up" >
+            app:navigationIcon="@drawable/ic_menu_navigation_up">
 
             <TextView
                 android:id="@+id/reportTitle"
-                android:textSize="@dimen/abc_text_size_title_material_toolbar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
-                android:marqueeRepeatLimit="1"
-                android:scrollHorizontally="true"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:singleLine="true" />
+                android:marqueeRepeatLimit="1"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:textSize="@dimen/abc_text_size_title_material_toolbar" />
 
 
         </com.jaspersoft.android.jaspermobile.widget.ReportToolbar>
@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:visibility="gone"
-            app:tabMode="scrollable"/>
+            app:tabMode="scrollable" />
 
     </android.support.design.widget.AppBarLayout>
 
@@ -73,9 +73,16 @@
 
         <com.jaspersoft.android.jaspermobile.widget.LoadingView
             android:id="@+id/loading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/paginationControl" />
+
+        <com.jaspersoft.android.jaspermobile.widget.ReportErrorActionView
+            android:id="@+id/reportMessage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/paginationControl"
+            android:visibility="gone" />
 
         <fragment
             android:id="@+id/reportFragment"

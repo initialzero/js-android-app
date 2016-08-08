@@ -234,7 +234,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
         js_mobile.log("Iterate components");
         return this.components.forEach((function(_this) {
           return function(component) {
-            if (component.type !== 'inputControl') {
+            if (component.type !== 'inputControl' && component.type !== 'image' && component.type !== 'text') {
               _this.dashboard.updateComponent(component.id, {
                 interactive: false,
                 toolbar: false

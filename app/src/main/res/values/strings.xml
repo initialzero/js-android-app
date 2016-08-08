@@ -148,6 +148,7 @@
     <string name="ro_show">Saved values</string>
 
     <!-- Resource Info Activity -->
+    <string name="ri_report_type" translatable="false">Report</string>
     <string name="ri_schedule">Schedule</string>
     <string name="ri_type_title">Type:</string>
     <string name="ri_label_title">Label:</string>

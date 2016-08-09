@@ -31,6 +31,8 @@ buildscript {
         classpath "com.neenbedankt.gradle.plugins:android-apt:" + androidApt
         classpath "io.fabric.tools:gradle:" + fabricToolsVersion
         classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:" + dexCountToolsVersion
+        classpath 'com.dicedmelon.gradle:jacoco-android:0.1.1'
+        classpath "org.jacoco:org.jacoco.core:" + jacocoVersion
     }
 }
 
@@ -38,7 +40,10 @@ apply plugin: "com.android.application"
 apply plugin: "android-apt"
 apply plugin: "io.fabric"
 apply plugin: "com.getkeepsafe.dexcount"
-apply from: "build_utils.gradle"
+apply plugin: 'jacoco-android'
+
+apply from: "scripts/build_utils.gradle"
+apply from: "scripts/grant_permissions.gradle"
 
 repositories {
     maven { url "https://maven.fabric.io/public" }
@@ -56,14 +61,16 @@ android {
         targetSdkVersion androidTargetSdkVersion
         generatedDensities = []
 
-        versionCode 2_05_00_007
-        versionName "2.5.0"
+        versionCode 2_06_00_000
+        versionName "2.6.0"
 
         if (project.hasProperty("GOOGLE_ANALYTICS_TRACKING_ID")) {
             resValue "string", "google_analytics_tracking_id", GOOGLE_ANALYTICS_TRACKING_ID
         } else {
             resValue "string", "google_analytics_tracking_id", "SET_YOUR_ANALYTIC_TRACKING_ID"
         }
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     if (project.hasProperty("JMA_STORE_FILE")) {
         signingConfigs {
@@ -84,6 +91,12 @@ android {
         }
     }
 
+    buildTypes {
+        debug {
+            testCoverageEnabled = true
+        }
+    }
+
     packagingOptions {
         exclude "META-INF/ASL2.0"
         exclude "asm-license.txt"
@@ -96,6 +109,8 @@ android {
         exclude "META-INF/notice.txt"
         exclude "META-INF/NOTICE.txt"
         exclude "META-INF/NOTICE"
+        exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
+        exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
     }
 
     lintOptions {
@@ -152,6 +167,13 @@ android {
 
     dexOptions {
         javaMaxHeapSize "4g"
+    }
+
+    sourceSets {
+        String androidTestSupport = 'src/androidTestSupport/java'
+        androidTest {
+            java.srcDir androidTestSupport
+        }
     }
 
     dependencies {
@@ -218,5 +240,24 @@ android {
             exclude group: "commons-logging", module: "commons-logging"
             exclude group: "org.apache.httpcomponents", module: "httpclient"
         }
+        androidTestCompile ("com.android.support.test.espresso:espresso-core:2.2.2") {
+            exclude group: 'com.android.support'
+        }
+
+        androidTestCompile ('com.android.support.test.espresso:espresso-contrib:2.2.2') {
+            exclude group: 'com.android.support'
+        }
+
+        androidTestCompile ('com.android.support.test.espresso:espresso-intents:2.2.2') {
+            exclude group: 'com.android.support'
+        }
+
+        androidTestCompile ('com.android.support.test.espresso:espresso-web:2.2.2') {
+            exclude group: 'com.android.support'
+        }
     }
+}
+
+jacoco {
+    toolVersion = jacocoVersion
 }

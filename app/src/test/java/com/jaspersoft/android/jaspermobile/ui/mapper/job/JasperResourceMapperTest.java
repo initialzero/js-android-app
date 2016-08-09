@@ -91,7 +91,7 @@ public class JasperResourceMapperTest {
                 .id(0)
                 .version(0)
                 .outputFormats(Collections.singletonList(JobScheduleForm.OutputFormat.PDF))
-                .fileName("All_accounts")
+                .fileName("New_schedule")
                 .folderUri("/my/report")
                 .source("/my/report/uri")
                 .jobName(NEW_SCHEDULE)
@@ -100,7 +100,7 @@ public class JasperResourceMapperTest {
     }
 
     private void givenJasperResource() {
-        defaultJasperResource = new Resource("/my/report/uri", "All accounts", null);
+        defaultJasperResource = new Resource("/my/report/uri", NEW_SCHEDULE, null);
     }
 
     private static class Resource extends JasperResource {

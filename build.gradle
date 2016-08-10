@@ -55,8 +55,6 @@ subprojects {
 
     ext.jacocoVersion = '0.7.7.201606060606'
 
-    ext.jacocoVersion = '0.7.6.201602180812'
-
     repositories {
         // Local .m2 repo, usually living at home dir
         mavenLocal()

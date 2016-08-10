@@ -32,6 +32,8 @@ buildscript {
         classpath "com.neenbedankt.gradle.plugins:android-apt:" + androidApt
         classpath "io.fabric.tools:gradle:" + fabricToolsVersion
         classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:" + dexCountToolsVersion
+        classpath 'com.dicedmelon.gradle:jacoco-android:0.1.1'
+        classpath "org.jacoco:org.jacoco.core:" + jacocoVersion
     }
 }
 
@@ -39,7 +41,10 @@ apply plugin: "com.android.application"
 apply plugin: "android-apt"
 apply plugin: "io.fabric"
 apply plugin: "com.getkeepsafe.dexcount"
-apply from: "build_utils.gradle"
+apply plugin: 'jacoco-android'
+
+apply from: "scripts/build_utils.gradle"
+apply from: "scripts/grant_permissions.gradle"
 
 repositories {
     maven { url "https://maven.fabric.io/public" }
@@ -65,6 +70,8 @@ android {
         } else {
             resValue "string", "google_analytics_tracking_id", "SET_YOUR_ANALYTIC_TRACKING_ID"
         }
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     if (project.hasProperty("JMA_STORE_FILE")) {
         signingConfigs {
@@ -85,6 +92,12 @@ android {
         }
     }
 
+    buildTypes {
+        debug {
+            testCoverageEnabled = true
+        }
+    }
+
     packagingOptions {
         exclude "META-INF/ASL2.0"
         exclude "asm-license.txt"
@@ -97,6 +110,8 @@ android {
         exclude "META-INF/notice.txt"
         exclude "META-INF/NOTICE.txt"
         exclude "META-INF/NOTICE"
+        exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
+        exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
     }
 
     lintOptions {
@@ -155,6 +170,13 @@ android {
         javaMaxHeapSize "4g"
     }
 
+    sourceSets {
+        String androidTestSupport = 'src/androidTestSupport/java'
+        androidTest {
+            java.srcDir androidTestSupport
+        }
+    }
+
     dependencies {
         provided project(":database-generator")
 
@@ -168,8 +190,8 @@ android {
         compile 'com.google.android.gms:play-services-analytics:8.4.0'
         compile 'com.google.android.gms:play-services-cast:8.4.0'
 
-        compile 'com.jakewharton:butterknife:8.1.0'
-        apt 'com.jakewharton:butterknife-compiler:8.1.0'
+        compile 'com.jakewharton:butterknife:8.2.1'
+        apt 'com.jakewharton:butterknife-compiler:8.2.1'
 
         compile("org.androidannotations:androidannotations-api:3.2")
         apt "org.androidannotations:androidannotations:3.2"
@@ -223,5 +245,24 @@ android {
             exclude group: "commons-logging", module: "commons-logging"
             exclude group: "org.apache.httpcomponents", module: "httpclient"
         }
+        androidTestCompile ("com.android.support.test.espresso:espresso-core:2.2.2") {
+            exclude group: 'com.android.support'
+        }
+
+        androidTestCompile ('com.android.support.test.espresso:espresso-contrib:2.2.2') {
+            exclude group: 'com.android.support'
+        }
+
+        androidTestCompile ('com.android.support.test.espresso:espresso-intents:2.2.2') {
+            exclude group: 'com.android.support'
+        }
+
+        androidTestCompile ('com.android.support.test.espresso:espresso-web:2.2.2') {
+            exclude group: 'com.android.support'
+        }
     }
+}
+
+jacoco {
+    toolVersion = jacocoVersion
 }

@@ -37,7 +37,6 @@ import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.Activity
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.DashboardModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.NavigationActivityModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportModule;
-import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportRestViewerModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.activity.ReportViewModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.screen.job.JobFormScreenModule;
 import com.jaspersoft.android.jaspermobile.internal.di.modules.screen.job.JobInfoScreenModule;
@@ -55,8 +54,6 @@ import dagger.Subcomponent;
         modules = ProfileModule.class
 )
 public interface ProfileComponent {
-    ReportRestViewerComponent plusReportRestViewer(ActivityModule activityModule,
-                                                   ReportRestViewerModule reportModule);
 
     ReportComponent plusReportViewer(ActivityModule activityModule,
                                      ReportViewModule reportModule);

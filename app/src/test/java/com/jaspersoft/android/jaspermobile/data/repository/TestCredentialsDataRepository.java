@@ -43,7 +43,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * @author Tom Koptel
  * @since 2.3
  */
-public class CredentialsDataRepositoryTest {
+public class TestCredentialsDataRepository {
     @Mock
     CredentialsCache mCredentialsCache;
 

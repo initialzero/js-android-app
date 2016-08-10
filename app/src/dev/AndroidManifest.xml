@@ -27,6 +27,7 @@
     <permission
         android:name="jaspermobile.util.actions"
         android:label="util_actions" />
+    <uses-permission android:name="android.permission.SET_ANIMATION_SCALE"/>
 
     <application>
         <receiver

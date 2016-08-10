@@ -53,6 +53,8 @@ subprojects {
     ext.dexCountToolsVersion = '0.3.0';
     ext.jasperSdkVersion = '2.5';
 
+    ext.jacocoVersion = '0.7.6.201602180812'
+
     repositories {
         // Local .m2 repo, usually living at home dir
         mavenLocal()

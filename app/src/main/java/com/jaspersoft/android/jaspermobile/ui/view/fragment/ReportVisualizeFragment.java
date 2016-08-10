@@ -116,7 +116,7 @@ public class ReportVisualizeFragment extends BaseFragment
 
     @ViewById
     protected JSWebView webView;
-    @ViewById(android.R.id.empty)
+    @ViewById(android.R.id.message)
     protected TextView errorView;
     @ViewById
     protected ProgressBar progressBar;

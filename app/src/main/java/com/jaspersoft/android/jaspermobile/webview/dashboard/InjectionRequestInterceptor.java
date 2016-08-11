@@ -28,8 +28,8 @@ import android.support.annotation.NonNull;
 import android.webkit.WebView;
 
 import com.jaspersoft.android.jaspermobile.webview.WebRequest;
-import com.jaspersoft.android.jaspermobile.webview.intercept.WebResourceInterceptor;
 import com.jaspersoft.android.jaspermobile.webview.WebResponse;
+import com.jaspersoft.android.jaspermobile.webview.intercept.WebResourceInterceptor;
 
 import java.io.IOException;
 import java.io.InputStream;

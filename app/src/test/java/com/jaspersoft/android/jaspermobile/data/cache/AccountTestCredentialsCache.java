@@ -56,7 +56,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class AccountCredentialsCacheTest {
+public class AccountTestCredentialsCache {
     @Mock
     SecureCache mSecureCache;
 

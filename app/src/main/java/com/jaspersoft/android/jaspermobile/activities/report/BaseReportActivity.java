@@ -34,6 +34,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity;
 import com.jaspersoft.android.jaspermobile.activities.inputcontrols.InputControlsActivity_;
 import com.jaspersoft.android.jaspermobile.activities.report.bookmarks.BookmarksActivity;
+import com.jaspersoft.android.jaspermobile.activities.report.chartTypes.ChartTypesActivity;
 import com.jaspersoft.android.jaspermobile.data.JasperRestClient;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.DestinationMapper;
 import com.jaspersoft.android.jaspermobile.data.entity.mapper.ReportParamsMapper;
@@ -59,6 +60,7 @@ import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 import com.jaspersoft.android.sdk.service.exception.ServiceException;
 import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 import com.jaspersoft.android.sdk.widget.report.renderer.Bookmark;
+import com.jaspersoft.android.sdk.widget.report.renderer.ChartType;
 import com.jaspersoft.android.sdk.widget.report.renderer.Destination;
 import com.jaspersoft.android.sdk.widget.report.renderer.ReportPart;
 import com.jaspersoft.android.sdk.widget.report.renderer.RunOptions;
@@ -88,6 +90,7 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
 
     private static final int REPORT_FILTERS_CODE = 100;
     private static final int BOOKMARKS_CODE = 101;
+    private static final int CHART_TYPES_CODE = 102;
 
     protected ReportWidget reportWidget;
     @BindView(R.id.loading)
@@ -212,6 +215,9 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
             case R.id.bookmarksAction:
                 showBookmarksPage();
                 return true;
+            case R.id.availableChartTypesAction:
+                showAvailableChartType();
+                return true;
             case android.R.id.home:
                 finish();
             default:
@@ -239,6 +245,13 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
                 throw new RuntimeException("Selected bookmark should be provided");
             }
             reportWidget.navigateToPage(bookmark.getPage());
+        }
+
+        if (requestCode == CHART_TYPES_CODE) {
+            ChartType chartType = data.getExtras().getParcelable(ChartTypesActivity.SELECTED_CHART_TYPE_ARG);
+            if (chartType == null) {
+                throw new RuntimeException("Selected chartType should be provided");
+            }
         }
     }
 
@@ -349,6 +362,14 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
         ArrayList<Bookmark> bookmarks = new ArrayList<>(bookmarkList);
         bookmarksIntent.putParcelableArrayListExtra(BookmarksActivity.BOOKMARK_LIST_ARG, bookmarks);
         startActivityForResult(bookmarksIntent, BOOKMARKS_CODE);
+    }
+
+    private void showAvailableChartType() {
+        Intent chartTypesIntent = new Intent(this, ChartTypesActivity.class);
+        List<ChartType> chartTypesList = reportWidget.getAvailableChartTypes();
+        ArrayList<ChartType> chartTypes = new ArrayList<>(chartTypesList);
+        chartTypesIntent.putParcelableArrayListExtra(ChartTypesActivity.CHART_TYPES_ARG, chartTypes);
+        startActivityForResult(chartTypesIntent, CHART_TYPES_CODE);
     }
 
     private void showErrorMessage(String errorMessage, int handleAction) {

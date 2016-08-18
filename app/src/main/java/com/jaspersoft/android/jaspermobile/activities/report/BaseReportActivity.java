@@ -62,6 +62,7 @@ import com.jaspersoft.android.sdk.service.exception.StatusCodes;
 import com.jaspersoft.android.sdk.widget.report.renderer.Bookmark;
 import com.jaspersoft.android.sdk.widget.report.renderer.ChartType;
 import com.jaspersoft.android.sdk.widget.report.renderer.Destination;
+import com.jaspersoft.android.sdk.widget.report.renderer.ReportComponent;
 import com.jaspersoft.android.sdk.widget.report.renderer.ReportPart;
 import com.jaspersoft.android.sdk.widget.report.renderer.RunOptions;
 import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.Hyperlink;
@@ -252,6 +253,12 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
             if (chartType == null) {
                 throw new RuntimeException("Selected chartType should be provided");
             }
+            ReportProperties reportProperties = reportWidget.getReportProperties();
+            if (reportProperties.getComponents().size() > 1) {
+                throw new RuntimeException("Support only elastic charts");
+            }
+            ReportComponent component = reportProperties.getComponents().get(0);
+            reportWidget.updateChartType(component, chartType);
         }
     }
 

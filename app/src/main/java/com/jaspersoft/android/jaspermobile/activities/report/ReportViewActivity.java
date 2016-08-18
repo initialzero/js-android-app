@@ -33,6 +33,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.jaspersoft.android.jaspermobile.R;
+import com.jaspersoft.android.jaspermobile.activities.report.chartTypes.ChartTypesActivity;
 import com.jaspersoft.android.jaspermobile.activities.save.SaveReportActivity_;
 import com.jaspersoft.android.jaspermobile.activities.share.AnnotationActivity_;
 import com.jaspersoft.android.jaspermobile.dialog.ProgressDialogFragment;
@@ -57,14 +58,18 @@ import com.jaspersoft.android.sdk.client.oxm.report.ReportDestination;
 import com.jaspersoft.android.sdk.client.oxm.report.ReportParameter;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.util.FileUtils;
+import com.jaspersoft.android.sdk.widget.report.renderer.ChartType;
+import com.jaspersoft.android.sdk.widget.report.renderer.ReportComponent;
 import com.jaspersoft.android.sdk.widget.report.renderer.RunOptions;
 import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.Hyperlink;
 import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.ReferenceHyperlink;
 import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.RemoteHyperlink;
 import com.jaspersoft.android.sdk.widget.report.renderer.hyperlink.ReportExecutionHyperlink;
 import com.jaspersoft.android.sdk.widget.report.view.ReportFragment;
+import com.jaspersoft.android.sdk.widget.report.view.ReportProperties;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -75,6 +80,9 @@ import javax.inject.Named;
  * @since 2.6
  */
 public class ReportViewActivity extends BaseReportActivity {
+
+    private static final int CHART_TYPES_CODE = 102;
+
     @Inject
     GetResourceDetailsByTypeCase getResourceDetailsByTypeCase;
     @Inject
@@ -176,8 +184,29 @@ public class ReportViewActivity extends BaseReportActivity {
             case R.id.shareAction:
                 makeScreenShot();
                 return true;
+            case R.id.availableChartTypesAction:
+                showAvailableChartType();
+                return true;
             default:
                 return super.onMenuItemClick(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == CHART_TYPES_CODE) {
+            ChartType chartType = data.getExtras().getParcelable(ChartTypesActivity.SELECTED_CHART_TYPE_ARG);
+            if (chartType == null) {
+                throw new RuntimeException("Selected chartType should be provided");
+            }
+            ReportProperties reportProperties = reportWidget.getReportProperties();
+            if (reportProperties.getComponents().size() > 1) {
+                throw new RuntimeException("Support only elastic charts");
+            }
+            ReportComponent component = reportProperties.getComponents().get(0);
+            reportWidget.updateChartType(component, chartType);
         }
     }
 
@@ -258,6 +287,14 @@ public class ReportViewActivity extends BaseReportActivity {
     private void makeScreenShot() {
         ScreenCapture reportScreenCapture = ScreenCapture.Factory.capture(reportWidget.getView());
         saveScreenCaptureCase.execute(reportScreenCapture, new SaveScreenCaptureListener());
+    }
+
+    private void showAvailableChartType() {
+        Intent chartTypesIntent = new Intent(this, ChartTypesActivity.class);
+        List<ChartType> chartTypesList = reportWidget.getAvailableChartTypes();
+        ArrayList<ChartType> chartTypes = new ArrayList<>(chartTypesList);
+        chartTypesIntent.putParcelableArrayListExtra(ChartTypesActivity.CHART_TYPES_ARG, chartTypes);
+        startActivityForResult(chartTypesIntent, CHART_TYPES_CODE);
     }
 
     private int getTotalPageCount() {

@@ -52,7 +52,15 @@ import java.util.Set;
  */
 public class ReportToolbar extends Toolbar implements Toolbar.OnMenuItemClickListener, ReportBookmarkListener {
     private static final Set<Integer> ACTION_GROUP = new HashSet<>(Arrays.asList(
-            new Integer[] {R.id.bookmarksAction, R.id.shareAction, R.id.filtersAction, R.id.refreshAction, R.id.saveAction, R.id.printAction}
+            new Integer[] {
+                    R.id.bookmarksAction,
+                    R.id.shareAction,
+                    R.id.filtersAction,
+                    R.id.refreshAction,
+                    R.id.saveAction,
+                    R.id.printAction,
+                    R.id.availableChartTypesAction
+            }
     ));
     private MenuItem filtersAction, bookmarksAction;
     private OnMenuItemClickListener listener;

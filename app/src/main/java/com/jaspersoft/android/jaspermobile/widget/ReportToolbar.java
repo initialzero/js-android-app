@@ -59,10 +59,10 @@ public class ReportToolbar extends Toolbar implements Toolbar.OnMenuItemClickLis
                     R.id.refreshAction,
                     R.id.saveAction,
                     R.id.printAction,
-                    R.id.availableChartTypesAction
+                    R.id.chageChartTypesAction
             }
     ));
-    private MenuItem filtersAction, bookmarksAction;
+    private MenuItem filtersAction, bookmarksAction, mChageChartTypesAction;
     private OnMenuItemClickListener listener;
 
     public ReportToolbar(Context context) {
@@ -82,6 +82,10 @@ public class ReportToolbar extends Toolbar implements Toolbar.OnMenuItemClickLis
 
     public void setFilterAvailable(boolean filterAvailable) {
         filtersAction.setVisible(filterAvailable);
+    }
+
+    public void setChangeChartTypeAvailable(boolean available) {
+        mChageChartTypesAction.setVisible(available);
     }
 
     public boolean isFilterAvailable() {
@@ -115,8 +119,10 @@ public class ReportToolbar extends Toolbar implements Toolbar.OnMenuItemClickLis
     public void inflateMenu(@MenuRes int resId) {
         super.inflateMenu(resId);
 
-        filtersAction = getMenu().findItem(R.id.filtersAction);
-        bookmarksAction = getMenu().findItem(R.id.bookmarksAction);
+        Menu menu = getMenu();
+        filtersAction = menu.findItem(R.id.filtersAction);
+        bookmarksAction = menu.findItem(R.id.bookmarksAction);
+        mChageChartTypesAction = menu.findItem(R.id.chageChartTypesAction);
     }
 
     @Override

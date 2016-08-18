@@ -108,7 +108,7 @@ public class ReportViewActivity extends BaseReportActivity {
         if (init((ReportFragment) getSupportFragmentManager().findFragmentById(R.id.reportFragment))) {
             loadMetadata(resourceLookup.getUri());
         }
-        onActionsAvailabilityChanged(reportWidget != null && reportWidget.isControlActionsAvailable());
+        onActionAvailabilityChanged(ActionType.ACTION_TYPE_ALL, reportWidget != null && reportWidget.isControlActionsAvailable());
     }
 
     @Override
@@ -184,8 +184,8 @@ public class ReportViewActivity extends BaseReportActivity {
             case R.id.shareAction:
                 makeScreenShot();
                 return true;
-            case R.id.availableChartTypesAction:
-                showAvailableChartType();
+            case R.id.chageChartTypesAction:
+                changeChartType();
                 return true;
             default:
                 return super.onMenuItemClick(item);
@@ -194,7 +194,7 @@ public class ReportViewActivity extends BaseReportActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK) return;
 
         if (requestCode == CHART_TYPES_CODE) {
             ChartType chartType = data.getExtras().getParcelable(ChartTypesActivity.SELECTED_CHART_TYPE_ARG);
@@ -208,6 +208,8 @@ public class ReportViewActivity extends BaseReportActivity {
             ReportComponent component = reportProperties.getComponents().get(0);
             reportWidget.updateChartType(component, chartType);
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -289,7 +291,7 @@ public class ReportViewActivity extends BaseReportActivity {
         saveScreenCaptureCase.execute(reportScreenCapture, new SaveScreenCaptureListener());
     }
 
-    private void showAvailableChartType() {
+    private void changeChartType() {
         Intent chartTypesIntent = new Intent(this, ChartTypesActivity.class);
         List<ChartType> chartTypesList = reportWidget.getAvailableChartTypes();
         ArrayList<ChartType> chartTypes = new ArrayList<>(chartTypesList);

@@ -296,6 +296,20 @@ public class ReportViewActivity extends BaseReportActivity {
         List<ChartType> chartTypesList = reportWidget.getAvailableChartTypes();
         ArrayList<ChartType> chartTypes = new ArrayList<>(chartTypesList);
         chartTypesIntent.putParcelableArrayListExtra(ChartTypesActivity.CHART_TYPES_ARG, chartTypes);
+
+        List<ReportComponent> reportComponents = reportWidget.getReportProperties().getComponents();
+        if (reportComponents.size() > 1) {
+            // For now we don't support multi charts
+            // TODO: should we throw exception?
+            return;
+        }
+        ReportComponent chartComponent = reportComponents.get(0);
+        ChartType chartType = chartComponent.getChartTypeInstance();
+        if (chartType == null) {
+            throw new RuntimeException("Chart Type should be set");
+        }
+
+        chartTypesIntent.putExtra(ChartTypesActivity.SELECTED_CHART_TYPE_ARG, chartType);
         startActivityForResult(chartTypesIntent, CHART_TYPES_CODE);
     }
 

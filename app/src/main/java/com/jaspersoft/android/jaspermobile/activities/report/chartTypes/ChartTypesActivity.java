@@ -28,6 +28,8 @@ public class ChartTypesActivity extends ToolbarActivity implements ChartTypesAda
     public static final String CHART_TYPES_ARG = "chartTypes";
     public static final String SELECTED_CHART_TYPE_ARG = "selectedChartType";
 
+    private ChartType mSelectedChartType;
+
     @BindView(R.id.chartTypesToolbar)
     Toolbar chartTypesToolbar;
     @BindView(R.id.chartTypesContainer)
@@ -66,6 +68,7 @@ public class ChartTypesActivity extends ToolbarActivity implements ChartTypesAda
         List<ChartType> chartTypes = null;
         if (extras != null) {
             chartTypes = extras.getParcelableArrayList(CHART_TYPES_ARG);
+            mSelectedChartType = extras.getParcelable(SELECTED_CHART_TYPE_ARG);
         }
         if (chartTypes == null) {
             throw new RuntimeException("ChartTypes should be provided");
@@ -74,7 +77,7 @@ public class ChartTypesActivity extends ToolbarActivity implements ChartTypesAda
     }
 
     private void showChartTypes(String name, List<ChartType> chartTypes, boolean isRoot) {
-        Fragment chartTypeFragment = ChartTypeFragment.create(chartTypes);
+        Fragment chartTypeFragment = ChartTypeFragment.create(chartTypes, mSelectedChartType);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (!isRoot) {

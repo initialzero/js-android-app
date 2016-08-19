@@ -25,9 +25,10 @@ public class ChartTypesAdapter extends BaseAdapter implements View.OnClickListen
 
     private final ChartTypeSelectListener chartTypeSelectListener;
     private final LayoutInflater layoutInflater;
-    private final List<ChartType> chartTypes;
+    private final List<ChartType> mChartTypes;
+    private ChartType mSelectedChartType;
 
-    public ChartTypesAdapter(Context context, ChartTypeSelectListener chartTypeSelectListener, List<ChartType> chartTypes) {
+    public ChartTypesAdapter(Context context, ChartTypeSelectListener chartTypeSelectListener, List<ChartType> chartTypes, ChartType selectedChartType) {
         if (context == null) {
             throw new IllegalArgumentException("Context should be provided");
         }
@@ -39,8 +40,9 @@ public class ChartTypesAdapter extends BaseAdapter implements View.OnClickListen
         }
 
         this.chartTypeSelectListener = chartTypeSelectListener;
-        this.chartTypes = chartTypes;
         this.layoutInflater = LayoutInflater.from(context);
+        mChartTypes = chartTypes;
+        mSelectedChartType = selectedChartType;
     }
 
     /*
@@ -49,12 +51,12 @@ public class ChartTypesAdapter extends BaseAdapter implements View.OnClickListen
 
     @Override
     public int getCount() {
-        return chartTypes.size();
+        return mChartTypes.size();
     }
 
     @Override
     public ChartType getItem(int i) {
-        return chartTypes.get(i);
+        return mChartTypes.get(i);
     }
 
     @Override
@@ -76,6 +78,13 @@ public class ChartTypesAdapter extends BaseAdapter implements View.OnClickListen
         }
 
         ChartType chartType = getItem(i);
+
+        // TODO: discuss colors
+        if (chartType.equals(mSelectedChartType)) {
+            view.setBackgroundColor(view.getContext().getColor(R.color.js_gray_with_opacity));
+        } else {
+            view.setBackgroundColor(view.getContext().getColor(R.color.default_text));
+        }
 
         holder.chartTypeName.setText(chartType.getName());
         holder.position = i;

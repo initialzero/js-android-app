@@ -27,13 +27,16 @@ public class ChartTypeFragment extends BaseFragment {
     private ChartTypesAdapter chartTypesAdapter;
     private ChartTypesAdapter.ChartTypeSelectListener listener;
 
-    public static ChartTypeFragment create(List<ChartType> chartTypes) {
+    private ChartType mSelectedChartType;
+
+    public static ChartTypeFragment create(List<ChartType> chartTypes, ChartType selectedChartType) {
         ChartTypeFragment chartTypeFragment = new ChartTypeFragment();
 
-        Bundle args = new Bundle();
+        Bundle bundle = new Bundle();
         ArrayList<ChartType> chartTypesArrayList = new ArrayList<>(chartTypes);
-        args.putParcelableArrayList(ChartTypesActivity.CHART_TYPES_ARG, chartTypesArrayList);
-        chartTypeFragment.setArguments(args);
+        bundle.putParcelableArrayList(ChartTypesActivity.CHART_TYPES_ARG, chartTypesArrayList);
+        bundle.putParcelable(ChartTypesActivity.SELECTED_CHART_TYPE_ARG, selectedChartType);
+        chartTypeFragment.setArguments(bundle);
 
         return chartTypeFragment;
     }
@@ -60,7 +63,7 @@ public class ChartTypeFragment extends BaseFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         List<ChartType> chartTypes = fetchChartTypes();
-        chartTypesAdapter = new ChartTypesAdapter(getContext(), listener, chartTypes);
+        chartTypesAdapter = new ChartTypesAdapter(getContext(), listener, chartTypes, mSelectedChartType);
     }
 
     @Nullable
@@ -85,6 +88,7 @@ public class ChartTypeFragment extends BaseFragment {
         List<ChartType> chartTypes = null;
         if (extras != null) {
             chartTypes = extras.getParcelableArrayList(ChartTypesActivity.CHART_TYPES_ARG);
+            mSelectedChartType = extras.getParcelable(ChartTypesActivity.SELECTED_CHART_TYPE_ARG);
         }
         if (chartTypes == null) {
             throw new RuntimeException("ChartTypes should be provided");

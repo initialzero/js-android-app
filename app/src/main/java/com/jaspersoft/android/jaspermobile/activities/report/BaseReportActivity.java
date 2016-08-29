@@ -371,6 +371,12 @@ public abstract class BaseReportActivity extends CastActivity implements Toolbar
 
             reportToolbar.setFilterAvailable(filtersAvailable);
         }
+
+        @Override
+        public void onError(Throwable e) {
+            String errorMessage = requestExceptionHandler.extractMessage(e);
+            showErrorMessage(errorMessage, ReportErrorActionView.RELOAD_ACTION);
+        }
     }
 
     private class HandleErrorActionClickListener implements View.OnClickListener {

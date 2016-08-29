@@ -45,9 +45,7 @@ import com.jaspersoft.android.jaspermobile.R;
 import com.jaspersoft.android.jaspermobile.ui.component.activity.ComponentCacheActivity;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourceCastDialogFactory;
 import com.jaspersoft.android.jaspermobile.util.cast.ResourcePresentationService;
-import com.jaspersoft.android.sdk.service.data.server.ServerVersion;
 
-import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
@@ -66,7 +64,6 @@ public abstract class ActionBarCastActivity extends ComponentCacheActivity {
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mMediaRouteSelector;
     private MediaRouter.Callback mMediaRouterCallback;
-    private boolean mCastAvailable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,17 +76,11 @@ public abstract class ActionBarCastActivity extends ComponentCacheActivity {
         mMediaRouterCallback = new BaseMediaRouterCallback();
     }
 
-    @AfterViews
-    protected void init() {
-        String version = mServer.getVersion();
-        mCastAvailable = mServer.isProEdition() && ServerVersion.valueOf(version).greaterThanOrEquals(ServerVersion.v6);
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
 
-        if (castAction != null && mCastAvailable) {
+        if (castAction != null) {
             MediaRouteActionProvider mediaRouteActionProvider =
                     (MediaRouteActionProvider) MenuItemCompat.getActionProvider(castAction);
             mediaRouteActionProvider.setRouteSelector(mMediaRouteSelector);
@@ -109,12 +100,6 @@ public abstract class ActionBarCastActivity extends ComponentCacheActivity {
     protected void onStop() {
         mMediaRouter.removeCallback(mMediaRouterCallback);
         super.onStop();
-    }
-
-    protected void onCastStarted() {
-    }
-
-    protected void onCastStopped() {
     }
 
     //---------------------------------------------------------------------
@@ -163,9 +148,7 @@ public abstract class ActionBarCastActivity extends ComponentCacheActivity {
         @Override
         public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route) {
             super.onRouteUnselected(router, route);
-
             CastRemoteDisplayLocalService.stopService();
-            onCastStopped();
         }
     }
 
@@ -176,7 +159,6 @@ public abstract class ActionBarCastActivity extends ComponentCacheActivity {
             if (castDevice != null) {
                 ((ResourcePresentationService) castRemoteDisplayLocalService).setCastDeviceName(castDevice.getFriendlyName());
             }
-            onCastStarted();
         }
 
         @Override

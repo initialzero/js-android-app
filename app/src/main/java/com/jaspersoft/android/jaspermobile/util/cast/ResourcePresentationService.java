@@ -46,7 +46,6 @@ import com.jaspersoft.android.jaspermobile.domain.ScreenCapture;
 import com.jaspersoft.android.jaspermobile.ui.view.activity.NavigationActivity_;
 import com.jaspersoft.android.jaspermobile.ui.view.fragment.ComponentProviderDelegate;
 import com.jaspersoft.android.jaspermobile.util.ReportParamsStorage;
-import com.jaspersoft.android.jaspermobile.widget.LoadingView;
 import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 import com.jaspersoft.android.sdk.widget.report.view.ReportView;
 import com.jaspersoft.android.sdk.widget.report.view.ReportWidget;
@@ -171,7 +170,6 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService i
 
     public void onStartReportCasting(ResourceLookup report) {
         reportPresentation.reportView.setVisibility(View.VISIBLE);
-        reportPresentation.loading.setVisibility(View.VISIBLE);
         currentReport = report;
         updateCastNotification();
 
@@ -187,7 +185,6 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService i
         if (reportPresentation != null) {
             reportPresentation.reportView.reset();
             reportPresentation.reportView.setVisibility(View.GONE);
-            reportPresentation.loading.setVisibility(View.GONE);
         }
         if (currentReport != null) {
             reportParamsStorage.clearInputControlHolder(currentReport.getUri());
@@ -271,7 +268,6 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService i
 
     public class ReportPresentation extends CastPresentation {
         private ReportView reportView;
-        private LoadingView loading;
 
         public ReportPresentation(Context serviceContext, Display display) {
             super(serviceContext, display);
@@ -283,7 +279,6 @@ public class ResourcePresentationService extends CastRemoteDisplayLocalService i
 
             setContentView(R.layout.report_presentation);
 
-            loading = (LoadingView) findViewById(R.id.loading);
             reportView = (ReportView) findViewById(R.id.reportView);
         }
     }

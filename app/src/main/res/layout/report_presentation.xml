@@ -47,14 +47,6 @@
             android:textAppearance="?android:attr/textAppearanceLarge"/>
     </LinearLayout>
 
-    <com.jaspersoft.android.jaspermobile.widget.LoadingView
-        android:id="@+id/loading"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white"
-        android:visibility="gone"
-        android:gravity="center"/>
-
     <com.jaspersoft.android.sdk.widget.report.view.ReportView
         android:id="@+id/reportView"
         android:layout_width="match_parent"

@@ -159,10 +159,13 @@ public class SimplePaginationView extends RelativeLayout implements ReportPagina
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
 
-        firstPage.setEnabled(reportProperties.getCurrentPage() != 1 && enabled);
-        previousPage.setEnabled(reportProperties.getCurrentPage() != 1 && enabled);
-        nextPage.setEnabled(!reportProperties.getCurrentPage().equals(reportProperties.getPagesCount()) && enabled);
-        lastPage.setEnabled(reportProperties.getPagesCount() != null && !reportProperties.getCurrentPage().equals(reportProperties.getPagesCount()) && enabled);
+        Integer currentPage = reportProperties == null ? 1 : reportProperties.getCurrentPage();
+        Integer pagesCount = reportProperties == null ? null : reportProperties.getPagesCount();
+
+        firstPage.setEnabled(currentPage != 1 && enabled);
+        previousPage.setEnabled(currentPage != 1 && enabled);
+        nextPage.setEnabled(!currentPage.equals(pagesCount) && enabled);
+        lastPage.setEnabled(pagesCount != null && !currentPage.equals(pagesCount) && enabled);
         pageValues.setEnabled(enabled);
 
         firstPage.setAlpha(firstPage.isEnabled() ? 1f : 0.5f);

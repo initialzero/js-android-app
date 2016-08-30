@@ -120,6 +120,12 @@ public class ReportCastActivity extends BaseReportActivity implements ResourcePr
         resourcePresentationService.onReportRenderStateUpdated();
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        resourcePresentationService.onCloseReportCasting();
+    }
+
     @OnTouch(R.id.btnScrollUp)
     protected boolean scrollUpAction(MotionEvent event) {
         scrollTo(event, new TimerTask() {

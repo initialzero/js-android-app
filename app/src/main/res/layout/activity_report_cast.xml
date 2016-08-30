@@ -23,11 +23,11 @@
   -->
 
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:orientation="vertical">
+                                                 xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="match_parent"
+                                                 android:background="@android:color/white"
+                                                 android:orientation="vertical">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/reportAppBarLayout"
@@ -40,7 +40,21 @@
             style="@style/Widget.JasperMobile.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_menu_navigation_up" />
+            app:navigationIcon="@drawable/ic_menu_navigation_up">
+
+            <TextView
+                android:id="@+id/reportTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:marqueeRepeatLimit="1"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:textSize="@dimen/abc_text_size_title_material_toolbar"/>
+
+        </com.jaspersoft.android.jaspermobile.widget.ReportToolbar>
 
         <com.jaspersoft.android.jaspermobile.widget.ReportPartsTabLayout
             android:id="@+id/reportPartsTabs"
@@ -48,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:visibility="gone"
-            app:tabMode="scrollable" />
+            app:tabMode="scrollable"/>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -61,14 +75,14 @@
             android:id="@+id/loading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/paginationControl" />
+            android:layout_above="@+id/paginationControl"/>
 
         <com.jaspersoft.android.jaspermobile.widget.ReportErrorActionView
             android:id="@+id/reportMessage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/paginationControl"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/controlsContainer"
@@ -94,7 +108,7 @@
                     android:paddingLeft="24dp"
                     android:paddingRight="24dp"
                     android:paddingTop="12dp"
-                    android:src="@drawable/ic_zoom_out" />
+                    android:src="@drawable/ic_zoom_out"/>
 
                 <ImageButton
                     android:id="@+id/btnZoomIn"
@@ -104,7 +118,7 @@
                     android:paddingLeft="24dp"
                     android:paddingRight="24dp"
                     android:paddingTop="12dp"
-                    android:src="@drawable/ic_zoom_in" />
+                    android:src="@drawable/ic_zoom_in"/>
 
             </LinearLayout>
 
@@ -114,7 +128,7 @@
                 android:layout_margin="12dp"
                 android:gravity="center_horizontal"
                 android:text="@string/cast_zoom_message"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"/>
 
             <GridLayout
                 android:layout_width="wrap_content"
@@ -127,7 +141,7 @@
                     android:id="@+id/btnScrollUp"
                     android:layout_column="1"
                     android:padding="16dp"
-                    android:src="@drawable/ic_arrow_upward" />
+                    android:src="@drawable/ic_arrow_upward"/>
 
                 <ImageButton
                     android:id="@+id/btnScrollLeft"
@@ -136,21 +150,21 @@
                     android:layout_column="0"
                     android:layout_row="1"
                     android:padding="16dp"
-                    android:src="@drawable/ic_arrow_left" />
+                    android:src="@drawable/ic_arrow_left"/>
 
                 <ImageButton
                     android:id="@+id/btnScrollRight"
                     android:layout_column="2"
                     android:layout_row="1"
                     android:padding="16dp"
-                    android:src="@drawable/ic_arrow_right" />
+                    android:src="@drawable/ic_arrow_right"/>
 
                 <ImageButton
                     android:id="@+id/btnScrollDown"
                     android:layout_column="1"
                     android:layout_row="2"
                     android:padding="16dp"
-                    android:src="@drawable/ic_arrow_downward" />
+                    android:src="@drawable/ic_arrow_downward"/>
 
             </GridLayout>
 
@@ -160,7 +174,7 @@
                 android:layout_margin="12dp"
                 android:gravity="center_horizontal"
                 android:text="@string/cast_scroll_message"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"/>
 
         </LinearLayout>
 
@@ -169,7 +183,7 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             android:layout_alignParentBottom="true"
-            android:background="@color/js_dark_gray" />
+            android:background="@color/js_dark_gray"/>
 
     </RelativeLayout>
 

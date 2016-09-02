@@ -142,6 +142,13 @@
             android:label="@string/sr_ab_title"
             android:windowSoftInputMode="stateHidden" />
 
+        <!-- Activity that performs dashboard saving to the local storage -->
+        <activity
+            android:name=".activities.save.SaveDashboardActivity_"
+            android:configChanges="screenSize|orientation|locale"
+            android:label="@string/sr_ab_title"
+            android:windowSoftInputMode="stateHidden" />
+
         <activity
             android:name=".activities.file.FileViewerActivity_"/>
 
@@ -241,7 +248,7 @@
         </provider>
 
         <service
-        android:name=".activities.save.SaveReportService_"
+        android:name=".activities.save.SaveResourceService_"
         android:exported="false" />
 
         <service

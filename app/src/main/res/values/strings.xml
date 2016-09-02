@@ -281,7 +281,7 @@
     <string name="sdr_starting_downloading_msg">Starting downloading…</string>
     <string name="sdr_saving_msg" translatable="false">Downloading resource</string>
     <string name="sdr_saving_error_msg" translatable="false">Failed to save resource</string>
-    <string name="sdr_loading_msg">Report is still downloading…</string>
+    <string name="sdr_loading_msg" translatable="false">Resource is still downloading…</string>
 
     <!-- Context Menu -->
     <string name="action_mode_title">Selected item</string>

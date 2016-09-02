@@ -362,7 +362,6 @@
 
     <!-- Saved Files Activity -->
     <string name="sdr_starting_downloading_msg">Début du téléchargement...</string>
-    <string name="sdr_loading_msg">Le rapport est toujours en cours de téléchargement...</string>
 
     <string name="sdr_dfd_msg_multi">Souhaitez-vous vraiment retirer les éléments sélectionnés (%1$s éléments) ?</string>
 

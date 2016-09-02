@@ -361,7 +361,6 @@
 
     <!-- Saved Files Activity -->
     <string name="sdr_starting_downloading_msg">开始下载...</string>
-    <string name="sdr_loading_msg">报告仍在下载...</string>
 
     <string name="sdr_dfd_msg_multi">确定删除选定的项目（%1$s项）？</string>
 

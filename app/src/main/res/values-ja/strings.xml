@@ -362,7 +362,6 @@
 
     <!-- Saved Files Activity -->
     <string name="sdr_starting_downloading_msg">ダウンロードを開始しています...</string>
-    <string name="sdr_loading_msg">まだレポートをダウンロードしています...</string>
 
     <string name="sdr_dfd_msg_multi">本当に選択したアイテム(%1$s項目)を削除しますか？</string>
 

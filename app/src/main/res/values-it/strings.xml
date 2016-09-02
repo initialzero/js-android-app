@@ -362,7 +362,6 @@
 
     <!-- Saved Files Activity -->
     <string name="sdr_starting_downloading_msg">Inizio download in corso...</string>
-    <string name="sdr_loading_msg">Il rapporto è ancora in download...</string>
 
     <string name="sdr_dfd_msg_multi">Rimuovere gli elementi selezionati (%1$s elementi)?</string>
 

@@ -383,7 +383,6 @@
 
     <!-- Saved Files Activity -->
     <string name="sdr_starting_downloading_msg">Comenzando a descargar...</string>
-    <string name="sdr_loading_msg">El informe aún se está descargando...</string>
 
     <string name="sdr_dfd_msg_multi">¿Realmente desea quitar los elementos seleccionados (%1$s elementos)?</string>
 

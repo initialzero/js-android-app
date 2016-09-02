@@ -384,7 +384,6 @@
 
     <!-- Saved Files Activity -->
     <string name="sdr_starting_downloading_msg">Beginne Download ...</string>
-    <string name="sdr_loading_msg">Bericht lädt immer noch herunter ...</string>
 
     <string name="sdr_dfd_msg_multi">Wollen Sie die ausgewählte Elemente (%1s Elemente) wirklich entfernen?</string>
 

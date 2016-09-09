@@ -76,6 +76,7 @@ public class LoginCasesTest {
 
     @After
     public void tearDown() throws Exception {
+        loginPageObject.waitForToastDisappear();
         resetApp();
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 TIBCO Software, Inc. All rights reserved.
+ * Copyright ï¿½ 2015 TIBCO Software, Inc. All rights reserved.
  * http://community.jaspersoft.com/project/jaspermobile-android
  *
  * Unless you have purchased a commercial license agreement from TIBCO Jaspersoft,
@@ -83,11 +83,11 @@ public class DashboardPageObject extends PageObject {
     }
 
     public void awaitFullDashboard() {
-        awaitDashboard("//*[@id=\"container\"]/div/div/div/div[1]", "Big Promo");
-        awaitDashboard("//*[@id=\"container\"]/div/div/div/div[2]", "Store Cost");
-        awaitDashboard("//*[@id=\"container\"]/div/div/div/div[3]", "Dairy");
-        awaitDashboard("//*[@id=\"container\"]/div/div/div/div[4]", "Deluxe Supermarket");
-        awaitDashboard("//*[@id=\"container\"]/div/div/div/div[5]", "Guerrero");
+        awaitDashboard("//*[@data-componentid=\"13__Top_Fives_Report\"]", "Big Promo");
+        awaitDashboard("//*[@data-componentid=\"Sales_Trend\"]", "Store Cost");
+        awaitDashboard("//*[@data-componentid=\"Geo_Mix\"]", "Dairy");
+        awaitDashboard("//*[@data-componentid=\"Store_Type_Metrics\"]", "Deluxe Supermarket");
+        awaitDashboard("//*[@data-componentid=\"ASP_Performance\"]", "Food");
     }
 
     private void awaitDashboard(String xPath, String keyWord) {

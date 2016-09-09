@@ -5,7 +5,6 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 
 /**
@@ -67,9 +66,17 @@ final class AppProfileRegistry {
     }
 
     private boolean registerSystemAccount(Profile profile) {
-        Bundle profileData = profileMapper.toBundle(profile);
         Account account = profileMapper.toAccount(profile);
-        return accountManager.addAccountExplicitly(account, null, profileData);
+        boolean added = accountManager.addAccountExplicitly(account, null, null);
+        if (added) {
+            accountManager.setUserData(account, "ALIAS_KEY", profile.getAlias());
+            accountManager.setUserData(account, "SERVER_URL_KEY", profile.getUrl());
+            accountManager.setUserData(account, "ORGANIZATION_KEY", profile.getOrganization());
+            accountManager.setUserData(account, "USERNAME_KEY", profile.getUsername());
+            accountManager.setUserData(account, "EDITION_KEY", profile.getEdition());
+            accountManager.setUserData(account, "VERSION_NAME_KEY", profile.getVersion());
+        }
+        return added;
     }
 
     private void registerPassword(Profile profile) {

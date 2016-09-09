@@ -22,7 +22,7 @@ final class DefaultProfileProvider extends ProfileProvider {
                 .username("phoneuser")
                 .password("phoneuser")
                 .url("http://mobiledemo.jaspersoft.com/jasperserver-pro/")
-                .version("6.2")
+                .version("6.3")
                 .edition("PRO")
                 .build();
     }

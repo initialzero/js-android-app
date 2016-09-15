@@ -3,15 +3,13 @@ package com.jaspersoft.android.jaspermobile.ui.leftpanel;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.provider.Settings;
-import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.jaspersoft.android.jaspermobile.support.page.LeftPanelPageObject;
-import com.jaspersoft.android.jaspermobile.support.rule.AuthenticateProfileTestRule;
+import com.jaspersoft.android.jaspermobile.support.rule.IntentWithLoginRule;
 import com.jaspersoft.android.jaspermobile.ui.view.activity.NavigationActivity_;
 
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -32,10 +30,7 @@ public class LeftPanelSystemTest {
     private LeftPanelPageObject leftPanelPageObject = new LeftPanelPageObject();
 
     @Rule
-    public IntentsTestRule<NavigationActivity_> page = new IntentsTestRule<>(NavigationActivity_.class);
-
-    @ClassRule
-    public static TestRule authRule = AuthenticateProfileTestRule.create();
+    public TestRule page = new IntentWithLoginRule<>(NavigationActivity_.class);
 
     @Test
     public void manageAccount() {

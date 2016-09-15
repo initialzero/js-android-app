@@ -24,21 +24,21 @@
 
 package com.jaspersoft.android.jaspermobile.ui.reportview;
 
+import android.content.Intent;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
-import com.jaspersoft.android.jaspermobile.support.page.LibraryPageObject;
 import com.jaspersoft.android.jaspermobile.support.page.ReportPaginationPageObject;
 import com.jaspersoft.android.jaspermobile.support.page.ReportViewPageObject;
+import com.jaspersoft.android.jaspermobile.support.rule.ActivityWithLoginRule;
 import com.jaspersoft.android.jaspermobile.ui.view.activity.NavigationActivity_;
-import com.jaspersoft.android.jaspermobile.support.rule.AuthenticateProfileTestRule;
+import com.jaspersoft.android.jaspermobile.ui.view.activity.ReportVisualizeActivity_;
+import com.jaspersoft.android.sdk.client.oxm.resource.ResourceLookup;
 
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -53,27 +53,35 @@ import static org.hamcrest.Matchers.not;
 @LargeTest
 public class ReportPaginationTest {
 
-    private LibraryPageObject libraryPageObject;
     private ReportViewPageObject reportViewPageObject;
     private ReportPaginationPageObject reportPaginationPageObject;
 
     @Rule
-    public ActivityTestRule<NavigationActivity_> page = new ActivityTestRule<>(NavigationActivity_.class);
+    public ActivityTestRule<NavigationActivity_> init = new ActivityWithLoginRule<>(NavigationActivity_.class);
 
-    @ClassRule
-    public static TestRule authRule = AuthenticateProfileTestRule.create();
+    @Rule
+    public ActivityTestRule<ReportVisualizeActivity_> page = new ActivityTestRule<>(ReportVisualizeActivity_.class, false, false);
 
     @Before
     public void init() {
         reportViewPageObject = new ReportViewPageObject();
-        libraryPageObject = new LibraryPageObject();
         reportPaginationPageObject = new ReportPaginationPageObject();
 
-        libraryPageObject.awaitLibrary();
-        libraryPageObject.clickOnItem("05. Accounts Report");
+        Intent startIntent = new Intent();
+        startIntent.putExtra(ReportVisualizeActivity_.RESOURCE_EXTRA, createResourceLookup());
+        page.launchActivity(startIntent);
 
         reportViewPageObject.waitForReportWithKeyWord("");
         reportPaginationPageObject.totalMatches(isDisplayed());
+    }
+
+    private ResourceLookup createResourceLookup() {
+        ResourceLookup resourceLookup = new ResourceLookup();
+        resourceLookup.setLabel("01. Geographic Result by Segment Report");
+        resourceLookup.setDescription("Sample HTML5 multi-axis");
+        resourceLookup.setUri("/public/Samples/Reports/01._Geographic_Results_by_Segment_Report");
+        resourceLookup.setResourceType("reportUnit");
+        return resourceLookup;
     }
 
     @Test

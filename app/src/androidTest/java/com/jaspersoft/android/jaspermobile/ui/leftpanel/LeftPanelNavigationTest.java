@@ -24,17 +24,15 @@
 
 package com.jaspersoft.android.jaspermobile.ui.leftpanel;
 
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.jaspersoft.android.jaspermobile.support.page.LeftPanelPageObject;
 import com.jaspersoft.android.jaspermobile.support.page.LibraryPageObject;
-import com.jaspersoft.android.jaspermobile.support.rule.AuthenticateProfileTestRule;
+import com.jaspersoft.android.jaspermobile.support.rule.ActivityWithLoginRule;
 import com.jaspersoft.android.jaspermobile.ui.view.activity.NavigationActivity_;
 
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -57,14 +55,10 @@ public class LeftPanelNavigationTest {
     private LibraryPageObject libraryPageObject = new LibraryPageObject();
 
     @Rule
-    public ActivityTestRule<NavigationActivity_> page = new ActivityTestRule<>(NavigationActivity_.class);
-
-    @ClassRule
-    public static TestRule authRule = AuthenticateProfileTestRule.create();
+    public TestRule page = new ActivityWithLoginRule<>(NavigationActivity_.class);
 
     @Before
     public void init() {
-        libraryPageObject.awaitLibrary();
     }
 
     @Test
@@ -85,7 +79,7 @@ public class LeftPanelNavigationTest {
 
     @Test
     public void goToLibrary() {
-        leftPanelPageObject.goToLibrary();
+        libraryPageObject.awaitCategoryList();
         leftPanelPageObject.waitForLeftPanelMatches(not(isDisplayed()));
         leftPanelPageObject.swipeToOpenMenu();
         leftPanelPageObject.libraryMatches(isSelected());

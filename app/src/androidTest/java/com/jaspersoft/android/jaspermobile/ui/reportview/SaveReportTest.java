@@ -74,7 +74,7 @@ public class SaveReportTest {
         saveReportPageObject = new SaveReportPageObject();
         leftPanelPageObject = new LeftPanelPageObject();
 
-        libraryPageObject.awaitLibrary();
+        libraryPageObject.awaitCategoryList();
         libraryPageObject.clickOnItem("03. Store Segment");
         reportViewPageObject.awaitReport();
         saveReportPageObject.clickMenuItem(anyOf(withText("Save Report"), withId(R.id.saveReport)));

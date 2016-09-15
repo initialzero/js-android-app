@@ -25,17 +25,15 @@
 package com.jaspersoft.android.jaspermobile.performance;
 
 import android.support.test.filters.LargeTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.jaspersoft.android.jaspermobile.support.page.LibraryPageObject;
 import com.jaspersoft.android.jaspermobile.support.page.DashboardPageObject;
+import com.jaspersoft.android.jaspermobile.support.page.LibraryPageObject;
 import com.jaspersoft.android.jaspermobile.support.page.ReportViewPageObject;
+import com.jaspersoft.android.jaspermobile.support.rule.ActivityWithLoginRule;
 import com.jaspersoft.android.jaspermobile.ui.view.activity.NavigationActivity_;
-import com.jaspersoft.android.jaspermobile.support.rule.AuthenticateProfileTestRule;
 
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -50,10 +48,7 @@ import org.junit.runner.RunWith;
 public class PerformanceTest {
 
     @Rule
-    public ActivityTestRule<NavigationActivity_> page = new ActivityTestRule<>(NavigationActivity_.class);
-
-    @ClassRule
-    public static TestRule authRule = AuthenticateProfileTestRule.create();
+    public TestRule page = new ActivityWithLoginRule<>(NavigationActivity_.class);
 
     private ReportViewPageObject reportViewPageObject;
     private LibraryPageObject libraryPageObject;
@@ -68,11 +63,8 @@ public class PerformanceTest {
 
     @Test
     public void openDashboardTest() {
-        libraryPageObject.enforceFilter("All");
-        libraryPageObject.awaitLibrary();
-
         libraryPageObject.selectFilter("Dashboards");
-        libraryPageObject.awaitLibrary();
+        libraryPageObject.awaitCategoryList();
 
         libraryPageObject.clickOnItem("1. Supermart Dashboard");
 
@@ -81,8 +73,8 @@ public class PerformanceTest {
 
     @Test
     public void openReportTest() {
-        libraryPageObject.enforceFilter("All");
-        libraryPageObject.awaitLibrary();
+        libraryPageObject.selectFilter("Reports");
+        libraryPageObject.awaitCategoryList();
 
         libraryPageObject.clickOnItem("03. Store Segment");
 

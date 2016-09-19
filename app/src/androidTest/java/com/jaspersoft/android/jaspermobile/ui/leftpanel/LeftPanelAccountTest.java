@@ -1,5 +1,6 @@
 package com.jaspersoft.android.jaspermobile.ui.leftpanel;
 
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
@@ -14,7 +15,6 @@ import junit.framework.AssertionFailedError;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -31,7 +31,7 @@ public class LeftPanelAccountTest {
     private LoginPageObject loginPageObject = new LoginPageObject();
 
     @Rule
-    public TestRule page = new ActivityWithLoginRule<>(NavigationActivity_.class);
+    public ActivityTestRule page = new ActivityWithLoginRule<>(NavigationActivity_.class);
 
     @Before
     public void init() {

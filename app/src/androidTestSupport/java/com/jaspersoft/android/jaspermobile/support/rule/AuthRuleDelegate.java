@@ -63,8 +63,8 @@ public class AuthRuleDelegate {
 
     private void addAccount2() {
         loginPageObject.typeAlias("accountUnderTest");
-        loginPageObject.typeUserName("superuser");
-        loginPageObject.typePassword("superuser");
+        loginPageObject.typeUserName("joeuser");
+        loginPageObject.typePassword("joeuser");
         loginPageObject.typeUrl("http://192.168.88.55:8089/jasperserver-pro-621/");
         loginPageObject.clickLoginButton();
         loginPageObject.awaitForLoginDone();

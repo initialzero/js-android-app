@@ -77,9 +77,9 @@ public class ReportPaginationTest {
 
     private ResourceLookup createResourceLookup() {
         ResourceLookup resourceLookup = new ResourceLookup();
-        resourceLookup.setLabel("01. Geographic Result by Segment Report");
-        resourceLookup.setDescription("Sample HTML5 multi-axis");
-        resourceLookup.setUri("/public/Samples/Reports/01._Geographic_Results_by_Segment_Report");
+        resourceLookup.setLabel("05. Accounts Report");
+        resourceLookup.setDescription("Basic interactive Table Component report with Bookmarks Panel");
+        resourceLookup.setUri("/public/Samples/Reports/AllAccounts");
         resourceLookup.setResourceType("reportUnit");
         return resourceLookup;
     }

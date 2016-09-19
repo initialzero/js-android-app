@@ -97,6 +97,7 @@ public class DashboardTest {
 
     @Test
     public void dashboardTitle() {
+        dashboardPageObject.awaitDashboard();
         dashboardPageObject.titleMatches(startsWith("1. Supermart"));
     }
 

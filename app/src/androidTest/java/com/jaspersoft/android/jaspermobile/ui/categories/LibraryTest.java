@@ -185,7 +185,7 @@ public class LibraryTest {
     public void librarySort() {
         libraryPageObject.selectSort("Creation date");
         libraryPageObject.awaitCategoryList();
-        libraryPageObject.resourceMatches(hasText("Main report with drill"), 0);
+        libraryPageObject.resourceMatches(hasText("Dashboard with hyperlinks"), 0);
         libraryPageObject.selectSort("Label");
         libraryPageObject.awaitCategoryList();
         libraryPageObject.resourceMatches(hasText("01. Geographic Results"), 0);
@@ -195,7 +195,7 @@ public class LibraryTest {
     public void librarySortNotPersist() {
         libraryPageObject.selectSort("Creation date");
         libraryPageObject.awaitCategoryList();
-        libraryPageObject.resourceMatches(hasText("Main report with drill"), 0);
+        libraryPageObject.resourceMatches(hasText("Dashboard with hyperlinks"), 0);
 
         leftPanelPageObject.goToRepository();
         leftPanelPageObject.goToLibrary();

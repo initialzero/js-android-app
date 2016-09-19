@@ -183,9 +183,9 @@ public class RepositoryTest {
     public void emptyFolder() {
         repositoryPageObject.awaitCategoryList();
 
-        repositoryPageObject.clickOnItem("Organization");
+        repositoryPageObject.clickOnItem("Public");
         repositoryPageObject.awaitCategoryList();
-        repositoryPageObject.clickOnItem("Organizations");
+        repositoryPageObject.clickOnItem("timehatmap");
         repositoryPageObject.awaitCategoryList();
         repositoryPageObject.messageMatches(withText("No resources found"));
     }
